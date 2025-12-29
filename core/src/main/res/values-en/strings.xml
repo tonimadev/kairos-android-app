@@ -69,4 +69,7 @@
     <string name="rate_app_message">If you\'re enjoying Kairos, please rate us on the Play Store. Your feedback helps us a lot!</string>
     <string name="rate_now">Rate Now</string>
     <string name="rate_later">Later</string>
+    <string name="all_day_alarms">Alarms for all-day events</string>
+    <string name="all_day_alarms_time">All-day alarm time</string>
+    <string name="all_day_alarm_time_format">%02d:00</string>
 </resources>

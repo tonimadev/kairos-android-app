@@ -39,7 +39,9 @@ data class EventScreenUiState(
     val hasFullScreenIntentPermission: Boolean = false,
     val audioWarning: AudioWarningState = AudioWarningState.NORMAL,
     val vibrateOnly: Boolean = false,
-    val showRatingDialog: Boolean = false
+    val showRatingDialog: Boolean = false,
+    val allDayAlarmsEnabled: Boolean = false,
+    val allDayAlarmHour: Int = 9
 )
 
 @HiltViewModel
@@ -79,6 +81,14 @@ constructor(
 
         appPreferencesRepository.getVibrateOnly()
             .onEach { vibrate -> _uiState.update { it.copy(vibrateOnly = vibrate) } }
+            .launchIn(viewModelScope)
+
+        appPreferencesRepository.isAllDayAlarmsEnabled()
+            .onEach { enabled -> _uiState.update { it.copy(allDayAlarmsEnabled = enabled) } }
+            .launchIn(viewModelScope)
+
+        appPreferencesRepository.getAllDayAlarmHour()
+            .onEach { hour -> _uiState.update { it.copy(allDayAlarmHour = hour) } }
             .launchIn(viewModelScope)
 
         checkAllPermissions()
@@ -308,5 +318,17 @@ constructor(
 
     fun onRateLater() {
         _uiState.update { it.copy(showRatingDialog = false) }
+    }
+
+    fun onAllDayAlarmsToggle(enabled: Boolean) {
+        viewModelScope.launch {
+            appPreferencesRepository.setAllDayAlarmsEnabled(enabled)
+        }
+    }
+
+    fun onAllDayAlarmHourChanged(hour: Int) {
+        viewModelScope.launch {
+            appPreferencesRepository.setAllDayAlarmHour(hour)
+        }
     }
 }

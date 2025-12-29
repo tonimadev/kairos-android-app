@@ -3,6 +3,7 @@ package digital.tonima.core.repository
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.paulrybitskyi.hiltbinder.BindType
@@ -28,6 +29,8 @@ class AppPreferencesRepositoryImpl @Inject constructor(
         val INSTALLATION_DATE = longPreferencesKey("installation_date")
         val RATING_PROMPTED = booleanPreferencesKey("rating_prompted")
         val RATING_COMPLETED = booleanPreferencesKey("rating_completed")
+        val ALL_DAY_ALARMS_ENABLED = booleanPreferencesKey("all_day_alarms_enabled")
+        val ALL_DAY_ALARM_HOUR = intPreferencesKey("all_day_alarm_hour")
     }
 
     override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -143,6 +146,32 @@ class AppPreferencesRepositoryImpl @Inject constructor(
     override suspend fun setRatingCompleted(completed: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.RATING_COMPLETED] = completed
+        }
+    }
+
+    override fun isAllDayAlarmsEnabled(): Flow<Boolean> {
+        return context.dataStore.data
+            .map { preferences ->
+                preferences[PreferencesKeys.ALL_DAY_ALARMS_ENABLED] ?: false
+            }
+    }
+
+    override suspend fun setAllDayAlarmsEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.ALL_DAY_ALARMS_ENABLED] = enabled
+        }
+    }
+
+    override fun getAllDayAlarmHour(): Flow<Int> {
+        return context.dataStore.data
+            .map { preferences ->
+                preferences[PreferencesKeys.ALL_DAY_ALARM_HOUR] ?: 9
+            }
+    }
+
+    override suspend fun setAllDayAlarmHour(hour: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.ALL_DAY_ALARM_HOUR] = hour
         }
     }
 }

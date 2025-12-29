@@ -251,6 +251,8 @@ fun EventScreen(
                             onDismissAutostart = viewModel::dismissAutostartSuggestion,
                             onReturnToToday = viewModel::returnToToday,
                             onVibrateToggle = viewModel::onVibrateOnlyChanged,
+                            onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
+                            onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
                         )
                     }
                 }

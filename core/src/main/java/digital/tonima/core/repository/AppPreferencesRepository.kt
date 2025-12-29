@@ -35,4 +35,10 @@ interface AppPreferencesRepository {
 
     fun isRatingCompleted(): Flow<Boolean>
     suspend fun setRatingCompleted(completed: Boolean)
+
+    fun isAllDayAlarmsEnabled(): Flow<Boolean>
+    suspend fun setAllDayAlarmsEnabled(enabled: Boolean)
+
+    fun getAllDayAlarmHour(): Flow<Int>
+    suspend fun setAllDayAlarmHour(hour: Int)
 }

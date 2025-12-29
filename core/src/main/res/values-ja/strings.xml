@@ -62,7 +62,10 @@
     <string name="allow_fullscreen_intents">アラームの全画面表示を許可</string>
     <string name="open_on_phone">スマートフォンで開く</string>
     <string name="rate_app_title">アプリを評価</string>
-    <string name="rate_app_message">Kairos を気に入っていただけたら、Play ストアで評価をお願いします。あなたのフィードバックが私たちを助けます！</string>
+    <string name="rate_app_message">Kairosを気に入っていただけたら、Play Storeで評価してください。あなたのフィードバックは私たちにとって非常に役立ちます！</string>
     <string name="rate_now">今すぐ評価</string>
     <string name="rate_later">後で</string>
+    <string name="all_day_alarms">終日イベントのアラーム</string>
+    <string name="all_day_alarms_time">終日アラームの時刻</string>
+    <string name="all_day_alarm_time_format">%02d:00</string>
 </resources>

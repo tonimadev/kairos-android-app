@@ -23,6 +23,8 @@ fun ControlPanel(
     onToggle: (Boolean) -> Unit,
     onDismissAutostart: () -> Unit,
     onVibrateToggle: (Boolean) -> Unit,
+    onAllDayAlarmsToggle: (Boolean) -> Unit,
+    onAllDayAlarmHourChanged: (Int) -> Unit,
 ) {
     val context = LocalContext.current
     Column {
@@ -42,6 +44,14 @@ fun ControlPanel(
             Text(stringResource(R.string.vibrate_only))
             Switch(checked = uiState.vibrateOnly, onCheckedChange = onVibrateToggle)
         }
+
+        AllDayAlarmsSettings(
+            modifier = Modifier.padding(vertical = 8.dp),
+            allDayAlarmsEnabled = uiState.allDayAlarmsEnabled,
+            allDayAlarmHour = uiState.allDayAlarmHour,
+            onAllDayAlarmsToggle = onAllDayAlarmsToggle,
+            onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
+        )
 
         if (uiState.audioWarning != AudioWarningState.NORMAL) {
             RingerModeWarningCard(ringerMode = uiState.audioWarning)

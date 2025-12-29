@@ -68,7 +68,10 @@
     <string name="allow_fullscreen_intents">Autoriser les alertes en plein écran</string>
     <string name="open_on_phone">Ouvrir sur le téléphone</string>
     <string name="rate_app_title">Évaluez l\'App</string>
-    <string name="rate_app_message">Si vous aimez Kairos, veuillez nous évaluer sur le Play Store. Votre avis nous aide beaucoup !</string>
+    <string name="rate_app_message">Si vous aimez Kairos, veuillez nous évaluer sur le Play Store. Votre avis nous aide beaucoup!</string>
     <string name="rate_now">Évaluer Maintenant</string>
     <string name="rate_later">Plus Tard</string>
+    <string name="all_day_alarms">Alarmes pour événements d\'une journée</string>
+    <string name="all_day_alarms_time">Heure des alarmes d\'une journée</string>
+    <string name="all_day_alarm_time_format">%02d:00</string>
 </resources>

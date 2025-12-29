@@ -68,6 +68,9 @@
     <string name="open_on_phone">Auf dem Telefon öffnen</string>
     <string name="rate_app_title">Bewerten Sie die App</string>
     <string name="rate_app_message">Wenn Ihnen Kairos gefällt, bewerten Sie uns bitte im Play Store. Ihr Feedback hilft uns sehr!</string>
-    <string name="rate_now">Jetzt bewerten</string>
+    <string name="rate_now">Jetzt Bewerten</string>
     <string name="rate_later">Später</string>
+    <string name="all_day_alarms">Alarme für ganztägige Ereignisse</string>
+    <string name="all_day_alarms_time">Uhrzeit für ganztägige Alarme</string>
+    <string name="all_day_alarm_time_format">%02d:00</string>
 </resources>

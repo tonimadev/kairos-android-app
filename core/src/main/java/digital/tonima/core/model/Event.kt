@@ -7,6 +7,7 @@ data class Event(
     var isAlarmEnabled: Boolean = false,
     val isRecurring: Boolean = false,
     var vibrateOnly: Boolean = false,
+    val isAllDay: Boolean = false,
 ) {
     val uniqueIntentId: Int
         get() = (id.toString() + startTime.toString()).hashCode()

@@ -387,4 +387,153 @@ class EventViewModelTest {
         verify { mockScheduler.cancel(match { it.id == 301L }) }
         verify { mockScheduler.cancel(match { it.id == 302L }) }
     }
+
+    @Test
+    fun `rating dialog shows after 2 days and not prompted before`() = runTest {
+        val twoDaysAgo = System.currentTimeMillis() - java.util.concurrent.TimeUnit.DAYS.toMillis(2) - 1000L
+        installationDateFlow.value = twoDaysAgo
+        ratingPromptedFlow.value = false
+        ratingCompletedFlow.value = false
+
+        coEvery { mockAppPreferencesRepository.setRatingPrompted(true) } just Runs
+
+        // Create new ViewModel to trigger init block
+        val vm = EventViewModel(
+            mockProUserProvider,
+            getEventsForMonthUseCase,
+            mockAppPreferencesRepository,
+            mockRingerModeRepository,
+            mockScheduler,
+            mockPermissionManager,
+        )
+        advanceUntilIdle()
+
+        vm.uiState.test {
+            val state = awaitItem()
+            assertTrue(state.showRatingDialog)
+            coVerify(exactly = 1) { mockAppPreferencesRepository.setRatingPrompted(true) }
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `rating dialog does not show if already prompted`() = runTest {
+        val twoDaysAgo = System.currentTimeMillis() - java.util.concurrent.TimeUnit.DAYS.toMillis(2) - 1000L
+        installationDateFlow.value = twoDaysAgo
+        ratingPromptedFlow.value = true
+        ratingCompletedFlow.value = false
+
+        // Create new ViewModel to trigger init block
+        val vm = EventViewModel(
+            mockProUserProvider,
+            getEventsForMonthUseCase,
+            mockAppPreferencesRepository,
+            mockRingerModeRepository,
+            mockScheduler,
+            mockPermissionManager,
+        )
+        advanceUntilIdle()
+
+        vm.uiState.test {
+            val state = awaitItem()
+            assertFalse(state.showRatingDialog)
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `rating dialog does not show if already completed`() = runTest {
+        val twoDaysAgo = System.currentTimeMillis() - java.util.concurrent.TimeUnit.DAYS.toMillis(2) - 1000L
+        installationDateFlow.value = twoDaysAgo
+        ratingPromptedFlow.value = false
+        ratingCompletedFlow.value = true
+
+        // Create new ViewModel to trigger init block
+        val vm = EventViewModel(
+            mockProUserProvider,
+            getEventsForMonthUseCase,
+            mockAppPreferencesRepository,
+            mockRingerModeRepository,
+            mockScheduler,
+            mockPermissionManager,
+        )
+        advanceUntilIdle()
+
+        vm.uiState.test {
+            val state = awaitItem()
+            assertFalse(state.showRatingDialog)
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `rating dialog does not show before 2 days`() = runTest {
+        val oneDayAgo = System.currentTimeMillis() - java.util.concurrent.TimeUnit.DAYS.toMillis(1)
+        installationDateFlow.value = oneDayAgo
+        ratingPromptedFlow.value = false
+        ratingCompletedFlow.value = false
+
+        // Create new ViewModel to trigger init block
+        val vm = EventViewModel(
+            mockProUserProvider,
+            getEventsForMonthUseCase,
+            mockAppPreferencesRepository,
+            mockRingerModeRepository,
+            mockScheduler,
+            mockPermissionManager,
+        )
+        advanceUntilIdle()
+
+        vm.uiState.test {
+            val state = awaitItem()
+            assertFalse(state.showRatingDialog)
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `onRateNow marks rating as completed and hides dialog`() = runTest {
+        coEvery { mockAppPreferencesRepository.setRatingCompleted(true) } just Runs
+
+        viewModel.uiState.test {
+            skipItems(1)
+
+            viewModel.onRateNow()
+            advanceUntilIdle()
+
+            val state = awaitItem()
+            assertFalse(state.showRatingDialog)
+            coVerify(exactly = 1) { mockAppPreferencesRepository.setRatingCompleted(true) }
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `onRateLater hides dialog without marking as completed`() = runTest {
+        viewModel.uiState.test {
+            skipItems(1)
+
+            viewModel.onRateLater()
+            advanceUntilIdle()
+
+            val state = awaitItem()
+            assertFalse(state.showRatingDialog)
+            coVerify(exactly = 0) { mockAppPreferencesRepository.setRatingCompleted(true) }
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `onRatingDialogDismiss hides dialog`() = runTest {
+        viewModel.uiState.test {
+            skipItems(1)
+
+            viewModel.onRatingDialogDismiss()
+            advanceUntilIdle()
+
+            val state = awaitItem()
+            assertFalse(state.showRatingDialog)
+            cancelAndConsumeRemainingEvents()
+        }
+    }
 }

@@ -29,12 +29,14 @@ class CalendarRepositoryImpl
         private val eventProjection: Array<String> = arrayOf(
             CalendarContract.Instances.EVENT_ID,
             CalendarContract.Instances.TITLE,
-            CalendarContract.Instances.BEGIN
+            CalendarContract.Instances.BEGIN,
+            CalendarContract.Instances.ALL_DAY
         )
 
         private val PROJECTION_ID_INDEX = 0
         private val PROJECTION_TITLE_INDEX = 1
         private val PROJECTION_BEGIN_INDEX = 2
+        private val PROJECTION_ALL_DAY_INDEX = 3
 
         override suspend fun getEventsForMonth(yearMonth: YearMonth): List<Event> = withContext(Dispatchers.IO) {
             if (ContextCompat.checkSelfPermission(
@@ -71,8 +73,9 @@ class CalendarRepositoryImpl
                     val eventId = it.getLong(PROJECTION_ID_INDEX)
                     val title = it.getString(PROJECTION_TITLE_INDEX)
                     val begin = it.getLong(PROJECTION_BEGIN_INDEX)
+                    val isAllDay = it.getInt(PROJECTION_ALL_DAY_INDEX) == 1
 
-                    events.add(Event(id = eventId, title = title, startTime = begin))
+                    events.add(Event(id = eventId, title = title, startTime = begin, isAllDay = isAllDay))
                 }
             }
 
@@ -124,7 +127,8 @@ class CalendarRepositoryImpl
                 val eventId = it.getLong(PROJECTION_ID_INDEX)
                 val title = it.getString(PROJECTION_TITLE_INDEX)
                 val begin = it.getLong(PROJECTION_BEGIN_INDEX)
-                nextEvent = Event(id = eventId, title = title, startTime = begin)
+                val isAllDay = it.getInt(PROJECTION_ALL_DAY_INDEX) == 1
+                nextEvent = Event(id = eventId, title = title, startTime = begin, isAllDay = isAllDay)
             }
         }
         return@withContext nextEvent

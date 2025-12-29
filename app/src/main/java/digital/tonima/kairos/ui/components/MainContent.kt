@@ -34,6 +34,8 @@ fun MainContent(
     onDismissAutostart: () -> Unit,
     onReturnToToday: () -> Unit,
     onVibrateToggle: (Boolean) -> Unit,
+    onAllDayAlarmsToggle: (Boolean) -> Unit,
+    onAllDayAlarmHourChanged: (Int) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -60,6 +62,8 @@ fun MainContent(
                     onToggle = onToggle,
                     onDismissAutostart = onDismissAutostart,
                     onVibrateToggle = onVibrateToggle,
+                    onAllDayAlarmsToggle = onAllDayAlarmsToggle,
+                    onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
                 )
                 CalendarView(
                     modifier = Modifier.padding(top = 8.dp),
@@ -94,6 +98,8 @@ fun MainContent(
                 onToggle = onToggle,
                 onDismissAutostart = onDismissAutostart,
                 onVibrateToggle = onVibrateToggle,
+                onAllDayAlarmsToggle = onAllDayAlarmsToggle,
+                onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
             )
             CalendarView(
                 modifier = Modifier.padding(top = 8.dp),
