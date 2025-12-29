@@ -65,10 +65,10 @@
     <string name="allow_fullscreen_intents">अलार्म के लिए फुल‑स्क्रीन की अनुमति दें</string>
     <string name="open_on_phone">फ़ोन पर खोलें</string>
     <string name="rate_app_title">ऐप को रेट करें</string>
-    <string name="rate_app_message">यदि आपको Kairos पसंद है, तो कृपया Play Store पर हमें रेट करें। आपकी प्रतिक्रिया हमारी बहुत मदद करती है!</string>
+    <string name="rate_app_message">यदि आपको Kairos पसंद है, तो कृपया हमें Play Store पर रेट करें। आपका फीडबैक हमें बहुत मदद करता है!</string>
     <string name="rate_now">अभी रेट करें</string>
     <string name="rate_later">बाद में</string>
+    <string name="all_day_event">पूरा दिन</string>
     <string name="all_day_alarms">पूरे दिन की घटनाओं के लिए अलार्म</string>
-    <string name="all_day_alarms_time">पूरे दिन के अलार्म का समय</string>
-    <string name="all_day_alarm_time_format">%02d:00</string>
+    <string name="all_day_alarm_time">अलार्म समय (पूरे दिन की घटनाएं)</string>
 </resources>

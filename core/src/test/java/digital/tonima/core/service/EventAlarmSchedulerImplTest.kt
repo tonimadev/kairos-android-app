@@ -15,6 +15,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.R])
@@ -30,8 +33,7 @@ class EventAlarmSchedulerImplTest {
         alarmManager = context.getSystemService(AlarmManager::class.java)
         mockPrefsRepo = mockk<AppPreferencesRepository>()
 
-        // Default: all-day alarms disabled
-        coEvery { mockPrefsRepo.isAllDayAlarmsEnabled() } returns flowOf(false)
+        coEvery { mockPrefsRepo.isAllDayAlarmsEnabled() } returns flowOf(true)
         coEvery { mockPrefsRepo.getAllDayAlarmHour() } returns flowOf(9)
     }
 
@@ -64,31 +66,45 @@ class EventAlarmSchedulerImplTest {
 
     @Test
     fun `schedule should not set alarm for all-day events when disabled`() {
-        val allDayEvent = Event(id = 10L, title = "All Day Event", startTime = 123456789L, isAllDay = true)
+        coEvery { mockPrefsRepo.isAllDayAlarmsEnabled() } returns flowOf(false)
+
+        val utcMidnight = Instant.parse("2024-01-15T00:00:00Z").toEpochMilli()
+        val allDayEvent = Event(id = 10L, title = "All Day Event", startTime = utcMidnight, isAllDay = true)
 
         val scheduler = EventAlarmSchedulerImpl(context, mockPrefsRepo)
         scheduler.schedule(allDayEvent)
 
         val shadowAlarmManager = Shadows.shadowOf(alarmManager)
-        assert(shadowAlarmManager.scheduledAlarms.isEmpty())
+        assert(shadowAlarmManager.scheduledAlarms.isEmpty()) { "No alarm should be scheduled when all-day alarms are disabled" }
     }
 
     @Test
-    fun `schedule should set alarm for all-day events when enabled`() {
-        // Enable all-day alarms
+    fun `schedule should set alarm for all-day events at configured hour when enabled`() {
         coEvery { mockPrefsRepo.isAllDayAlarmsEnabled() } returns flowOf(true)
         coEvery { mockPrefsRepo.getAllDayAlarmHour() } returns flowOf(9)
 
-        val allDayEvent = Event(id = 10L, title = "All Day Event", startTime = 123456789L, isAllDay = true)
+        val utcMidnight = Instant.parse("2024-01-15T00:00:00Z").toEpochMilli()
+        val allDayEvent = Event(id = 10L, title = "All Day Event", startTime = utcMidnight, isAllDay = true)
 
         val scheduler = EventAlarmSchedulerImpl(context, mockPrefsRepo)
         scheduler.schedule(allDayEvent)
 
         val shadowAlarmManager = Shadows.shadowOf(alarmManager)
         val next = shadowAlarmManager.nextScheduledAlarm
-        assert(next != null)
+
+        assert(next != null) { "Alarm should be scheduled for all-day events when enabled" }
         assert(next!!.type == AlarmManager.RTC_WAKEUP)
-        // O alarme deve ser agendado, mas não no timestamp original (que é UTC)
-        assert(next.triggerAtTime != allDayEvent.startTime)
+
+        val expectedAlarmTime = Instant.parse("2024-01-15T00:00:00Z")
+            .atZone(ZoneId.of("UTC"))
+            .toLocalDate()
+            .atTime(LocalTime.of(9, 0))
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+
+        assert(next.triggerAtTime == expectedAlarmTime) {
+            "Expected alarm at $expectedAlarmTime but got ${next.triggerAtTime}"
+        }
     }
 }

@@ -33,8 +33,6 @@ class WearCalendarViewModelTest {
         private val installationDate = MutableStateFlow(0L)
         private val ratingPrompted = MutableStateFlow(false)
         private val ratingCompleted = MutableStateFlow(false)
-        private val allDayAlarmsEnabled = MutableStateFlow(false)
-        private val allDayAlarmHour = MutableStateFlow(9)
         override fun isGlobalAlarmEnabled() = global as Flow<Boolean>
         override suspend fun setGlobalAlarmEnabled(enabled: Boolean) { global.value = enabled }
         override fun getDisabledEventIds() = disabledInstances as Flow<Set<String>>
@@ -53,10 +51,6 @@ class WearCalendarViewModelTest {
         override suspend fun setRatingPrompted(prompted: Boolean) { ratingPrompted.value = prompted }
         override fun isRatingCompleted() = ratingCompleted as Flow<Boolean>
         override suspend fun setRatingCompleted(completed: Boolean) { ratingCompleted.value = completed }
-        override fun isAllDayAlarmsEnabled() = allDayAlarmsEnabled as Flow<Boolean>
-        override suspend fun setAllDayAlarmsEnabled(enabled: Boolean) { allDayAlarmsEnabled.value = enabled }
-        override fun getAllDayAlarmHour() = allDayAlarmHour as Flow<Int>
-        override suspend fun setAllDayAlarmHour(hour: Int) { allDayAlarmHour.value = hour }
     }
 
     @Test

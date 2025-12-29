@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Switch
@@ -32,12 +31,17 @@ fun EventCard(
     onToggle: (Boolean) -> Unit,
 ) {
     val formatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT) }
+    val allDayText = stringResource(R.string.all_day_event)
     val localTime = Instant.ofEpochMilli(event.startTime)
         .atZone(ZoneId.systemDefault())
         .toLocalTime()
-    val formattedTime = remember(localTime) { formatter.format(localTime) }
-
-    val context = LocalContext.current
+    val formattedTime = remember(localTime, event.isAllDay, allDayText) {
+        if (event.isAllDay) {
+            allDayText
+        } else {
+            formatter.format(localTime)
+        }
+    }
 
     Card(
         onClick = {},

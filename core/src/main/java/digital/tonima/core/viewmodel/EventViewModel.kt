@@ -40,7 +40,7 @@ data class EventScreenUiState(
     val audioWarning: AudioWarningState = AudioWarningState.NORMAL,
     val vibrateOnly: Boolean = false,
     val showRatingDialog: Boolean = false,
-    val allDayAlarmsEnabled: Boolean = false,
+    val allDayAlarmsEnabled: Boolean = true,
     val allDayAlarmHour: Int = 9
 )
 
@@ -84,11 +84,21 @@ constructor(
             .launchIn(viewModelScope)
 
         appPreferencesRepository.isAllDayAlarmsEnabled()
-            .onEach { enabled -> _uiState.update { it.copy(allDayAlarmsEnabled = enabled) } }
+            .onEach { enabled ->
+                _uiState.update { it.copy(allDayAlarmsEnabled = enabled) }
+                if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled) {
+                    onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                }
+            }
             .launchIn(viewModelScope)
 
         appPreferencesRepository.getAllDayAlarmHour()
-            .onEach { hour -> _uiState.update { it.copy(allDayAlarmHour = hour) } }
+            .onEach { hour ->
+                _uiState.update { it.copy(allDayAlarmHour = hour) }
+                if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled && _uiState.value.allDayAlarmsEnabled) {
+                    onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                }
+            }
             .launchIn(viewModelScope)
 
         checkAllPermissions()

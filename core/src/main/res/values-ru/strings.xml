@@ -66,10 +66,10 @@
     <string name="allow_fullscreen_intents">Разрешить полноэкранные уведомления для будильников</string>
     <string name="open_on_phone">Открыть на телефоне</string>
     <string name="rate_app_title">Оцените приложение</string>
-    <string name="rate_app_message">Если вам нравится Kairos, пожалуйста, оцените нас в Play Store. Ваше мнение очень нам помогает!</string>
-    <string name="rate_now">Оценить Сейчас</string>
+    <string name="rate_app_message">Если вам нравится Kairos, пожалуйста, оцените нас в Play Store. Ваш отзыв очень помогает нам!</string>
+    <string name="rate_now">Оценить сейчас</string>
     <string name="rate_later">Позже</string>
+    <string name="all_day_event">Весь день</string>
     <string name="all_day_alarms">Будильники для событий на весь день</string>
-    <string name="all_day_alarms_time">Время будильника на весь день</string>
-    <string name="all_day_alarm_time_format">%02d:00</string>
+    <string name="all_day_alarm_time">Время будильника (события на весь день)</string>
 </resources>

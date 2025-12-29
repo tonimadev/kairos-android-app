@@ -152,7 +152,7 @@ class AppPreferencesRepositoryImpl @Inject constructor(
     override fun isAllDayAlarmsEnabled(): Flow<Boolean> {
         return context.dataStore.data
             .map { preferences ->
-                preferences[PreferencesKeys.ALL_DAY_ALARMS_ENABLED] ?: false
+                preferences[PreferencesKeys.ALL_DAY_ALARMS_ENABLED] ?: true
             }
     }
 

@@ -65,10 +65,10 @@
     <string name="allow_fullscreen_intents">السماح بملء الشاشة للتنبيهات</string>
     <string name="open_on_phone">فتح على الهاتف</string>
     <string name="rate_app_title">قيم التطبيق</string>
-    <string name="rate_app_message">إذا كنت تستمتع بـ Kairos، يرجى تقييمنا على Play Store. رأيك يساعدنا كثيرًا!</string>
+    <string name="rate_app_message">إذا كنت تستمتع بـ Kairos، يرجى تقييمنا على متجر Play. رأيك يساعدنا كثيرًا!</string>
     <string name="rate_now">قيم الآن</string>
     <string name="rate_later">لاحقًا</string>
-    <string name="all_day_alarms">المنبهات لأحداث اليوم الكامل</string>
-    <string name="all_day_alarms_time">وقت منبه اليوم الكامل</string>
-    <string name="all_day_alarm_time_format">%02d:00</string>
+    <string name="all_day_event">طوال اليوم</string>
+    <string name="all_day_alarms">تنبيهات لأحداث طوال اليوم</string>
+    <string name="all_day_alarm_time">وقت التنبيه (أحداث طوال اليوم)</string>
 </resources>

@@ -62,10 +62,10 @@
     <string name="allow_fullscreen_intents">允许闹钟使用全屏</string>
     <string name="open_on_phone">在手机上打开</string>
     <string name="rate_app_title">评价应用</string>
-    <string name="rate_app_message">如果您喜欢 Kairos，请在 Play Store 上为我们评分。您的反馈对我们帮助很大！</string>
-    <string name="rate_now">现在评价</string>
+    <string name="rate_app_message">如果您喜欢 Kairos，请在 Play Store 上给我们评分。您的反馈对我们帮助很大！</string>
+    <string name="rate_now">立即评价</string>
     <string name="rate_later">稍后</string>
+    <string name="all_day_event">全天</string>
     <string name="all_day_alarms">全天事件闹钟</string>
-    <string name="all_day_alarms_time">全天闹钟时间</string>
-    <string name="all_day_alarm_time_format">%02d:00</string>
+    <string name="all_day_alarm_time">闹钟时间（全天事件）</string>
 </resources>
