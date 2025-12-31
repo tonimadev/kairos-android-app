@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.MaterialTheme
-import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE
 import digital.tonima.core.service.AlarmSoundAndVibrateService
@@ -27,12 +26,8 @@ import digital.tonima.kairos.wear.ui.theme.KairosTheme
 @AndroidEntryPoint
 class WearAlarmActivity : ComponentActivity() {
 
-    private lateinit var firebaseAnalytics: FirebaseAnalytics
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         setShowWhenLocked(true)
         setTurnScreenOn(true)
@@ -45,8 +40,6 @@ class WearAlarmActivity : ComponentActivity() {
                 WearAlarmScreen(
                     title = title,
                     onStop = {
-                        firebaseAnalytics.logEvent("alarm_dismissed_from_button", null)
-
                         AlarmSoundAndVibrateService.stopAlarm(this)
                         finish()
                     },
