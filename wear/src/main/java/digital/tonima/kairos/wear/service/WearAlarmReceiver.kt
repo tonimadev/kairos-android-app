@@ -6,7 +6,10 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import androidx.core.app.NotificationCompat
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import digital.tonima.core.receiver.AlarmReceiver.Companion.ACTION_ALARM_TRIGGERED
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_ID
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_START_TIME
@@ -26,10 +29,10 @@ class WearAlarmReceiver : BroadcastReceiver() {
         val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
         val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
 
-        // Always start the alarm sound/vibration first
+        logAlarmTriggeredEvent(context, eventTitle)
+
         AlarmSoundAndVibrateService.startAlarm(context, eventTitle)
 
-        // Try launching full-screen activity on the watch
         try {
             val fsIntent = Intent(context, WearAlarmActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -39,7 +42,6 @@ class WearAlarmReceiver : BroadcastReceiver() {
             }
             context.startActivity(fsIntent)
         } catch (t: Throwable) {
-            // If full-screen launch fails for any reason, fall back to notification
             showFallbackNotification(context, eventTitle, uniqueId, eventId, startTime)
         }
     }
@@ -97,5 +99,12 @@ class WearAlarmReceiver : BroadcastReceiver() {
             .build()
 
         notificationManager.notify(uniqueId, notification)
+    }
+
+    private fun logAlarmTriggeredEvent(context: Context, eventTitle: String) {
+        val bundle = Bundle().apply {
+            putString("event_title", eventTitle)
+        }
+        Firebase.analytics.logEvent("alarm_triggered", bundle)
     }
 }

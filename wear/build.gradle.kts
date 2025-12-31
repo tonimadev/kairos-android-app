@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.crashlytics)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.jacoco.convention)
@@ -80,6 +82,11 @@ dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.play.services.wearable)
     implementation(libs.androidx.wear.remote.interactions)
+
+    // Firebase
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.google.firebase.analytics.ktx)
+    implementation(libs.google.firebase.crashlytics)
 
     // watchface
     implementation(libs.androidx.watchface)

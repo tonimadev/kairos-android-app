@@ -43,8 +43,8 @@ horologist = "0.7.15"
 protolayout = "1.3.0"
 robolectric = "4.16"
 playServicesWearable = "19.0.0"
-wearRemoteInteractions = "1.0.0"
-swipeRefreshLayout = "1.2.0-alpha01"
+wearRemoteInteractions = "1.1.0"
+swipeRefreshLayout = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -73,6 +73,7 @@ play-services-ads-api = { group = "com.google.android.gms", name = "play-service
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+google-firebase-analytics-ktx = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
 google-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
