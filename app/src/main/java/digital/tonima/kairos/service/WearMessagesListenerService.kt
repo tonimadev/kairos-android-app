@@ -2,6 +2,7 @@ package digital.tonima.kairos.service
 
 import android.content.Context
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
@@ -25,7 +26,10 @@ class WearMessagesListenerService : WearableListenerService() {
 
     private fun enqueuePhoneSync(context: Context) {
         try {
-            val request = OneTimeWorkRequestBuilder<PhoneEventSyncWorker>().build()
+            // Use expedited work to bypass work profile throttling for wear requests
+            val request = OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
             WorkManager.getInstance(context).enqueue(request)
         } catch (t: Throwable) {
             logcat(

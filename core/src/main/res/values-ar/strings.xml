@@ -68,6 +68,7 @@
     <string name="rate_app_message">إذا كنت تستمتع بـ Kairos، يرجى تقييمنا على متجر Play. رأيك يساعدنا كثيرًا!</string>
     <string name="rate_now">قيم الآن</string>
     <string name="rate_later">لاحقًا</string>
+    <string name="rate_never">عدم العرض مرة أخرى</string>
     <string name="all_day_event">طوال اليوم</string>
     <string name="all_day_alarms">تنبيهات لأحداث طوال اليوم</string>
     <string name="all_day_alarm_time">وقت التنبيه (أحداث طوال اليوم)</string>

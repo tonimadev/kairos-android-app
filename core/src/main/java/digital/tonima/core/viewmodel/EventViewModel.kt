@@ -329,7 +329,12 @@ constructor(
     fun onRateLater() {
         _uiState.update { it.copy(showRatingDialog = false) }
     }
-
+    fun onRateNeverShow() {
+        viewModelScope.launch {
+            appPreferencesRepository.setRatingCompleted(true)
+            _uiState.update { it.copy(showRatingDialog = false) }
+        }
+    }
     fun onAllDayAlarmsToggle(enabled: Boolean) {
         viewModelScope.launch {
             appPreferencesRepository.setAllDayAlarmsEnabled(enabled)

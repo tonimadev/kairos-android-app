@@ -59,6 +59,15 @@
 
         <receiver android:name=".receivers.AlarmActionReceiver" android:exported="false" />
 
+        <receiver android:name=".receivers.ManagedProfileReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MANAGED_PROFILE_AVAILABLE" />
+                <action android:name="android.intent.action.MANAGED_PROFILE_UNLOCKED" />
+                <action android:name="android.intent.action.MANAGED_PROFILE_UNAVAILABLE" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
+            </intent-filter>
+        </receiver>
+
         <service android:name="digital.tonima.core.service.AlarmSoundAndVibrateService" android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 

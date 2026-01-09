@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import logcat.LogPriority
 import logcat.logcat
@@ -88,8 +89,10 @@ object CalendarChangeObserver {
         }
         try {
             val constraints = Constraints.Builder().build()
+            // Use expedited work to bypass work profile throttling for immediate changes
             val request = OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
                 .setConstraints(constraints)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
             WorkManager.getInstance(appContext).enqueueUniqueWork(
                 UNIQUE_WORK_NAME,

@@ -13,6 +13,7 @@ import androidx.work.WorkManager
 import dagger.hilt.android.HiltAndroidApp
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSchedulingWorker
+import digital.tonima.core.utils.DeviceInfoUtils
 import digital.tonima.kairos.service.CalendarChangeObserver
 import digital.tonima.kairos.service.PhoneEventSyncWorker.Companion.enqueuePeriodic
 import kotlinx.coroutines.CoroutineScope
@@ -53,6 +54,12 @@ class KairosApplication :
             }
         }
         setupLogger()
+
+        // Log work profile status for debugging
+        logcat(LogPriority.INFO) {
+            "Kairos running in: ${DeviceInfoUtils.getProfileDescription(this)}"
+        }
+
         setupRecurringWork()
         enqueuePeriodic(this)
         // Register calendar change observer to auto-push new/updated events to Wear

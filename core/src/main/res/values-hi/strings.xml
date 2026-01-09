@@ -68,6 +68,7 @@
     <string name="rate_app_message">यदि आपको Kairos पसंद है, तो कृपया हमें Play Store पर रेट करें। आपका फीडबैक हमें बहुत मदद करता है!</string>
     <string name="rate_now">अभी रेट करें</string>
     <string name="rate_later">बाद में</string>
+    <string name="rate_never">फिर कभी न दिखाएं</string>
     <string name="all_day_event">पूरा दिन</string>
     <string name="all_day_alarms">पूरे दिन की घटनाओं के लिए अलार्म</string>
     <string name="all_day_alarm_time">अलार्म समय (पूरे दिन की घटनाएं)</string>

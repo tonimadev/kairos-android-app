@@ -70,6 +70,7 @@
     <string name="rate_app_message">Wenn Ihnen Kairos gefällt, bewerten Sie uns bitte im Play Store. Ihr Feedback hilft uns sehr!</string>
     <string name="rate_now">Jetzt bewerten</string>
     <string name="rate_later">Später</string>
+    <string name="rate_never">Nicht mehr anzeigen</string>
     <string name="all_day_event">Ganztägig</string>
     <string name="all_day_alarms">Alarme für ganztägige Ereignisse</string>
     <string name="all_day_alarm_time">Alarmzeit (ganztägige Ereignisse)</string>

@@ -9,7 +9,9 @@ import android.provider.CalendarContract
 import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -37,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -277,7 +280,7 @@ fun EventScreen(
             text = { Text(stringResource(R.string.rate_app_message)) },
             confirmButton = {
                 Button(onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${context.packageName}"))
+                    val intent = Intent(Intent.ACTION_VIEW, "market://details?id=${context.packageName}".toUri())
                     context.startActivity(intent)
                     viewModel.onRateNow()
                 }) {
@@ -285,8 +288,14 @@ fun EventScreen(
                 }
             },
             dismissButton = {
-                Button(onClick = { viewModel.onRateLater() }) {
-                    Text(stringResource(R.string.rate_later))
+                Column {
+                    Button(onClick = { viewModel.onRateLater() }) {
+                        Text(stringResource(R.string.rate_later))
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = { viewModel.onRateNeverShow() }) {
+                        Text(stringResource(R.string.rate_never))
+                    }
                 }
             },
         )

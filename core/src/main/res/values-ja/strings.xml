@@ -65,6 +65,7 @@
     <string name="rate_app_message">Kairos を気に入っていただけたら、Play ストアで評価をお願いします。あなたのフィードバックが私たちを助けます！</string>
     <string name="rate_now">今すぐ評価</string>
     <string name="rate_later">後で</string>
+    <string name="rate_never">今後表示しない</string>
     <string name="all_day_event">終日</string>
     <string name="all_day_alarms">終日イベントのアラーム</string>
     <string name="all_day_alarm_time">アラーム時刻（終日イベント）</string>

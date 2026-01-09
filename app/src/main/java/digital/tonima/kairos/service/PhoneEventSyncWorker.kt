@@ -6,6 +6,7 @@ import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -86,7 +87,11 @@ class PhoneEventSyncWorker
                     ExistingPeriodicWorkPolicy.UPDATE,
                     periodic,
                 )
-                val once = OneTimeWorkRequestBuilder<PhoneEventSyncWorker>().setConstraints(constraints).build()
+                // Use expedited work for immediate sync to bypass work profile throttling
+                val once = OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
+                    .setConstraints(constraints)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build()
                 WorkManager.getInstance(context).enqueue(once)
             }
         }
