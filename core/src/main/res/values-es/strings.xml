@@ -14,6 +14,7 @@
         Por favor, actívalo en la siguiente pantalla.</string>
     <string name="provide_permission">Otorgar Permiso</string>
     <string name="already_authorized">Ya autorizado, continuar</string>
+    <string name="skip">Omitir</string>
     <string name="full_screen_permission">Permiso de Pantalla Completa</string>
     <string name="full_screen_permission_disclaimer">Para mostrar la alarma sobre la pantalla de bloqueo como un despertador, la aplicación necesita
         un permiso final. Por favor, actívalo en la pantalla de ajustes.</string>

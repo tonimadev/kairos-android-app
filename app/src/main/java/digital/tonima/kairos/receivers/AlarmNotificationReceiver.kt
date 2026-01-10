@@ -1,5 +1,6 @@
 package digital.tonima.kairos.receivers
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -7,7 +8,9 @@ import android.app.PendingIntent.getBroadcast
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import digital.tonima.core.receiver.AlarmReceiver.Companion.ACTION_ALARM_TRIGGERED
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_ID
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_START_TIME
@@ -15,8 +18,10 @@ import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.view.AlarmActivity
+import logcat.logcat
 
 class AlarmNotificationReceiver : BroadcastReceiver() {
+    @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_ALARM_TRIGGERED) {
             return
@@ -64,14 +69,42 @@ class AlarmNotificationReceiver : BroadcastReceiver() {
 
         val notificationTitle = context.getString(R.string.commitment)
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(digital.tonima.kairos.core.R.drawable.ic_k_monochrome)
+            .setSmallIcon(R.drawable.ic_k_monochrome)
             .setContentTitle(notificationTitle)
             .setContentText(eventTitle)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setFullScreenIntent(fullScreenPendingIntent, true)
             .setAutoCancel(true)
             .addAction(0, context.getString(R.string.stop), stopActionPendingIntent)
+
+        // Only use full-screen intent on Android 11+ (API 30+)
+        // On Android 12+, we also check for USE_FULL_SCREEN_INTENT permission
+        val canUseFullScreenIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+: Check if the app has the USE_FULL_SCREEN_INTENT permission
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.USE_FULL_SCREEN_INTENT,
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            if (hasPermission) {
+                logcat { "Full-screen intent permission is granted" }
+                true
+            } else {
+                logcat { "FALLBACK: USE_FULL_SCREEN_INTENT permission is NOT granted, using regular notification" }
+                false
+            }
+        } else {
+            // Android 11: Full-screen intent is available
+            logcat { "Full-screen intent available on Android 11+" }
+            true
+        }
+
+        if (canUseFullScreenIntent) {
+            notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true)
+            logcat { "Notification will use FULL-SCREEN INTENT for event: $eventTitle" }
+        } else {
+            notificationBuilder.setContentIntent(fullScreenPendingIntent)
+            logcat { "Notification will use REGULAR (non-full-screen) intent for event: $eventTitle" }
+        }
 
         notificationManager.notify(uniqueId, notificationBuilder.build())
     }

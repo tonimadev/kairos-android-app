@@ -147,6 +147,15 @@ constructor(
         }
     }
 
+    fun skipExactAlarmPermission() {
+        logcat { "User skipped exact alarm permission request - alarms will be inexact" }
+        _uiState.update { it.copy(hasExactAlarmPermission = true) }
+    }
+
+    fun skipFullScreenIntentPermission() {
+        logcat { "User skipped full-screen intent permission request" }
+        _uiState.update { it.copy(hasFullScreenIntentPermission = true) }
+    }
 
     fun onMonthChanged(yearMonth: YearMonth, forceRefresh: Boolean = false) {
         if (!_uiState.value.hasCalendarPermission) {

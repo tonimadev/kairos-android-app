@@ -12,6 +12,7 @@
     <string name="exact_alarm_permission_disclaimer">为确保闹钟在正确的时间响起，Android 需要一项特殊权限。请在下一个屏幕上启用它。</string>
     <string name="provide_permission">授予权限</string>
     <string name="already_authorized">已授权，继续</string>
+    <string name="skip">跳过</string>
     <string name="full_screen_permission">全屏权限</string>
     <string name="full_screen_permission_disclaimer">要像闹钟一样在锁定屏幕上显示警报，该应用需要最终权限。请在设置屏幕上启用它。</string>
     <string name="activate_event_alarms">激活事件闹钟</string>

@@ -14,6 +14,7 @@
         spezielle Berechtigung. Bitte aktivieren Sie sie auf dem nächsten Bildschirm.</string>
     <string name="provide_permission">Berechtigung erteilen</string>
     <string name="already_authorized">Bereits autorisiert, weiter</string>
+    <string name="skip">Überspringen</string>
     <string name="full_screen_permission">Vollbild-Berechtigung</string>
     <string name="full_screen_permission_disclaimer">Um den Alarm über dem Sperrbildschirm wie einen Wecker anzuzeigen, benötigt die App eine
         endgültige Berechtigung. Bitte aktivieren Sie sie im Einstellungsbildschirm.</string>

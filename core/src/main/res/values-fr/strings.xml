@@ -14,6 +14,7 @@
         spéciale. Veuillez l\'activer sur l\'écran suivant.</string>
     <string name="provide_permission">Accorder l\'autorisation</string>
     <string name="already_authorized">Déjà autorisé, continuer</string>
+    <string name="skip">Ignorer</string>
     <string name="full_screen_permission">Autorisation de plein écran</string>
     <string name="full_screen_permission_disclaimer">Pour afficher l\'alarme par-dessus l\'écran de verrouillage comme un réveil, l\'application a
         besoin d\'une autorisation finale. Veuillez l\'activer dans l\'écran des paramètres.</string>

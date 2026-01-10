@@ -13,6 +13,7 @@
         التالية.</string>
     <string name="provide_permission">منح الإذن</string>
     <string name="already_authorized">لقد أذنت بالفعل، متابعة</string>
+    <string name="skip">تخطي</string>
     <string name="full_screen_permission">إذن ملء الشاشة</string>
     <string name="full_screen_permission_disclaimer">لعرض التنبيه فوق شاشة القفل، مثل المنبه، يحتاج التطبيق إلى إذن نهائي. يرجى تفعيله في شاشة
         الإعدادات.</string>

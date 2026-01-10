@@ -12,6 +12,7 @@
     <string name="exact_alarm_permission_disclaimer">アラームが正しい時刻に鳴るように、Androidでは特別な権限が必要です。次の画面で有効にしてください。</string>
     <string name="provide_permission">権限を付与</string>
     <string name="already_authorized">承認済み、続行</string>
+    <string name="skip">スキップ</string>
     <string name="full_screen_permission">全画面表示の権限</string>
     <string name="full_screen_permission_disclaimer">目覚まし時計のようにロック画面上にアラームを表示するには、アプリに最終的な権限が必要です。設定画面で有効にしてください。</string>
     <string name="activate_event_alarms">イベントのアラームを有効にする</string>

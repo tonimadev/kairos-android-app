@@ -61,37 +61,59 @@ constructor(
         logcat {
             "Scheduling alarm for event: ${event.title} at $alarmTime (original: ${event.startTime}, isAllDay: ${event.isAllDay}) with ID: ${event.uniqueIntentId}"
         }
-        val canSchedule =
+
+        val canScheduleExact =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 alarmManager.canScheduleExactAlarms()
             } else {
                 true
             }
 
-        if (canSchedule) {
-            val intent =
-                Intent(context, AlarmReceiver::class.java).apply {
-                    action = ACTION_ALARM_TRIGGERED
-                    data = "kairos://alarm/${event.uniqueIntentId}".toUri()
+        // Create the alarm intent
+        val intent =
+            Intent(context, AlarmReceiver::class.java).apply {
+                action = ACTION_ALARM_TRIGGERED
+                data = "kairos://alarm/${event.uniqueIntentId}".toUri()
 
-                    putExtra(EXTRA_EVENT_TITLE, event.title)
-                    putExtra(EXTRA_UNIQUE_ID, event.uniqueIntentId)
-                    putExtra(EXTRA_EVENT_ID, event.id)
-                    putExtra(EXTRA_EVENT_START_TIME, event.startTime)
-                }
-            val pendingIntent =
-                PendingIntent.getBroadcast(
-                    context,
-                    event.uniqueIntentId,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                alarmTime,
-                pendingIntent
+                putExtra(EXTRA_EVENT_TITLE, event.title)
+                putExtra(EXTRA_UNIQUE_ID, event.uniqueIntentId)
+                putExtra(EXTRA_EVENT_ID, event.id)
+                putExtra(EXTRA_EVENT_START_TIME, event.startTime)
+            }
+        val pendingIntent =
+            PendingIntent.getBroadcast(
+                context,
+                event.uniqueIntentId,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+
+        // Try exact alarm first, fall back to inexact if not permitted
+        try {
+            if (canScheduleExact) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    alarmTime,
+                    pendingIntent
+                )
+                logcat {
+                    "Alarm scheduled EXACT for event: ${event.title}"
+                }
+            } else {
+                // Fallback: use inexact alarm that respects doze mode
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    alarmTime,
+                    pendingIntent
+                )
+                logcat {
+                    "FALLBACK: Alarm scheduled INEXACT (exact alarms not permitted) for event: ${event.title}"
+                }
+            }
+        } catch (e: SecurityException) {
+            logcat {
+                "ERROR: Could not schedule alarm for event ${event.title}: ${e.message}"
+            }
         }
     }
 

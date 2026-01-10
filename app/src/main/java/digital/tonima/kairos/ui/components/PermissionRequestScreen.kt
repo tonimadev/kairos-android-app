@@ -48,7 +48,11 @@ fun StandardPermissionsScreen(onSettingsClick: () -> Unit, onRetryClick: () -> U
 }
 
 @Composable
-fun ExactAlarmPermissionScreen(onAlreadyAuthorizedClick: () -> Unit, onProvidePermissionClick: () -> Unit) {
+fun ExactAlarmPermissionScreen(
+    onAlreadyAuthorizedClick: () -> Unit,
+    onProvidePermissionClick: () -> Unit,
+    onSkipClick: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -71,11 +75,17 @@ fun ExactAlarmPermissionScreen(onAlreadyAuthorizedClick: () -> Unit, onProvidePe
         Button(onClick = onProvidePermissionClick) { Text(stringResource(R.string.provide_permission)) }
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = onAlreadyAuthorizedClick) { Text(stringResource(R.string.already_authorized)) }
+        Spacer(modifier = Modifier.height(8.dp))
+        TextButton(onClick = onSkipClick) { Text(stringResource(R.string.skip)) }
     }
 }
 
 @Composable
-fun FullScreenIntentPermissionScreen(onAlreadyAuthorizedClick: () -> Unit, onOpenSettingsClick: () -> Unit) {
+fun FullScreenIntentPermissionScreen(
+    onAlreadyAuthorizedClick: () -> Unit,
+    onOpenSettingsClick: () -> Unit,
+    onSkipClick: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -98,5 +108,7 @@ fun FullScreenIntentPermissionScreen(onAlreadyAuthorizedClick: () -> Unit, onOpe
         Button(onClick = onOpenSettingsClick) { Text(stringResource(R.string.open_settings)) }
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = onAlreadyAuthorizedClick) { Text(stringResource(R.string.already_authorized)) }
+        Spacer(modifier = Modifier.height(8.dp))
+        TextButton(onClick = onSkipClick) { Text(stringResource(R.string.skip)) }
     }
 }

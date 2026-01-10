@@ -13,6 +13,7 @@
         включите его на следующем экране.</string>
     <string name="provide_permission">Предоставить разрешение</string>
     <string name="already_authorized">Уже разрешено, продолжить</string>
+    <string name="skip">Пропустить</string>
     <string name="full_screen_permission">Разрешение на полноэкранный режим</string>
     <string name="full_screen_permission_disclaimer">Чтобы показывать будильник поверх экрана блокировки, как обычный будильник, приложению требуется
         окончательное разрешение. Пожалуйста, включите его на экране настроек.</string>

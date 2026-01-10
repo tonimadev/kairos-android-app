@@ -13,6 +13,7 @@
         कृपया इसे अगली स्क्रीन पर सक्षम करें।</string>
     <string name="provide_permission">अनुमति दें</string>
     <string name="already_authorized">पहले से अधिकृत, जारी रखें</string>
+    <string name="skip">छोड़ें</string>
     <string name="full_screen_permission">पूर्ण स्क्रीन की अनुमति</string>
     <string name="full_screen_permission_disclaimer">अलार्म को वेक-अप अलार्म की तरह लॉक स्क्रीन पर दिखाने के लिए, ऐप को एक अंतिम अनुमति की आवश्यकता
         है। कृपया इसे सेटिंग्स स्क्रीन पर सक्षम करें।</string>

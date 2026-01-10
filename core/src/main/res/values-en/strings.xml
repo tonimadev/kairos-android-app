@@ -13,6 +13,7 @@
         it on the next screen.</string>
     <string name="provide_permission">Grant Permission</string>
     <string name="already_authorized">Already authorized, continue</string>
+    <string name="skip">Skip</string>
     <string name="full_screen_permission">Full Screen Permission</string>
     <string name="full_screen_permission_disclaimer">To show the alarm over the lock screen like a wake-up alarm, the app needs a final permission.
         Please enable it on the settings screen.</string>

@@ -14,6 +14,7 @@
         Por favor, ative-a na próxima tela.</string>
     <string name="provide_permission">Conceder Permissão</string>
     <string name="already_authorized">Já autorizei, continuar</string>
+    <string name="skip">Pular</string>
     <string name="full_screen_permission">Permissão de Tela Cheia</string>
     <string name="full_screen_permission_disclaimer">Para mostrar o alarme sobre a tela de bloqueio, como um despertador, o app precisa de uma
         permissão final. Por favor, ative-a na tela de configurações.</string>

@@ -213,11 +213,13 @@ fun EventScreen(
                     !uiState.hasExactAlarmPermission -> ExactAlarmPermissionScreen(
                         onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
                         onProvidePermissionClick = openExactAlarmSettings,
+                        onSkipClick = { viewModel.skipExactAlarmPermission() },
                     )
 
                     !uiState.hasFullScreenIntentPermission -> FullScreenIntentPermissionScreen(
                         onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
                         onOpenSettingsClick = openFullScreenIntentSettings,
+                        onSkipClick = { viewModel.skipFullScreenIntentPermission() },
                     )
 
                     else -> {
