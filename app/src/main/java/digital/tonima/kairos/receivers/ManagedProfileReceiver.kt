@@ -25,8 +25,10 @@ import logcat.logcat
  * - ACTION_USER_UNLOCKED: User/profile unlocked (API 24+)
  */
 class ManagedProfileReceiver : BroadcastReceiver() {
-
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         logcat(LogPriority.INFO) {
             "ManagedProfileReceiver: Received ${intent.action}"
         }
@@ -38,6 +40,7 @@ class ManagedProfileReceiver : BroadcastReceiver() {
             -> {
                 handleProfileAvailable(context)
             }
+
             Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE -> {
                 logcat(LogPriority.WARN) {
                     "Work Profile paused - all alarms will be cancelled by system"
@@ -59,9 +62,10 @@ class ManagedProfileReceiver : BroadcastReceiver() {
             val workManager = WorkManager.getInstance(context)
 
             // 1. Sync calendar events immediately
-            val syncRequest = OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
+            val syncRequest =
+                OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build()
 
             workManager.enqueueUniqueWork(
                 "profile-resume-sync",
@@ -70,9 +74,10 @@ class ManagedProfileReceiver : BroadcastReceiver() {
             )
 
             // 2. Reschedule alarms immediately
-            val alarmRequest = OneTimeWorkRequestBuilder<AlarmSchedulingWorker>()
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
+            val alarmRequest =
+                OneTimeWorkRequestBuilder<AlarmSchedulingWorker>()
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build()
 
             workManager.enqueueUniqueWork(
                 "profile-resume-alarms",

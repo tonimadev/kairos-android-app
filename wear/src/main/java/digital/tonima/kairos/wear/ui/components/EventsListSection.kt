@@ -66,16 +66,18 @@ fun EventsListSection(
                         val scrollState = rememberScrollState()
 
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.background),
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.background),
                             contentAlignment = Alignment.Center,
                         ) {
                             Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(scrollState)
-                                    .padding(horizontal = 24.dp, vertical = 32.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(scrollState)
+                                        .padding(horizontal = 24.dp, vertical = 32.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center,
                             ) {
@@ -97,10 +99,11 @@ fun EventsListSection(
                                         onEventToggle(pendingEvent, pendingEnabled, true)
                                         pendingToggle.value = null
                                     },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                                    ),
+                                    colors =
+                                        ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        ),
                                     modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     Text(
@@ -116,10 +119,11 @@ fun EventsListSection(
                                         onEventToggle(pendingEvent, pendingEnabled, false)
                                         pendingToggle.value = null
                                     },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                        contentColor = MaterialTheme.colorScheme.onSurface,
-                                    ),
+                                    colors =
+                                        ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                            contentColor = MaterialTheme.colorScheme.onSurface,
+                                        ),
                                     modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     Text(

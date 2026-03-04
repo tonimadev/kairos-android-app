@@ -18,7 +18,6 @@ import digital.tonima.kairos.wear.WorkNames
 import logcat.logcat
 
 class WearEventListenerService : WearableListenerService() {
-
     override fun onCreate() {
         super.onCreate()
         logcat { "WearEventListenerService created" }
@@ -62,7 +61,8 @@ class WearEventListenerService : WearableListenerService() {
 
     private fun triggerScheduling(context: Context) {
         val work = OneTimeWorkRequestBuilder<CachedEventSchedulingWorker>().build()
-        WorkManager.getInstance(context)
+        WorkManager
+            .getInstance(context)
             .enqueueUniqueWork(
                 WorkNames.UNIQUE_SCHEDULE_NOW,
                 ExistingWorkPolicy.REPLACE,

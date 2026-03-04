@@ -74,4 +74,9 @@
     <string name="all_day_event">All day</string>
     <string name="all_day_alarms">Alarms for all-day events</string>
     <string name="all_day_alarm_time">Alarm time (all-day events)</string>
+    <string name="alarm_offset_label">Fire alarm</string>
+    <string name="alarm_offset_at_time">At event time</string>
+    <string name="alarm_offset_15_min">15 minutes before</string>
+    <string name="alarm_offset_30_min">30 minutes before</string>
+    <string name="alarm_offset_1_hour">1 hour before</string>
 </resources>

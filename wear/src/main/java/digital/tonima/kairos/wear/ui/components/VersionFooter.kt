@@ -13,12 +13,13 @@ import androidx.wear.compose.material3.Text
 fun VersionFooter() {
     Spacer(Modifier.height(12.dp))
     val context = LocalContext.current
-    val versionName = try {
-        val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        pInfo.versionName ?: ""
-    } catch (e: Exception) {
-        ""
-    }
+    val versionName =
+        try {
+            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            pInfo.versionName ?: ""
+        } catch (e: Exception) {
+            ""
+        }
     Text(
         text = "v$versionName",
         style = MaterialTheme.typography.labelSmall,

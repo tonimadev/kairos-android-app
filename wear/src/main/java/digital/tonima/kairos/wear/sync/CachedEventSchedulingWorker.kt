@@ -25,7 +25,6 @@ class CachedEventSchedulingWorker
         private val appPreferencesRepository: AppPreferencesRepository,
         private val scheduler: EventAlarmScheduler,
     ) : CoroutineWorker(appContext, workerParams) {
-
         override suspend fun doWork(): Result {
             return try {
                 val isGlobalAlarmEnabled = appPreferencesRepository.isGlobalAlarmEnabled().firstOrNull() ?: true
@@ -48,12 +47,14 @@ class CachedEventSchedulingWorker
                     )}..${sdf.format(Date(scheduleWindowEnd))}"
                 }
 
-                val toSchedule = events.filter { it.startTime in (now + 1)..scheduleWindowEnd }
-                    .filter { e ->
-                        val instanceDisabled = disabledInstanceIds.contains(e.uniqueIntentId.toString())
-                        val seriesDisabled = disabledSeriesIds.contains(e.id.toString())
-                        !(instanceDisabled || seriesDisabled)
-                    }
+                val toSchedule =
+                    events
+                        .filter { it.startTime in (now + 1)..scheduleWindowEnd }
+                        .filter { e ->
+                            val instanceDisabled = disabledInstanceIds.contains(e.uniqueIntentId.toString())
+                            val seriesDisabled = disabledSeriesIds.contains(e.id.toString())
+                            !(instanceDisabled || seriesDisabled)
+                        }
 
                 if (toSchedule.isEmpty()) {
                     logcat { "Wear: No cached events to schedule in window." }

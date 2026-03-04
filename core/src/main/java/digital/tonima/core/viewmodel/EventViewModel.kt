@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import digital.tonima.core.delegates.ProUserProvider
+import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.Event
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
@@ -41,7 +42,8 @@ data class EventScreenUiState(
     val vibrateOnly: Boolean = false,
     val showRatingDialog: Boolean = false,
     val allDayAlarmsEnabled: Boolean = true,
-    val allDayAlarmHour: Int = 9
+    val allDayAlarmHour: Int = 9,
+    val alarmOffsetMinutes: Long = 0L
 )
 
 @HiltViewModel
@@ -96,6 +98,15 @@ constructor(
             .onEach { hour ->
                 _uiState.update { it.copy(allDayAlarmHour = hour) }
                 if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled && _uiState.value.allDayAlarmsEnabled) {
+                    onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                }
+            }
+            .launchIn(viewModelScope)
+
+        appPreferencesRepository.getAlarmOffsetMinutes()
+            .onEach { minutes ->
+                _uiState.update { it.copy(alarmOffsetMinutes = minutes) }
+                if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled) {
                     onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
                 }
             }
@@ -198,12 +209,15 @@ constructor(
 
     private fun scheduleImmediateEvents(events: List<Event>) {
         val now = System.currentTimeMillis()
-        val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75)
+        val offsetMinutes = _uiState.value.alarmOffsetMinutes
+        // Window: schedule events whose alarm time (startTime - offset) falls within the next 75 min
+        val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
 
         events
             .filter { it.isAlarmEnabled }
             .filter { event ->
-                event.startTime in (now + 1)..scheduleWindowEnd
+                val alarmFireTime = event.startTime - TimeUnit.MINUTES.toMillis(offsetMinutes)
+                alarmFireTime in (now + 1)..scheduleWindowEnd
             }
             .forEach { event ->
                 scheduler.schedule(event)
@@ -353,6 +367,12 @@ constructor(
     fun onAllDayAlarmHourChanged(hour: Int) {
         viewModelScope.launch {
             appPreferencesRepository.setAllDayAlarmHour(hour)
+        }
+    }
+
+    fun onAlarmOffsetChanged(offset: AlarmOffset) {
+        viewModelScope.launch {
+            appPreferencesRepository.setAlarmOffsetMinutes(offset.minutes)
         }
     }
 }

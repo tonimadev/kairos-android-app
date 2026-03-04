@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.spotless)
     alias(libs.plugins.google.services)
@@ -89,10 +88,8 @@ dependencies {
     implementation(libs.google.firebase.crashlytics)
 
     // watchface
-    implementation(libs.androidx.watchface)
     implementation(libs.androidx.watchface.complications.data.source)
     implementation(libs.androidx.watchface.complications.data.source.ktx)
-    implementation(libs.androidx.watchface.complications.rendering)
 
     // tiles
     implementation(libs.androidx.wear.tiles)
@@ -114,6 +111,9 @@ dependencies {
     implementation(libs.hilt.binder)
     implementation(libs.hilt.worker)
     ksp(libs.hilt.binder.compiler)
+
+    // WorkManager (required for CoroutineWorker / HiltWorker)
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Unit test dependencies
     testImplementation(libs.junit)

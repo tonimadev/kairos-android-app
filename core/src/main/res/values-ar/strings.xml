@@ -73,4 +73,9 @@
     <string name="all_day_event">طوال اليوم</string>
     <string name="all_day_alarms">تنبيهات لأحداث طوال اليوم</string>
     <string name="all_day_alarm_time">وقت التنبيه (أحداث طوال اليوم)</string>
+    <string name="alarm_offset_label">تشغيل المنبه</string>
+    <string name="alarm_offset_at_time">في وقت الحدث</string>
+    <string name="alarm_offset_15_min">قبل 15 دقيقة</string>
+    <string name="alarm_offset_30_min">قبل 30 دقيقة</string>
+    <string name="alarm_offset_1_hour">قبل ساعة واحدة</string>
 </resources>

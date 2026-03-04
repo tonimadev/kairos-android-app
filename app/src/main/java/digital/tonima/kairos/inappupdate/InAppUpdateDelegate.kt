@@ -26,53 +26,59 @@ class InAppUpdateDelegate(
     private val updateLauncher: ActivityResultLauncher<IntentSenderRequest>,
     private val appUpdateManager: AppUpdateManager = AppUpdateManagerFactory.create(activity),
 ) {
+    private val installStateUpdatedListener: InstallStateUpdatedListener =
+        InstallStateUpdatedListener { state ->
+            when (state.installStatus()) {
+                InstallStatus.DOWNLOADED -> {
+                    logcat {
+                        "Update downloaded. Showing Snackbar."
+                    }
+                    showUpdateDownloadedSnackbar()
+                }
 
-    private val installStateUpdatedListener: InstallStateUpdatedListener = InstallStateUpdatedListener { state ->
-        when (state.installStatus()) {
-            InstallStatus.DOWNLOADED -> {
-                logcat {
-                    "Update downloaded. Showing Snackbar."
+                InstallStatus.DOWNLOADING -> {
+                    val bytesDownloaded = state.bytesDownloaded()
+                    val totalBytesToDownload = state.totalBytesToDownload()
+                    logcat {
+                        "Downloading update: $bytesDownloaded / $totalBytesToDownload"
+                    }
                 }
-                showUpdateDownloadedSnackbar()
-            }
-            InstallStatus.DOWNLOADING -> {
-                val bytesDownloaded = state.bytesDownloaded()
-                val totalBytesToDownload = state.totalBytesToDownload()
-                logcat {
-                    "Downloading update: $bytesDownloaded / $totalBytesToDownload"
+
+                InstallStatus.INSTALLING -> {
+                    logcat {
+                        "Installing update..."
+                    }
                 }
-            }
-            InstallStatus.INSTALLING -> {
-                logcat {
-                    "Installing update..."
+
+                InstallStatus.INSTALLED -> {
+                    logcat {
+                        "Update installed."
+                    }
+                    appUpdateManager.unregisterListener(this.installStateUpdatedListener)
                 }
-            }
-            InstallStatus.INSTALLED -> {
-                logcat {
-                    "Update installed."
-                }
-                appUpdateManager.unregisterListener(this.installStateUpdatedListener)
-            }
-            else -> {
-                logcat {
-                    "Install status: ${state.installStatus()}"
+
+                else -> {
+                    logcat {
+                        "Install status: ${state.installStatus()}"
+                    }
                 }
             }
         }
-    }
 
     private fun showUpdateDownloadedSnackbar() {
         coroutineScope.launch {
-            val snackbarResult = snackbarHostState.showSnackbar(
-                message = activity.getString(CoreR.string.update_downloaded_message),
-                actionLabel = activity.getString(CoreR.string.restart_app),
-                duration = SnackbarDuration.Indefinite,
-            )
+            val snackbarResult =
+                snackbarHostState.showSnackbar(
+                    message = activity.getString(CoreR.string.update_downloaded_message),
+                    actionLabel = activity.getString(CoreR.string.restart_app),
+                    duration = SnackbarDuration.Indefinite,
+                )
             when (snackbarResult) {
                 SnackbarResult.ActionPerformed -> {
                     logcat { "Snackbar action 'REINICIAR' clicked." }
                     inAppUpdateManager.completeFlexibleUpdate()
                 }
+
                 SnackbarResult.Dismissed -> {
                     logcat { "Snackbar dismissed (ignored)." }
                 }

@@ -33,9 +33,10 @@ fun EventList(
     onEventClick: (Event) -> Unit,
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = onRefresh)
-    val eventsInDay = remember(uiState.selectedDate, eventsByDate) {
-        eventsByDate[uiState.selectedDate] ?: emptyList()
-    }
+    val eventsInDay =
+        remember(uiState.selectedDate, eventsByDate) {
+            eventsByDate[uiState.selectedDate] ?: emptyList()
+        }
 
     val pendingToggle = remember { androidx.compose.runtime.mutableStateOf<Pair<Event, Boolean>?>(null) }
 

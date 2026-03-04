@@ -75,13 +75,14 @@ fun EventScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val standardPermissionsToRequest = remember {
-        mutableListOf(Manifest.permission.READ_CALENDAR).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                add(Manifest.permission.POST_NOTIFICATIONS)
+    val standardPermissionsToRequest =
+        remember {
+            mutableListOf(Manifest.permission.READ_CALENDAR).apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    add(Manifest.permission.POST_NOTIFICATIONS)
+                }
             }
         }
-    }
     val standardPermissionState =
         rememberMultiplePermissionsState(permissions = standardPermissionsToRequest)
 
@@ -102,9 +103,10 @@ fun EventScreen(
         }
     }
     val openFullScreenIntentSettings = {
-        val intent = Intent("android.settings.MANAGE_APP_ALL_ALARMS").apply {
-            data = Uri.fromParts("package", context.packageName, null)
-        }
+        val intent =
+            Intent("android.settings.MANAGE_APP_ALL_ALARMS").apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
         } else {
@@ -121,12 +123,13 @@ fun EventScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.checkAllPermissions()
-                viewModel.onMonthChanged(uiState.currentMonth, forceRefresh = true)
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    viewModel.checkAllPermissions()
+                    viewModel.onMonthChanged(uiState.currentMonth, forceRefresh = true)
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
@@ -141,10 +144,11 @@ fun EventScreen(
                 isProUser = isProUser,
                 onUpgradeToProClick = viewModel::onUpgradeToProRequest,
                 onOurOtherAppsClick = {
-                    val browserIntent = Intent(
-                        Intent.ACTION_VIEW,
-                        "https://play.google.com/store/apps/dev?id=6594602823307179845".toUri(),
-                    )
+                    val browserIntent =
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "https://play.google.com/store/apps/dev?id=6594602823307179845".toUri(),
+                        )
                     context.startActivity(browserIntent)
                 },
                 onCloseDrawer = { scope.launch { drawerState.close() } },
@@ -155,10 +159,11 @@ fun EventScreen(
             topBar = {
                 TopAppBar(
                     title = { Text(stringResource(R.string.app_name)) },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
+                    colors =
+                        TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            titleContentColor = MaterialTheme.colorScheme.primary,
+                        ),
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(painterResource(drawable.menu), contentDescription = stringResource(R.string.menu))
@@ -179,11 +184,12 @@ fun EventScreen(
                             if (intent != null) {
                                 context.startActivity(intent)
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.google_calendar_not_found),
-                                    Toast.LENGTH_SHORT,
-                                ).show()
+                                Toast
+                                    .makeText(
+                                        context,
+                                        context.getString(R.string.google_calendar_not_found),
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
                             }
                         },
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -199,28 +205,35 @@ fun EventScreen(
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
             ) {
                 when {
                     !uiState.hasCalendarPermission ||
-                        !uiState.hasPostNotificationsPermission -> StandardPermissionsScreen(
-                        onSettingsClick = openAppSettings,
-                        onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
-                    )
+                        !uiState.hasPostNotificationsPermission -> {
+                        StandardPermissionsScreen(
+                            onSettingsClick = openAppSettings,
+                            onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
+                        )
+                    }
 
-                    !uiState.hasExactAlarmPermission -> ExactAlarmPermissionScreen(
-                        onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
-                        onProvidePermissionClick = openExactAlarmSettings,
-                        onSkipClick = { viewModel.skipExactAlarmPermission() },
-                    )
+                    !uiState.hasExactAlarmPermission -> {
+                        ExactAlarmPermissionScreen(
+                            onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
+                            onProvidePermissionClick = openExactAlarmSettings,
+                            onSkipClick = { viewModel.skipExactAlarmPermission() },
+                        )
+                    }
 
-                    !uiState.hasFullScreenIntentPermission -> FullScreenIntentPermissionScreen(
-                        onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
-                        onOpenSettingsClick = openFullScreenIntentSettings,
-                        onSkipClick = { viewModel.skipFullScreenIntentPermission() },
-                    )
+                    !uiState.hasFullScreenIntentPermission -> {
+                        FullScreenIntentPermissionScreen(
+                            onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
+                            onOpenSettingsClick = openFullScreenIntentSettings,
+                            onSkipClick = { viewModel.skipFullScreenIntentPermission() },
+                        )
+                    }
 
                     else -> {
                         MainContent(
@@ -232,25 +245,28 @@ fun EventScreen(
                             onMonthChanged = viewModel::onMonthChanged,
                             onDateSelected = viewModel::onDateSelected,
                             onEventClick = { event: Event ->
-                                val uri = ContentUris.withAppendedId(
-                                    CalendarContract.Events.CONTENT_URI,
-                                    event.id,
-                                )
-                                val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-                                    putExtra(
-                                        "beginTime",
-                                        event.startTime,
+                                val uri =
+                                    ContentUris.withAppendedId(
+                                        CalendarContract.Events.CONTENT_URI,
+                                        event.id,
                                     )
-                                }
+                                val intent =
+                                    Intent(Intent.ACTION_VIEW, uri).apply {
+                                        putExtra(
+                                            "beginTime",
+                                            event.startTime,
+                                        )
+                                    }
                                 try {
                                     context.startActivity(intent)
                                 } catch (e: Exception) {
                                     e.printStackTrace()
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.cannot_open_event),
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            context.getString(R.string.cannot_open_event),
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
                                 }
                             },
                             onDismissAutostart = viewModel::dismissAutostartSuggestion,
@@ -258,6 +274,7 @@ fun EventScreen(
                             onVibrateToggle = viewModel::onVibrateOnlyChanged,
                             onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
                             onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
+                            onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
                         )
                     }
                 }

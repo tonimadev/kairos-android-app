@@ -57,15 +57,16 @@ class MainActivity : ComponentActivity() {
                     val scope = rememberCoroutineScope()
                     val rememberSnackbarHostState = remember { SnackbarHostState() }
 
-                    inAppUpdateDelegate = remember(rememberSnackbarHostState, scope, inAppUpdateManager, this) {
-                        InAppUpdateDelegate(
-                            activity = this,
-                            inAppUpdateManager = inAppUpdateManager,
-                            snackbarHostState = rememberSnackbarHostState,
-                            coroutineScope = scope,
-                            updateLauncher = updateLauncher,
-                        )
-                    }
+                    inAppUpdateDelegate =
+                        remember(rememberSnackbarHostState, scope, inAppUpdateManager, this) {
+                            InAppUpdateDelegate(
+                                activity = this,
+                                inAppUpdateManager = inAppUpdateManager,
+                                snackbarHostState = rememberSnackbarHostState,
+                                coroutineScope = scope,
+                                updateLauncher = updateLauncher,
+                            )
+                        }
 
                     LaunchedEffect(inAppUpdateDelegate) {
                         inAppUpdateDelegate.onCreate()

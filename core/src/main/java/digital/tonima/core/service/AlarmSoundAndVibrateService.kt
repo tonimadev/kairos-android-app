@@ -31,23 +31,29 @@ class AlarmSoundAndVibrateService : Service() {
         const val VIBRATION_REPEAT_INDEX = 0
         const val ACTION_START_ALARM = "digital.tonima.core.service.START_ALARM_SOUND"
         const val ACTION_STOP_ALARM = "digital.tonima.core.service.STOP_ALARM_SOUND"
+        const val ACTION_FINISH_ALARM_ACTIVITY = "digital.tonima.core.service.FINISH_ALARM_ACTIVITY"
         private const val NOTIFICATION_CHANNEL_ID = "calendar_alarm_channel"
-        private const val NOTIFICATION_ID = 0xA11A7
+        const val NOTIFICATION_ID = 0xA11A7
 
         fun startAlarm(context: Context, eventTitle: String? = null) {
             val intent = Intent(context, AlarmSoundAndVibrateService::class.java).apply {
                 action = ACTION_START_ALARM
                 if (!eventTitle.isNullOrEmpty()) {
-                    putExtra(digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE, eventTitle)
+                    putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
                 }
             }
             ContextCompat.startForegroundService(context, intent)
         }
 
         fun stopAlarm(context: Context) {
-            // Do NOT start a foreground service just to stop it, as it must call startForeground() within 5s.
-            // Simply request the system to stop the service if it's running; if not, this is a no-op.
-            context.stopService(Intent(context, AlarmSoundAndVibrateService::class.java))
+            // Send ACTION_STOP_ALARM so onStartCommand can call stopForeground() + stopSelf()
+            // which properly removes the foreground notification before stopping.
+            // If the service is not running, startForegroundService is a no-op effectively because
+            // onStartCommand will call stopForeground + stopSelf immediately.
+            val stopIntent = Intent(context, AlarmSoundAndVibrateService::class.java).apply {
+                action = ACTION_STOP_ALARM
+            }
+            ContextCompat.startForegroundService(context, stopIntent)
         }
     }
 
@@ -67,7 +73,7 @@ class AlarmSoundAndVibrateService : Service() {
             ACTION_START_ALARM -> {
                 stopAndReleaseResources()
 
-                val eventTitle = intent.getStringExtra(digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE)
+                val eventTitle = intent.getStringExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE)
                 ensureForeground(eventTitle)
 
                 val vibrateOnly = try {
@@ -88,11 +94,11 @@ class AlarmSoundAndVibrateService : Service() {
 
                 if (!vibrateOnly) {
                     // Try ALARM first, then NOTIFICATION, then RINGTONE as a last resort
-                    val candidateUris = listOf(
+                    val candidateUris = listOfNotNull(
                         RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM),
                         RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
                         RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                    ).filterNotNull()
+                    )
 
                     var obtained: Ringtone? = null
                     var usedUri: Uri? = null
@@ -108,19 +114,15 @@ class AlarmSoundAndVibrateService : Service() {
                     if (obtained != null) {
                         ringtone = obtained
                         // Ensure we use proper audio attributes for alarms
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            try {
-                                ringtone?.audioAttributes = AudioAttributes.Builder()
-                                    .setUsage(AudioAttributes.USAGE_ALARM)
-                                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                                    .build()
-                            } catch (e: Throwable) {
-                                logcat { "AlarmSoundAndVibrateService: Falha ao definir AudioAttributes: ${e.localizedMessage}" }
-                            }
+                        try {
+                            ringtone?.audioAttributes = AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_ALARM)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .build()
+                        } catch (e: Throwable) {
+                            logcat { "AlarmSoundAndVibrateService: Falha ao definir AudioAttributes: ${e.localizedMessage}" }
                         }
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            try { ringtone?.isLooping = true } catch (_: Throwable) {}
-                        }
+                        try { ringtone?.isLooping = true } catch (_: Throwable) {}
                         try {
                             ringtone?.play()
                             logcat { "AlarmSoundAndVibrateService: Ringtone iniciado. Uri usada: $usedUri" }
@@ -136,6 +138,8 @@ class AlarmSoundAndVibrateService : Service() {
             }
             ACTION_STOP_ALARM -> {
                 logcat { "AlarmSoundAndVibrateService: Recebida solicitação para parar alarme." }
+                // Must call startForeground() before stopForeground() when started via startForegroundService
+                ensureForeground(null)
                 stopAndReleaseResources()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
@@ -197,6 +201,8 @@ class AlarmSoundAndVibrateService : Service() {
     override fun onDestroy() {
         logcat { "AlarmSoundAndVibrateService: onDestroy chamado. Garantindo que os recursos sejam liberados." }
         stopAndReleaseResources()
+        // Safety net: ensure foreground notification is always removed
+        stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
     }
 }

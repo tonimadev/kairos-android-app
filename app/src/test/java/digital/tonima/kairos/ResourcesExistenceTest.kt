@@ -8,7 +8,6 @@ import org.robolectric.RuntimeEnvironment
 
 @RunWith(RobolectricTestRunner::class)
 class ResourcesExistenceTest {
-
     @Test
     fun vibrateOnlyString_isAvailableFromCoreResources() {
         val context = RuntimeEnvironment.getApplication()

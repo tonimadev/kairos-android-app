@@ -76,4 +76,9 @@
     <string name="all_day_event">Dia inteiro</string>
     <string name="all_day_alarms">Alarmes para eventos de dia inteiro</string>
     <string name="all_day_alarm_time">Horário do alarme (eventos de dia inteiro)</string>
+    <string name="alarm_offset_label">Disparar alarme</string>
+    <string name="alarm_offset_at_time">Na hora do evento</string>
+    <string name="alarm_offset_15_min">15 minutos antes</string>
+    <string name="alarm_offset_30_min">30 minutos antes</string>
+    <string name="alarm_offset_1_hour">1 hora antes</string>
 </resources>

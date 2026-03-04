@@ -22,8 +22,9 @@ fun VibrateOnlyToggle(
         onCheckedChange = onCheckedChange,
         label = { Text(stringResource(coreR.string.vibrate_only)) },
         toggleControl = { Switch(checked = checked) },
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
     )
 }

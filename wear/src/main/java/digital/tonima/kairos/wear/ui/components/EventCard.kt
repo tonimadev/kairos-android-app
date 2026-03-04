@@ -32,27 +32,32 @@ fun EventCard(
 ) {
     val formatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT) }
     val allDayText = stringResource(R.string.all_day_event)
-    val localTime = Instant.ofEpochMilli(event.startTime)
-        .atZone(ZoneId.systemDefault())
-        .toLocalTime()
-    val formattedTime = remember(localTime, event.isAllDay, allDayText) {
-        if (event.isAllDay) {
-            allDayText
-        } else {
-            formatter.format(localTime)
+    val localTime =
+        Instant
+            .ofEpochMilli(event.startTime)
+            .atZone(ZoneId.systemDefault())
+            .toLocalTime()
+    val formattedTime =
+        remember(localTime, event.isAllDay, allDayText) {
+            if (event.isAllDay) {
+                allDayText
+            } else {
+                formatter.format(localTime)
+            }
         }
-    }
 
     Card(
         onClick = {},
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp, horizontal = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp, horizontal = 16.dp),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
         ) {
             Text(text = event.title)
             Spacer(modifier = Modifier.height(4.dp))

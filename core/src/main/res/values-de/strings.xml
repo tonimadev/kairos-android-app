@@ -75,4 +75,9 @@
     <string name="all_day_event">Ganztägig</string>
     <string name="all_day_alarms">Alarme für ganztägige Ereignisse</string>
     <string name="all_day_alarm_time">Alarmzeit (ganztägige Ereignisse)</string>
+    <string name="alarm_offset_label">Alarm auslösen</string>
+    <string name="alarm_offset_at_time">Zur Ereigniszeit</string>
+    <string name="alarm_offset_15_min">15 Minuten vorher</string>
+    <string name="alarm_offset_30_min">30 Minuten vorher</string>
+    <string name="alarm_offset_1_hour">1 Stunde vorher</string>
 </resources>

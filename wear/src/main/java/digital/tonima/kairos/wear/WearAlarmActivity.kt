@@ -25,15 +25,15 @@ import digital.tonima.kairos.wear.ui.theme.KairosTheme
 
 @AndroidEntryPoint
 class WearAlarmActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setShowWhenLocked(true)
         setTurnScreenOn(true)
 
-        val title = intent?.getStringExtra(EXTRA_EVENT_TITLE)
-            ?: getString(R.string.upcoming_event)
+        val title =
+            intent?.getStringExtra(EXTRA_EVENT_TITLE)
+                ?: getString(R.string.upcoming_event)
 
         setContent {
             KairosTheme {
@@ -55,11 +55,15 @@ class WearAlarmActivity : ComponentActivity() {
 }
 
 @Composable
-private fun WearAlarmScreen(title: String, onStop: () -> Unit) {
+private fun WearAlarmScreen(
+    title: String,
+    onStop: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

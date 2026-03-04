@@ -73,4 +73,9 @@
     <string name="all_day_event">पूरा दिन</string>
     <string name="all_day_alarms">पूरे दिन की घटनाओं के लिए अलार्म</string>
     <string name="all_day_alarm_time">अलार्म समय (पूरे दिन की घटनाएं)</string>
+    <string name="alarm_offset_label">अलार्म बजाएं</string>
+    <string name="alarm_offset_at_time">घटना के समय</string>
+    <string name="alarm_offset_15_min">15 मिनट पहले</string>
+    <string name="alarm_offset_30_min">30 मिनट पहले</string>
+    <string name="alarm_offset_1_hour">1 घंटे पहले</string>
 </resources>

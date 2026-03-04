@@ -14,7 +14,10 @@ object WearEventCache {
     private const val PREF = "PhoneEventsCache"
     private const val KEY_JSON = "json"
 
-    fun save(context: Context, events: List<Event>) {
+    fun save(
+        context: Context,
+        events: List<Event>,
+    ) {
         val arr = JSONArray()
         events.forEach { e ->
             val o = JSONObject()
@@ -24,7 +27,8 @@ object WearEventCache {
             o.put(KEY_RECUR, e.isRecurring)
             arr.put(o)
         }
-        context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+        context
+            .getSharedPreferences(PREF, Context.MODE_PRIVATE)
             .edit(commit = true) {
                 putString(KEY_JSON, arr.toString())
             }

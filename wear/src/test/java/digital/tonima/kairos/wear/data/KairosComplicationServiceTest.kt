@@ -10,7 +10,6 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class KairosComplicationServiceTest {
-
     @Test
     fun getPreviewData_returnsDataForSupportedTypes() {
         val service = Robolectric.setupService(KairosComplicationService::class.java)

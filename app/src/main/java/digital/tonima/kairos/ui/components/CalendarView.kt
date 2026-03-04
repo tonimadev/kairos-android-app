@@ -57,12 +57,13 @@ fun CalendarView(
     val startMonth = remember { YearMonth.now().minusMonths(100) }
     val endMonth = remember { YearMonth.now().plusMonths(100) }
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
-    val state = rememberCalendarState(
-        startMonth = startMonth,
-        endMonth = endMonth,
-        firstVisibleMonth = currentMonth,
-        firstDayOfWeek = firstDayOfWeek,
-    )
+    val state =
+        rememberCalendarState(
+            startMonth = startMonth,
+            endMonth = endMonth,
+            firstVisibleMonth = currentMonth,
+            firstDayOfWeek = firstDayOfWeek,
+        )
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(currentMonth) {
@@ -99,7 +100,10 @@ fun CalendarView(
 }
 
 @Composable
-private fun MonthHeader(month: YearMonth, onReturnToTodayClicked: () -> Unit) {
+private fun MonthHeader(
+    month: YearMonth,
+    onReturnToTodayClicked: () -> Unit,
+) {
     val currentMonth = YearMonth.now()
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -131,14 +135,16 @@ private fun DaysOfWeekHeader(daysOfWeek: List<DayOfWeek>) {
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
                 text = dayOfWeek.getDisplayName(TextStyle.SHORT, locale),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontWeight = if (isWeekend) FontWeight.SemiBold else FontWeight.Normal,
-                ),
-                color = if (isWeekend) {
-                    MaterialTheme.colorScheme.secondary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
+                style =
+                    MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = if (isWeekend) FontWeight.SemiBold else FontWeight.Normal,
+                    ),
+                color =
+                    if (isWeekend) {
+                        MaterialTheme.colorScheme.secondary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
             )
         }
     }
@@ -152,52 +158,55 @@ private fun Day(
     onClick: (CalendarDay) -> Unit,
 ) {
     val isToday = day.date == LocalDate.now()
-    val targetBg = when {
-        isSelected -> MaterialTheme.colorScheme.primary
-        isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-        else -> Color.Transparent
-    }
+    val targetBg =
+        when {
+            isSelected -> MaterialTheme.colorScheme.primary
+            isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+            else -> Color.Transparent
+        }
     val bgColor by animateColorAsState(targetValue = targetBg, label = "dayBg")
 
     Box(
-        modifier = Modifier
-            .aspectRatio(1f)
-            .padding(4.dp)
-            .background(
-                color = bgColor,
-                shape = CircleShape,
-            )
-            .border(
-                width = if (isToday && !isSelected) 1.dp else 0.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = if (isSelected) 0f else 1f),
-                shape = CircleShape,
-            )
-            .clickable(enabled = day.position == DayPosition.MonthDate) { onClick(day) },
+        modifier =
+            Modifier
+                .aspectRatio(1f)
+                .padding(4.dp)
+                .background(
+                    color = bgColor,
+                    shape = CircleShape,
+                ).border(
+                    width = if (isToday && !isSelected) 1.dp else 0.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = if (isSelected) 0f else 1f),
+                    shape = CircleShape,
+                ).clickable(enabled = day.position == DayPosition.MonthDate) { onClick(day) },
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                color = when {
-                    isSelected -> MaterialTheme.colorScheme.onPrimary
-                    day.position != DayPosition.MonthDate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
-                    else -> MaterialTheme.colorScheme.onSurface
-                },
+                color =
+                    when {
+                        isSelected -> MaterialTheme.colorScheme.onPrimary
+                        day.position != DayPosition.MonthDate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+                        else -> MaterialTheme.colorScheme.onSurface
+                    },
                 fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
             )
             if (hasEvents && day.position == DayPosition.MonthDate) {
                 Box(
-                    modifier = Modifier
-                        .padding(top = 3.dp)
-                        .size(6.dp)
-                        .background(
-                            color = if (isSelected) {
-                                MaterialTheme.colorScheme.onPrimary
-                            } else {
-                                MaterialTheme.colorScheme.primary
-                            },
-                            shape = CircleShape,
-                        ),
+                    modifier =
+                        Modifier
+                            .padding(top = 3.dp)
+                            .size(6.dp)
+                            .background(
+                                color =
+                                    if (isSelected) {
+                                        MaterialTheme.colorScheme.onPrimary
+                                    } else {
+                                        MaterialTheme.colorScheme.primary
+                                    },
+                                shape = CircleShape,
+                            ),
                 )
             }
         }
@@ -207,23 +216,24 @@ private fun Day(
 @Preview(showBackground = true)
 @Composable
 fun CalendarViewPreview() {
-    val sampleEvents = listOf(
-        Event(
-            id = 1L,
-            title = "Meeting with Team",
-            startTime = System.currentTimeMillis() + 3600000,
-        ),
-        Event(
-            id = 2L,
-            title = "Doctor Appointment",
-            startTime = System.currentTimeMillis() + 7200000,
-        ),
-        Event(
-            id = 3L,
-            title = "Lunch with Sarah",
-            startTime = System.currentTimeMillis() + 10800000,
-        ),
-    )
+    val sampleEvents =
+        listOf(
+            Event(
+                id = 1L,
+                title = "Meeting with Team",
+                startTime = System.currentTimeMillis() + 3600000,
+            ),
+            Event(
+                id = 2L,
+                title = "Doctor Appointment",
+                startTime = System.currentTimeMillis() + 7200000,
+            ),
+            Event(
+                id = 3L,
+                title = "Lunch with Sarah",
+                startTime = System.currentTimeMillis() + 10800000,
+            ),
+        )
     val eventsByDate = sampleEvents.groupBy { LocalDate.now() }
     CalendarView(
         currentMonth = YearMonth.now(),

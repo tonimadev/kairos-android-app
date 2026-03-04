@@ -1,6 +1,10 @@
 package digital.tonima.kairos.ui.view
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +29,22 @@ import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.KairosTheme
 
 class AlarmActivity : ComponentActivity() {
+    private var userStoppedAlarm = false
+
+    /** Finishes this Activity when the user taps "Stop" from the notification. */
+    private val finishReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context,
+                intent: Intent,
+            ) {
+                if (intent.action == AlarmSoundAndVibrateService.ACTION_FINISH_ALARM_ACTIVITY) {
+                    userStoppedAlarm = true
+                    finish()
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val eventTitle =
@@ -59,12 +79,8 @@ class AlarmActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.height(48.dp))
                         Button(
                             onClick = {
-                                stopService(
-                                    Intent(
-                                        this@AlarmActivity,
-                                        AlarmSoundAndVibrateService::class.java,
-                                    ),
-                                )
+                                userStoppedAlarm = true
+                                AlarmSoundAndVibrateService.stopAlarm(this@AlarmActivity)
                                 finish()
                             },
                             modifier =
@@ -80,8 +96,33 @@ class AlarmActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        val filter = IntentFilter(AlarmSoundAndVibrateService.ACTION_FINISH_ALARM_ACTIVITY)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(finishReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(finishReceiver, filter)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        try {
+            unregisterReceiver(finishReceiver)
+        } catch (_: IllegalArgumentException) {
+            // Receiver was not registered, ignore
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        stopService(Intent(this, AlarmSoundAndVibrateService::class.java))
+        // Only stop the alarm if the user explicitly pressed "Stop".
+        // Do NOT stop automatically on config changes (screen rotation, etc.)
+        // which also trigger onDestroy.
+        if (userStoppedAlarm) {
+            AlarmSoundAndVibrateService.stopAlarm(this)
+        }
     }
 }

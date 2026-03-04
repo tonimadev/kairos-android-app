@@ -12,7 +12,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class PermissionRequestScreenTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -22,7 +21,8 @@ class PermissionRequestScreenTest {
             StandardPermissionsScreen(onSettingsClick = {}, onRetryClick = {})
         }
 
-        composeRule.onNodeWithText(composeRule.activity.getString(R.string.initial_permissions_required))
+        composeRule
+            .onNodeWithText(composeRule.activity.getString(R.string.initial_permissions_required))
             .assertIsDisplayed()
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.permissions_disclaimer)).assertIsDisplayed()
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.open_settings)).assertIsDisplayed()

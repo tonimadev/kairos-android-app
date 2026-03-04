@@ -7,7 +7,10 @@ import android.content.Intent
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 
 class WearAlarmActionReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         AlarmSoundAndVibrateService.stopAlarm(context)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

@@ -41,4 +41,7 @@ interface AppPreferencesRepository {
 
     fun getAllDayAlarmHour(): Flow<Int>
     suspend fun setAllDayAlarmHour(hour: Int)
+
+    fun getAlarmOffsetMinutes(): Flow<Long>
+    suspend fun setAlarmOffsetMinutes(minutes: Long)
 }

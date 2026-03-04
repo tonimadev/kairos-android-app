@@ -5,9 +5,11 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.annotation.VisibleForTesting
 import androidx.core.net.toUri
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
+import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.Event
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.receiver.AlarmReceiver.Companion.ACTION_ALARM_TRIGGERED
@@ -19,6 +21,7 @@ import digital.tonima.core.repository.AppPreferencesRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import logcat.logcat
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
@@ -31,6 +34,11 @@ constructor(
     @ApplicationContext private val context: Context,
     private val preferencesRepository: AppPreferencesRepository
 ) : EventAlarmScheduler {
+
+    // Overridable in tests via @VisibleForTesting; Hilt does not support default parameter values
+    @VisibleForTesting
+    internal var clock: Clock = Clock.systemDefaultZone()
+
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
     override fun schedule(event: Event) {
@@ -55,11 +63,23 @@ constructor(
             val alarmDateTime = localDate.atTime(LocalTime.of(alarmHour, 0))
             alarmDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         } else {
-            event.startTime
+            val offsetMinutes = runBlocking {
+                preferencesRepository.getAlarmOffsetMinutes().firstOrNull() ?: 0L
+            }
+            val offset = AlarmOffset.fromMinutes(offsetMinutes)
+            event.startTime - java.util.concurrent.TimeUnit.MINUTES.toMillis(offset.minutes)
         }
 
         logcat {
             "Scheduling alarm for event: ${event.title} at $alarmTime (original: ${event.startTime}, isAllDay: ${event.isAllDay}) with ID: ${event.uniqueIntentId}"
+        }
+
+        // Do not schedule alarms in the past – the AlarmManager would fire them immediately
+        if (alarmTime <= clock.millis()) {
+            logcat {
+                "Skipping alarm for event '${event.title}': alarm time ($alarmTime) is in the past."
+            }
+            return
         }
 
         val canScheduleExact =

@@ -27,8 +27,9 @@ fun OpenOnPhoneChip(
                 contentDescription = null,
             )
         },
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
     )
 }

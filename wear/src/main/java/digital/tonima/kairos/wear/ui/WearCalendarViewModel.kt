@@ -38,20 +38,23 @@ class WearCalendarViewModel
         @ApplicationContext private val appContext: Context,
         private val appPreferencesRepository: AppPreferencesRepository,
     ) : ViewModel() {
-
         private val _next24hEvents = MutableStateFlow<List<Event>>(emptyList())
         val next24hEvents: StateFlow<List<Event>> = _next24hEvents.asStateFlow()
 
         private val _lastUpdated = MutableStateFlow(System.currentTimeMillis())
         val lastUpdated: StateFlow<Long> = _lastUpdated.asStateFlow()
 
-        private val eventsUpdatedReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == SyncActions.ACTION_EVENTS_UPDATED) {
-                    reloadFromCache()
+        private val eventsUpdatedReceiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(
+                    context: Context?,
+                    intent: Intent?,
+                ) {
+                    if (intent?.action == SyncActions.ACTION_EVENTS_UPDATED) {
+                        reloadFromCache()
+                    }
                 }
             }
-        }
 
         init {
             reloadFromCache()
@@ -94,21 +97,18 @@ class WearCalendarViewModel
                                         node.id,
                                         PATH_REQUEST_SYNC,
                                         ByteArray(0),
-                                    )
-                                    .addOnSuccessListener {
+                                    ).addOnSuccessListener {
                                         logcat {
                                             "WearCalendarViewModel: Requested sync fro" +
                                                 "m phone (node=${node.displayName})."
                                         }
-                                    }
-                                    .addOnFailureListener { t ->
+                                    }.addOnFailureListener { t ->
                                         logcat(
                                             LogPriority.ERROR,
                                         ) { "WearCalendarViewModel: Failed to request sync: ${t.localizedMessage}" }
                                     }
                             }
-                        }
-                        .addOnFailureListener { t ->
+                        }.addOnFailureListener { t ->
                             logcat(
                                 LogPriority.ERROR,
                             ) { "WearCalendarViewModel: Failed to obtain connected nodes: ${t.localizedMessage}" }
@@ -122,7 +122,8 @@ class WearCalendarViewModel
 
             reloadFromCache()
             try {
-                WorkManager.getInstance(appContext)
+                WorkManager
+                    .getInstance(appContext)
                     .enqueueUniqueWork(
                         WorkNames.UNIQUE_SCHEDULE_NOW,
                         ExistingWorkPolicy.REPLACE,
@@ -138,18 +139,21 @@ class WearCalendarViewModel
         private fun reloadFromCache() {
             viewModelScope.launch {
                 val now = System.currentTimeMillis()
-                val events = WearEventCache.load(appContext)
-                    .filter { it.startTime >= now }
-                    .sortedBy { it.startTime }
+                val events =
+                    WearEventCache
+                        .load(appContext)
+                        .filter { it.startTime >= now }
+                        .sortedBy { it.startTime }
                 val isGlobal = appPreferencesRepository.isGlobalAlarmEnabled().firstOrNull() ?: true
                 val disabledInstanceIds = appPreferencesRepository.getDisabledEventIds().firstOrNull() ?: emptySet()
                 val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
 
-                val mapped = events.map { e ->
-                    val instanceDisabled = disabledInstanceIds.contains(e.uniqueIntentId.toString())
-                    val seriesDisabled = disabledSeriesIds.contains(e.id.toString())
-                    e.copy(isAlarmEnabled = isGlobal && !(instanceDisabled || seriesDisabled))
-                }
+                val mapped =
+                    events.map { e ->
+                        val instanceDisabled = disabledInstanceIds.contains(e.uniqueIntentId.toString())
+                        val seriesDisabled = disabledSeriesIds.contains(e.id.toString())
+                        e.copy(isAlarmEnabled = isGlobal && !(instanceDisabled || seriesDisabled))
+                    }
                 _next24hEvents.value = mapped
                 _lastUpdated.value = System.currentTimeMillis()
             }

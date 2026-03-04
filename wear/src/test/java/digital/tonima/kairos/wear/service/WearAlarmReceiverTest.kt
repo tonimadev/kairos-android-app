@@ -17,7 +17,6 @@ import org.robolectric.Shadows.shadowOf
 
 @RunWith(RobolectricTestRunner::class)
 class WearAlarmReceiverTest {
-
     private lateinit var context: Context
 
     @Before
@@ -30,11 +29,12 @@ class WearAlarmReceiverTest {
         val eventTitle = "Team Sync"
         val uniqueId = 12345 // kept for parity with previous test, not used in new behavior
 
-        val intent = Intent(ACTION_ALARM_TRIGGERED).apply {
-            putExtra(EXTRA_EVENT_TITLE, eventTitle)
-            putExtra(EXTRA_UNIQUE_ID, uniqueId)
-            `package` = context.packageName
-        }
+        val intent =
+            Intent(ACTION_ALARM_TRIGGERED).apply {
+                putExtra(EXTRA_EVENT_TITLE, eventTitle)
+                putExtra(EXTRA_UNIQUE_ID, uniqueId)
+                `package` = context.packageName
+            }
 
         val receiver = WearAlarmReceiver()
         receiver.onReceive(context, intent)

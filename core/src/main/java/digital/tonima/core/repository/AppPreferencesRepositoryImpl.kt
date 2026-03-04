@@ -31,6 +31,7 @@ class AppPreferencesRepositoryImpl @Inject constructor(
         val RATING_COMPLETED = booleanPreferencesKey("rating_completed")
         val ALL_DAY_ALARMS_ENABLED = booleanPreferencesKey("all_day_alarms_enabled")
         val ALL_DAY_ALARM_HOUR = intPreferencesKey("all_day_alarm_hour")
+        val ALARM_OFFSET_MINUTES = longPreferencesKey("alarm_offset_minutes")
     }
 
     override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -172,6 +173,19 @@ class AppPreferencesRepositoryImpl @Inject constructor(
     override suspend fun setAllDayAlarmHour(hour: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.ALL_DAY_ALARM_HOUR] = hour
+        }
+    }
+
+    override fun getAlarmOffsetMinutes(): Flow<Long> {
+        return context.dataStore.data
+            .map { preferences ->
+                preferences[PreferencesKeys.ALARM_OFFSET_MINUTES] ?: 0L
+            }
+    }
+
+    override suspend fun setAlarmOffsetMinutes(minutes: Long) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.ALARM_OFFSET_MINUTES] = minutes
         }
     }
 }

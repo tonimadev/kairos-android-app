@@ -70,4 +70,9 @@
     <string name="all_day_event">終日</string>
     <string name="all_day_alarms">終日イベントのアラーム</string>
     <string name="all_day_alarm_time">アラーム時刻（終日イベント）</string>
+    <string name="alarm_offset_label">アラームを鳴らす</string>
+    <string name="alarm_offset_at_time">イベントの時刻に</string>
+    <string name="alarm_offset_15_min">15分前</string>
+    <string name="alarm_offset_30_min">30分前</string>
+    <string name="alarm_offset_1_hour">1時間前</string>
 </resources>

@@ -36,18 +36,17 @@ class PhoneEventSyncWorker
         @Assisted workerParams: WorkerParameters,
         private val calendarRepository: CalendarRepository,
     ) : CoroutineWorker(appContext, workerParams) {
-
-        override suspend fun doWork(): Result {
-            return try {
+        override suspend fun doWork(): Result =
+            try {
                 val now = System.currentTimeMillis()
                 val end = now + TimeUnit.HOURS.toMillis(24)
                 val ymNow = java.time.YearMonth.now()
                 val ymNext = ymNow.plusMonths(1)
-                val monthEvents = (
-                    calendarRepository.getEventsForMonth(ymNow) + calendarRepository.getEventsForMonth(ymNext)
-                    )
-                    .filter { it.startTime in now..end }
-                    .sortedBy { it.startTime }
+                val monthEvents =
+                    (
+                        calendarRepository.getEventsForMonth(ymNow) + calendarRepository.getEventsForMonth(ymNext)
+                    ).filter { it.startTime in now..end }
+                        .sortedBy { it.startTime }
                 val events = monthEvents
                 logcat { "Phone→Wear sync: sending ${events.size} events." }
 
@@ -56,7 +55,9 @@ class PhoneEventSyncWorker
                 val map = putReq.dataMap
                 val list = ArrayList<com.google.android.gms.wearable.DataMap>()
                 events.forEach { e ->
-                    val dm = com.google.android.gms.wearable.DataMap()
+                    val dm =
+                        com.google.android.gms.wearable
+                            .DataMap()
                     dm.putLong(KEY_ID, e.id)
                     dm.putString(KEY_TITLE, e.title)
                     dm.putLong(KEY_START, e.startTime)
@@ -72,26 +73,27 @@ class PhoneEventSyncWorker
                 logcat(LogPriority.ERROR) { "PhoneEventSyncWorker failed: ${t.localizedMessage}" }
                 Result.retry()
             }
-        }
 
         companion object {
             const val UNIQUE_WORK_NAME = "phone-event-sync"
 
             fun enqueuePeriodic(context: Context) {
                 val constraints = Constraints.Builder().build()
-                val periodic = PeriodicWorkRequestBuilder<PhoneEventSyncWorker>(15, TimeUnit.MINUTES)
-                    .setConstraints(constraints)
-                    .build()
+                val periodic =
+                    PeriodicWorkRequestBuilder<PhoneEventSyncWorker>(15, TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .build()
                 WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                     UNIQUE_WORK_NAME,
                     ExistingPeriodicWorkPolicy.UPDATE,
                     periodic,
                 )
                 // Use expedited work for immediate sync to bypass work profile throttling
-                val once = OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
-                    .setConstraints(constraints)
-                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                    .build()
+                val once =
+                    OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
+                        .setConstraints(constraints)
+                        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                        .build()
                 WorkManager.getInstance(context).enqueue(once)
             }
         }

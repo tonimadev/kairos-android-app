@@ -20,7 +20,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [30], application = android.app.Application::class)
 class WearCalendarViewModelTest {
-
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private class FakePrefsRepo : AppPreferencesRepository {
@@ -35,28 +34,79 @@ class WearCalendarViewModelTest {
         private val ratingCompleted = MutableStateFlow(false)
         private val allDayAlarmsEnabled = MutableStateFlow(false)
         private val allDayAlarmHour = MutableStateFlow(9)
+        private val alarmOffsetMinutes = MutableStateFlow(0L)
+
         override fun isGlobalAlarmEnabled() = global as Flow<Boolean>
-        override suspend fun setGlobalAlarmEnabled(enabled: Boolean) { global.value = enabled }
+
+        override suspend fun setGlobalAlarmEnabled(enabled: Boolean) {
+            global.value = enabled
+        }
+
         override fun getDisabledEventIds() = disabledInstances as Flow<Set<String>>
-        override suspend fun setDisabledEventIds(ids: Set<String>) { disabledInstances.value = ids }
+
+        override suspend fun setDisabledEventIds(ids: Set<String>) {
+            disabledInstances.value = ids
+        }
+
         override fun getDisabledSeriesIds() = disabledSeries as Flow<Set<String>>
-        override suspend fun setDisabledSeriesIds(ids: Set<String>) { disabledSeries.value = ids }
+
+        override suspend fun setDisabledSeriesIds(ids: Set<String>) {
+            disabledSeries.value = ids
+        }
+
         override fun getVibrateOnlyEventIds(): Flow<Set<String>> = vibrateOnlyEventIds
-        override suspend fun setVibrateOnlyEventIds(ids: Set<String>) { vibrateOnlyEventIds.value = ids }
+
+        override suspend fun setVibrateOnlyEventIds(ids: Set<String>) {
+            vibrateOnlyEventIds.value = ids
+        }
+
         override fun getVibrateOnly() = vibrateOnly as Flow<Boolean>
-        override suspend fun setVibrateOnly(enabled: Boolean) { vibrateOnly.value = enabled }
+
+        override suspend fun setVibrateOnly(enabled: Boolean) {
+            vibrateOnly.value = enabled
+        }
+
         override fun getAutostartSuggestionDismissed() = autoDismiss as Flow<Boolean>
-        override suspend fun setAutostartSuggestionDismissed(dismissed: Boolean) { autoDismiss.value = dismissed }
+
+        override suspend fun setAutostartSuggestionDismissed(dismissed: Boolean) {
+            autoDismiss.value = dismissed
+        }
+
         override fun getInstallationDate() = installationDate as Flow<Long>
-        override suspend fun setInstallationDate(date: Long) { installationDate.value = date }
+
+        override suspend fun setInstallationDate(date: Long) {
+            installationDate.value = date
+        }
+
         override fun isRatingPrompted() = ratingPrompted as Flow<Boolean>
-        override suspend fun setRatingPrompted(prompted: Boolean) { ratingPrompted.value = prompted }
+
+        override suspend fun setRatingPrompted(prompted: Boolean) {
+            ratingPrompted.value = prompted
+        }
+
         override fun isRatingCompleted() = ratingCompleted as Flow<Boolean>
-        override suspend fun setRatingCompleted(completed: Boolean) { ratingCompleted.value = completed }
+
+        override suspend fun setRatingCompleted(completed: Boolean) {
+            ratingCompleted.value = completed
+        }
+
         override fun isAllDayAlarmsEnabled() = allDayAlarmsEnabled as Flow<Boolean>
-        override suspend fun setAllDayAlarmsEnabled(enabled: Boolean) { allDayAlarmsEnabled.value = enabled }
+
+        override suspend fun setAllDayAlarmsEnabled(enabled: Boolean) {
+            allDayAlarmsEnabled.value = enabled
+        }
+
         override fun getAllDayAlarmHour() = allDayAlarmHour as Flow<Int>
-        override suspend fun setAllDayAlarmHour(hour: Int) { allDayAlarmHour.value = hour }
+
+        override suspend fun setAllDayAlarmHour(hour: Int) {
+            allDayAlarmHour.value = hour
+        }
+
+        override fun getAlarmOffsetMinutes() = alarmOffsetMinutes as Flow<Long>
+
+        override suspend fun setAlarmOffsetMinutes(minutes: Long) {
+            alarmOffsetMinutes.value = minutes
+        }
     }
 
     @Test

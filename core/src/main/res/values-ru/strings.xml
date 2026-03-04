@@ -74,4 +74,9 @@
     <string name="all_day_event">Весь день</string>
     <string name="all_day_alarms">Будильники для событий на весь день</string>
     <string name="all_day_alarm_time">Время будильника (события на весь день)</string>
+    <string name="alarm_offset_label">Сработать будильник</string>
+    <string name="alarm_offset_at_time">Во время события</string>
+    <string name="alarm_offset_15_min">За 15 минут</string>
+    <string name="alarm_offset_30_min">За 30 минут</string>
+    <string name="alarm_offset_1_hour">За 1 час</string>
 </resources>

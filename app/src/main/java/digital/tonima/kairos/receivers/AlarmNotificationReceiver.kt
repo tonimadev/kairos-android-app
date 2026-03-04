@@ -22,7 +22,10 @@ import logcat.logcat
 
 class AlarmNotificationReceiver : BroadcastReceiver() {
     @SuppressLint("MissingPermission")
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (intent.action != ACTION_ALARM_TRIGGERED) {
             return
         }
@@ -35,68 +38,77 @@ class AlarmNotificationReceiver : BroadcastReceiver() {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "calendar_alarm_channel"
 
-        val channel = NotificationChannel(
-            channelId,
-            context.getString(R.string.event_alarm),
-            NotificationManager.IMPORTANCE_HIGH,
-        ).apply {
-            description = context.getString(R.string.notification_description)
-        }
+        val channel =
+            NotificationChannel(
+                channelId,
+                context.getString(R.string.event_alarm),
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = context.getString(R.string.notification_description)
+            }
         notificationManager.createNotificationChannel(channel)
 
-        val fullScreenIntent = Intent(context, AlarmActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra(EXTRA_EVENT_TITLE, eventTitle)
-            putExtra(EXTRA_EVENT_ID, eventId)
-            putExtra(EXTRA_EVENT_START_TIME, startTime)
-        }
-        val fullScreenPendingIntent = PendingIntent.getActivity(
-            context,
-            uniqueId,
-            fullScreenIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
+        val fullScreenIntent =
+            Intent(context, AlarmActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                putExtra(EXTRA_EVENT_TITLE, eventTitle)
+                putExtra(EXTRA_EVENT_ID, eventId)
+                putExtra(EXTRA_EVENT_START_TIME, startTime)
+            }
+        val fullScreenPendingIntent =
+            PendingIntent.getActivity(
+                context,
+                uniqueId,
+                fullScreenIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
-        val soundAlarmIntent = Intent(context, AlarmActionReceiver::class.java).apply {
-            putExtra(EXTRA_UNIQUE_ID, uniqueId)
-        }
-        val stopActionPendingIntent = getBroadcast(
-            context,
-            uniqueId + 1,
-            soundAlarmIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
+        val soundAlarmIntent =
+            Intent(context, AlarmActionReceiver::class.java).apply {
+                putExtra(EXTRA_UNIQUE_ID, uniqueId)
+            }
+        val stopActionPendingIntent =
+            getBroadcast(
+                context,
+                uniqueId + 1,
+                soundAlarmIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
         val notificationTitle = context.getString(R.string.commitment)
-        val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_k_monochrome)
-            .setContentTitle(notificationTitle)
-            .setContentText(eventTitle)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setAutoCancel(true)
-            .addAction(0, context.getString(R.string.stop), stopActionPendingIntent)
+        val notificationBuilder =
+            NotificationCompat
+                .Builder(context, channelId)
+                .setSmallIcon(R.drawable.ic_k_monochrome)
+                .setContentTitle(notificationTitle)
+                .setContentText(eventTitle)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setAutoCancel(true)
+                .addAction(0, context.getString(R.string.stop), stopActionPendingIntent)
 
         // Only use full-screen intent on Android 11+ (API 30+)
         // On Android 12+, we also check for USE_FULL_SCREEN_INTENT permission
-        val canUseFullScreenIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Android 12+: Check if the app has the USE_FULL_SCREEN_INTENT permission
-            val hasPermission = ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.USE_FULL_SCREEN_INTENT,
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-            if (hasPermission) {
-                logcat { "Full-screen intent permission is granted" }
-                true
+        val canUseFullScreenIntent =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // Android 12+: Check if the app has the USE_FULL_SCREEN_INTENT permission
+                val hasPermission =
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        android.Manifest.permission.USE_FULL_SCREEN_INTENT,
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                if (hasPermission) {
+                    logcat { "Full-screen intent permission is granted" }
+                    true
+                } else {
+                    logcat { "FALLBACK: USE_FULL_SCREEN_INTENT permission is NOT granted, using regular notification" }
+                    false
+                }
             } else {
-                logcat { "FALLBACK: USE_FULL_SCREEN_INTENT permission is NOT granted, using regular notification" }
-                false
+                // Android 11: Full-screen intent is available
+                logcat { "Full-screen intent available on Android 11+" }
+                true
             }
-        } else {
-            // Android 11: Full-screen intent is available
-            logcat { "Full-screen intent available on Android 11+" }
-            true
-        }
 
         if (canUseFullScreenIntent) {
             notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true)

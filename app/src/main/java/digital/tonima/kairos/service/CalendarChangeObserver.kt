@@ -36,9 +36,10 @@ object CalendarChangeObserver {
     private var observer: ContentObserver? = null
 
     private val debounceHandler = Handler(Looper.getMainLooper())
-    private val debounceRunnable = Runnable {
-        tryEnqueueSync()
-    }
+    private val debounceRunnable =
+        Runnable {
+            tryEnqueueSync()
+        }
 
     fun init(context: Context) {
         if (initialized) return
@@ -49,14 +50,19 @@ object CalendarChangeObserver {
             handlerThread = HandlerThread("CalendarChangeObserver").apply { start() }
             val handler = Handler(handlerThread.looper)
 
-            observer = object : ContentObserver(handler) {
-                override fun onChange(selfChange: Boolean) {
-                    scheduleDebounced()
+            observer =
+                object : ContentObserver(handler) {
+                    override fun onChange(selfChange: Boolean) {
+                        scheduleDebounced()
+                    }
+
+                    override fun onChange(
+                        selfChange: Boolean,
+                        uri: Uri?,
+                    ) {
+                        scheduleDebounced()
+                    }
                 }
-                override fun onChange(selfChange: Boolean, uri: Uri?) {
-                    scheduleDebounced()
-                }
-            }
 
             try {
                 val cr = appContext.contentResolver
@@ -79,10 +85,12 @@ object CalendarChangeObserver {
     }
 
     private fun tryEnqueueSync() {
-        val hasPerm = ContextCompat
-            .checkSelfPermission(
-                appContext, Manifest.permission.READ_CALENDAR,
-            ) == PackageManager.PERMISSION_GRANTED
+        val hasPerm =
+            ContextCompat
+                .checkSelfPermission(
+                    appContext,
+                    Manifest.permission.READ_CALENDAR,
+                ) == PackageManager.PERMISSION_GRANTED
         if (!hasPerm) {
             logcat(LogPriority.WARN) { "CalendarChangeObserver: READ_CALENDAR not granted; skipping immediate sync." }
             return
@@ -90,10 +98,11 @@ object CalendarChangeObserver {
         try {
             val constraints = Constraints.Builder().build()
             // Use expedited work to bypass work profile throttling for immediate changes
-            val request = OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
-                .setConstraints(constraints)
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
+            val request =
+                OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
+                    .setConstraints(constraints)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build()
             WorkManager.getInstance(appContext).enqueueUniqueWork(
                 UNIQUE_WORK_NAME,
                 ExistingWorkPolicy.REPLACE,

@@ -22,8 +22,9 @@ fun GlobalAlarmsToggle(
         onCheckedChange = onCheckedChange,
         label = { Text(stringResource(coreR.string.activate_event_alarms)) },
         toggleControl = { Switch(checked = checked) },
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
     )
 }

@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventScreenUiState
 import java.time.Instant
@@ -36,15 +37,17 @@ fun MainContent(
     onVibrateToggle: (Boolean) -> Unit,
     onAllDayAlarmsToggle: (Boolean) -> Unit,
     onAllDayAlarmHourChanged: (Int) -> Unit,
+    onAlarmOffsetChanged: (AlarmOffset) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    val eventsByDate = remember(uiState.events) {
-        uiState.events.groupBy {
-            Instant.ofEpochMilli(it.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
+    val eventsByDate =
+        remember(uiState.events) {
+            uiState.events.groupBy {
+                Instant.ofEpochMilli(it.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
+            }
         }
-    }
 
     if (isLandscape) {
         Row(
@@ -53,9 +56,10 @@ fun MainContent(
                 .padding(horizontal = 16.dp),
         ) {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
             ) {
                 ControlPanel(
                     uiState = uiState,
@@ -64,6 +68,7 @@ fun MainContent(
                     onVibrateToggle = onVibrateToggle,
                     onAllDayAlarmsToggle = onAllDayAlarmsToggle,
                     onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
+                    onAlarmOffsetChanged = onAlarmOffsetChanged,
                 )
                 CalendarView(
                     modifier = Modifier.padding(top = 8.dp),
@@ -76,9 +81,10 @@ fun MainContent(
                 )
             }
             EventList(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp, top = 16.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp, top = 16.dp),
                 uiState = uiState,
                 eventsByDate = eventsByDate,
                 onRefresh = onRefresh,
@@ -100,6 +106,7 @@ fun MainContent(
                 onVibrateToggle = onVibrateToggle,
                 onAllDayAlarmsToggle = onAllDayAlarmsToggle,
                 onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
+                onAlarmOffsetChanged = onAlarmOffsetChanged,
             )
             CalendarView(
                 modifier = Modifier.padding(top = 8.dp),

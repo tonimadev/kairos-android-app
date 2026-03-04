@@ -18,7 +18,6 @@ import org.robolectric.Shadows.shadowOf
 
 @RunWith(RobolectricTestRunner::class)
 class WearAlarmActionReceiverTest {
-
     private lateinit var context: Context
     private lateinit var notificationManager: NotificationManager
 
@@ -40,20 +39,23 @@ class WearAlarmActionReceiverTest {
     fun `onReceive cancels notification with provided id`() {
         val notificationId = 4321
         val channelId = "test_channel"
-        val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle(context.getString(R.string.event_alarm))
-            .setContentText("Test")
-            .build()
+        val notification =
+            NotificationCompat
+                .Builder(context, channelId)
+                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+                .setContentTitle(context.getString(R.string.event_alarm))
+                .setContentText("Test")
+                .build()
 
         notificationManager.notify(notificationId, notification)
 
         val shadowNmBefore = shadowOf(notificationManager)
         assertEquals(1, shadowNmBefore.allNotifications.size)
 
-        val intent = Intent(context, WearAlarmActionReceiver::class.java).apply {
-            putExtra(EXTRA_UNIQUE_ID, notificationId)
-        }
+        val intent =
+            Intent(context, WearAlarmActionReceiver::class.java).apply {
+                putExtra(EXTRA_UNIQUE_ID, notificationId)
+            }
         val receiver = WearAlarmActionReceiver()
         receiver.onReceive(context, intent)
 

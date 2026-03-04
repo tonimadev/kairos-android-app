@@ -22,11 +22,15 @@ import androidx.compose.ui.unit.dp
 import digital.tonima.kairos.core.R
 
 @Composable
-fun AutostartSuggestionCard(onOpenSettings: () -> Unit, onDismiss: () -> Unit) {
+fun AutostartSuggestionCard(
+    onOpenSettings: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
     ) {

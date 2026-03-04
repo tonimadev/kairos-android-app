@@ -47,7 +47,8 @@ class KairosWearApplication :
 
         // Schedule an immediate one-time run to ensure alarms are set at startup
         val initialRequest = OneTimeWorkRequestBuilder<CachedEventSchedulingWorker>().build()
-        WorkManager.getInstance(applicationContext)
+        WorkManager
+            .getInstance(applicationContext)
             .enqueueUniqueWork(
                 WorkNames.UNIQUE_SCHEDULE_NOW,
                 ExistingWorkPolicy.REPLACE,
@@ -82,7 +83,8 @@ class KairosWearApplication :
             workManager.cancelUniqueWork("event-scheduler")
             workManager.cancelUniqueWork("initial-event-scheduler")
             workManager.cancelAllWorkByTag("digital.tonima.core.service.AlarmSchedulingWorker")
-        } catch (_: Throwable) { }
+        } catch (_: Throwable) {
+        }
 
         val repeatingRequest =
             PeriodicWorkRequestBuilder<CachedEventSchedulingWorker>(15, TimeUnit.MINUTES)

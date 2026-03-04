@@ -60,11 +60,12 @@ fun WearApp(
     val listState = rememberScalingLazyListState()
     val context = LocalContext.current
 
-    val standardPermissionsToRequest = remember {
-        permissionManager.calendarPermissions.toMutableList().apply {
-            addAll(permissionManager.notificationPermissions)
+    val standardPermissionsToRequest =
+        remember {
+            permissionManager.calendarPermissions.toMutableList().apply {
+                addAll(permissionManager.notificationPermissions)
+            }
         }
-    }
 
     val standardPermissionState =
         rememberMultiplePermissionsState(permissions = standardPermissionsToRequest)
@@ -78,12 +79,13 @@ fun WearApp(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.checkAllPermissions()
-                wearCalendarViewModel.requestRescan()
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    viewModel.checkAllPermissions()
+                    wearCalendarViewModel.requestRescan()
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
@@ -150,7 +152,10 @@ fun WearApp(
                 }
                 item {
                     Spacer(Modifier.height(8.dp))
-                    OpenOnPhoneChip(onClick = { digital.tonima.kairos.wear.ui.actions.OpenOnPhone.launch(context) })
+                    OpenOnPhoneChip(onClick = {
+                        digital.tonima.kairos.wear.ui.actions.OpenOnPhone
+                            .launch(context)
+                    })
                 }
                 item { VersionFooter() }
             }
@@ -163,22 +168,23 @@ fun WearApp(
 fun WearAppPreview() {
     KairosTheme {
         val listState = rememberScalingLazyListState()
-        val sampleEvents = listOf(
-            Event(
-                id = 1L,
-                title = "Reunião de projeto",
-                startTime = System.currentTimeMillis() + 60 * 60 * 1000,
-                isAlarmEnabled = true,
-                isRecurring = false,
-            ),
-            Event(
-                id = 2L,
-                title = "Aula de Yoga",
-                startTime = System.currentTimeMillis() + 2 * 60 * 60 * 1000,
-                isAlarmEnabled = false,
-                isRecurring = true,
-            ),
-        )
+        val sampleEvents =
+            listOf(
+                Event(
+                    id = 1L,
+                    title = "Reunião de projeto",
+                    startTime = System.currentTimeMillis() + 60 * 60 * 1000,
+                    isAlarmEnabled = true,
+                    isRecurring = false,
+                ),
+                Event(
+                    id = 2L,
+                    title = "Aula de Yoga",
+                    startTime = System.currentTimeMillis() + 2 * 60 * 60 * 1000,
+                    isAlarmEnabled = false,
+                    isRecurring = true,
+                ),
+            )
         Scaffold(
             timeText = { TimeText(modifier = Modifier.scrollAway(listState)) },
             vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },

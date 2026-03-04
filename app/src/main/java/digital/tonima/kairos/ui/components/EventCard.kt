@@ -56,24 +56,26 @@ fun EventCard(
         onClick = onEventClick,
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .heightIn(min = 72.dp),
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .heightIn(min = 72.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        if (event.isAlarmEnabled) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.outline
-                        },
-                    ),
+                modifier =
+                    Modifier
+                        .width(4.dp)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            if (event.isAlarmEnabled) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            },
+                        ),
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -87,10 +89,11 @@ fun EventCard(
                 Spacer(modifier = Modifier.heightIn(min = 4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                        modifier =
+                            Modifier
+                                .clip(RoundedCornerShape(50))
+                                .background(MaterialTheme.colorScheme.secondaryContainer)
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
                     ) {
                         Text(
                             text = (if (event.isAlarmEnabled) "🔔 " else "🔕 ") + formatMillisToTime(event.startTime),
@@ -102,10 +105,11 @@ fun EventCard(
                 if (event.isRecurring) {
                     Spacer(modifier = Modifier.heightIn(min = 4.dp))
                     Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                        modifier =
+                            Modifier
+                                .clip(RoundedCornerShape(50))
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
                     ) {
                         Text(
                             text = "🔁 " + stringResource(R.string.recurring_label),
@@ -152,12 +156,13 @@ fun formatMillisToTime(millis: Long): String {
 @Preview
 @Composable
 fun EventCardPreview() {
-    val sampleEvent = Event(
-        id = 1L,
-        title = "Team Meeting",
-        startTime = System.currentTimeMillis() + 3600000,
-        isAlarmEnabled = true,
-    )
+    val sampleEvent =
+        Event(
+            id = 1L,
+            title = "Team Meeting",
+            startTime = System.currentTimeMillis() + 3600000,
+            isAlarmEnabled = true,
+        )
     EventCard(
         event = sampleEvent,
         isGloballyEnabled = true,

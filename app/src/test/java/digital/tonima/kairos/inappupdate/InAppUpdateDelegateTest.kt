@@ -26,7 +26,6 @@ import org.robolectric.android.controller.ActivityController
 
 @RunWith(RobolectricTestRunner::class)
 class InAppUpdateDelegateTest {
-
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
     private lateinit var fakeManager: FakeInAppUpdateManager
@@ -49,13 +48,14 @@ class InAppUpdateDelegateTest {
         var callbackInvoked = false
         fakeManager.onCheckForUpdateCallback = { callbackInvoked = true }
 
-        val delegate = InAppUpdateDelegate(
-            activity = activity,
-            inAppUpdateManager = fakeManager,
-            snackbarHostState = snackbarHostState,
-            coroutineScope = scope,
-            updateLauncher = launcher,
-        )
+        val delegate =
+            InAppUpdateDelegate(
+                activity = activity,
+                inAppUpdateManager = fakeManager,
+                snackbarHostState = snackbarHostState,
+                coroutineScope = scope,
+                updateLauncher = launcher,
+            )
 
         delegate.onCreate()
 
@@ -72,13 +72,14 @@ class InAppUpdateDelegateTest {
 
     @Test
     fun onResume_delegatesToHandleImmediateUpdateOnResume() {
-        val delegate = InAppUpdateDelegate(
-            activity = activity,
-            inAppUpdateManager = fakeManager,
-            snackbarHostState = snackbarHostState,
-            coroutineScope = scope,
-            updateLauncher = launcher,
-        )
+        val delegate =
+            InAppUpdateDelegate(
+                activity = activity,
+                inAppUpdateManager = fakeManager,
+                snackbarHostState = snackbarHostState,
+                coroutineScope = scope,
+                updateLauncher = launcher,
+            )
 
         delegate.onResume()
 
@@ -88,13 +89,14 @@ class InAppUpdateDelegateTest {
 
     @Test
     fun whenDownloaded_showsSnackbar_andActionCallsCompleteFlexibleUpdate() {
-        val delegate = InAppUpdateDelegate(
-            activity = activity,
-            inAppUpdateManager = fakeManager,
-            snackbarHostState = snackbarHostState,
-            coroutineScope = scope,
-            updateLauncher = launcher,
-        )
+        val delegate =
+            InAppUpdateDelegate(
+                activity = activity,
+                inAppUpdateManager = fakeManager,
+                snackbarHostState = snackbarHostState,
+                coroutineScope = scope,
+                updateLauncher = launcher,
+            )
 
         val field = InAppUpdateDelegate::class.java.getDeclaredField("installStateUpdatedListener")
         field.isAccessible = true
@@ -111,18 +113,36 @@ class InAppUpdateDelegateTest {
     private class DummyLauncher : ActivityResultLauncher<IntentSenderRequest>() {
         override val contract: ActivityResultContract<IntentSenderRequest, Any?> =
             object : ActivityResultContract<IntentSenderRequest, Any?>() {
-                override fun createIntent(context: Context, input: IntentSenderRequest): Intent = Intent("dummy-action")
-                override fun parseResult(resultCode: Int, intent: Intent?): Any? = null
+                override fun createIntent(
+                    context: Context,
+                    input: IntentSenderRequest,
+                ): Intent = Intent("dummy-action")
+
+                override fun parseResult(
+                    resultCode: Int,
+                    intent: Intent?,
+                ): Any? = null
             }
-        override fun launch(input: IntentSenderRequest, options: ActivityOptionsCompat?) { /* no-op */ }
+
+        override fun launch(
+            input: IntentSenderRequest,
+            options: ActivityOptionsCompat?,
+        ) { /* no-op */ }
+
         override fun unregister() { /* no-op */ }
     }
 
-    private class FakeInstallState(private val status: Int) : InstallState() {
+    private class FakeInstallState(
+        private val status: Int,
+    ) : InstallState() {
         override fun bytesDownloaded(): Long = 0L
+
         override fun totalBytesToDownload(): Long = 0L
+
         override fun installErrorCode(): Int = 0
+
         override fun installStatus(): Int = status
+
         override fun packageName(): String = RuntimeEnvironment.getApplication().packageName
     }
 

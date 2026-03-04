@@ -34,15 +34,16 @@ fun DrawerContent(
     onCloseDrawer: () -> Unit,
 ) {
     val context = LocalContext.current
-    val versionName = remember {
-        try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.versionName ?: "N/A"
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-            "N/A"
+    val versionName =
+        remember {
+            try {
+                val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                packageInfo.versionName ?: "N/A"
+            } catch (e: PackageManager.NameNotFoundException) {
+                e.printStackTrace()
+                "N/A"
+            }
         }
-    }
 
     ModalDrawerSheet {
         Box(modifier = Modifier.fillMaxHeight()) {
@@ -82,9 +83,10 @@ fun DrawerContent(
                 text = stringResource(R.string.version, versionName),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp),
             )
         }
     }

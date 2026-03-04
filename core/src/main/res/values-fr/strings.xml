@@ -76,4 +76,9 @@
     <string name="all_day_event">Toute la journée</string>
     <string name="all_day_alarms">Alarmes pour événements toute la journée</string>
     <string name="all_day_alarm_time">Heure de l\'alarme (événements toute la journée)</string>
+    <string name="alarm_offset_label">Déclencher l\'alarme</string>
+    <string name="alarm_offset_at_time">À l\'heure de l\'événement</string>
+    <string name="alarm_offset_15_min">15 minutes avant</string>
+    <string name="alarm_offset_30_min">30 minutes avant</string>
+    <string name="alarm_offset_1_hour">1 heure avant</string>
 </resources>

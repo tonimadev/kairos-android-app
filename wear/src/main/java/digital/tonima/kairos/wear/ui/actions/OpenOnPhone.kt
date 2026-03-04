@@ -25,9 +25,10 @@ object OpenOnPhone {
 
         // 1) Try to open the app via custom scheme deep link
         val deepLink = "digital.tonima.kairos://open".toUri()
-        val openIntent = Intent(ACTION_VIEW, deepLink)
-            .addCategory(CATEGORY_BROWSABLE)
-            .addCategory(Intent.CATEGORY_DEFAULT)
+        val openIntent =
+            Intent(ACTION_VIEW, deepLink)
+                .addCategory(CATEGORY_BROWSABLE)
+                .addCategory(Intent.CATEGORY_DEFAULT)
 
         val future = helper.startRemoteActivity(openIntent)
         Futures.addCallback(
@@ -42,10 +43,11 @@ object OpenOnPhone {
                         "OpenOnPhone failed to launch app on phone: ${t.localizedMessage}"
                     }
                     // 2) Fallback to Play Store (market://)
-                    val marketIntent = Intent(
-                        ACTION_VIEW,
-                        "market://details?id=digital.tonima.kairos".toUri(),
-                    ).addCategory(CATEGORY_BROWSABLE)
+                    val marketIntent =
+                        Intent(
+                            ACTION_VIEW,
+                            "market://details?id=digital.tonima.kairos".toUri(),
+                        ).addCategory(CATEGORY_BROWSABLE)
 
                     val marketFuture = helper.startRemoteActivity(marketIntent)
                     Futures.addCallback(
@@ -60,10 +62,11 @@ object OpenOnPhone {
                                     "OpenOnPhone failed to open Play Store on phone: ${t2.localizedMessage}. Trying web URL…"
                                 }
 
-                                val webIntent = Intent(
-                                    ACTION_VIEW,
-                                    "https://play.google.com/store/apps/details?id=digital.tonima.kairos".toUri(),
-                                ).addCategory(CATEGORY_BROWSABLE)
+                                val webIntent =
+                                    Intent(
+                                        ACTION_VIEW,
+                                        "https://play.google.com/store/apps/details?id=digital.tonima.kairos".toUri(),
+                                    ).addCategory(CATEGORY_BROWSABLE)
 
                                 val webFuture = helper.startRemoteActivity(webIntent)
                                 Futures.addCallback(

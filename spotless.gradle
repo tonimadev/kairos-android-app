@@ -4,13 +4,6 @@ spotless {
 
         targetExclude("$buildDir/**/*.kt")
 
-        ktlint("0.50.0").setEditorConfigPath("$rootDir/.editorconfig")
-    }
-
-    format 'xml', {
-        target '**/*.xml'
-        targetExclude('**/build/**/*.xml')
-        targetExclude('.idea/**/*.xml')
-        eclipseWtp('xml').configFile(rootProject.file('spotless/xml.prefs'))
+        ktlint("1.8.0").setEditorConfigPath("$rootDir/.editorconfig")
     }
 }

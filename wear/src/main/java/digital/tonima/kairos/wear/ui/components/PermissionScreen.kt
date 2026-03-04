@@ -21,9 +21,10 @@ fun WearOsPermissionsScreenContent(
     onRetryClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 24.dp, start = 8.dp, end = 8.dp, bottom = 24.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp, start = 8.dp, end = 8.dp, bottom = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -39,17 +40,19 @@ fun WearOsPermissionsScreenContent(
         Chip(
             onClick = onRetryClick,
             label = { Text(stringResource(coreR.string.provide_permission)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
         )
         Spacer(Modifier.height(8.dp))
         Chip(
             onClick = onSettingsClick,
             label = { Text(stringResource(coreR.string.open_settings)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
         )
     }
 }

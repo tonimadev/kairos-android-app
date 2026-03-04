@@ -18,9 +18,10 @@ fun AdBannerView(
 ) {
     if (isProUser) return
     AndroidView(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
         factory = { context ->
             AdView(context).apply {
                 setAdSize(AdSize.BANNER)
