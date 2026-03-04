@@ -1,6 +1,7 @@
 package digital.tonima.kairos
 
 import android.app.Application
+import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.Constraints
@@ -81,10 +82,9 @@ class KairosApplication :
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        if (level >= TRIM_MEMORY_RUNNING_CRITICAL ||
-            level == TRIM_MEMORY_COMPLETE ||
-            level == TRIM_MEMORY_MODERATE
-        ) {
+        // TRIM_MEMORY_RUNNING_CRITICAL, TRIM_MEMORY_COMPLETE and TRIM_MEMORY_MODERATE
+        // are not delivered since API 34. Only relevant for API 30–33 (minSdk).
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             setupRecurringWork()
         }
     }
