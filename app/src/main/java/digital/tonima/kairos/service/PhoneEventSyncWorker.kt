@@ -16,6 +16,7 @@ import com.google.android.gms.wearable.Wearable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import digital.tonima.core.repository.CalendarRepository
+import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_EVENTS
 import digital.tonima.core.sync.WearSyncSchema.KEY_GENERATED_AT
 import digital.tonima.core.sync.WearSyncSchema.KEY_ID
@@ -62,6 +63,7 @@ class PhoneEventSyncWorker
                     dm.putString(KEY_TITLE, e.title)
                     dm.putLong(KEY_START, e.startTime)
                     dm.putBoolean(KEY_RECUR, e.isRecurring)
+                    dm.putBoolean(KEY_ALL_DAY, e.isAllDay)
                     list.add(dm)
                 }
                 map.putDataMapArrayList(KEY_EVENTS, list)

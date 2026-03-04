@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.firstOrNull
 import logcat.LogPriority
 import logcat.logcat
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -33,12 +36,18 @@ class CachedEventSchedulingWorker
                     return Result.success()
                 }
 
+                val offsetMinutes = appPreferencesRepository.getAlarmOffsetMinutes().firstOrNull() ?: 0L
+                val allDayAlarmsEnabled = appPreferencesRepository.isAllDayAlarmsEnabled().firstOrNull() ?: true
+                val allDayAlarmHour = appPreferencesRepository.getAllDayAlarmHour().firstOrNull() ?: 9
+
                 val events = WearEventCache.load(applicationContext).sortedBy { it.startTime }
                 val disabledInstanceIds = appPreferencesRepository.getDisabledEventIds().firstOrNull() ?: emptySet()
                 val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
 
                 val now = System.currentTimeMillis()
-                val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75)
+                // Expand window by offsetMinutes so events whose alarm fires within 75 min are caught
+                // even when their startTime is further ahead.
+                val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
                 val sdf = SimpleDateFormat("dd/MM HH:mm:ss", Locale.getDefault())
 
                 logcat {
@@ -49,8 +58,26 @@ class CachedEventSchedulingWorker
 
                 val toSchedule =
                     events
-                        .filter { it.startTime in (now + 1)..scheduleWindowEnd }
-                        .filter { e ->
+                        .filter { event ->
+                            if (event.isAllDay) {
+                                if (!allDayAlarmsEnabled) return@filter false
+                                val eventDate =
+                                    Instant
+                                        .ofEpochMilli(event.startTime)
+                                        .atZone(ZoneId.of("UTC"))
+                                        .toLocalDate()
+                                val alarmFireTime =
+                                    eventDate
+                                        .atTime(LocalTime.of(allDayAlarmHour, 0))
+                                        .atZone(ZoneId.systemDefault())
+                                        .toInstant()
+                                        .toEpochMilli()
+                                alarmFireTime in (now + 1)..scheduleWindowEnd
+                            } else {
+                                val alarmFireTime = event.startTime - TimeUnit.MINUTES.toMillis(offsetMinutes)
+                                alarmFireTime in (now + 1)..scheduleWindowEnd
+                            }
+                        }.filter { e ->
                             val instanceDisabled = disabledInstanceIds.contains(e.uniqueIntentId.toString())
                             val seriesDisabled = disabledSeriesIds.contains(e.id.toString())
                             !(instanceDisabled || seriesDisabled)

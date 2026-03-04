@@ -3,6 +3,7 @@ package digital.tonima.kairos.wear.sync
 import android.content.Context
 import androidx.core.content.edit
 import digital.tonima.core.model.Event
+import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_ID
 import digital.tonima.core.sync.WearSyncSchema.KEY_RECUR
 import digital.tonima.core.sync.WearSyncSchema.KEY_START
@@ -25,6 +26,7 @@ object WearEventCache {
             o.put(KEY_TITLE, e.title)
             o.put(KEY_START, e.startTime)
             o.put(KEY_RECUR, e.isRecurring)
+            o.put(KEY_ALL_DAY, e.isAllDay)
             arr.put(o)
         }
         context
@@ -48,6 +50,7 @@ object WearEventCache {
                         title = o.getString(KEY_TITLE),
                         startTime = o.getLong(KEY_START),
                         isRecurring = o.optBoolean(KEY_RECUR, false),
+                        isAllDay = o.optBoolean(KEY_ALL_DAY, false),
                     ),
                 )
             }

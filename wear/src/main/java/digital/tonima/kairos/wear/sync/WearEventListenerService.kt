@@ -9,6 +9,7 @@ import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
 import digital.tonima.core.model.Event
+import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_EVENTS
 import digital.tonima.core.sync.WearSyncSchema.KEY_ID
 import digital.tonima.core.sync.WearSyncSchema.KEY_START
@@ -41,7 +42,10 @@ class WearEventListenerService : WearableListenerService() {
                             val title = dm.getString(KEY_TITLE) ?: "(sem título)"
                             val start = dm.getLong(KEY_START)
                             val rec = dm.getBoolean(digital.tonima.core.sync.WearSyncSchema.KEY_RECUR)
-                            events.add(Event(id = id, title = title, startTime = start, isRecurring = rec))
+                            val allDay = dm.getBoolean(KEY_ALL_DAY)
+                            events.add(
+                                Event(id = id, title = title, startTime = start, isRecurring = rec, isAllDay = allDay),
+                            )
                         }
                     } catch (t: Throwable) {
                         logcat { "Wear listener parse error: ${t.localizedMessage}" }

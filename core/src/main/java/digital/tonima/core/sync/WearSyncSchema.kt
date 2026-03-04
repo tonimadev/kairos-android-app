@@ -12,5 +12,6 @@ object WearSyncSchema {
     const val KEY_TITLE = "title"
     const val KEY_START = "start"
     const val KEY_RECUR = "recurring"
+    const val KEY_ALL_DAY = "all_day"
     const val KEY_GENERATED_AT = "generated_at"
 }
