@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import com.google.android.gms.ads.MobileAds
 import logcat.AndroidLogcatLogger
 import logcat.LogPriority
 import logcat.LogPriority.VERBOSE
@@ -47,6 +48,9 @@ class KairosApplication :
 
     override fun onCreate() {
         super.onCreate()
+        MobileAds.initialize(this) { initializationStatus ->
+            logcat(LogPriority.INFO) { "MobileAds initialized: $initializationStatus" }
+        }
         try {
             WorkManager.initialize(this, workManagerConfiguration)
         } catch (e: IllegalStateException) {

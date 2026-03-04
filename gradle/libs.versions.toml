@@ -68,7 +68,7 @@ androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler",versi
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
 androidx-compose-calendar = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "compose-calendar" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
-play-services-ads-api = { group = "com.google.android.gms", name = "play-services-ads-api", version.ref = "playServicesAdsApi" }
+play-services-ads-api = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAdsApi" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }

@@ -26,11 +26,17 @@ fun AdBannerView(
             AdView(context).apply {
                 setAdSize(AdSize.BANNER)
                 adUnitId = adId
+                if (loadAd) {
+                    loadAd(AdRequest.Builder().build())
+                }
             }
         },
         update = { adView ->
-            if (loadAd) {
-                adView.loadAd(AdRequest.Builder().build())
+            if (adView.adUnitId != adId) {
+                adView.adUnitId = adId
+                if (loadAd) {
+                    adView.loadAd(AdRequest.Builder().build())
+                }
             }
         },
     )

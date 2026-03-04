@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        billingManager.connect()
         setContent {
             KairosTheme {
                 Surface(
