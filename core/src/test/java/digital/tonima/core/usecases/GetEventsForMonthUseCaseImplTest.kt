@@ -1,11 +1,14 @@
 package digital.tonima.core.usecases
 
 import digital.tonima.core.model.Event
+import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -23,12 +26,15 @@ import java.time.ZonedDateTime
 class GetEventsForMonthUseCaseImplTest {
 
     private lateinit var mockEventsRepository: CalendarRepository
+    private lateinit var mockAppPreferencesRepository: AppPreferencesRepository
     private lateinit var getEventsForMonthUseCase: GetEventsForMonthUseCase
 
     @Before
     fun setup() {
         mockEventsRepository = mockk()
-        getEventsForMonthUseCase = GetEventsForMonthUseCaseImpl(mockEventsRepository)
+        mockAppPreferencesRepository = mockk()
+        every { mockAppPreferencesRepository.getEnabledCalendarIds() } returns flowOf(emptySet())
+        getEventsForMonthUseCase = GetEventsForMonthUseCaseImpl(mockEventsRepository, mockAppPreferencesRepository)
     }
 
     @Test
@@ -53,12 +59,12 @@ class GetEventsForMonthUseCaseImplTest {
                 isAlarmEnabled = false
             )
         )
-        coEvery { mockEventsRepository.getEventsForMonth(yearMonth) } returns expectedEvents
+        coEvery { mockEventsRepository.getEventsForMonth(yearMonth, emptyList()) } returns expectedEvents
 
         val result = getEventsForMonthUseCase.invoke(yearMonth)
 
         assertEquals(expectedEvents, result)
-        coVerify(exactly = 1) { mockEventsRepository.getEventsForMonth(yearMonth) }
+        coVerify(exactly = 1) { mockEventsRepository.getEventsForMonth(yearMonth, emptyList()) }
     }
 }
 

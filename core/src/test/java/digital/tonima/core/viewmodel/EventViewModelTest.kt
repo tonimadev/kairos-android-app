@@ -7,6 +7,7 @@ import digital.tonima.core.model.Event
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.AudioWarningState
+import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
@@ -52,6 +53,7 @@ class EventViewModelTest {
     private val mockRingerModeRepository: RingerModeRepository = mockk(relaxed = true)
     private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val mockPermissionManager: PermissionManager = mockk(relaxed = true)
+    private val mockCalendarRepository: CalendarRepository = mockk(relaxed = true)
     private lateinit var viewModel: EventViewModel
 
     private val isGlobalAlarmEnabledFlow = MutableStateFlow(true)
@@ -92,6 +94,7 @@ class EventViewModelTest {
             mockRingerModeRepository,
             mockScheduler,
             mockPermissionManager,
+            mockCalendarRepository,
         )
     }
 
@@ -202,6 +205,7 @@ class EventViewModelTest {
             mockRingerModeRepository,
             mockScheduler,
             mockPermissionManager,
+            mockCalendarRepository,
         )
 
         io.mockk.clearMocks(getEventsForMonthUseCase, answers = false)
@@ -227,6 +231,7 @@ class EventViewModelTest {
             mockRingerModeRepository,
             mockScheduler,
             mockPermissionManager,
+            mockCalendarRepository,
         )
         io.mockk.clearMocks(mockScheduler, answers = false)
 
@@ -405,6 +410,7 @@ class EventViewModelTest {
             mockRingerModeRepository,
             mockScheduler,
             mockPermissionManager,
+            mockCalendarRepository,
         )
         advanceUntilIdle()
 
@@ -431,6 +437,7 @@ class EventViewModelTest {
             mockRingerModeRepository,
             mockScheduler,
             mockPermissionManager,
+            mockCalendarRepository,
         )
         advanceUntilIdle()
 
@@ -448,7 +455,6 @@ class EventViewModelTest {
         ratingPromptedFlow.value = false
         ratingCompletedFlow.value = true
 
-        // Create new ViewModel to trigger init block
         val vm = EventViewModel(
             mockProUserProvider,
             getEventsForMonthUseCase,
@@ -456,6 +462,7 @@ class EventViewModelTest {
             mockRingerModeRepository,
             mockScheduler,
             mockPermissionManager,
+            mockCalendarRepository,
         )
         advanceUntilIdle()
 
@@ -473,7 +480,6 @@ class EventViewModelTest {
         ratingPromptedFlow.value = false
         ratingCompletedFlow.value = false
 
-        // Create new ViewModel to trigger init block
         val vm = EventViewModel(
             mockProUserProvider,
             getEventsForMonthUseCase,
@@ -481,6 +487,7 @@ class EventViewModelTest {
             mockRingerModeRepository,
             mockScheduler,
             mockPermissionManager,
+            mockCalendarRepository,
         )
         advanceUntilIdle()
 

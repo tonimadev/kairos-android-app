@@ -1,11 +1,14 @@
 package digital.tonima.core.usecases
 
 import digital.tonima.core.model.Event
+import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -22,12 +25,15 @@ import java.time.ZonedDateTime
 class GetNextEventUseCaseImplTest {
 
     private lateinit var mockEventsRepository: CalendarRepository
+    private lateinit var mockAppPreferencesRepository: AppPreferencesRepository
     private lateinit var getNextEventUseCase: GetNextEventUseCase
 
     @Before
     fun setup() {
         mockEventsRepository = mockk()
-        getNextEventUseCase = GetNextEventUseCaseImpl(mockEventsRepository)
+        mockAppPreferencesRepository = mockk()
+        every { mockAppPreferencesRepository.getEnabledCalendarIds() } returns flowOf(emptySet())
+        getNextEventUseCase = GetNextEventUseCaseImpl(mockEventsRepository, mockAppPreferencesRepository)
     }
 
     @Test
@@ -43,12 +49,12 @@ class GetNextEventUseCaseImplTest {
             startTime = toEpochMillis(LocalDate.of(2023, 10, 26), LocalTime.of(10, 0)),
             isAlarmEnabled = true
         )
-        coEvery { mockEventsRepository.getNextUpcomingEvent() } returns expectedEvent
+        coEvery { mockEventsRepository.getNextUpcomingEvent(emptyList()) } returns expectedEvent
 
         val result = getNextEventUseCase.invoke()
 
         assertEquals(expectedEvent, result)
-        coVerify(exactly = 1) { mockEventsRepository.getNextUpcomingEvent() }
+        coVerify(exactly = 1) { mockEventsRepository.getNextUpcomingEvent(emptyList()) }
     }
 }
 
