@@ -46,7 +46,6 @@ class KairosWearApplication :
         setupLogger()
         setupRecurringWork()
 
-        // Schedule an immediate one-time run to ensure alarms are set at startup
         val initialRequest = OneTimeWorkRequestBuilder<CachedEventSchedulingWorker>().build()
         WorkManager
             .getInstance(applicationContext)
@@ -59,8 +58,6 @@ class KairosWearApplication :
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        // TRIM_MEMORY_COMPLETE and TRIM_MEMORY_MODERATE are not delivered since API 34.
-        // Only relevant for API 30–33 (minSdk). On API 34+ this block is never reached.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             setupRecurringWork()
         }

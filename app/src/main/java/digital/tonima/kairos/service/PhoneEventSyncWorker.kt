@@ -90,13 +90,12 @@ class PhoneEventSyncWorker
                     ExistingPeriodicWorkPolicy.UPDATE,
                     periodic,
                 )
-                // Use expedited work for immediate sync to bypass work profile throttling
-                val once =
+                val rescheduleRequest =
                     OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
                         .setConstraints(constraints)
                         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                         .build()
-                WorkManager.getInstance(context).enqueue(once)
+                WorkManager.getInstance(context).enqueue(rescheduleRequest)
             }
         }
     }

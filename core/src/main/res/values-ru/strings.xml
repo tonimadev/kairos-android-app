@@ -79,4 +79,6 @@
     <string name="alarm_offset_15_min">За 15 минут</string>
     <string name="alarm_offset_30_min">За 30 минут</string>
     <string name="alarm_offset_1_hour">За 1 час</string>
+    <string name="calendar_filter_title">Фильтр календарей</string>
+    <string name="calendar_filter_all_enabled">Все календари включены</string>
 </resources>

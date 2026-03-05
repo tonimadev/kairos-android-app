@@ -60,14 +60,12 @@ class KairosApplication :
         }
         setupLogger()
 
-        // Log work profile status for debugging
         logcat(LogPriority.INFO) {
             "Kairos running in: ${DeviceInfoUtils.getProfileDescription(this)}"
         }
 
         setupRecurringWork()
         enqueuePeriodic(this)
-        // Register calendar change observer to auto-push new/updated events to Wear
         try {
             CalendarChangeObserver.init(this)
         } catch (t: Throwable) {
@@ -75,7 +73,6 @@ class KairosApplication :
                 LogPriority.ERROR,
             ) { "KairosApplication: failed to init CalendarChangeObserver: ${t.localizedMessage}" }
         }
-        // Set installation date if not set
         CoroutineScope(Dispatchers.IO).launch {
             val installationDate = appPreferencesRepository.getInstallationDate().first()
             if (installationDate == 0L) {
@@ -86,8 +83,6 @@ class KairosApplication :
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        // TRIM_MEMORY_RUNNING_CRITICAL, TRIM_MEMORY_COMPLETE and TRIM_MEMORY_MODERATE
-        // are not delivered since API 34. Only relevant for API 30–33 (minSdk).
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             setupRecurringWork()
         }

@@ -28,3 +28,17 @@ fun EventsSectionHeader() {
     )
     Spacer(Modifier.height(8.dp))
 }
+
+@Composable
+fun SectionLabel(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Spacer(Modifier.height(16.dp))
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelMedium,
+        modifier = modifier,
+    )
+    Spacer(Modifier.height(4.dp))
+}

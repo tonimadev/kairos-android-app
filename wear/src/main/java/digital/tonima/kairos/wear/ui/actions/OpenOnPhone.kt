@@ -14,16 +14,10 @@ import com.google.common.util.concurrent.MoreExecutors
 import logcat.LogPriority
 import logcat.logcat
 
-/**
- * Helper to request opening Kairos on the paired phone from the watch.
- * Uses RemoteActivityHelper with ACTION_VIEW + BROWSABLE deep link
- * and falls back to Play Store (market://, then https URL) if needed.
- */
 object OpenOnPhone {
     fun launch(context: Context) {
         val helper = RemoteActivityHelper(context)
 
-        // 1) Try to open the app via custom scheme deep link
         val deepLink = "digital.tonima.kairos://open".toUri()
         val openIntent =
             Intent(ACTION_VIEW, deepLink)
@@ -42,7 +36,6 @@ object OpenOnPhone {
                     logcat(tag = "WearApp", priority = LogPriority.ERROR) {
                         "OpenOnPhone failed to launch app on phone: ${t.localizedMessage}"
                     }
-                    // 2) Fallback to Play Store (market://)
                     val marketIntent =
                         Intent(
                             ACTION_VIEW,

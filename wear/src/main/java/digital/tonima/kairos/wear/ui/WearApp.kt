@@ -37,6 +37,8 @@ import digital.tonima.core.model.Event
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.kairos.wear.ui.components.AppHeaderTitle
+import digital.tonima.kairos.wear.ui.components.CalendarFilterChip
+import digital.tonima.kairos.wear.ui.components.CalendarFilterHeader
 import digital.tonima.kairos.wear.ui.components.EventCard
 import digital.tonima.kairos.wear.ui.components.EventsListSection
 import digital.tonima.kairos.wear.ui.components.EventsSectionHeader
@@ -75,6 +77,12 @@ fun WearApp(
             standardPermissionState.launchMultiplePermissionRequest()
         }
         viewModel.checkAllPermissions()
+    }
+
+    LaunchedEffect(uiState.hasCalendarPermission) {
+        if (uiState.hasCalendarPermission) {
+            viewModel.loadAvailableCalendars()
+        }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -137,6 +145,18 @@ fun WearApp(
                         checked = uiState.vibrateOnly,
                         onCheckedChange = { enabled -> viewModel.onVibrateOnlyChanged(enabled) },
                     )
+                }
+                if (uiState.availableCalendars.isNotEmpty()) {
+                    item { CalendarFilterHeader() }
+                    items(uiState.availableCalendars) { calendar ->
+                        CalendarFilterChip(
+                            calendar = calendar,
+                            enabledCalendarIds = uiState.enabledCalendarIds,
+                            onToggle = { calendarId, enabled ->
+                                viewModel.onCalendarFilterToggle(calendarId, enabled)
+                            },
+                        )
+                    }
                 }
                 item { Spacer(Modifier.height(8.dp)) }
                 item { EventsSectionHeader() }

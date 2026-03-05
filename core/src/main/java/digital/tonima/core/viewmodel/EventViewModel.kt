@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.AlarmOffset
+import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.AudioWarningState
+import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
@@ -43,7 +45,9 @@ data class EventScreenUiState(
     val showRatingDialog: Boolean = false,
     val allDayAlarmsEnabled: Boolean = true,
     val allDayAlarmHour: Int = 9,
-    val alarmOffsetMinutes: Long = 0L
+    val alarmOffsetMinutes: Long = 0L,
+    val availableCalendars: List<DeviceCalendar> = emptyList(),
+    val enabledCalendarIds: Set<Long> = emptySet(),
 )
 
 @HiltViewModel
@@ -55,7 +59,8 @@ constructor(
     private val appPreferencesRepository: AppPreferencesRepository,
     private val ringerModeRepository: RingerModeRepository,
     private val scheduler: EventAlarmScheduler,
-    private val permissionManager: PermissionManager
+    private val permissionManager: PermissionManager,
+    private val calendarRepository: CalendarRepository
 ) : ViewModel(), ProUserProvider by proUserProvider {
 
     private val _uiState = MutableStateFlow(EventScreenUiState())
@@ -112,6 +117,16 @@ constructor(
             }
             .launchIn(viewModelScope)
 
+        appPreferencesRepository.getEnabledCalendarIds()
+            .onEach { idStrings ->
+                val ids = idStrings.mapNotNull { it.toLongOrNull() }.toSet()
+                _uiState.update { it.copy(enabledCalendarIds = ids) }
+                if (_uiState.value.hasCalendarPermission) {
+                    onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                }
+            }
+            .launchIn(viewModelScope)
+
         checkAllPermissions()
 
         ringerModeRepository.startObserving()
@@ -119,7 +134,6 @@ constructor(
             .onEach { warning -> _uiState.update { it.copy(audioWarning = warning) } }
             .launchIn(viewModelScope)
 
-        // Check for rating prompt
         viewModelScope.launch {
             val installationDate = appPreferencesRepository.getInstallationDate().firstOrNull() ?: 0L
             val hasPrompted = appPreferencesRepository.isRatingPrompted().firstOrNull() ?: false
@@ -149,6 +163,7 @@ constructor(
         }
         if (_uiState.value.hasCalendarPermission) {
             onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+            loadAvailableCalendars()
         }
     }
 
@@ -210,7 +225,6 @@ constructor(
     private fun scheduleImmediateEvents(events: List<Event>) {
         val now = System.currentTimeMillis()
         val offsetMinutes = _uiState.value.alarmOffsetMinutes
-        // Window: schedule events whose alarm time (startTime - offset) falls within the next 75 min
         val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
 
         events
@@ -373,6 +387,39 @@ constructor(
     fun onAlarmOffsetChanged(offset: AlarmOffset) {
         viewModelScope.launch {
             appPreferencesRepository.setAlarmOffsetMinutes(offset.minutes)
+        }
+    }
+
+    fun loadAvailableCalendars() {
+        viewModelScope.launch {
+            val calendars = calendarRepository.getAvailableCalendars()
+            _uiState.update { it.copy(availableCalendars = calendars) }
+        }
+    }
+
+    fun onCalendarFilterToggle(calendarId: Long, enabled: Boolean) {
+        viewModelScope.launch {
+            val allIds = _uiState.value.availableCalendars.map { it.id.toString() }.toSet()
+            val current = appPreferencesRepository.getEnabledCalendarIds()
+                .firstOrNull()
+                .let { saved ->
+                    if (saved.isNullOrEmpty()) allIds.toMutableSet() else saved.toMutableSet()
+                }
+
+            if (enabled) {
+                current.add(calendarId.toString())
+            } else {
+                current.remove(calendarId.toString())
+            }
+
+            val newSet = if (current.containsAll(allIds)) emptySet() else current
+            appPreferencesRepository.setEnabledCalendarIds(newSet)
+        }
+    }
+
+    fun clearCalendarFilter() {
+        viewModelScope.launch {
+            appPreferencesRepository.setEnabledCalendarIds(emptySet())
         }
     }
 }

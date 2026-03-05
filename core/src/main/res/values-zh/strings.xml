@@ -75,4 +75,6 @@
     <string name="alarm_offset_15_min">提前15分钟</string>
     <string name="alarm_offset_30_min">提前30分钟</string>
     <string name="alarm_offset_1_hour">提前1小时</string>
+    <string name="calendar_filter_title">筛选日历</string>
+    <string name="calendar_filter_all_enabled">所有日历已启用</string>
 </resources>

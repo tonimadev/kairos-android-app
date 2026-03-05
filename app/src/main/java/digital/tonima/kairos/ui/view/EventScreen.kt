@@ -121,6 +121,15 @@ fun EventScreen(
         viewModel.checkAllPermissions()
     }
 
+    LaunchedEffect(uiState.hasCalendarPermission) {
+        if (uiState.hasCalendarPermission) {
+            viewModel.loadAvailableCalendars()
+        }
+    }
+
+    val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
+    val cannotOpenEvent = stringResource(R.string.cannot_open_event)
+
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer =
@@ -158,11 +167,18 @@ fun EventScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(R.string.app_name)) },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                    },
                     colors =
                         TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            titleContentColor = MaterialTheme.colorScheme.primary,
+                            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         ),
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
@@ -187,13 +203,13 @@ fun EventScreen(
                                 Toast
                                     .makeText(
                                         context,
-                                        context.getString(R.string.google_calendar_not_found),
+                                        googleCalendarNotFound,
                                         Toast.LENGTH_SHORT,
                                     ).show()
                             }
                         },
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ) {
                         Icon(
                             painterResource(date_range),
@@ -264,7 +280,7 @@ fun EventScreen(
                                     Toast
                                         .makeText(
                                             context,
-                                            context.getString(R.string.cannot_open_event),
+                                            cannotOpenEvent,
                                             Toast.LENGTH_SHORT,
                                         ).show()
                                 }
@@ -275,6 +291,7 @@ fun EventScreen(
                             onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
                             onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
                             onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
+                            onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
                         )
                     }
                 }

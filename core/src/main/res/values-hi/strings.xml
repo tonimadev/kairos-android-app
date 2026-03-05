@@ -78,4 +78,6 @@
     <string name="alarm_offset_15_min">15 मिनट पहले</string>
     <string name="alarm_offset_30_min">30 मिनट पहले</string>
     <string name="alarm_offset_1_hour">1 घंटे पहले</string>
+    <string name="calendar_filter_title">कैलेंडर फ़िल्टर</string>
+    <string name="calendar_filter_all_enabled">सभी कैलेंडर सक्रिय</string>
 </resources>

@@ -1,9 +1,4 @@
 package digital.tonima.core.sync
-
-/**
- * Constants that define the phone↔wear data layer schema (paths and keys).
- * Shared by app and wear modules to avoid string drift.
- */
 object WearSyncSchema {
     const val PATH_EVENTS_24H = "/kairos/events24h"
     const val PATH_REQUEST_SYNC = "/kairos/request_sync"

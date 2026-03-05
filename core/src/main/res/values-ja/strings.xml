@@ -75,4 +75,6 @@
     <string name="alarm_offset_15_min">15分前</string>
     <string name="alarm_offset_30_min">30分前</string>
     <string name="alarm_offset_1_hour">1時間前</string>
+    <string name="calendar_filter_title">カレンダーをフィルター</string>
+    <string name="calendar_filter_all_enabled">すべてのカレンダーが有効</string>
 </resources>

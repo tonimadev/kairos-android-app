@@ -9,6 +9,7 @@ import android.provider.CalendarContract
 import androidx.core.content.ContextCompat
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
+import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,7 +31,8 @@ class CalendarRepositoryImpl
             CalendarContract.Instances.EVENT_ID,
             CalendarContract.Instances.TITLE,
             CalendarContract.Instances.BEGIN,
-            CalendarContract.Instances.ALL_DAY
+            CalendarContract.Instances.ALL_DAY,
+            CalendarContract.Instances.CALENDAR_ID
         )
 
         private val PROJECTION_ID_INDEX = 0
@@ -38,15 +40,45 @@ class CalendarRepositoryImpl
         private val PROJECTION_BEGIN_INDEX = 2
         private val PROJECTION_ALL_DAY_INDEX = 3
 
-        override suspend fun getEventsForMonth(yearMonth: YearMonth): List<Event> = withContext(Dispatchers.IO) {
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.READ_CALENDAR
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                logcat{
-                    "Tentativa de aceder ao calendário sem a permissão READ_CALENDAR."
+        private fun hasCalendarPermission() =
+            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
+                PackageManager.PERMISSION_GRANTED
+
+        override suspend fun getAvailableCalendars(): List<DeviceCalendar> = withContext(Dispatchers.IO) {
+            if (!hasCalendarPermission()) {
+                logcat { "Tentativa de aceder aos calendários sem a permissão READ_CALENDAR." }
+                return@withContext emptyList()
+            }
+
+            val calendars = mutableListOf<DeviceCalendar>()
+            val projection = arrayOf(
+                CalendarContract.Calendars._ID,
+                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
+                CalendarContract.Calendars.ACCOUNT_NAME
+            )
+
+            val cursor = context.contentResolver.query(
+                CalendarContract.Calendars.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null
+            )
+
+            cursor?.use {
+                while (it.moveToNext()) {
+                    val id = it.getLong(0)
+                    val displayName = it.getString(1) ?: ""
+                    val accountName = it.getString(2) ?: ""
+                    calendars.add(DeviceCalendar(id, displayName, accountName))
                 }
+            }
+            return@withContext calendars
+        }
+
+        override suspend fun getEventsForMonth(yearMonth: YearMonth, allowedCalendarIds: List<Long>): List<Event> = withContext(Dispatchers.IO) {
+            if (!hasCalendarPermission()) {
+                logcat { "Tentativa de aceder ao calendário sem a permissão READ_CALENDAR." }
                 return@withContext emptyList()
             }
             val events = mutableListOf<Event>()
@@ -60,11 +92,22 @@ class CalendarRepositoryImpl
             ContentUris.appendId(builder, endMillis)
             val uri = builder.build()
 
+            val selection: String?
+            val selectionArgs: Array<String>?
+            if (allowedCalendarIds.isNotEmpty()) {
+                val questionMarks = allowedCalendarIds.joinToString(",") { "?" }
+                selection = "${CalendarContract.Instances.CALENDAR_ID} IN ($questionMarks)"
+                selectionArgs = allowedCalendarIds.map { it.toString() }.toTypedArray()
+            } else {
+                selection = null
+                selectionArgs = null
+            }
+
             val cursor = context.contentResolver.query(
                 uri,
                 eventProjection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null
             )
 
@@ -91,12 +134,9 @@ class CalendarRepositoryImpl
                 }
             return@withContext enriched
         }
-    override suspend fun getNextUpcomingEvent(): Event? = withContext(Dispatchers.IO) {
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_CALENDAR
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+
+    override suspend fun getNextUpcomingEvent(allowedCalendarIds: List<Long>): Event? = withContext(Dispatchers.IO) {
+        if (!hasCalendarPermission()) {
             logcat { "Tentativa de aceder ao calendário sem a permissão READ_CALENDAR." }
             return@withContext null
         }
@@ -110,8 +150,17 @@ class CalendarRepositoryImpl
         ContentUris.appendId(builder, endMillis)
         val uri = builder.build()
 
-        val selection = "${CalendarContract.Instances.END} > ?"
-        val selectionArgs = arrayOf(now.toEpochMilli().toString())
+        val baseCondition = "${CalendarContract.Instances.END} > ?"
+        val selection: String
+        val selectionArgs: Array<String>
+        if (allowedCalendarIds.isNotEmpty()) {
+            val questionMarks = allowedCalendarIds.joinToString(",") { "?" }
+            selection = "$baseCondition AND ${CalendarContract.Instances.CALENDAR_ID} IN ($questionMarks)"
+            selectionArgs = arrayOf(now.toEpochMilli().toString()) + allowedCalendarIds.map { it.toString() }.toTypedArray()
+        } else {
+            selection = baseCondition
+            selectionArgs = arrayOf(now.toEpochMilli().toString())
+        }
 
         val cursor = context.contentResolver.query(
             uri,
@@ -135,11 +184,7 @@ class CalendarRepositoryImpl
     }
 
     override suspend fun isRecurring(eventId: Long): Boolean = withContext(Dispatchers.IO) {
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_CALENDAR
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (!hasCalendarPermission()) {
             logcat { "Tentativa de aceder ao calendário sem a permissão READ_CALENDAR." }
             return@withContext false
         }

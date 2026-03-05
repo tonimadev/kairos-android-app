@@ -10,10 +10,6 @@ import digital.tonima.core.sync.WearSyncSchema.PATH_REQUEST_SYNC
 import logcat.LogPriority
 import logcat.logcat
 
-/**
- * Listens for messages from Wear OS and reacts accordingly.
- * Currently supports a sync request from the watch to immediately push fresh events.
- */
 class WearMessagesListenerService : WearableListenerService() {
     override fun onMessageReceived(messageEvent: MessageEvent) {
         super.onMessageReceived(messageEvent)
@@ -25,7 +21,6 @@ class WearMessagesListenerService : WearableListenerService() {
 
     private fun enqueuePhoneSync(context: Context) {
         try {
-            // Use expedited work to bypass work profile throttling for wear requests
             val request =
                 OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)

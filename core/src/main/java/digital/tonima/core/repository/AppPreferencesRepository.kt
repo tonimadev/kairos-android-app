@@ -44,4 +44,11 @@ interface AppPreferencesRepository {
 
     fun getAlarmOffsetMinutes(): Flow<Long>
     suspend fun setAlarmOffsetMinutes(minutes: Long)
+
+    /**
+     * Returns the set of calendar IDs the user has chosen to include.
+     * An empty set means "all calendars" (no filter applied).
+     */
+    fun getEnabledCalendarIds(): Flow<Set<String>>
+    suspend fun setEnabledCalendarIds(ids: Set<String>)
 }

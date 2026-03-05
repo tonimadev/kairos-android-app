@@ -1,8 +1,4 @@
 package digital.tonima.core.model
-
-/**
- * How many minutes before the event the alarm should fire.
- */
 enum class AlarmOffset(val minutes: Long) {
     AT_TIME(0),
     FIFTEEN_MINUTES(15),

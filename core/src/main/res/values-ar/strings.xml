@@ -78,4 +78,6 @@
     <string name="alarm_offset_15_min">قبل 15 دقيقة</string>
     <string name="alarm_offset_30_min">قبل 30 دقيقة</string>
     <string name="alarm_offset_1_hour">قبل ساعة واحدة</string>
+    <string name="calendar_filter_title">تصفية التقاويم</string>
+    <string name="calendar_filter_all_enabled">جميع التقاويم مفعّلة</string>
 </resources>

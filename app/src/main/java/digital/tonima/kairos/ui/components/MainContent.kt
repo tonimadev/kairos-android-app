@@ -38,6 +38,7 @@ fun MainContent(
     onAllDayAlarmsToggle: (Boolean) -> Unit,
     onAllDayAlarmHourChanged: (Int) -> Unit,
     onAlarmOffsetChanged: (AlarmOffset) -> Unit,
+    onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -69,6 +70,7 @@ fun MainContent(
                     onAllDayAlarmsToggle = onAllDayAlarmsToggle,
                     onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
                     onAlarmOffsetChanged = onAlarmOffsetChanged,
+                    onCalendarFilterToggle = onCalendarFilterToggle,
                 )
                 CalendarView(
                     modifier = Modifier.padding(top = 8.dp),
@@ -107,6 +109,7 @@ fun MainContent(
                 onAllDayAlarmsToggle = onAllDayAlarmsToggle,
                 onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
                 onAlarmOffsetChanged = onAlarmOffsetChanged,
+                onCalendarFilterToggle = onCalendarFilterToggle,
             )
             CalendarView(
                 modifier = Modifier.padding(top = 8.dp),

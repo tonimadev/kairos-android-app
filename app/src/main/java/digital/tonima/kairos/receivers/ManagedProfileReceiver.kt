@@ -12,18 +12,6 @@ import digital.tonima.kairos.service.PhoneEventSyncWorker
 import logcat.LogPriority
 import logcat.logcat
 
-/**
- * BroadcastReceiver that handles Work Profile lifecycle events.
- *
- * When a Work Profile is paused (e.g., end of workday), all scheduled alarms
- * are cancelled. This receiver detects when the profile becomes available again
- * and reschedules all alarms.
- *
- * Key intents:
- * - ACTION_MANAGED_PROFILE_AVAILABLE: Profile is now active
- * - ACTION_MANAGED_PROFILE_UNLOCKED: Profile was unlocked
- * - ACTION_USER_UNLOCKED: User/profile unlocked (API 24+)
- */
 class ManagedProfileReceiver : BroadcastReceiver() {
     override fun onReceive(
         context: Context,
@@ -49,10 +37,6 @@ class ManagedProfileReceiver : BroadcastReceiver() {
         }
     }
 
-    /**
-     * Reschedules all alarms when the profile becomes available.
-     * Uses expedited work to ensure quick execution.
-     */
     private fun handleProfileAvailable(context: Context) {
         logcat(LogPriority.INFO) {
             "Work Profile available - rescheduling alarms and syncing calendar"
@@ -61,7 +45,6 @@ class ManagedProfileReceiver : BroadcastReceiver() {
         try {
             val workManager = WorkManager.getInstance(context)
 
-            // 1. Sync calendar events immediately
             val syncRequest =
                 OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
@@ -73,7 +56,6 @@ class ManagedProfileReceiver : BroadcastReceiver() {
                 syncRequest,
             )
 
-            // 2. Reschedule alarms immediately
             val alarmRequest =
                 OneTimeWorkRequestBuilder<AlarmSchedulingWorker>()
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)

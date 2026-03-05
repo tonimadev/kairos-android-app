@@ -1,15 +1,30 @@
 package digital.tonima.kairos.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -19,15 +34,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.util.openAutostartSettings
 import digital.tonima.core.viewmodel.EventScreenUiState
+import digital.tonima.kairos.R.drawable.alarm
+import digital.tonima.kairos.R.drawable.ic_expand_less
+import digital.tonima.kairos.R.drawable.ic_expand_more
+import digital.tonima.kairos.R.drawable.vibration
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.R.drawable.date_range
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,95 +63,224 @@ fun ControlPanel(
     onAllDayAlarmsToggle: (Boolean) -> Unit,
     onAllDayAlarmHourChanged: (Int) -> Unit,
     onAlarmOffsetChanged: (AlarmOffset) -> Unit,
+    onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
     var offsetExpanded by remember { mutableStateOf(false) }
+    var settingsExpanded by remember { mutableStateOf(false) }
     val currentOffset = AlarmOffset.fromMinutes(uiState.alarmOffsetMinutes)
 
-    Column {
+    Column(
+        modifier = Modifier.animateContentSize(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
         AlarmsToggleRow(
-            modifier = Modifier.padding(vertical = 16.dp),
+            modifier = Modifier.padding(top = 8.dp),
             alarmsEnabled = uiState.isGlobalAlarmEnabled,
             onToggle = onToggle,
         )
 
-        Row(
+        Card(
             modifier =
                 Modifier
-                    .padding(bottom = 8.dp)
-                    .fillMaxWidth(),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+                    .fillMaxWidth()
+                    .clickable { settingsExpanded = !settingsExpanded },
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
         ) {
-            Text(stringResource(R.string.vibrate_only))
-            Switch(checked = uiState.vibrateOnly, onCheckedChange = onVibrateToggle)
-        }
-
-        // Alarm offset (when to fire before the event)
-        Column(modifier = Modifier.padding(bottom = 8.dp)) {
-            Text(
-                text = stringResource(R.string.alarm_offset_label),
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
-            ExposedDropdownMenuBox(
-                expanded = offsetExpanded,
-                onExpandedChange = { offsetExpanded = !offsetExpanded },
-                modifier = Modifier.fillMaxWidth(),
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                OutlinedTextField(
-                    value = offsetLabel(currentOffset),
-                    onValueChange = {},
-                    readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = offsetExpanded) },
-                    modifier =
-                        Modifier
-                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                            .fillMaxWidth(),
-                )
-                ExposedDropdownMenu(
-                    expanded = offsetExpanded,
-                    onDismissRequest = { offsetExpanded = false },
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    AlarmOffset.entries.forEach { offset ->
-                        DropdownMenuItem(
-                            text = { Text(offsetLabel(offset)) },
-                            onClick = {
-                                onAlarmOffsetChanged(offset)
-                                offsetExpanded = false
-                            },
+                    Icon(
+                        painter = painterResource(alarm),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.alarm_offset_label),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    if (!settingsExpanded) {
+                        Text(
+                            text = "· ${offsetLabel(currentOffset)}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
+                Icon(
+                    painter =
+                        painterResource(
+                            if (settingsExpanded) ic_expand_less else ic_expand_more,
+                        ),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp),
+                )
             }
-        }
 
-        Row(
-            modifier =
-                Modifier
-                    .padding(bottom = 8.dp)
-                    .fillMaxWidth(),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(stringResource(R.string.all_day_alarms))
-            Switch(checked = uiState.allDayAlarmsEnabled, onCheckedChange = onAllDayAlarmsToggle)
-        }
+            AnimatedVisibility(
+                visible = settingsExpanded,
+                enter = expandVertically(tween(250)) + fadeIn(tween(250)),
+                exit = shrinkVertically(tween(200)) + fadeOut(tween(200)),
+            ) {
+                Column(
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Icon(
+                                painter = painterResource(vibration),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp),
+                            )
+                            Text(
+                                stringResource(R.string.vibrate_only),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
+                        Switch(checked = uiState.vibrateOnly, onCheckedChange = onVibrateToggle)
+                    }
 
-        if (uiState.allDayAlarmsEnabled) {
-            Column(modifier = Modifier.padding(bottom = 8.dp)) {
-                Text(
-                    text =
-                        stringResource(R.string.all_day_alarm_time) +
-                            ": ${"%02d:00".format(uiState.allDayAlarmHour)}",
-                    modifier = Modifier.padding(bottom = 4.dp),
-                )
-                Slider(
-                    value = uiState.allDayAlarmHour.toFloat(),
-                    onValueChange = { onAllDayAlarmHourChanged(it.roundToInt()) },
-                    valueRange = 0f..23f,
-                    steps = 22,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Icon(
+                                painter = painterResource(date_range),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp),
+                            )
+                            Text(
+                                stringResource(R.string.all_day_alarms),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
+                        Switch(checked = uiState.allDayAlarmsEnabled, onCheckedChange = onAllDayAlarmsToggle)
+                    }
+
+                    if (uiState.allDayAlarmsEnabled) {
+                        Text(
+                            text =
+                                stringResource(R.string.all_day_alarm_time) +
+                                    ": ${"%02d:00".format(uiState.allDayAlarmHour)}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Slider(
+                            value = uiState.allDayAlarmHour.toFloat(),
+                            onValueChange = { onAllDayAlarmHourChanged(it.roundToInt()) },
+                            valueRange = 0f..23f,
+                            steps = 22,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    ExposedDropdownMenuBox(
+                        expanded = offsetExpanded,
+                        onExpandedChange = { offsetExpanded = !offsetExpanded },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        OutlinedTextField(
+                            value = offsetLabel(currentOffset),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.alarm_offset_label)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = offsetExpanded) },
+                            modifier =
+                                Modifier
+                                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                                    .fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = offsetExpanded,
+                            onDismissRequest = { offsetExpanded = false },
+                        ) {
+                            AlarmOffset.entries.forEach { offset ->
+                                DropdownMenuItem(
+                                    text = { Text(offsetLabel(offset)) },
+                                    onClick = {
+                                        onAlarmOffsetChanged(offset)
+                                        offsetExpanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+
+                    if (uiState.availableCalendars.isNotEmpty()) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                        Text(
+                            text = stringResource(R.string.calendar_filter_title),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        uiState.availableCalendars.forEach { calendar ->
+                            val isChecked =
+                                uiState.enabledCalendarIds.isEmpty() ||
+                                    uiState.enabledCalendarIds.contains(calendar.id)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = calendar.displayName.ifBlank { calendar.accountName },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                    Text(
+                                        text = calendar.accountName,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                                Switch(
+                                    checked = isChecked,
+                                    onCheckedChange = { checked ->
+                                        onCalendarFilterToggle(calendar.id, checked)
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 

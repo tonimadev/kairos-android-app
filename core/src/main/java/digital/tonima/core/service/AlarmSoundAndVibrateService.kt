@@ -46,10 +46,6 @@ class AlarmSoundAndVibrateService : Service() {
         }
 
         fun stopAlarm(context: Context) {
-            // Send ACTION_STOP_ALARM so onStartCommand can call stopForeground() + stopSelf()
-            // which properly removes the foreground notification before stopping.
-            // If the service is not running, startForegroundService is a no-op effectively because
-            // onStartCommand will call stopForeground + stopSelf immediately.
             val stopIntent = Intent(context, AlarmSoundAndVibrateService::class.java).apply {
                 action = ACTION_STOP_ALARM
             }
@@ -93,7 +89,6 @@ class AlarmSoundAndVibrateService : Service() {
                 vibrator?.vibrate(VibrationEffect.createWaveform(VIBRATION_PATTERN, VIBRATION_REPEAT_INDEX))
 
                 if (!vibrateOnly) {
-                    // Try ALARM first, then NOTIFICATION, then RINGTONE as a last resort
                     val candidateUris = listOfNotNull(
                         RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM),
                         RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
@@ -113,7 +108,6 @@ class AlarmSoundAndVibrateService : Service() {
 
                     if (obtained != null) {
                         ringtone = obtained
-                        // Ensure we use proper audio attributes for alarms
                         try {
                             ringtone?.audioAttributes = AudioAttributes.Builder()
                                 .setUsage(AudioAttributes.USAGE_ALARM)
@@ -138,7 +132,6 @@ class AlarmSoundAndVibrateService : Service() {
             }
             ACTION_STOP_ALARM -> {
                 logcat { "AlarmSoundAndVibrateService: Recebida solicitação para parar alarme." }
-                // Must call startForeground() before stopForeground() when started via startForegroundService
                 ensureForeground(null)
                 stopAndReleaseResources()
                 stopForeground(STOP_FOREGROUND_REMOVE)
@@ -201,7 +194,6 @@ class AlarmSoundAndVibrateService : Service() {
     override fun onDestroy() {
         logcat { "AlarmSoundAndVibrateService: onDestroy chamado. Garantindo que os recursos sejam liberados." }
         stopAndReleaseResources()
-        // Safety net: ensure foreground notification is always removed
         stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
     }

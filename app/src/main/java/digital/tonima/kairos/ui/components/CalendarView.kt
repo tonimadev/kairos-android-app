@@ -79,7 +79,7 @@ fun CalendarView(
     Column(modifier = modifier) {
         MonthHeader(
             month = state.firstVisibleMonth.yearMonth,
-            onReturnToTodayClicked = onReturnToToday, // Passa a ação para o cabeçalho
+            onReturnToTodayClicked = onReturnToToday,
         )
         HorizontalCalendar(
             state = state,

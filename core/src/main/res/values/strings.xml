@@ -81,4 +81,6 @@
     <string name="alarm_offset_15_min">15 minutos antes</string>
     <string name="alarm_offset_30_min">30 minutos antes</string>
     <string name="alarm_offset_1_hour">1 hora antes</string>
+    <string name="calendar_filter_title">Filtrar Calendários</string>
+    <string name="calendar_filter_all_enabled">Todos os calendários ativos</string>
 </resources>

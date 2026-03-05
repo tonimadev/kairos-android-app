@@ -87,11 +87,8 @@ class AlarmNotificationReceiver : BroadcastReceiver() {
                 .setAutoCancel(true)
                 .addAction(0, context.getString(R.string.stop), stopActionPendingIntent)
 
-        // Only use full-screen intent on Android 11+ (API 30+)
-        // On Android 12+, we also check for USE_FULL_SCREEN_INTENT permission
         val canUseFullScreenIntent =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // Android 12+: Check if the app has the USE_FULL_SCREEN_INTENT permission
                 val hasPermission =
                     ContextCompat.checkSelfPermission(
                         context,
@@ -105,7 +102,6 @@ class AlarmNotificationReceiver : BroadcastReceiver() {
                     false
                 }
             } else {
-                // Android 11: Full-screen intent is available
                 logcat { "Full-screen intent available on Android 11+" }
                 true
             }

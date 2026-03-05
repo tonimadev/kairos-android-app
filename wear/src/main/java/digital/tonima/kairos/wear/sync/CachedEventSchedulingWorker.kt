@@ -45,8 +45,6 @@ class CachedEventSchedulingWorker
                 val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
 
                 val now = System.currentTimeMillis()
-                // Expand window by offsetMinutes so events whose alarm fires within 75 min are caught
-                // even when their startTime is further ahead.
                 val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
                 val sdf = SimpleDateFormat("dd/MM HH:mm:ss", Locale.getDefault())
 

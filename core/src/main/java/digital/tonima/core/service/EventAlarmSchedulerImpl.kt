@@ -35,7 +35,6 @@ constructor(
     private val preferencesRepository: AppPreferencesRepository
 ) : EventAlarmScheduler {
 
-    // Overridable in tests via @VisibleForTesting; Hilt does not support default parameter values
     @VisibleForTesting
     internal var clock: Clock = Clock.systemDefaultZone()
 
@@ -74,7 +73,6 @@ constructor(
             "Scheduling alarm for event: ${event.title} at $alarmTime (original: ${event.startTime}, isAllDay: ${event.isAllDay}) with ID: ${event.uniqueIntentId}"
         }
 
-        // Do not schedule alarms in the past – the AlarmManager would fire them immediately
         if (alarmTime <= clock.millis()) {
             logcat {
                 "Skipping alarm for event '${event.title}': alarm time ($alarmTime) is in the past."
@@ -89,7 +87,6 @@ constructor(
                 true
             }
 
-        // Create the alarm intent
         val intent =
             Intent(context, AlarmReceiver::class.java).apply {
                 action = ACTION_ALARM_TRIGGERED
@@ -108,7 +105,6 @@ constructor(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-        // Try exact alarm first, fall back to inexact if not permitted
         try {
             if (canScheduleExact) {
                 alarmManager.setExactAndAllowWhileIdle(
@@ -120,7 +116,6 @@ constructor(
                     "Alarm scheduled EXACT for event: ${event.title}"
                 }
             } else {
-                // Fallback: use inexact alarm that respects doze mode
                 alarmManager.setAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     alarmTime,

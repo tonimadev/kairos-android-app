@@ -18,12 +18,6 @@ import androidx.work.WorkManager
 import logcat.LogPriority
 import logcat.logcat
 
-/**
- * Observes the Calendar provider on the phone and triggers an immediate
- * phone→wear sync whenever events are created/updated/deleted.
- *
- * Uses a simple debounce to coalesce rapid change bursts.
- */
 object CalendarChangeObserver {
     private const val UNIQUE_WORK_NAME = "phone-event-sync-onchange"
     private const val DEBOUNCE_MS = 3000L
@@ -79,7 +73,6 @@ object CalendarChangeObserver {
     }
 
     private fun scheduleDebounced() {
-        // Coalesce bursts of changes
         debounceHandler.removeCallbacks(debounceRunnable)
         debounceHandler.postDelayed(debounceRunnable, DEBOUNCE_MS)
     }
@@ -97,7 +90,6 @@ object CalendarChangeObserver {
         }
         try {
             val constraints = Constraints.Builder().build()
-            // Use expedited work to bypass work profile throttling for immediate changes
             val request =
                 OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
                     .setConstraints(constraints)

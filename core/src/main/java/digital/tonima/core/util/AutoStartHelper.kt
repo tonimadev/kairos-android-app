@@ -89,7 +89,6 @@ fun openAutostartSettings(context: Context) {
                     didStartActivity = true
                     break
                 } catch (e: Exception) {
-                    // ignore and try next
                 }
             }
         }
@@ -97,7 +96,6 @@ fun openAutostartSettings(context: Context) {
             openAppDetailsSettingsWithToast(context)
         }
     } catch (e: RuntimeException) {
-        // Handles unit test environment where Android SDK methods are not mocked (e.g., Intent#setComponent)
         openAppDetailsSettingsWithToast(context)
     }
 }
@@ -108,7 +106,6 @@ private fun openAppDetailsSettingsWithToast(context: Context) {
     try {
         settingsIntent.data = Uri.fromParts("package", context.packageName, null)
     } catch (e: RuntimeException) {
-        // In unit tests, android.net.Uri methods may not be mocked; proceed without data.
     }
     context.startActivity(settingsIntent)
 }

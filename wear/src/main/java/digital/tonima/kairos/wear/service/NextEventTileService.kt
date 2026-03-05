@@ -41,13 +41,9 @@ private const val ID_UPDATE_BUTTON = "update_button"
 
 val customTileColors =
     Colors(
-        // primary =
         0xFF6200EE.toInt(),
-        // onPrimary =
         0xFFFFFFFF.toInt(),
-        // surface =
         0xFF212121.toInt(),
-        // onSurface =
         0xFFFFFFFF.toInt(),
     )
 

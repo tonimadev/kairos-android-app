@@ -79,4 +79,6 @@
     <string name="alarm_offset_15_min">15 minutes before</string>
     <string name="alarm_offset_30_min">30 minutes before</string>
     <string name="alarm_offset_1_hour">1 hour before</string>
+    <string name="calendar_filter_title">Filter Calendars</string>
+    <string name="calendar_filter_all_enabled">All calendars enabled</string>
 </resources>

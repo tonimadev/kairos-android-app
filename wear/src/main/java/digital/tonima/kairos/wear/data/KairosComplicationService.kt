@@ -1,6 +1,5 @@
 package digital.tonima.kairos.wear.data
 
-// removed usecase import; now reading from WearEventCache only
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent

@@ -31,7 +31,6 @@ import digital.tonima.kairos.ui.theme.KairosTheme
 class AlarmActivity : ComponentActivity() {
     private var userStoppedAlarm = false
 
-    /** Finishes this Activity when the user taps "Stop" from the notification. */
     private val finishReceiver =
         object : BroadcastReceiver() {
             override fun onReceive(
@@ -112,15 +111,11 @@ class AlarmActivity : ComponentActivity() {
         try {
             unregisterReceiver(finishReceiver)
         } catch (_: IllegalArgumentException) {
-            // Receiver was not registered, ignore
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // Only stop the alarm if the user explicitly pressed "Stop".
-        // Do NOT stop automatically on config changes (screen rotation, etc.)
-        // which also trigger onDestroy.
         if (userStoppedAlarm) {
             AlarmSoundAndVibrateService.stopAlarm(this)
         }

@@ -64,7 +64,6 @@ constructor(
                 val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
 
                 val now = System.currentTimeMillis()
-                // Scheduling window: 75 min ahead + alarm offset so we catch events whose alarm fires within 75 min
                 val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
                 val sdf = SimpleDateFormat("dd/MM HH:mm:ss", Locale.getDefault())
 
@@ -75,11 +74,8 @@ constructor(
                 val eventsToSchedule = allUpcomingEvents
                     .filter { event ->
                         if (event.isAllDay) {
-                            // Skip all-day events if the feature is disabled
                             if (!allDayAlarmsEnabled) return@filter false
 
-                            // For all-day events, the alarm fires at allDayAlarmHour on the event's date.
-                            // The Calendar Provider returns startTime as UTC midnight for all-day events.
                             val eventDate = Instant.ofEpochMilli(event.startTime)
                                 .atZone(ZoneId.of("UTC"))
                                 .toLocalDate()

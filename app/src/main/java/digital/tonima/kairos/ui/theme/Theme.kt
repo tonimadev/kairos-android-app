@@ -1,59 +1,58 @@
 package digital.tonima.kairos.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = Purple80,
-        secondary = PurpleGrey80,
-        tertiary = Pink80,
+        primary = Blue80,
+        onPrimary = Color(0xFF003366),
+        primaryContainer = Color(0xFF1A3A5C),
+        onPrimaryContainer = Blue80,
+        secondary = Cyan80,
+        onSecondary = Color(0xFF00363C),
+        secondaryContainer = Color(0xFF1A3A3E),
+        onSecondaryContainer = Cyan80,
+        tertiary = BlueGrey80,
+        background = SurfaceDark,
+        surface = SurfaceDark,
+        surfaceVariant = CardDark,
+        onBackground = Color(0xFFE3EEFF),
+        onSurface = Color(0xFFE3EEFF),
+        onSurfaceVariant = Color(0xFFB0C4DE),
+        outline = Color(0xFF6A8AAA),
     )
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = Purple40,
-        secondary = PurpleGrey40,
-        tertiary = Pink40,
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-     */
+        primary = Blue40,
+        onPrimary = Color.White,
+        primaryContainer = CardLight,
+        onPrimaryContainer = Blue40,
+        secondary = Cyan40,
+        onSecondary = Color.White,
+        secondaryContainer = Color(0xFFB2EBF2),
+        onSecondaryContainer = Color(0xFF00363C),
+        tertiary = BlueGrey40,
+        background = SurfaceLight,
+        surface = Color.White,
+        surfaceVariant = CardLight,
+        onBackground = Color(0xFF0D1B2A),
+        onSurface = Color(0xFF0D1B2A),
+        onSurfaceVariant = BlueGrey40,
+        outline = Color(0xFF7A9BBB),
     )
 
 @Composable
 fun KairosTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme =
-        when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val context = LocalContext.current
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
-
-            darkTheme -> {
-                DarkColorScheme
-            }
-
-            else -> {
-                LightColorScheme
-            }
-        }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
