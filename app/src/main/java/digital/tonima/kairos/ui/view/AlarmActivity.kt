@@ -40,7 +40,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class AlarmActivity : ComponentActivity() {
-
     @Inject
     lateinit var proUserProvider: ProUserProvider
 

@@ -25,9 +25,10 @@ fun AdBannerView(
     val adWidth = configuration.screenWidthDp
 
     AndroidView(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
         factory = { context ->
             AdView(context).apply {
                 setAdSize(AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, adWidth))
@@ -41,6 +42,6 @@ fun AdBannerView(
         update = { adView -> },
         onRelease = { adView ->
             adView.destroy()
-        }
+        },
     )
 }
