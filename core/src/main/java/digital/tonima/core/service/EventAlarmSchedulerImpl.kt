@@ -132,6 +132,50 @@ constructor(
         }
     }
 
+    override fun scheduleSnooze(eventTitle: String, uniqueId: Int, eventId: Long, startTime: Long) {
+        val snoozeMinutes = runBlocking {
+            preferencesRepository.getSnoozeTimeMinutes().firstOrNull() ?: 10
+        }
+        val alarmTime = clock.millis() + java.util.concurrent.TimeUnit.MINUTES.toMillis(snoozeMinutes.toLong())
+
+        logcat {
+            "Scheduling SNOOZE for event: $eventTitle at $alarmTime with ID: $uniqueId"
+        }
+
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            action = ACTION_ALARM_TRIGGERED
+            data = "kairos://alarm/$uniqueId/snooze".toUri()
+
+            putExtra(EXTRA_EVENT_TITLE, eventTitle)
+            putExtra(EXTRA_UNIQUE_ID, uniqueId)
+            putExtra(EXTRA_EVENT_ID, eventId)
+            putExtra(EXTRA_EVENT_START_TIME, startTime)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            uniqueId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val canScheduleExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true
+        }
+
+        try {
+            if (canScheduleExact) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+            } else {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+            }
+        } catch (e: SecurityException) {
+            logcat { "ERROR: Could not schedule snooze for $eventTitle: ${e.message}" }
+        }
+    }
+
     override fun cancel(event: Event) {
         logcat {
             "Cancelling alarm for event ID: ${event.uniqueIntentId}"

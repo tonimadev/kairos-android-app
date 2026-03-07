@@ -68,6 +68,7 @@ class EventViewModelTest {
     private val installationDateFlow = MutableStateFlow(0L)
     private val ratingPromptedFlow = MutableStateFlow(false)
     private val ratingCompletedFlow = MutableStateFlow(false)
+    private val snoozeTimeMinutesFlow = MutableStateFlow(10)
 
     @Before
     fun setup() {
@@ -81,6 +82,7 @@ class EventViewModelTest {
         every { mockAppPreferencesRepository.getInstallationDate() } returns installationDateFlow
         every { mockAppPreferencesRepository.isRatingPrompted() } returns ratingPromptedFlow
         every { mockAppPreferencesRepository.isRatingCompleted() } returns ratingCompletedFlow
+        every { mockAppPreferencesRepository.getSnoozeTimeMinutes() } returns snoozeTimeMinutesFlow
         every { mockRingerModeRepository.ringerMode } returns ringerModeFlow
         every { mockRingerModeRepository.startObserving() } just Runs
         every { mockRingerModeRepository.stopObserving() } just Runs

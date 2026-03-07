@@ -30,7 +30,7 @@
     <string name="dismiss">Отклонить</string>
     <string name="autostart_fallback_toast">Не удалось открыть указанный экран. Пожалуйста, найдите «Автозапуск» или «Диспетчер батареи» в
         настройках.</string>
-    <string name="remove_ads">Удалить рекламу</string>
+    <string name="remove_ads">Поддержать проект</string>
     <string name="menu">Меню</string>
     <string name="ringer_mode_vibrate_warning">Телефон в режиме вибрации. Будильники не будут издавать звук.</string>
     <string name="ringer_mode_silent_warning">Телефон в беззвучном режиме. Будильники не будут издавать звук.</string>
@@ -81,4 +81,7 @@
     <string name="alarm_offset_1_hour">За 1 час</string>
     <string name="calendar_filter_title">Фильтр календарей</string>
     <string name="calendar_filter_all_enabled">Все календари включены</string>
+    <string name="snooze">ОТЛОЖИТЬ</string>
+    <string name="snooze_time_label">Время откладывания (минуты)</string>
+    <string name="search">Поиск событий</string>
 </resources>

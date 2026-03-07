@@ -1,0 +1,5 @@
+- Ereignissuche hinzugefügt.
+- Neue Schlummerfunktion (Snooze) für Alarme mit anpassbarer Verzögerungszeit.
+- Vom System synchronisierte Kalenderfarben für bessere Visualisierung.
+- Benutzeroberfläche angepasst für Tablets, Foldables und Querformat.
+- Projekt unterstützen: Sie können jetzt die Entwicklung der App unterstützen.

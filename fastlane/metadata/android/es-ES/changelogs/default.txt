@@ -1,0 +1,5 @@
+- Añadida funcionalidad de búsqueda de eventos.
+- Nueva función de Pospone (Snooze) para alarmas con tiempo configurable.
+- Colores de calendario sincronizados del sistema para una mejor visualización.
+- Interfaz adaptada para tabletas, plegables y modo horizontal.
+- Apoyar proyecto: ahora puedes apoyar el desarrollo de la aplicación.

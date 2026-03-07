@@ -38,6 +38,7 @@ class WearCalendarViewModelTest {
         private val allDayAlarmHour = MutableStateFlow(9)
         private val alarmOffsetMinutes = MutableStateFlow(0L)
         private val enabledCalendarIds = MutableStateFlow<Set<String>>(emptySet())
+        private val snoozeTimeMinutes = MutableStateFlow(10)
 
         override fun isGlobalAlarmEnabled() = global as Flow<Boolean>
 
@@ -115,6 +116,12 @@ class WearCalendarViewModelTest {
 
         override suspend fun setEnabledCalendarIds(ids: Set<String>) {
             enabledCalendarIds.value = ids
+        }
+
+        override fun getSnoozeTimeMinutes() = snoozeTimeMinutes as Flow<Int>
+
+        override suspend fun setSnoozeTimeMinutes(minutes: Int) {
+            snoozeTimeMinutes.value = minutes
         }
     }
 

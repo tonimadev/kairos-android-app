@@ -31,7 +31,7 @@
     <string name="dismiss">Verwerfen</string>
     <string name="autostart_fallback_toast">Der spezifische Bildschirm konnte nicht geöffnet werden. Bitte suchen Sie in den Einstellungen
         nach „Autostart“ oder „Akkumanager“.</string>
-    <string name="remove_ads">Werbung entfernen</string>
+    <string name="remove_ads">Projekt unterstützen</string>
     <string name="menu">Menü</string>
     <string name="ringer_mode_vibrate_warning">Das Telefon ist im Vibrationsmodus. Alarme geben keinen Ton aus.</string>
     <string name="ringer_mode_silent_warning">Das Telefon ist im Stumm-Modus. Alarme geben keinen Ton aus.</string>
@@ -82,4 +82,7 @@
     <string name="alarm_offset_1_hour">1 Stunde vorher</string>
     <string name="calendar_filter_title">Kalender filtern</string>
     <string name="calendar_filter_all_enabled">Alle Kalender aktiviert</string>
+    <string name="snooze">SCHLUMMERN</string>
+    <string name="snooze_time_label">Schlummerzeit (Minuten)</string>
+    <string name="search">Ereignisse suchen</string>
 </resources>

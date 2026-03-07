@@ -31,7 +31,7 @@
     <string name="dismiss">Dispensar</string>
     <string name="autostart_fallback_toast">Não foi possível abrir a tela específica. Por favor, procure por "Início Automático" ou
         "Gerenciador de Bateria" nas configurações.</string>
-    <string name="remove_ads">Remover anúncios</string>
+    <string name="remove_ads">Apoiar projeto</string>
     <string name="menu">Menu</string>
     <string name="ringer_mode_vibrate_warning">O celular está no modo de vibração. Os alarmes não tocarão som.</string>
     <string name="ringer_mode_silent_warning">O celular está no modo silencioso. Os alarmes não tocarão som.</string>
@@ -83,4 +83,7 @@
     <string name="alarm_offset_1_hour">1 hora antes</string>
     <string name="calendar_filter_title">Filtrar Calendários</string>
     <string name="calendar_filter_all_enabled">Todos os calendários ativos</string>
+    <string name="snooze">ADIAR</string>
+    <string name="snooze_time_label">Tempo de adiar (minutos)</string>
+    <string name="search">Buscar eventos</string>
 </resources>

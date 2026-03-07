@@ -8,6 +8,7 @@ data class Event(
     val isRecurring: Boolean = false,
     var vibrateOnly: Boolean = false,
     val isAllDay: Boolean = false,
+    val calendarColor: Int = 0,
 ) {
     val uniqueIntentId: Int
         get() = (id.toString() + startTime.toString()).hashCode()

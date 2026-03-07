@@ -30,7 +30,7 @@
     <string name="dismiss">Dismiss</string>
     <string name="autostart_fallback_toast">Could not open the specific screen. Please search for "Autostart" or "Battery Manager" in the
         settings.</string>
-    <string name="remove_ads">Remove Ads</string>
+    <string name="remove_ads">Support Project</string>
     <string name="menu">Menu</string>
     <string name="ringer_mode_vibrate_warning">The phone is in vibrate mode. Alarms will not make a sound.</string>
     <string name="ringer_mode_silent_warning">The phone is in silent mode. Alarms will not make a sound.</string>
@@ -81,4 +81,7 @@
     <string name="alarm_offset_1_hour">1 hour before</string>
     <string name="calendar_filter_title">Filter Calendars</string>
     <string name="calendar_filter_all_enabled">All calendars enabled</string>
+    <string name="snooze">SNOOZE</string>
+    <string name="snooze_time_label">Snooze time (minutes)</string>
+    <string name="search">Search events</string>
 </resources>

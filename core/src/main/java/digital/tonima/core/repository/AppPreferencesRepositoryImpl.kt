@@ -33,6 +33,7 @@ class AppPreferencesRepositoryImpl @Inject constructor(
         val ALL_DAY_ALARM_HOUR = intPreferencesKey("all_day_alarm_hour")
         val ALARM_OFFSET_MINUTES = longPreferencesKey("alarm_offset_minutes")
         val ENABLED_CALENDAR_IDS = stringSetPreferencesKey("enabled_calendar_ids")
+        val SNOOZE_TIME_MINUTES = intPreferencesKey("snooze_time_minutes")
     }
 
     override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -200,6 +201,19 @@ class AppPreferencesRepositoryImpl @Inject constructor(
     override suspend fun setEnabledCalendarIds(ids: Set<String>) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.ENABLED_CALENDAR_IDS] = ids
+        }
+    }
+
+    override fun getSnoozeTimeMinutes(): Flow<Int> {
+        return context.dataStore.data
+            .map { preferences ->
+                preferences[PreferencesKeys.SNOOZE_TIME_MINUTES] ?: 10
+            }
+    }
+
+    override suspend fun setSnoozeTimeMinutes(minutes: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SNOOZE_TIME_MINUTES] = minutes
         }
     }
 }

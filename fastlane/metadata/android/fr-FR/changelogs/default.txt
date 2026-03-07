@@ -1,0 +1,5 @@
+- Ajout de la fonctionnalité de recherche d'événements.
+- Nouvelle fonction de Répétition (Snooze) pour les alarmes avec délai personnalisable.
+- Couleurs de calendrier synchronisées du système pour une meilleure visualisation.
+- Interface adaptée pour les tablettes, pliables et mode paysage.
+- Soutenir le projet : vous pouvez désormais soutenir le développement de l'application.

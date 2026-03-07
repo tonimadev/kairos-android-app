@@ -32,7 +32,7 @@
     <string name="dismiss">Ignorer</string>
     <string name="autostart_fallback_toast">Impossible d\'ouvrir l\'écran spécifique. Veuillez rechercher « Démarrage automatique » ou «
         Gestionnaire de batterie » dans les paramètres.</string>
-    <string name="remove_ads">Supprimer les publicités</string>
+    <string name="remove_ads">Soutenir le projet</string>
     <string name="menu">Menu</string>
     <string name="ringer_mode_vibrate_warning">Le téléphone est en mode vibreur. Les alarmes ne sonneront pas.</string>
     <string name="ringer_mode_silent_warning">Le téléphone est en mode silencieux. Les alarmes ne sonneront pas.</string>
@@ -83,4 +83,7 @@
     <string name="alarm_offset_1_hour">1 heure avant</string>
     <string name="calendar_filter_title">Filtrer les Calendriers</string>
     <string name="calendar_filter_all_enabled">Tous les calendriers activés</string>
+    <string name="snooze">RAPPEL</string>
+    <string name="snooze_time_label">Temps de rappel (minutes)</string>
+    <string name="search">Rechercher des événements</string>
 </resources>

@@ -29,7 +29,7 @@
         Kairos في إعدادات جهازك.</string>
     <string name="dismiss">تجاهل</string>
     <string name="autostart_fallback_toast">تعذر فتح الشاشة المحددة. يرجى البحث عن "البدء التلقائي" أو "مدير البطارية" في الإعدادات.</string>
-    <string name="remove_ads">إزالة الإعلانات</string>
+    <string name="remove_ads">دعم المشروع</string>
     <string name="menu">قائمة</string>
     <string name="ringer_mode_vibrate_warning">الهاتف في وضع الاهتزاز. لن تصدر المنبهات صوتًا.</string>
     <string name="ringer_mode_silent_warning">الهاتف في الوضع الصامت. لن تصدر المنبهات صوتًا.</string>
@@ -80,4 +80,7 @@
     <string name="alarm_offset_1_hour">قبل ساعة واحدة</string>
     <string name="calendar_filter_title">تصفية التقاويم</string>
     <string name="calendar_filter_all_enabled">جميع التقاويم مفعّلة</string>
+    <string name="snooze">غفوة</string>
+    <string name="snooze_time_label">وقت الغفوة (دقائق)</string>
+    <string name="search">بحث عن الأحداث</string>
 </resources>

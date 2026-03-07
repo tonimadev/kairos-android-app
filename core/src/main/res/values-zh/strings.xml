@@ -26,7 +26,7 @@
     <string name="autostart_suggestion_disclaimer">为确保闹钟在重启手机后可靠工作，我们建议您在设备设置中为 Kairos 启用“自动启动”。</string>
     <string name="dismiss">忽略</string>
     <string name="autostart_fallback_toast">无法打开特定屏幕。请在设置中搜索“自动启动”或“电池管家”。</string>
-    <string name="remove_ads">移除广告</string>
+    <string name="remove_ads">支持项目</string>
     <string name="menu">菜单</string>
     <string name="ringer_mode_vibrate_warning">手机处于振动模式。闹钟不会发出声音。</string>
     <string name="ringer_mode_silent_warning">手机处于静音模式。闹钟不会发出声音。</string>
@@ -77,4 +77,7 @@
     <string name="alarm_offset_1_hour">提前1小时</string>
     <string name="calendar_filter_title">筛选日历</string>
     <string name="calendar_filter_all_enabled">所有日历已启用</string>
+    <string name="snooze">稍后提醒</string>
+    <string name="snooze_time_label">稍后提醒时间（分钟）</string>
+    <string name="search">搜索事件</string>
 </resources>

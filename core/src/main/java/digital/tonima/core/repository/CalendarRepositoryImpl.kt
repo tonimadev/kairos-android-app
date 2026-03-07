@@ -32,13 +32,15 @@ class CalendarRepositoryImpl
             CalendarContract.Instances.TITLE,
             CalendarContract.Instances.BEGIN,
             CalendarContract.Instances.ALL_DAY,
-            CalendarContract.Instances.CALENDAR_ID
+            CalendarContract.Instances.CALENDAR_ID,
+            CalendarContract.Instances.CALENDAR_COLOR
         )
 
         private val PROJECTION_ID_INDEX = 0
         private val PROJECTION_TITLE_INDEX = 1
         private val PROJECTION_BEGIN_INDEX = 2
         private val PROJECTION_ALL_DAY_INDEX = 3
+        private val PROJECTION_CALENDAR_COLOR_INDEX = 5
 
         private fun hasCalendarPermission() =
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
@@ -54,7 +56,8 @@ class CalendarRepositoryImpl
             val projection = arrayOf(
                 CalendarContract.Calendars._ID,
                 CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
-                CalendarContract.Calendars.ACCOUNT_NAME
+                CalendarContract.Calendars.ACCOUNT_NAME,
+                CalendarContract.Calendars.CALENDAR_COLOR
             )
 
             val cursor = context.contentResolver.query(
@@ -70,7 +73,8 @@ class CalendarRepositoryImpl
                     val id = it.getLong(0)
                     val displayName = it.getString(1) ?: ""
                     val accountName = it.getString(2) ?: ""
-                    calendars.add(DeviceCalendar(id, displayName, accountName))
+                    val color = it.getInt(3)
+                    calendars.add(DeviceCalendar(id, displayName, accountName, color))
                 }
             }
             return@withContext calendars
@@ -117,8 +121,9 @@ class CalendarRepositoryImpl
                     val title = it.getString(PROJECTION_TITLE_INDEX)
                     val begin = it.getLong(PROJECTION_BEGIN_INDEX)
                     val isAllDay = it.getInt(PROJECTION_ALL_DAY_INDEX) == 1
+                    val color = it.getInt(PROJECTION_CALENDAR_COLOR_INDEX)
 
-                    events.add(Event(id = eventId, title = title, startTime = begin, isAllDay = isAllDay))
+                    events.add(Event(id = eventId, title = title, startTime = begin, isAllDay = isAllDay, calendarColor = color))
                 }
             }
 
@@ -177,7 +182,8 @@ class CalendarRepositoryImpl
                 val title = it.getString(PROJECTION_TITLE_INDEX)
                 val begin = it.getLong(PROJECTION_BEGIN_INDEX)
                 val isAllDay = it.getInt(PROJECTION_ALL_DAY_INDEX) == 1
-                nextEvent = Event(id = eventId, title = title, startTime = begin, isAllDay = isAllDay)
+                val color = it.getInt(PROJECTION_CALENDAR_COLOR_INDEX)
+                nextEvent = Event(id = eventId, title = title, startTime = begin, isAllDay = isAllDay, calendarColor = color)
             }
         }
         return@withContext nextEvent

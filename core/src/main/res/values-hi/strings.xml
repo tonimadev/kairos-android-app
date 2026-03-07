@@ -29,7 +29,7 @@
         आपके डिवाइस की सेटिंग्स में Kairos के लिए "ऑटोस्टार्ट" सक्षम करने की सलाह देते हैं।</string>
     <string name="dismiss">खारिज करें</string>
     <string name="autostart_fallback_toast">विशिष्ट स्क्रीन नहीं खुल सकी। कृपया सेटिंग्स में "ऑटोस्टार्ट" या "बैटरी मैनेजर" खोजें।</string>
-    <string name="remove_ads">विज्ञापन हटाएँ</string>
+    <string name="remove_ads">परियोजना का समर्थन करें</string>
     <string name="menu">मेनू</string>
     <string name="ringer_mode_vibrate_warning">फ़ोन वाइब्रेट मोड में है। अलार्म आवाज़ नहीं करेंगे।</string>
     <string name="ringer_mode_silent_warning">फ़ोन साइलेंट मोड में है। अलार्म आवाज़ नहीं करेंगे।</string>
@@ -80,4 +80,7 @@
     <string name="alarm_offset_1_hour">1 घंटे पहले</string>
     <string name="calendar_filter_title">कैलेंडर फ़िल्टर</string>
     <string name="calendar_filter_all_enabled">सभी कैलेंडर सक्रिय</string>
+    <string name="snooze">स्नूज़</string>
+    <string name="snooze_time_label">स्नूज़ समय (मिनट)</string>
+    <string name="search">ईवेंट खोजें</string>
 </resources>

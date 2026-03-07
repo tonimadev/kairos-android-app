@@ -40,6 +40,8 @@ fun MainContent(
     onAllDayAlarmsToggle: (Boolean) -> Unit,
     onAllDayAlarmHourChanged: (Int) -> Unit,
     onAlarmOffsetChanged: (AlarmOffset) -> Unit,
+    onSnoozeTimeChanged: (Int) -> Unit = {},
+    onSearchQueryChanged: (String) -> Unit = {},
     onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
     windowSizeClass: WindowSizeClass? = null,
 ) {
@@ -78,6 +80,7 @@ fun MainContent(
                     onAllDayAlarmsToggle = onAllDayAlarmsToggle,
                     onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
                     onAlarmOffsetChanged = onAlarmOffsetChanged,
+                    onSnoozeTimeChanged = onSnoozeTimeChanged,
                     onCalendarFilterToggle = onCalendarFilterToggle,
                 )
                 CalendarView(
@@ -101,50 +104,47 @@ fun MainContent(
                 onEventToggle = onEventToggle,
                 onEventVibrateToggle = onEventVibrateToggle,
                 onEventClick = onEventClick,
+                onSearchQueryChanged = onSearchQueryChanged,
             )
         }
     } else {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-        ) {
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
-            ) {
-                ControlPanel(
-                    uiState = uiState,
-                    onToggle = onToggle,
-                    onDismissAutostart = onDismissAutostart,
-                    onVibrateToggle = onVibrateToggle,
-                    onAllDayAlarmsToggle = onAllDayAlarmsToggle,
-                    onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
-                    onAlarmOffsetChanged = onAlarmOffsetChanged,
-                    onCalendarFilterToggle = onCalendarFilterToggle,
-                )
-                CalendarView(
-                    modifier = Modifier.padding(top = 8.dp),
-                    currentMonth = uiState.currentMonth,
-                    selectedDate = uiState.selectedDate,
-                    eventsByDate = eventsByDate,
-                    onMonthChanged = onMonthChanged,
-                    onDateSelected = onDateSelected,
-                    onReturnToToday = onReturnToToday,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            EventList(
-                modifier = Modifier.weight(1f),
-                uiState = uiState,
-                eventsByDate = eventsByDate,
-                onRefresh = onRefresh,
-                onEventToggle = onEventToggle,
-                onEventVibrateToggle = onEventVibrateToggle,
-                onEventClick = onEventClick,
-            )
-        }
+        EventList(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+            uiState = uiState,
+            eventsByDate = eventsByDate,
+            onRefresh = onRefresh,
+            onEventToggle = onEventToggle,
+            onEventVibrateToggle = onEventVibrateToggle,
+            onEventClick = onEventClick,
+            onSearchQueryChanged = onSearchQueryChanged,
+            headerContent = {
+                Column {
+                    ControlPanel(
+                        uiState = uiState,
+                        onToggle = onToggle,
+                        onDismissAutostart = onDismissAutostart,
+                        onVibrateToggle = onVibrateToggle,
+                        onAllDayAlarmsToggle = onAllDayAlarmsToggle,
+                        onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
+                        onAlarmOffsetChanged = onAlarmOffsetChanged,
+                        onSnoozeTimeChanged = onSnoozeTimeChanged,
+                        onCalendarFilterToggle = onCalendarFilterToggle,
+                    )
+                    CalendarView(
+                        modifier = Modifier.padding(top = 8.dp),
+                        currentMonth = uiState.currentMonth,
+                        selectedDate = uiState.selectedDate,
+                        eventsByDate = eventsByDate,
+                        onMonthChanged = onMonthChanged,
+                        onDateSelected = onDateSelected,
+                        onReturnToToday = onReturnToToday,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            },
+        )
     }
 }

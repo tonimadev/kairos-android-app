@@ -1,0 +1,5 @@
+- Adicionado sistema de busca de eventos.
+- Novo recurso de Adiar (Snooze) para alarmes com tempo configurável.
+- Cores de calendário sincronizadas do sistema para melhor visualização.
+- Interface adaptada para tablets, dobráveis e modo paisagem.
+- Apoiar projeto: agora você pode apoiar o desenvolvimento do app.

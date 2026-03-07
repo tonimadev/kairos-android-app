@@ -63,6 +63,7 @@ fun ControlPanel(
     onAllDayAlarmsToggle: (Boolean) -> Unit,
     onAllDayAlarmHourChanged: (Int) -> Unit,
     onAlarmOffsetChanged: (AlarmOffset) -> Unit,
+    onSnoozeTimeChanged: (Int) -> Unit = {},
     onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
@@ -240,6 +241,23 @@ fun ControlPanel(
                                 )
                             }
                         }
+                    }
+
+                    Column {
+                        Text(
+                            text =
+                                stringResource(R.string.snooze_time_label) +
+                                    ": ${uiState.snoozeTimeMinutes} min",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Slider(
+                            value = uiState.snoozeTimeMinutes.toFloat(),
+                            onValueChange = { onSnoozeTimeChanged(it.roundToInt()) },
+                            valueRange = 5f..60f,
+                            steps = 10,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
 
                     if (uiState.availableCalendars.isNotEmpty()) {

@@ -73,6 +73,8 @@ fun EventCard(
         label = "accentColor",
     )
 
+    val calendarColor = if (event.calendarColor != 0) Color(event.calendarColor) else accentColor
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation =
@@ -96,7 +98,7 @@ fun EventCard(
                         .width(5.dp)
                         .height(56.dp)
                         .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
-                        .background(accentColor),
+                        .background(calendarColor),
             )
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {

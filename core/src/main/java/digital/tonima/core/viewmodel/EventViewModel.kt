@@ -48,6 +48,8 @@ data class EventScreenUiState(
     val alarmOffsetMinutes: Long = 0L,
     val availableCalendars: List<DeviceCalendar> = emptyList(),
     val enabledCalendarIds: Set<Long> = emptySet(),
+    val searchQuery: String = "",
+    val snoozeTimeMinutes: Int = 10,
 )
 
 @HiltViewModel
@@ -125,6 +127,10 @@ constructor(
                     onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
                 }
             }
+            .launchIn(viewModelScope)
+
+        appPreferencesRepository.getSnoozeTimeMinutes()
+            .onEach { minutes -> _uiState.update { it.copy(snoozeTimeMinutes = minutes) } }
             .launchIn(viewModelScope)
 
         checkAllPermissions()
@@ -420,6 +426,16 @@ constructor(
     fun clearCalendarFilter() {
         viewModelScope.launch {
             appPreferencesRepository.setEnabledCalendarIds(emptySet())
+        }
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+    }
+
+    fun onSnoozeTimeChanged(minutes: Int) {
+        viewModelScope.launch {
+            appPreferencesRepository.setSnoozeTimeMinutes(minutes)
         }
     }
 }

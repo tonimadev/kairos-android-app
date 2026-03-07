@@ -293,7 +293,9 @@ fun EventScreen(
                             onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
                             onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
                             onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
+                            onSnoozeTimeChanged = viewModel::onSnoozeTimeChanged,
                             onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
+                            onSearchQueryChanged = viewModel::onSearchQueryChanged,
                             windowSizeClass = windowSizeClass,
                         )
                     }

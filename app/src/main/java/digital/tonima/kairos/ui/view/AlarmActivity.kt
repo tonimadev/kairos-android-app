@@ -10,12 +10,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.KairosTheme
@@ -48,6 +52,9 @@ class AlarmActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val eventTitle =
             intent.getStringExtra("EXTRA_EVENT_TITLE") ?: getString(R.string.upcoming_event)
+        val uniqueId = intent.getIntExtra("EXTRA_UNIQUE_ID", -1)
+        val eventId = intent.getLongExtra("EXTRA_EVENT_ID", -1L)
+        val startTime = intent.getLongExtra("EXTRA_EVENT_START_TIME", -1L)
 
         setContent {
             KairosTheme {
@@ -76,18 +83,49 @@ class AlarmActivity : ComponentActivity() {
                             style = MaterialTheme.typography.headlineLarge,
                         )
                         Spacer(modifier = Modifier.height(48.dp))
-                        Button(
-                            onClick = {
-                                userStoppedAlarm = true
-                                AlarmSoundAndVibrateService.stopAlarm(this@AlarmActivity)
-                                finish()
-                            },
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(60.dp),
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
-                            Text(text = getString(R.string.stop), fontSize = 20.sp)
+                            Button(
+                                onClick = {
+                                    val snoozeIntent =
+                                        Intent(this@AlarmActivity, AlarmReceiver::class.java).apply {
+                                            action = AlarmReceiver.ACTION_SNOOZE
+                                            putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
+                                            putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+                                            putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
+                                            putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
+                                        }
+                                    sendBroadcast(snoozeIntent)
+                                    finish()
+                                },
+                                modifier =
+                                    Modifier
+                                        .weight(1f)
+                                        .height(60.dp),
+                                colors =
+                                    ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondary,
+                                    ),
+                            ) {
+                                Text(text = getString(R.string.snooze), fontSize = 18.sp)
+                            }
+
+                            Button(
+                                onClick = {
+                                    userStoppedAlarm = true
+                                    AlarmSoundAndVibrateService.stopAlarm(this@AlarmActivity)
+                                    finish()
+                                },
+                                modifier =
+                                    Modifier
+                                        .weight(1f)
+                                        .height(60.dp),
+                            ) {
+                                Text(text = getString(R.string.stop), fontSize = 18.sp)
+                            }
                         }
                     }
                 }

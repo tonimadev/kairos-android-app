@@ -35,12 +35,15 @@ class AlarmSoundAndVibrateService : Service() {
         private const val NOTIFICATION_CHANNEL_ID = "calendar_alarm_channel"
         const val NOTIFICATION_ID = 0xA11A7
 
-        fun startAlarm(context: Context, eventTitle: String? = null) {
+        fun startAlarm(context: Context, eventTitle: String? = null, uniqueId: Int = -1, eventId: Long = -1L, startTime: Long = -1L) {
             val intent = Intent(context, AlarmSoundAndVibrateService::class.java).apply {
                 action = ACTION_START_ALARM
                 if (!eventTitle.isNullOrEmpty()) {
                     putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
                 }
+                putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+                putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_ID, eventId)
+                putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
             }
             ContextCompat.startForegroundService(context, intent)
         }
@@ -70,7 +73,11 @@ class AlarmSoundAndVibrateService : Service() {
                 stopAndReleaseResources()
 
                 val eventTitle = intent.getStringExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE)
-                ensureForeground(eventTitle)
+                val uniqueId = intent.getIntExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_UNIQUE_ID, -1)
+                val eventId = intent.getLongExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_ID, -1L)
+                val startTime = intent.getLongExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_START_TIME, -1L)
+
+                ensureForeground(eventTitle, uniqueId, eventId, startTime)
 
                 val vibrateOnly = try {
                     runBlocking { AppPreferencesRepositoryImpl(applicationContext).getVibrateOnly().first() }
@@ -145,7 +152,25 @@ class AlarmSoundAndVibrateService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun ensureForeground(eventTitle: String?) {
+    private fun ensureForeground(eventTitle: String?, uniqueId: Int = -1, eventId: Long = -1L, startTime: Long = -1L) {
+        val fullScreenPendingIntent = try {
+            val fullScreenIntent = Intent(applicationContext, Class.forName("digital.tonima.kairos.ui.view.AlarmActivity")).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                putExtra("EXTRA_EVENT_TITLE", eventTitle)
+                putExtra("EXTRA_UNIQUE_ID", uniqueId)
+                putExtra("EXTRA_EVENT_ID", eventId)
+                putExtra("EXTRA_EVENT_START_TIME", startTime)
+            }
+            PendingIntent.getActivity(
+                applicationContext,
+                uniqueId,
+                fullScreenIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } catch (e: Exception) {
+            null
+        }
+
         val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
@@ -157,6 +182,20 @@ class AlarmSoundAndVibrateService : Service() {
         }
         nm.createNotificationChannel(channel)
 
+        val snoozeIntent = Intent(this, digital.tonima.core.receiver.AlarmReceiver::class.java).apply {
+            action = digital.tonima.core.receiver.AlarmReceiver.ACTION_SNOOZE
+            putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
+            putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+            putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_ID, eventId)
+            putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
+        }
+        val snoozePendingIntent = PendingIntent.getBroadcast(
+            this,
+            uniqueId,
+            snoozeIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val stopIntent = Intent(this, AlarmSoundAndVibrateService::class.java).apply { action = ACTION_STOP_ALARM }
         val stopPendingIntent = PendingIntent.getService(
             this,
@@ -166,15 +205,21 @@ class AlarmSoundAndVibrateService : Service() {
         )
 
         val contentText = eventTitle ?: getString(R.string.upcoming_event)
-        val notification: Notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_k_monochrome)
             .setContentTitle(getString(R.string.event_alarm))
             .setContentText(contentText)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(Notification.CATEGORY_ALARM)
+            .addAction(0, getString(R.string.snooze), snoozePendingIntent)
             .addAction(0, getString(R.string.stop), stopPendingIntent)
-            .build()
+
+        if (fullScreenPendingIntent != null) {
+            notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true)
+        }
+
+        val notification = notificationBuilder.build()
 
         startForeground(NOTIFICATION_ID, notification)
     }

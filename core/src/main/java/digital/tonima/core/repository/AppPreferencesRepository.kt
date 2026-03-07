@@ -51,4 +51,7 @@ interface AppPreferencesRepository {
      */
     fun getEnabledCalendarIds(): Flow<Set<String>>
     suspend fun setEnabledCalendarIds(ids: Set<String>)
+
+    fun getSnoozeTimeMinutes(): Flow<Int>
+    suspend fun setSnoozeTimeMinutes(minutes: Int)
 }
