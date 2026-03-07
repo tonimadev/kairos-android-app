@@ -18,7 +18,7 @@ fun AdBannerView(
     isProUser: Boolean,
     loadAd: Boolean = true,
 ) {
-    if (false) return
+    if (isProUser) return
 
     val isInspectionMode = LocalInspectionMode.current
     val configuration = LocalConfiguration.current
