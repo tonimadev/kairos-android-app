@@ -185,7 +185,10 @@ fun EventScreen(
                         ),
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(painterResource(drawable.menu), contentDescription = stringResource(R.string.menu))
+                            Icon(
+                                painterResource(drawable.menu),
+                                contentDescription = stringResource(R.string.cd_open_menu),
+                            )
                         }
                     },
                 )

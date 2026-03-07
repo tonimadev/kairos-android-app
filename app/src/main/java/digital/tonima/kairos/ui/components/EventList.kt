@@ -27,10 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.ui.theme.Dimensions
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -63,7 +63,7 @@ fun EventList(
         Box(Modifier.weight(1f).pullRefresh(pullRefreshState)) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
             ) {
                 headerContent?.let {
                     item {
@@ -78,7 +78,7 @@ fun EventList(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 8.dp),
+                                .padding(bottom = Dimensions.PaddingSmall),
                         placeholder = { Text(stringResource(R.string.search)) },
                         leadingIcon = { Icon(painterResource(R.drawable.date_range), contentDescription = null) },
                         trailingIcon = {
@@ -123,7 +123,7 @@ fun EventList(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(100.dp))
+                    Spacer(modifier = Modifier.height(Dimensions.ListBottomSpacer))
                 }
             }
             PullRefreshIndicator(

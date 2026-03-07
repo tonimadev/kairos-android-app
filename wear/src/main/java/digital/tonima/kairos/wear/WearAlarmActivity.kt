@@ -21,8 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.MaterialTheme
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.analytics.Analytics
@@ -34,6 +32,7 @@ import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_SOURCE
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.wear.ui.theme.Dimensions
 import digital.tonima.kairos.wear.ui.theme.KairosTheme
 import javax.inject.Inject
 
@@ -107,7 +106,7 @@ private fun WearAlarmScreen(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(Dimensions.PaddingNormal),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -116,7 +115,7 @@ private fun WearAlarmScreen(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 12.dp),
+            modifier = Modifier.padding(bottom = Dimensions.PaddingMedium),
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -128,18 +127,18 @@ private fun WearAlarmScreen(
             ) {
                 Text(
                     text = stringResource(R.string.snooze),
-                    fontSize = 12.sp,
+                    fontSize = Dimensions.ButtonFontSize,
                     textAlign = TextAlign.Center,
                 )
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
             Button(
                 onClick = onStop,
                 modifier = Modifier.weight(1f),
             ) {
                 Text(
                     text = stringResource(R.string.stop),
-                    fontSize = 12.sp,
+                    fontSize = Dimensions.ButtonFontSize,
                     textAlign = TextAlign.Center,
                 )
             }

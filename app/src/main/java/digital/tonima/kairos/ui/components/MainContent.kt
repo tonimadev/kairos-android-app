@@ -15,10 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventScreenUiState
+import digital.tonima.kairos.ui.theme.Dimensions
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
@@ -63,14 +63,14 @@ fun MainContent(
         Row(
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = Dimensions.PaddingNormal),
         ) {
             Column(
                 modifier =
                     Modifier
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
-                        .padding(end = 8.dp),
+                        .padding(end = Dimensions.PaddingSmall),
             ) {
                 ControlPanel(
                     uiState = uiState,
@@ -84,7 +84,7 @@ fun MainContent(
                     onCalendarFilterToggle = onCalendarFilterToggle,
                 )
                 CalendarView(
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier.padding(top = Dimensions.PaddingSmall),
                     currentMonth = uiState.currentMonth,
                     selectedDate = uiState.selectedDate,
                     eventsByDate = eventsByDate,
@@ -97,7 +97,7 @@ fun MainContent(
                 modifier =
                     Modifier
                         .weight(1f)
-                        .padding(start = 8.dp, top = 16.dp),
+                        .padding(start = Dimensions.PaddingSmall, top = Dimensions.PaddingNormal),
                 uiState = uiState,
                 eventsByDate = eventsByDate,
                 onRefresh = onRefresh,
@@ -112,7 +112,7 @@ fun MainContent(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = Dimensions.PaddingNormal),
             uiState = uiState,
             eventsByDate = eventsByDate,
             onRefresh = onRefresh,
@@ -134,7 +134,7 @@ fun MainContent(
                         onCalendarFilterToggle = onCalendarFilterToggle,
                     )
                     CalendarView(
-                        modifier = Modifier.padding(top = 8.dp),
+                        modifier = Modifier.padding(top = Dimensions.PaddingSmall),
                         currentMonth = uiState.currentMonth,
                         selectedDate = uiState.selectedDate,
                         eventsByDate = eventsByDate,
@@ -142,7 +142,7 @@ fun MainContent(
                         onDateSelected = onDateSelected,
                         onReturnToToday = onReturnToToday,
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimensions.SpacingNormal))
                 }
             },
         )

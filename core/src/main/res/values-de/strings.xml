@@ -87,4 +87,13 @@
     <string name="snooze">SCHLUMMERN</string>
     <string name="snooze_time_label">Schlummerzeit (Minuten)</string>
     <string name="search">Ereignisse suchen</string>
+    <string name="cd_alarm_icon">Alarmsymbol</string>
+    <string name="cd_app_logo">App-Logo</string>
+    <string name="cd_open_menu">Navigationsmenü öffnen</string>
+    <string name="cd_event_indicator">Kalenderfarbanzeige</string>
+    <string name="cd_alarms_enabled">Alarme aktiviert</string>
+    <string name="cd_alarms_disabled">Alarme deaktiviert</string>
+    <string name="cd_expand_settings">Einstellungen erweitern</string>
+    <string name="cd_collapse_settings">Einstellungen einklappen</string>
+    <string name="cd_event_recurring">Wiederkehrendes Ereignis</string>
 </resources>

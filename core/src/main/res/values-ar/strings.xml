@@ -85,4 +85,13 @@
     <string name="snooze">غفوة</string>
     <string name="snooze_time_label">وقت الغفوة (دقائق)</string>
     <string name="search">بحث عن الأحداث</string>
+    <string name="cd_alarm_icon">أيقونة المنبه</string>
+    <string name="cd_app_logo">شعار التطبيق</string>
+    <string name="cd_open_menu">فتح قائمة التنقل</string>
+    <string name="cd_event_indicator">مؤشر لون التقويم</string>
+    <string name="cd_alarms_enabled">المنبهات مفعلة</string>
+    <string name="cd_alarms_disabled">المنبهات معطلة</string>
+    <string name="cd_expand_settings">توسيع الإعدادات</string>
+    <string name="cd_collapse_settings">طي الإعدادات</string>
+    <string name="cd_event_recurring">حدث متكرر</string>
 </resources>

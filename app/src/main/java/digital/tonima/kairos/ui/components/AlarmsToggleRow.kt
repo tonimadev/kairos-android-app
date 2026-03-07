@@ -26,11 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import digital.tonima.kairos.R.drawable.alarm
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.ui.theme.Dimensions
 
 @Composable
 fun AlarmsToggleRow(
@@ -59,38 +63,53 @@ fun AlarmsToggleRow(
         label = "alarmIconBg",
     )
 
+    val stateDescription =
+        stringResource(
+            if (alarmsEnabled) R.string.cd_alarms_enabled else R.string.cd_alarms_disabled,
+        )
+
     Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (alarmsEnabled) 4.dp else 1.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .semantics(mergeDescendants = true) {
+                    role = Role.Switch
+                    this.stateDescription = stateDescription
+                },
+        shape = RoundedCornerShape(Dimensions.RadiusExtraLarge),
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = if (alarmsEnabled) Dimensions.ElevationMedium else Dimensions.ElevationExtraSmall,
+            ),
         colors = CardDefaults.cardColors(containerColor = cardColor),
+        onClick = { onToggle(!alarmsEnabled) },
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                    .padding(horizontal = Dimensions.PaddingNormal, vertical = Dimensions.EventCardHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingDefault),
             ) {
                 Box(
                     modifier =
                         Modifier
-                            .size(40.dp)
+                            .size(Dimensions.IconSizeLarge)
                             .clip(CircleShape)
                             .background(iconBg),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         painter = painterResource(alarm),
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.cd_alarm_icon),
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(22.dp),
+                        modifier = Modifier.size(Dimensions.IconSizeMedium),
                     )
                 }
                 Column {
@@ -119,7 +138,7 @@ fun AlarmsToggleRow(
             }
             Switch(
                 checked = alarmsEnabled,
-                onCheckedChange = onToggle,
+                onCheckedChange = null, // Handled by Card onClick for better a11y
                 colors =
                     SwitchDefaults.colors(
                         checkedTrackColor = MaterialTheme.colorScheme.primary,

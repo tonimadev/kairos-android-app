@@ -33,12 +33,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import digital.tonima.kairos.R.drawable.favorite
 import digital.tonima.kairos.R.drawable.ic_share
 import digital.tonima.kairos.R.drawable.star
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.ic_k_monochrome
+import digital.tonima.kairos.ui.theme.Dimensions
 
 @Composable
 fun DrawerContent(
@@ -60,7 +60,7 @@ fun DrawerContent(
         }
 
     ModalDrawerSheet(
-        drawerShape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp),
+        drawerShape = RoundedCornerShape(topEnd = Dimensions.PaddingLarge, bottomEnd = Dimensions.PaddingLarge),
     ) {
         Column(
             modifier =
@@ -74,26 +74,29 @@ fun DrawerContent(
                         .fillMaxWidth()
                         .background(
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(topEnd = 24.dp),
-                        ).padding(horizontal = 20.dp, vertical = 24.dp),
+                            shape = RoundedCornerShape(topEnd = Dimensions.PaddingLarge),
+                        ).padding(
+                            horizontal = Dimensions.RadiusExtraLarge,
+                            vertical = Dimensions.PaddingLarge,
+                        ),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier =
                             Modifier
-                                .size(48.dp)
+                                .size(Dimensions.IconSizeExtraLarge)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             painter = painterResource(ic_k_monochrome),
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.cd_app_logo),
                             tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(28.dp),
+                            modifier = Modifier.size(Dimensions.IconSizeDrawer),
                         )
                     }
-                    Spacer(modifier = Modifier.width(14.dp))
+                    Spacer(modifier = Modifier.width(Dimensions.EventCardHorizontalPadding))
                     Column {
                         Text(
                             text = stringResource(R.string.app_name),
@@ -113,7 +116,7 @@ fun DrawerContent(
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Dimensions.PaddingDefault))
 
             if (!isProUser) {
                 NavigationDrawerItem(
@@ -128,7 +131,13 @@ fun DrawerContent(
                 )
             }
 
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            HorizontalDivider(
+                modifier =
+                    Modifier.padding(
+                        horizontal = Dimensions.PaddingNormal,
+                        vertical = Dimensions.PaddingSmall,
+                    ),
+            )
 
             NavigationDrawerItem(
                 icon = { Icon(painterResource(favorite), contentDescription = null) },
@@ -160,7 +169,7 @@ fun DrawerContent(
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimensions.PaddingNormal))
             Text(
                 text = stringResource(R.string.version, versionName),
                 style = MaterialTheme.typography.bodySmall,
@@ -168,7 +177,7 @@ fun DrawerContent(
                 modifier =
                     Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
+                        .padding(Dimensions.PaddingNormal),
             )
         }
     }

@@ -36,6 +36,7 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import digital.tonima.core.model.Event
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.ui.theme.Dimensions
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -170,12 +171,12 @@ private fun Day(
         modifier =
             Modifier
                 .aspectRatio(1f)
-                .padding(4.dp)
+                .padding(Dimensions.PaddingTiny)
                 .background(
                     color = bgColor,
                     shape = CircleShape,
                 ).border(
-                    width = if (isToday && !isSelected) 1.dp else 0.dp,
+                    width = if (isToday && !isSelected) Dimensions.ElevationExtraSmall else Dimensions.PaddingNone,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = if (isSelected) 0f else 1f),
                     shape = CircleShape,
                 ).clickable(enabled = day.position == DayPosition.MonthDate) { onClick(day) },
@@ -196,8 +197,8 @@ private fun Day(
                 Box(
                     modifier =
                         Modifier
-                            .padding(top = 3.dp)
-                            .size(6.dp)
+                            .padding(top = Dimensions.EventTagVerticalPadding)
+                            .size(Dimensions.EventCardSpacing)
                             .background(
                                 color =
                                     if (isSelected) {

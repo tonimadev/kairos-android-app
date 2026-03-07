@@ -48,6 +48,7 @@ import digital.tonima.kairos.wear.ui.components.OpenOnPhoneChip
 import digital.tonima.kairos.wear.ui.components.VersionFooter
 import digital.tonima.kairos.wear.ui.components.VibrateOnlyToggle
 import digital.tonima.kairos.wear.ui.components.WearOsPermissionsScreenContent
+import digital.tonima.kairos.wear.ui.theme.Dimensions
 import digital.tonima.kairos.wear.ui.theme.KairosTheme
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -107,7 +108,13 @@ fun WearApp(
     ) {
         ScalingLazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = 24.dp, start = 8.dp, end = 8.dp, bottom = 24.dp),
+            contentPadding =
+                PaddingValues(
+                    top = Dimensions.PaddingLarge,
+                    start = Dimensions.PaddingSmall,
+                    end = Dimensions.PaddingSmall,
+                    bottom = Dimensions.PaddingLarge,
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
             state = listState,
         ) {
@@ -133,14 +140,14 @@ fun WearApp(
                 }
                 item { AppHeaderTitle() }
                 item {
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(Dimensions.SpacingSmall))
                     GlobalAlarmsToggle(
                         checked = uiState.isGlobalAlarmEnabled,
                         onCheckedChange = { isChecked -> viewModel.onAlarmsToggle(isChecked) },
                     )
                 }
                 item {
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(Dimensions.SpacingExtraSmall))
                     VibrateOnlyToggle(
                         checked = uiState.vibrateOnly,
                         onCheckedChange = { enabled -> viewModel.onVibrateOnlyChanged(enabled) },
@@ -158,7 +165,7 @@ fun WearApp(
                         )
                     }
                 }
-                item { Spacer(Modifier.height(8.dp)) }
+                item { Spacer(Modifier.height(Dimensions.SpacingSmall)) }
                 item { EventsSectionHeader() }
                 item {
                     EventsListSection(
@@ -171,7 +178,7 @@ fun WearApp(
                     )
                 }
                 item {
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(Dimensions.SpacingSmall))
                     OpenOnPhoneChip(onClick = {
                         digital.tonima.kairos.wear.ui.actions.OpenOnPhone
                             .launch(context)
@@ -212,12 +219,18 @@ fun WearAppPreview() {
         ) {
             ScalingLazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 24.dp, start = 8.dp, end = 8.dp, bottom = 24.dp),
+                contentPadding =
+                    PaddingValues(
+                        top = Dimensions.PaddingLarge,
+                        start = Dimensions.PaddingSmall,
+                        end = Dimensions.PaddingSmall,
+                        bottom = Dimensions.PaddingLarge,
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 state = listState,
             ) {
                 item { AppHeaderTitle() }
-                item { Spacer(Modifier.height(8.dp)) }
+                item { Spacer(Modifier.height(Dimensions.SpacingSmall)) }
                 item { OpenOnPhoneChip(onClick = {}) }
                 item { Spacer(Modifier.height(8.dp)) }
                 item { GlobalAlarmsToggle(checked = true, onCheckedChange = {}) }

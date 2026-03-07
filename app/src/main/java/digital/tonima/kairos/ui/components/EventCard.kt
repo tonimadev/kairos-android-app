@@ -34,12 +34,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.Event
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.ui.theme.Dimensions
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,34 +79,54 @@ fun EventCard(
     )
 
     val calendarColor = if (event.calendarColor != 0) Color(event.calendarColor) else accentColor
+    val alarmStateDescription =
+        stringResource(
+            if (event.isAlarmEnabled) R.string.cd_alarms_enabled else R.string.cd_alarms_disabled,
+        )
+    val formattedTime = formatMillisToTime(event.startTime)
+    val recurringDescription = stringResource(R.string.cd_event_recurring)
+    val indicatorDescription = stringResource(R.string.cd_event_indicator)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation =
             CardDefaults.cardElevation(
-                defaultElevation = if (event.isAlarmEnabled) 4.dp else 1.dp,
+                defaultElevation =
+                    if (event.isAlarmEnabled) {
+                        Dimensions.ElevationMedium
+                    } else {
+                        Dimensions.ElevationExtraSmall
+                    },
             ),
         colors = CardDefaults.cardColors(containerColor = targetCardColor),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(Dimensions.RadiusLarge),
         onClick = onEventClick,
     ) {
         Row(
             modifier =
                 Modifier
-                    .padding(start = 0.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
+                    .padding(
+                        start = Dimensions.PaddingNone,
+                        top = Dimensions.PaddingDefault,
+                        end = Dimensions.PaddingNormal,
+                        bottom = Dimensions.PaddingDefault,
+                    )
                     .height(IntrinsicSize.Min)
-                    .heightIn(min = 72.dp),
+                    .heightIn(min = Dimensions.EventCardMinHeight),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier =
                     Modifier
-                        .width(5.dp)
+                        .width(Dimensions.EventIndicatorWidth)
                         .fillMaxHeight()
-                        .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
-                        .background(calendarColor),
+                        .clip(RoundedCornerShape(topEnd = Dimensions.RadiusSmall, bottomEnd = Dimensions.RadiusSmall))
+                        .background(calendarColor)
+                        .clearAndSetSemantics {
+                            contentDescription = indicatorDescription
+                        },
             )
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(Dimensions.EventCardHorizontalPadding))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = event.title,
@@ -115,22 +141,29 @@ fun EventCard(
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         },
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(Dimensions.EventCardSpacing))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.EventCardSpacing),
                 ) {
                     Box(
                         modifier =
                             Modifier
-                                .clip(RoundedCornerShape(50))
+                                .clip(RoundedCornerShape(Dimensions.RadiusFull))
                                 .background(
                                     if (event.isAlarmEnabled) {
                                         MaterialTheme.colorScheme.primaryContainer
                                     } else {
                                         MaterialTheme.colorScheme.surfaceVariant
                                     },
-                                ).padding(horizontal = 10.dp, vertical = 3.dp),
+                                )
+                                .padding(
+                                    horizontal = Dimensions.EventTagHorizontalPadding,
+                                    vertical = Dimensions.EventTagVerticalPadding,
+                                )
+                                .semantics(mergeDescendants = true) {
+                                    contentDescription = "$alarmStateDescription $formattedTime"
+                                },
                     ) {
                         Text(
                             text = (if (event.isAlarmEnabled) "🔔 " else "🔕 ") + formatMillisToTime(event.startTime),
@@ -147,9 +180,15 @@ fun EventCard(
                         Box(
                             modifier =
                                 Modifier
-                                    .clip(RoundedCornerShape(50))
+                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
                                     .background(MaterialTheme.colorScheme.secondaryContainer)
-                                    .padding(horizontal = 10.dp, vertical = 3.dp),
+                                    .padding(
+                                        horizontal = Dimensions.EventTagHorizontalPadding,
+                                        vertical = Dimensions.EventTagVerticalPadding,
+                                    )
+                                    .semantics(mergeDescendants = true) {
+                                        contentDescription = recurringDescription
+                                    },
                         ) {
                             Text(
                                 text = "🔁 " + stringResource(R.string.recurring_label),
@@ -160,12 +199,20 @@ fun EventCard(
                     }
                 }
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                val switchLabel =
+                    stringResource(
+                        if (event.isAlarmEnabled) R.string.cd_alarms_enabled else R.string.cd_alarms_disabled,
+                    )
                 Switch(
                     checked = event.isAlarmEnabled,
                     onCheckedChange = onToggle,
                     enabled = isGloballyEnabled,
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = switchLabel
+                        },
                     colors =
                         SwitchDefaults.colors(
                             checkedThumbColor = MaterialTheme.colorScheme.primary,
@@ -177,7 +224,12 @@ fun EventCard(
                 if (event.isAlarmEnabled) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 2.dp),
+                        modifier =
+                            Modifier
+                                .padding(top = 2.dp)
+                                .semantics(mergeDescendants = true) {
+                                    role = Role.Checkbox
+                                },
                     ) {
                         Text(
                             text = stringResource(R.string.vibrate_only),

@@ -18,8 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.ui.theme.Dimensions
 
 @Composable
 fun StandardPermissionsScreen(
@@ -31,7 +31,7 @@ fun StandardPermissionsScreen(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(Dimensions.PaddingNormal),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -40,14 +40,14 @@ fun StandardPermissionsScreen(
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dimensions.SpacingNormal))
         Text(
             stringResource(R.string.permissions_disclaimer),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(24.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Spacer(modifier = Modifier.height(Dimensions.PaddingLarge))
+        Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingDefault)) {
             Button(onClick = onSettingsClick) { Text(stringResource(R.string.open_settings)) }
             Button(onClick = onRetryClick) { Text(stringResource(R.string.try_again)) }
         }
@@ -65,7 +65,7 @@ fun ExactAlarmPermissionScreen(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(Dimensions.PaddingNormal),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -74,17 +74,17 @@ fun ExactAlarmPermissionScreen(
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dimensions.SpacingNormal))
         Text(
             stringResource(R.string.exact_alarm_permission_disclaimer),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Dimensions.PaddingLarge))
         Button(onClick = onProvidePermissionClick) { Text(stringResource(R.string.provide_permission)) }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
         TextButton(onClick = onAlreadyAuthorizedClick) { Text(stringResource(R.string.already_authorized)) }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
         TextButton(onClick = onSkipClick) { Text(stringResource(R.string.skip)) }
     }
 }
@@ -100,7 +100,7 @@ fun FullScreenIntentPermissionScreen(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(Dimensions.PaddingNormal),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -109,17 +109,17 @@ fun FullScreenIntentPermissionScreen(
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dimensions.SpacingNormal))
         Text(
             stringResource(R.string.full_screen_permission_disclaimer),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Dimensions.PaddingLarge))
         Button(onClick = onOpenSettingsClick) { Text(stringResource(R.string.open_settings)) }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
         TextButton(onClick = onAlreadyAuthorizedClick) { Text(stringResource(R.string.already_authorized)) }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
         TextButton(onClick = onSkipClick) { Text(stringResource(R.string.skip)) }
     }
 }

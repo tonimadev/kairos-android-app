@@ -82,4 +82,13 @@
     <string name="snooze">スヌーズ</string>
     <string name="snooze_time_label">スヌーズ時間 (分)</string>
     <string name="search">イベントを検索</string>
+    <string name="cd_alarm_icon">アラームアイコン</string>
+    <string name="cd_app_logo">アプリのロゴ</string>
+    <string name="cd_open_menu">ナビゲーションメニューを開く</string>
+    <string name="cd_event_indicator">カレンダーの色インジケーター</string>
+    <string name="cd_alarms_enabled">アラーム有効</string>
+    <string name="cd_alarms_disabled">アラーム無効</string>
+    <string name="cd_expand_settings">設定を展開</string>
+    <string name="cd_collapse_settings">設定を折りたたむ</string>
+    <string name="cd_event_recurring">繰り返しイベント</string>
 </resources>

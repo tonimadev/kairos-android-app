@@ -82,4 +82,13 @@
     <string name="snooze">稍后提醒</string>
     <string name="snooze_time_label">稍后提醒时间（分钟）</string>
     <string name="search">搜索事件</string>
+    <string name="cd_alarm_icon">闹钟图标</string>
+    <string name="cd_app_logo">应用徽标</string>
+    <string name="cd_open_menu">打开导航菜单</string>
+    <string name="cd_event_indicator">日历颜色指示器</string>
+    <string name="cd_alarms_enabled">闹钟已启用</string>
+    <string name="cd_alarms_disabled">闹钟已禁用</string>
+    <string name="cd_expand_settings">展开设置</string>
+    <string name="cd_collapse_settings">收起设置</string>
+    <string name="cd_event_recurring">周期性事件</string>
 </resources>

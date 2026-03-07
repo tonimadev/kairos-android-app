@@ -85,4 +85,13 @@
     <string name="snooze">स्नूज़</string>
     <string name="snooze_time_label">स्नूज़ समय (मिनट)</string>
     <string name="search">ईवेंट खोजें</string>
+    <string name="cd_alarm_icon">अलार्म आइकन</string>
+    <string name="cd_app_logo">ऐप लोगो</string>
+    <string name="cd_open_menu">नेविगेशन मेनू खोलें</string>
+    <string name="cd_event_indicator">कैलेंडर रंग संकेतक</string>
+    <string name="cd_alarms_enabled">अलार्म सक्षम</string>
+    <string name="cd_alarms_disabled">अलार्म अक्षम</string>
+    <string name="cd_expand_settings">सेटिंग विस्तार करें</string>
+    <string name="cd_collapse_settings">सेटिंग समेटें</string>
+    <string name="cd_event_recurring">आवर्ती घटना</string>
 </resources>

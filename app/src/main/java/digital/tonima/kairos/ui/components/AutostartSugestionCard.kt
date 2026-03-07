@@ -18,8 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.ui.theme.Dimensions
 
 @Composable
 fun AutostartSuggestionCard(
@@ -30,24 +30,24 @@ fun AutostartSuggestionCard(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                .padding(vertical = Dimensions.PaddingSmall),
+        elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.ElevationSmall),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(Dimensions.PaddingNormal)) {
             Text(
                 text = stringResource(R.string.autostart_suggestion_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
             Text(
                 text = stringResource(R.string.autostart_suggestion_disclaimer),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimensions.SpacingNormal))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
@@ -55,7 +55,7 @@ fun AutostartSuggestionCard(
                 TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.dismiss))
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
                 Button(onClick = onOpenSettings) {
                     Text(stringResource(R.string.open_settings))
                 }

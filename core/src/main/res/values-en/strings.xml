@@ -86,4 +86,13 @@
     <string name="snooze">SNOOZE</string>
     <string name="snooze_time_label">Snooze time (minutes)</string>
     <string name="search">Search events</string>
+    <string name="cd_alarm_icon">Alarm icon</string>
+    <string name="cd_app_logo">App logo</string>
+    <string name="cd_open_menu">Open navigation menu</string>
+    <string name="cd_event_indicator">Calendar color indicator</string>
+    <string name="cd_alarms_enabled">Alarms enabled</string>
+    <string name="cd_alarms_disabled">Alarms disabled</string>
+    <string name="cd_expand_settings">Expand settings</string>
+    <string name="cd_collapse_settings">Collapse settings</string>
+    <string name="cd_event_recurring">Recurring event</string>
 </resources>

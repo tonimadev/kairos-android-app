@@ -88,4 +88,13 @@
     <string name="snooze">RAPPEL</string>
     <string name="snooze_time_label">Temps de rappel (minutes)</string>
     <string name="search">Rechercher des événements</string>
+    <string name="cd_alarm_icon">Icône d\'alarme</string>
+    <string name="cd_app_logo">Logo de l\'application</string>
+    <string name="cd_open_menu">Ouvrir le menu de navigation</string>
+    <string name="cd_event_indicator">Indicateur de couleur du calendrier</string>
+    <string name="cd_alarms_enabled">Alarmes activées</string>
+    <string name="cd_alarms_disabled">Alarmes désactivées</string>
+    <string name="cd_expand_settings">Développer les paramètres</string>
+    <string name="cd_collapse_settings">Réduire les paramètres</string>
+    <string name="cd_event_recurring">Événement récurrent</string>
 </resources>

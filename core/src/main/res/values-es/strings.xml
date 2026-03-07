@@ -87,4 +87,13 @@
     <string name="snooze">POSPONER</string>
     <string name="snooze_time_label">Tiempo de posponer (minutos)</string>
     <string name="search">Buscar eventos</string>
+    <string name="cd_alarm_icon">Icono de alarma</string>
+    <string name="cd_app_logo">Logo de la aplicación</string>
+    <string name="cd_open_menu">Abrir menú de navegación</string>
+    <string name="cd_event_indicator">Indicador de color del calendario</string>
+    <string name="cd_alarms_enabled">Alarmas activadas</string>
+    <string name="cd_alarms_disabled">Alarmas desactivadas</string>
+    <string name="cd_expand_settings">Expandir ajustes</string>
+    <string name="cd_collapse_settings">Contraer ajustes</string>
+    <string name="cd_event_recurring">Evento recurrente</string>
 </resources>

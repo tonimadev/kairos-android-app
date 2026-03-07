@@ -74,7 +74,7 @@
     <string name="rate_app_message">Se você está gostando do Kairos, por favor avalie-nos na Play Store. Sua opinião nos ajuda muito!</string>
     <string name="rate_now">Avaliar Agora</string>
     <string name="rate_later">Mais Tarde</string>
-    <string name="rate_never" translatable="false">Nunca mais exibir</string>
+    <string name="rate_never">Nunca mais exibir</string>
     <string name="all_day_event">Dia inteiro</string>
     <string name="all_day_alarms">Alarmes para eventos de dia inteiro</string>
     <string name="all_day_alarm_time">Horário do alarme (eventos de dia inteiro)</string>
@@ -88,4 +88,13 @@
     <string name="snooze">ADIAR</string>
     <string name="snooze_time_label">Tempo de adiar (minutos)</string>
     <string name="search">Buscar eventos</string>
+    <string name="cd_alarm_icon">Ícone de alarme</string>
+    <string name="cd_app_logo">Logo do aplicativo</string>
+    <string name="cd_open_menu">Abrir menu de navegação</string>
+    <string name="cd_event_indicator">Indicador de cor do calendário</string>
+    <string name="cd_alarms_enabled">Alarmes ativados</string>
+    <string name="cd_alarms_disabled">Alarmes desativados</string>
+    <string name="cd_expand_settings">Expandir configurações</string>
+    <string name="cd_collapse_settings">Recolher configurações</string>
+    <string name="cd_event_recurring">Evento recorrente</string>
 </resources>

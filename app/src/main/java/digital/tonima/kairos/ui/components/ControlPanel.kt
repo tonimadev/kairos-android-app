@@ -39,8 +39,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.util.openAutostartSettings
@@ -51,6 +51,7 @@ import digital.tonima.kairos.R.drawable.ic_expand_more
 import digital.tonima.kairos.R.drawable.vibration
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.date_range
+import digital.tonima.kairos.ui.theme.Dimensions
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,10 +74,10 @@ fun ControlPanel(
 
     Column(
         modifier = Modifier.animateContentSize(),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium),
     ) {
         AlarmsToggleRow(
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = Dimensions.PaddingSmall),
             alarmsEnabled = uiState.isGlobalAlarmEnabled,
             onToggle = onToggle,
         )
@@ -85,9 +86,15 @@ fun ControlPanel(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .clickable { settingsExpanded = !settingsExpanded },
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    .clickable(
+                        role = Role.Button,
+                        onClickLabel =
+                            stringResource(
+                                if (settingsExpanded) R.string.cd_collapse_settings else R.string.cd_expand_settings,
+                            ),
+                    ) { settingsExpanded = !settingsExpanded },
+            shape = RoundedCornerShape(Dimensions.RadiusLarge),
+            elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.ElevationExtraSmall),
             colors =
                 CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -97,20 +104,20 @@ fun ControlPanel(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = Dimensions.PaddingNormal, vertical = Dimensions.PaddingDefault),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
                 ) {
                     Icon(
                         painter = painterResource(alarm),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(Dimensions.IconSizeTiny),
                     )
                     Text(
                         text = stringResource(R.string.alarm_offset_label),
@@ -131,9 +138,12 @@ fun ControlPanel(
                         painterResource(
                             if (settingsExpanded) ic_expand_less else ic_expand_more,
                         ),
-                    contentDescription = null,
+                    contentDescription =
+                        stringResource(
+                            if (settingsExpanded) R.string.cd_collapse_settings else R.string.cd_expand_settings,
+                        ),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(Dimensions.IconSizeSmall),
                 )
             }
 
@@ -143,8 +153,13 @@ fun ControlPanel(
                 exit = shrinkVertically(tween(200)) + fadeOut(tween(200)),
             ) {
                 Column(
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier =
+                        Modifier.padding(
+                            start = Dimensions.PaddingNormal,
+                            end = Dimensions.PaddingNormal,
+                            bottom = Dimensions.PaddingNormal,
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingDefault),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -154,13 +169,13 @@ fun ControlPanel(
                         Row(
                             modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
                         ) {
                             Icon(
                                 painter = painterResource(vibration),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp),
+                                modifier = Modifier.size(Dimensions.IconSizeSmall),
                             )
                             Text(
                                 stringResource(R.string.vibrate_only),
@@ -179,13 +194,13 @@ fun ControlPanel(
                         Row(
                             modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
                         ) {
                             Icon(
                                 painter = painterResource(date_range),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp),
+                                modifier = Modifier.size(Dimensions.IconSizeSmall),
                             )
                             Text(
                                 stringResource(R.string.all_day_alarms),
@@ -228,7 +243,7 @@ fun ControlPanel(
                                 Modifier
                                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                                     .fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(Dimensions.RadiusMedium),
                         )
                         ExposedDropdownMenu(
                             expanded = offsetExpanded,
@@ -264,7 +279,7 @@ fun ControlPanel(
                     }
 
                     if (uiState.availableCalendars.isNotEmpty()) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
                         Text(
                             text = stringResource(R.string.calendar_filter_title),
                             style = MaterialTheme.typography.labelLarge,

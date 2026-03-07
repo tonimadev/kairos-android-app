@@ -12,13 +12,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.MaterialTheme
 import digital.tonima.core.model.Event
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.wear.ui.theme.Dimensions
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -46,33 +51,48 @@ fun EventCard(
             }
         }
 
+    val alarmStateDescription =
+        stringResource(
+            if (event.isAlarmEnabled) R.string.cd_alarms_enabled else R.string.cd_alarms_disabled,
+        )
+    val recurringDescription = stringResource(R.string.cd_event_recurring)
+
     Card(
-        onClick = {},
+        onClick = { onToggle(!event.isAlarmEnabled) },
+        enabled = isGloballyEnabled,
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 16.dp),
+                .padding(vertical = Dimensions.PaddingExtraSmall, horizontal = Dimensions.PaddingNormal)
+                .semantics(mergeDescendants = true) {
+                    role = Role.Switch
+                    stateDescription = alarmStateDescription
+                },
     ) {
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .padding(Dimensions.PaddingMedium),
         ) {
             Text(text = event.title)
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Dimensions.SpacingExtraSmall))
             Text(
                 text = formattedTime,
                 style = MaterialTheme.typography.bodyMedium,
             )
             if (event.isRecurring) {
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(Dimensions.SpacingTiny))
                 Text(
                     text = "🔁 " + stringResource(R.string.recurring_label),
                     style = MaterialTheme.typography.bodySmall,
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = recurringDescription
+                        },
                 )
             }
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(Dimensions.SpacingSmallMedium))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -81,11 +101,15 @@ fun EventCard(
                 Text(
                     text = if (event.isAlarmEnabled) "🔔" else "🔕",
                     style = MaterialTheme.typography.bodySmall,
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = alarmStateDescription
+                        },
                 )
                 Switch(
                     checked = event.isAlarmEnabled,
                     enabled = isGloballyEnabled,
-                    onCheckedChange = onToggle,
+                    onCheckedChange = null,
                 )
             }
         }

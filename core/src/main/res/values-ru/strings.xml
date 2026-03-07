@@ -86,4 +86,13 @@
     <string name="snooze">ОТЛОЖИТЬ</string>
     <string name="snooze_time_label">Время откладывания (минуты)</string>
     <string name="search">Поиск событий</string>
+    <string name="cd_alarm_icon">Иконка будильника</string>
+    <string name="cd_app_logo">Логотип приложения</string>
+    <string name="cd_open_menu">Открыть меню навигации</string>
+    <string name="cd_event_indicator">Индикатор цвета календаря</string>
+    <string name="cd_alarms_enabled">Будильники включены</string>
+    <string name="cd_alarms_disabled">Будильники выключены</string>
+    <string name="cd_expand_settings">Развернуть настройки</string>
+    <string name="cd_collapse_settings">Свернуть настройки</string>
+    <string name="cd_event_recurring">Повторяющееся событие</string>
 </resources>

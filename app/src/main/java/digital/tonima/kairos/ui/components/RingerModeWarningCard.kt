@@ -15,12 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.kairos.R.drawable.vibration
 import digital.tonima.kairos.R.drawable.volume_off
 import digital.tonima.kairos.core.R.string.ringer_mode_silent_warning
 import digital.tonima.kairos.core.R.string.ringer_mode_vibrate_warning
+import digital.tonima.kairos.ui.theme.Dimensions
 
 @Composable
 fun RingerModeWarningCard(ringerMode: AudioWarningState) {
@@ -42,12 +42,12 @@ fun RingerModeWarningCard(ringerMode: AudioWarningState) {
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    .padding(vertical = Dimensions.PaddingSmall),
+            elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.ElevationSmall),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
         ) {
             Row(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(Dimensions.PaddingNormal),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
@@ -55,7 +55,7 @@ fun RingerModeWarningCard(ringerMode: AudioWarningState) {
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
                 )
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(Dimensions.PaddingNormal))
                 Text(
                     text = warningText,
                     style = MaterialTheme.typography.bodyMedium,
