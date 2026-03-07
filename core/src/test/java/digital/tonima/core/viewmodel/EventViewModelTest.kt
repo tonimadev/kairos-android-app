@@ -3,6 +3,8 @@ package digital.tonima.core.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import digital.tonima.core.delegates.ProUserProvider
+import digital.tonima.core.model.AlarmOffset
+import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
@@ -21,6 +23,7 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -542,5 +545,73 @@ class EventViewModelTest {
             assertFalse(state.showRatingDialog)
             cancelAndConsumeRemainingEvents()
         }
+    }
+    @Test
+    fun `onAllDayAlarmsToggle calls repository`() = runTest {
+        coEvery { mockAppPreferencesRepository.setAllDayAlarmsEnabled(any()) } just Runs
+        viewModel.onAllDayAlarmsToggle(true)
+        advanceUntilIdle()
+        coVerify { mockAppPreferencesRepository.setAllDayAlarmsEnabled(true) }
+    }
+
+    @Test
+    fun `onAllDayAlarmHourChanged calls repository`() = runTest {
+        coEvery { mockAppPreferencesRepository.setAllDayAlarmHour(any()) } just Runs
+        viewModel.onAllDayAlarmHourChanged(10)
+        advanceUntilIdle()
+        coVerify { mockAppPreferencesRepository.setAllDayAlarmHour(10) }
+    }
+
+    @Test
+    fun `onAlarmOffsetChanged calls repository`() = runTest {
+        coEvery { mockAppPreferencesRepository.setAlarmOffsetMinutes(any()) } just Runs
+        viewModel.onAlarmOffsetChanged(AlarmOffset.FIFTEEN_MINUTES)
+        advanceUntilIdle()
+        coVerify { mockAppPreferencesRepository.setAlarmOffsetMinutes(15L) }
+    }
+
+    @Test
+    fun `loadAvailableCalendars updates UI state`() = runTest {
+        val mockCalendars = listOf(DeviceCalendar(1, "Calendar 1", "Account 1"))
+        coEvery { mockCalendarRepository.getAvailableCalendars() } returns mockCalendars
+
+        viewModel.loadAvailableCalendars()
+        advanceUntilIdle()
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals(mockCalendars, state.availableCalendars)
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `onCalendarFilterToggle updates repository`() = runTest {
+        val mockCalendars = listOf(
+            DeviceCalendar(1, "Calendar 1", "Account 1"),
+            DeviceCalendar(2, "Calendar 2", "Account 2")
+        )
+        coEvery { mockCalendarRepository.getAvailableCalendars() } returns mockCalendars
+        every { mockAppPreferencesRepository.getEnabledCalendarIds() } returns flowOf(setOf("1"))
+        coEvery { mockAppPreferencesRepository.setEnabledCalendarIds(any()) } just Runs
+
+        // 1. Carregar calendários disponíveis para o UI State
+        viewModel.loadAvailableCalendars()
+        advanceUntilIdle()
+
+        // 2. Chamar o toggle
+        viewModel.onCalendarFilterToggle(2L, true)
+        advanceUntilIdle()
+
+        // 3. Verificar se o repositório foi chamado
+        coVerify { mockAppPreferencesRepository.setEnabledCalendarIds(any()) }
+    }
+
+    @Test
+    fun `clearCalendarFilter calls repository with empty set`() = runTest {
+        coEvery { mockAppPreferencesRepository.setEnabledCalendarIds(emptySet()) } just Runs
+        viewModel.clearCalendarFilter()
+        advanceUntilIdle()
+        coVerify { mockAppPreferencesRepository.setEnabledCalendarIds(emptySet()) }
     }
 }

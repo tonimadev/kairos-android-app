@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -68,6 +69,7 @@ fun EventScreen(
     viewModel: EventViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState,
     onPurchaseRequest: () -> Unit,
+    windowSizeClass: WindowSizeClass? = null,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isProUser by viewModel.isProUser.collectAsStateWithLifecycle()
@@ -292,6 +294,7 @@ fun EventScreen(
                             onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
                             onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
                             onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
+                            windowSizeClass = windowSizeClass,
                         )
                     }
                 }

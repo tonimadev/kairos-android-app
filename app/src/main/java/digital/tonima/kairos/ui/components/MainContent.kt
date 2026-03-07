@@ -14,6 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventScreenUiState
@@ -39,9 +41,14 @@ fun MainContent(
     onAllDayAlarmHourChanged: (Int) -> Unit,
     onAlarmOffsetChanged: (AlarmOffset) -> Unit,
     onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
+    windowSizeClass: WindowSizeClass? = null,
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
+    val isMedium = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Medium
+
+    val showSideBySide = isLandscape || isExpanded || isMedium
 
     val eventsByDate =
         remember(uiState.events) {
@@ -50,7 +57,7 @@ fun MainContent(
             }
         }
 
-    if (isLandscape) {
+    if (showSideBySide) {
         Row(
             Modifier
                 .fillMaxSize()
@@ -60,6 +67,7 @@ fun MainContent(
                 modifier =
                     Modifier
                         .weight(1f)
+                        .verticalScroll(rememberScrollState())
                         .padding(end = 8.dp),
             ) {
                 ControlPanel(
@@ -98,31 +106,37 @@ fun MainContent(
     } else {
         Column(
             Modifier
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
         ) {
-            ControlPanel(
-                uiState = uiState,
-                onToggle = onToggle,
-                onDismissAutostart = onDismissAutostart,
-                onVibrateToggle = onVibrateToggle,
-                onAllDayAlarmsToggle = onAllDayAlarmsToggle,
-                onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
-                onAlarmOffsetChanged = onAlarmOffsetChanged,
-                onCalendarFilterToggle = onCalendarFilterToggle,
-            )
-            CalendarView(
-                modifier = Modifier.padding(top = 8.dp),
-                currentMonth = uiState.currentMonth,
-                selectedDate = uiState.selectedDate,
-                eventsByDate = eventsByDate,
-                onMonthChanged = onMonthChanged,
-                onDateSelected = onDateSelected,
-                onReturnToToday = onReturnToToday,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                ControlPanel(
+                    uiState = uiState,
+                    onToggle = onToggle,
+                    onDismissAutostart = onDismissAutostart,
+                    onVibrateToggle = onVibrateToggle,
+                    onAllDayAlarmsToggle = onAllDayAlarmsToggle,
+                    onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
+                    onAlarmOffsetChanged = onAlarmOffsetChanged,
+                    onCalendarFilterToggle = onCalendarFilterToggle,
+                )
+                CalendarView(
+                    modifier = Modifier.padding(top = 8.dp),
+                    currentMonth = uiState.currentMonth,
+                    selectedDate = uiState.selectedDate,
+                    eventsByDate = eventsByDate,
+                    onMonthChanged = onMonthChanged,
+                    onDateSelected = onDateSelected,
+                    onReturnToToday = onReturnToToday,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             EventList(
-                modifier = Modifier.height(400.dp),
+                modifier = Modifier.weight(1f),
                 uiState = uiState,
                 eventsByDate = eventsByDate,
                 onRefresh = onRefresh,

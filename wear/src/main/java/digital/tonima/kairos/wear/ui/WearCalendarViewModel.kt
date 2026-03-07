@@ -22,10 +22,12 @@ import digital.tonima.kairos.wear.sync.CachedEventSchedulingWorker
 import digital.tonima.kairos.wear.sync.SyncActions
 import digital.tonima.kairos.wear.sync.WearEventCache
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import logcat.LogPriority
 import logcat.logcat
@@ -43,6 +45,14 @@ class WearCalendarViewModel
 
         private val _lastUpdated = MutableStateFlow(System.currentTimeMillis())
         val lastUpdated: StateFlow<Long> = _lastUpdated.asStateFlow()
+
+        val isGlobalAlarmEnabled: StateFlow<Boolean> =
+            appPreferencesRepository.isGlobalAlarmEnabled()
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = true,
+                )
 
         private val eventsUpdatedReceiver =
             object : BroadcastReceiver() {
@@ -133,6 +143,12 @@ class WearCalendarViewModel
                 logcat(LogPriority.ERROR) {
                     "WearCalendarViewModel: Failed to enqueue CachedEventSchedulingWorker: ${e.localizedMessage}"
                 }
+            }
+        }
+
+        fun toggleGlobalAlarm(enabled: Boolean) {
+            viewModelScope.launch {
+                appPreferencesRepository.setGlobalAlarmEnabled(enabled)
             }
         }
 
