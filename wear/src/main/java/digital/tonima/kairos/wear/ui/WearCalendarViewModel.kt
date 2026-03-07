@@ -47,7 +47,8 @@ class WearCalendarViewModel
         val lastUpdated: StateFlow<Long> = _lastUpdated.asStateFlow()
 
         val isGlobalAlarmEnabled: StateFlow<Boolean> =
-            appPreferencesRepository.isGlobalAlarmEnabled()
+            appPreferencesRepository
+                .isGlobalAlarmEnabled()
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),

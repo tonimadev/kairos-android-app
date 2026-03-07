@@ -160,51 +160,65 @@ class WearCalendarViewModelTest {
         assertEquals(1, vm.next24hEvents.value.size)
         assertEquals(6L, vm.next24hEvents.value[0].id)
     }
+
     @Test
-    fun `isGlobalAlarmEnabled follows preference`() = runTest {
-        val repo = FakePrefsRepo()
-        val vm = WearCalendarViewModel(context, repo)
+    fun `isGlobalAlarmEnabled follows preference`() =
+        runTest {
+            val repo = FakePrefsRepo()
+            val vm = WearCalendarViewModel(context, repo)
 
-        vm.isGlobalAlarmEnabled.test {
-            assertEquals(true, awaitItem())
+            vm.isGlobalAlarmEnabled.test {
+                assertEquals(true, awaitItem())
 
-            repo.setGlobalAlarmEnabled(false)
-            assertEquals(false, awaitItem())
+                repo.setGlobalAlarmEnabled(false)
+                assertEquals(false, awaitItem())
+            }
         }
-    }
 
     @Test
-    fun `toggleGlobalAlarm calls repository`() = runTest {
-        val repo = FakePrefsRepo()
-        val vm = WearCalendarViewModel(context, repo)
+    fun `toggleGlobalAlarm calls repository`() =
+        runTest {
+            val repo = FakePrefsRepo()
+            val vm = WearCalendarViewModel(context, repo)
 
-        vm.isGlobalAlarmEnabled.test {
-            assertEquals(true, awaitItem())
+            vm.isGlobalAlarmEnabled.test {
+                assertEquals(true, awaitItem())
 
-            vm.toggleGlobalAlarm(false)
-            assertEquals(false, awaitItem())
+                vm.toggleGlobalAlarm(false)
+                assertEquals(false, awaitItem())
+            }
         }
-    }
 
     @Test
-    fun `next24hEvents filters by disabled ids`() = runTest {
-        val now = System.currentTimeMillis()
-        val event1 = Event(1, "A", now + 60_000L)
-        val event2 = Event(2, "B", now + 120_000L)
-        WearEventCache.save(context, listOf(event1, event2))
+    fun `next24hEvents filters by disabled ids`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val event1 = Event(1, "A", now + 60_000L)
+            val event2 = Event(2, "B", now + 120_000L)
+            WearEventCache.save(context, listOf(event1, event2))
 
-        val repo = FakePrefsRepo()
-        val vm = WearCalendarViewModel(context, repo)
+            val repo = FakePrefsRepo()
+            val vm = WearCalendarViewModel(context, repo)
 
-        assertEquals(2, vm.next24hEvents.value.size)
-        assertEquals(true, vm.next24hEvents.value[0].isAlarmEnabled)
-        assertEquals(true, vm.next24hEvents.value[1].isAlarmEnabled)
+            assertEquals(2, vm.next24hEvents.value.size)
+            assertEquals(true, vm.next24hEvents.value[0].isAlarmEnabled)
+            assertEquals(true, vm.next24hEvents.value[1].isAlarmEnabled)
 
-        repo.setDisabledSeriesIds(setOf("1"))
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
+            repo.setDisabledSeriesIds(setOf("1"))
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
 
-        assertEquals(2, vm.next24hEvents.value.size)
-        assertEquals(false, vm.next24hEvents.value.find { it.id == 1L }?.isAlarmEnabled)
-        assertEquals(true, vm.next24hEvents.value.find { it.id == 2L }?.isAlarmEnabled)
-    }
+            assertEquals(2, vm.next24hEvents.value.size)
+            assertEquals(
+                false,
+                vm.next24hEvents.value
+                    .find { it.id == 1L }
+                    ?.isAlarmEnabled,
+            )
+            assertEquals(
+                true,
+                vm.next24hEvents.value
+                    .find { it.id == 2L }
+                    ?.isAlarmEnabled,
+            )
+        }
 }

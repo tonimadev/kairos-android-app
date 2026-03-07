@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                     EventScreen(
                         snackbarHostState = rememberSnackbarHostState,
                         onPurchaseRequest = { billingManager.launchPurchaseFlow(this) },
-                        windowSizeClass = windowSizeClass
+                        windowSizeClass = windowSizeClass,
                     )
                 }
             }
