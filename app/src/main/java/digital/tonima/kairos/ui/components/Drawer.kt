@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,108 +62,112 @@ fun DrawerContent(
     ModalDrawerSheet(
         drawerShape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp),
     ) {
-        Box(modifier = Modifier.fillMaxHeight()) {
-            Column {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = RoundedCornerShape(topEnd = 24.dp),
-                            ).padding(horizontal = 20.dp, vertical = 24.dp),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(48.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                painter = painterResource(ic_k_monochrome),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(28.dp),
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(14.dp))
-                        Column {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(topEnd = 24.dp),
+                        ).padding(horizontal = 20.dp, vertical = 24.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(ic_k_monochrome),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(28.dp),
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column {
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                        if (isProUser) {
                             Text(
-                                text = stringResource(R.string.app_name),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                text = "Pro ✨",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold,
                             )
-                            if (isProUser) {
-                                Text(
-                                    text = "Pro ✨",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                            }
                         }
                     }
                 }
+            }
 
-                Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
 
-                if (!isProUser) {
-                    NavigationDrawerItem(
-                        icon = { Icon(painterResource(star), contentDescription = null) },
-                        label = { Text(stringResource(R.string.remove_ads)) },
-                        selected = false,
-                        onClick = {
-                            onUpgradeToProClick()
-                            onCloseDrawer()
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                    )
-                }
-
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-
+            if (!isProUser) {
                 NavigationDrawerItem(
-                    icon = { Icon(painterResource(favorite), contentDescription = null) },
-                    label = { Text(stringResource(R.string.our_other_apps)) },
+                    icon = { Icon(painterResource(star), contentDescription = null) },
+                    label = { Text(stringResource(R.string.remove_ads)) },
                     selected = false,
                     onClick = {
-                        onOurOtherAppsClick()
-                        onCloseDrawer()
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                )
-
-                val shareText = stringResource(R.string.share_text)
-                NavigationDrawerItem(
-                    icon = { Icon(painterResource(ic_share), contentDescription = null) },
-                    label = { Text(stringResource(R.string.share_app)) },
-                    selected = false,
-                    onClick = {
-                        val sendIntent: Intent =
-                            Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, shareText)
-                                type = "text/plain"
-                            }
-                        val shareIntent = Intent.createChooser(sendIntent, null)
-                        context.startActivity(shareIntent)
+                        onUpgradeToProClick()
                         onCloseDrawer()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                 )
             }
 
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+
+            NavigationDrawerItem(
+                icon = { Icon(painterResource(favorite), contentDescription = null) },
+                label = { Text(stringResource(R.string.our_other_apps)) },
+                selected = false,
+                onClick = {
+                    onOurOtherAppsClick()
+                    onCloseDrawer()
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+            )
+
+            val shareText = stringResource(R.string.share_text)
+            NavigationDrawerItem(
+                icon = { Icon(painterResource(ic_share), contentDescription = null) },
+                label = { Text(stringResource(R.string.share_app)) },
+                selected = false,
+                onClick = {
+                    val sendIntent: Intent =
+                        Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, shareText)
+                            type = "text/plain"
+                        }
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    context.startActivity(shareIntent)
+                    onCloseDrawer()
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.version, versionName),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
                     Modifier
-                        .align(Alignment.BottomCenter)
+                        .align(Alignment.CenterHorizontally)
                         .padding(16.dp),
             )
         }

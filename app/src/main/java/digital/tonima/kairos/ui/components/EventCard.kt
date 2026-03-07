@@ -7,8 +7,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -86,6 +88,7 @@ fun EventCard(
             modifier =
                 Modifier
                     .padding(start = 0.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
+                    .height(IntrinsicSize.Min)
                     .heightIn(min = 72.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -93,7 +96,7 @@ fun EventCard(
                 modifier =
                     Modifier
                         .width(5.dp)
-                        .height(56.dp)
+                        .fillMaxHeight()
                         .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
                         .background(calendarColor),
             )
@@ -178,6 +181,7 @@ fun EventCard(
                     ) {
                         Text(
                             text = stringResource(R.string.vibrate_only),
+                            modifier = Modifier.weight(1f, fill = false),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

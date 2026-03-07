@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,17 +25,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.MaterialTheme
 import dagger.hilt.android.AndroidEntryPoint
+import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_ID
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_START_TIME
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE
+import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_SOURCE
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.wear.ui.theme.KairosTheme
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class WearAlarmActivity : ComponentActivity() {
+    @Inject
+    lateinit var analytics: Analytics
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -53,9 +61,14 @@ class WearAlarmActivity : ComponentActivity() {
                 WearAlarmScreen(
                     title = title,
                     onSnooze = {
+                        analytics.logEvent(
+                            Analytics.EVENT_ALARM_SNOOZE,
+                            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
+                        )
                         val snoozeIntent =
                             Intent(this, AlarmReceiver::class.java).apply {
                                 action = AlarmReceiver.ACTION_SNOOZE
+                                putExtra(EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
                                 putExtra(EXTRA_EVENT_TITLE, title)
                                 putExtra(EXTRA_UNIQUE_ID, uniqueId)
                                 putExtra(EXTRA_EVENT_ID, eventId)
@@ -65,7 +78,11 @@ class WearAlarmActivity : ComponentActivity() {
                         finish()
                     },
                     onStop = {
-                        AlarmSoundAndVibrateService.stopAlarm(this)
+                        analytics.logEvent(
+                            Analytics.EVENT_ALARM_STOP,
+                            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
+                        )
+                        AlarmSoundAndVibrateService.stopAlarm(this, Analytics.SOURCE_ACTIVITY)
                         finish()
                     },
                 )
@@ -89,6 +106,7 @@ private fun WearAlarmScreen(
         modifier =
             Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,

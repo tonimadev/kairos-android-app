@@ -18,18 +18,23 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import dagger.hilt.android.AndroidEntryPoint
+import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.repository.AppPreferencesRepositoryImpl
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import logcat.logcat
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AlarmSoundAndVibrateService : Service() {
     companion object {
         val VIBRATION_PATTERN = longArrayOf(0, 500, 500)
         const val VIBRATION_REPEAT_INDEX = 0
         const val ACTION_START_ALARM = "digital.tonima.core.service.START_ALARM_SOUND"
         const val ACTION_STOP_ALARM = "digital.tonima.core.service.STOP_ALARM_SOUND"
+        const val EXTRA_SOURCE = "EXTRA_SOURCE"
         const val ACTION_FINISH_ALARM_ACTIVITY = "digital.tonima.core.service.FINISH_ALARM_ACTIVITY"
         private const val NOTIFICATION_CHANNEL_ID = "calendar_alarm_channel"
         const val NOTIFICATION_ID = 0xA11A7
@@ -54,14 +59,21 @@ class AlarmSoundAndVibrateService : Service() {
             ContextCompat.startForegroundService(context, intent)
         }
 
-        fun stopAlarm(context: Context) {
+        fun stopAlarm(
+            context: Context,
+            source: String = Analytics.SOURCE_NOTIFICATION,
+        ) {
             val stopIntent =
                 Intent(context, AlarmSoundAndVibrateService::class.java).apply {
                     action = ACTION_STOP_ALARM
+                    putExtra(EXTRA_SOURCE, source)
                 }
             ContextCompat.startForegroundService(context, stopIntent)
         }
     }
+
+    @Inject
+    lateinit var analytics: Analytics
 
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
@@ -176,6 +188,15 @@ class AlarmSoundAndVibrateService : Service() {
             }
             ACTION_STOP_ALARM -> {
                 logcat { "AlarmSoundAndVibrateService: Recebida solicitação para parar alarme." }
+                val source = intent.getStringExtra(EXTRA_SOURCE) ?: Analytics.SOURCE_NOTIFICATION
+
+                if (source == Analytics.SOURCE_NOTIFICATION) {
+                    analytics.logEvent(
+                        Analytics.EVENT_ALARM_STOP,
+                        mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_NOTIFICATION),
+                    )
+                }
+
                 ensureForeground(null)
                 stopAndReleaseResources()
                 stopForeground(STOP_FOREGROUND_REMOVE)

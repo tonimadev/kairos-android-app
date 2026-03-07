@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors.fromApplication
 import dagger.hilt.components.SingletonComponent
+import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.kairos.core.R
@@ -30,10 +31,14 @@ class AlarmReceiver : BroadcastReceiver() {
         const val EXTRA_EVENT_ID = "EXTRA_EVENT_ID"
         const val EXTRA_EVENT_START_TIME = "EXTRA_EVENT_START_TIME"
         const val ACTION_SNOOZE = "digital.tonima.core.ACTION_SNOOZE"
+        const val EXTRA_SOURCE = "EXTRA_SOURCE"
     }
 
     @Inject
     lateinit var scheduler: EventAlarmScheduler
+
+    @Inject
+    lateinit var analytics: Analytics
 
     @SuppressLint("MissingPermission")
     override fun onReceive(
@@ -45,6 +50,14 @@ class AlarmReceiver : BroadcastReceiver() {
             val uniqueId = intent.getIntExtra(EXTRA_UNIQUE_ID, -1)
             val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
             val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
+            val source = intent.getStringExtra(EXTRA_SOURCE) ?: Analytics.SOURCE_NOTIFICATION
+
+            if (source == Analytics.SOURCE_NOTIFICATION) {
+                analytics.logEvent(
+                    Analytics.EVENT_ALARM_SNOOZE,
+                    mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_NOTIFICATION),
+                )
+            }
 
             AlarmSoundAndVibrateService.stopAlarm(context)
 

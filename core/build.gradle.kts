@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.billing.ktx)
     implementation(libs.datastore.preferences.core)
+    implementation(libs.google.firebase.analytics)
     implementation(libs.google.firebase.crashlytics)
     implementation(libs.google.inapp.update)
     implementation(libs.google.inapp.update.ktx)

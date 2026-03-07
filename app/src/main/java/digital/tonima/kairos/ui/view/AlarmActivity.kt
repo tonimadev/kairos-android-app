@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.service.AlarmSoundAndVibrateService
@@ -42,6 +46,9 @@ import javax.inject.Inject
 class AlarmActivity : ComponentActivity() {
     @Inject
     lateinit var proUserProvider: ProUserProvider
+
+    @Inject
+    lateinit var analytics: Analytics
 
     private var userStoppedAlarm = false
 
@@ -88,6 +95,7 @@ class AlarmActivity : ComponentActivity() {
                             modifier =
                                 Modifier
                                     .weight(1f)
+                                    .verticalScroll(rememberScrollState())
                                     .padding(32.dp),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -112,9 +120,14 @@ class AlarmActivity : ComponentActivity() {
                             ) {
                                 Button(
                                     onClick = {
+                                        analytics.logEvent(
+                                            Analytics.EVENT_ALARM_SNOOZE,
+                                            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
+                                        )
                                         val snoozeIntent =
                                             Intent(this@AlarmActivity, AlarmReceiver::class.java).apply {
                                                 action = AlarmReceiver.ACTION_SNOOZE
+                                                putExtra(AlarmReceiver.EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
                                                 putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
                                                 putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
                                                 putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
@@ -126,7 +139,7 @@ class AlarmActivity : ComponentActivity() {
                                     modifier =
                                         Modifier
                                             .weight(1f)
-                                            .height(60.dp),
+                                            .heightIn(min = 60.dp),
                                     colors =
                                         ButtonDefaults.buttonColors(
                                             containerColor = MaterialTheme.colorScheme.secondary,
@@ -138,13 +151,20 @@ class AlarmActivity : ComponentActivity() {
                                 Button(
                                     onClick = {
                                         userStoppedAlarm = true
-                                        AlarmSoundAndVibrateService.stopAlarm(this@AlarmActivity)
+                                        analytics.logEvent(
+                                            Analytics.EVENT_ALARM_STOP,
+                                            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
+                                        )
+                                        AlarmSoundAndVibrateService.stopAlarm(
+                                            this@AlarmActivity,
+                                            Analytics.SOURCE_ACTIVITY,
+                                        )
                                         finish()
                                     },
                                     modifier =
                                         Modifier
                                             .weight(1f)
-                                            .height(60.dp),
+                                            .heightIn(min = 60.dp),
                                 ) {
                                     Text(text = getString(R.string.stop), fontSize = 18.sp)
                                 }
