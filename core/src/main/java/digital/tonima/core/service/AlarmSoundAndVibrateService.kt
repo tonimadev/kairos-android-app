@@ -195,18 +195,25 @@ class AlarmSoundAndVibrateService : Service() {
         eventId: Long = -1L,
         startTime: Long = -1L,
     ) {
+        val isWatch = packageManager.hasSystemFeature("android.hardware.type.watch")
         val fullScreenPendingIntent =
             try {
+                val activityClassName =
+                    if (isWatch) {
+                        "digital.tonima.kairos.wear.WearAlarmActivity"
+                    } else {
+                        "digital.tonima.kairos.ui.view.AlarmActivity"
+                    }
                 val fullScreenIntent =
                     Intent(
                         applicationContext,
-                        Class.forName("digital.tonima.kairos.ui.view.AlarmActivity"),
+                        Class.forName(activityClassName),
                     ).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        putExtra("EXTRA_EVENT_TITLE", eventTitle)
-                        putExtra("EXTRA_UNIQUE_ID", uniqueId)
-                        putExtra("EXTRA_EVENT_ID", eventId)
-                        putExtra("EXTRA_EVENT_START_TIME", startTime)
+                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
+                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_ID, eventId)
+                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
                     }
                 PendingIntent.getActivity(
                     applicationContext,

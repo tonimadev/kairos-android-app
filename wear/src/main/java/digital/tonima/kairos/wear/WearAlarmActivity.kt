@@ -6,8 +6,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,9 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.MaterialTheme
 import dagger.hilt.android.AndroidEntryPoint
+import digital.tonima.core.receiver.AlarmReceiver
+import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_ID
+import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_START_TIME
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE
+import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.wear.ui.theme.KairosTheme
@@ -31,14 +40,30 @@ class WearAlarmActivity : ComponentActivity() {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
 
-        val title =
-            intent?.getStringExtra(EXTRA_EVENT_TITLE)
-                ?: getString(R.string.upcoming_event)
+        val title = intent?.getStringExtra(EXTRA_EVENT_TITLE) ?: getString(R.string.upcoming_event)
+        val uniqueId = intent?.getIntExtra(EXTRA_UNIQUE_ID, -1) ?: -1
+        val eventId = intent?.getLongExtra(EXTRA_EVENT_ID, -1L) ?: -1L
+        val startTime = intent?.getLongExtra(EXTRA_EVENT_START_TIME, -1L) ?: -1L
+
+        // Iniciamos o serviço de som e vibração
+        AlarmSoundAndVibrateService.startAlarm(this, title, uniqueId, eventId, startTime)
 
         setContent {
             KairosTheme {
                 WearAlarmScreen(
                     title = title,
+                    onSnooze = {
+                        val snoozeIntent =
+                            Intent(this, AlarmReceiver::class.java).apply {
+                                action = AlarmReceiver.ACTION_SNOOZE
+                                putExtra(EXTRA_EVENT_TITLE, title)
+                                putExtra(EXTRA_UNIQUE_ID, uniqueId)
+                                putExtra(EXTRA_EVENT_ID, eventId)
+                                putExtra(EXTRA_EVENT_START_TIME, startTime)
+                            }
+                        sendBroadcast(snoozeIntent)
+                        finish()
+                    },
                     onStop = {
                         AlarmSoundAndVibrateService.stopAlarm(this)
                         finish()
@@ -57,6 +82,7 @@ class WearAlarmActivity : ComponentActivity() {
 @Composable
 private fun WearAlarmScreen(
     title: String,
+    onSnooze: () -> Unit,
     onStop: () -> Unit,
 ) {
     Column(
@@ -72,10 +98,33 @@ private fun WearAlarmScreen(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 16.dp),
+            modifier = Modifier.padding(bottom = 12.dp),
         )
-        Button(onClick = onStop) {
-            Text(text = stringResource(R.string.stop))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Button(
+                onClick = onSnooze,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(
+                    text = stringResource(R.string.snooze),
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = onStop,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(
+                    text = stringResource(R.string.stop),
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
@@ -90,6 +139,7 @@ fun WearAlarmScreenPreview() {
     KairosTheme {
         WearAlarmScreen(
             title = "Reunião começa em 5 min",
+            onSnooze = {},
             onStop = {},
         )
     }

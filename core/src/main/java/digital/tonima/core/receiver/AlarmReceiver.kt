@@ -46,15 +46,8 @@ class AlarmReceiver : BroadcastReceiver() {
             val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
             val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
 
-            // Usamos o scheduler para agendar o snooze
-            // Como é um BroadcastReceiver comum, precisamos de injeção manual se não
-            // estivermos usando Hilt @AndroidEntryPoint
-            // Mas o projeto usa Hilt. Vamos verificar se o Receiver está anotado.
-            // Se não estiver, podemos usar o EntryPoint.
-
             AlarmSoundAndVibrateService.stopAlarm(context)
 
-            // Tenta obter o scheduler via Hilt se possível
             try {
                 val schedulerEntryPoint =
                     fromApplication(
@@ -73,6 +66,29 @@ class AlarmReceiver : BroadcastReceiver() {
         val uniqueId = intent.getIntExtra(EXTRA_UNIQUE_ID, System.currentTimeMillis().toInt())
         val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
         val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
+
+        // No Wear OS (ou se o contexto indicar hardware.type.watch), iniciamos a Activity diretamente
+        // para evitar ForegroundServiceStartNotAllowedException
+        val isWatch = context.packageManager.hasSystemFeature("android.hardware.type.watch")
+
+        if (isWatch) {
+            try {
+                val activityClass = Class.forName("digital.tonima.kairos.wear.WearAlarmActivity")
+                val activityIntent =
+                    Intent(context, activityClass).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        putExtra(EXTRA_EVENT_TITLE, eventTitle)
+                        putExtra(EXTRA_UNIQUE_ID, uniqueId)
+                        putExtra(EXTRA_EVENT_ID, eventId)
+                        putExtra(EXTRA_EVENT_START_TIME, startTime)
+                    }
+                context.startActivity(activityIntent)
+                return
+            } catch (e: Exception) {
+                logcat(logcat.LogPriority.ERROR) { "Failed to start WearAlarmActivity: ${e.message}" }
+                // Fallback para o serviço se a atividade falhar
+            }
+        }
 
         AlarmSoundAndVibrateService.startAlarm(context, eventTitle, uniqueId, eventId, startTime)
     }
