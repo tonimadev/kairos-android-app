@@ -8,6 +8,7 @@ import android.os.Build
 import android.provider.CalendarContract
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -228,117 +229,121 @@ fun EventScreen(
                         .fillMaxSize()
                         .padding(paddingValues),
             ) {
-                when {
-                    !uiState.hasCalendarPermission ||
-                        !uiState.hasPostNotificationsPermission -> {
-                        StandardPermissionsScreen(
-                            onSettingsClick = openAppSettings,
-                            onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
-                        )
-                    }
-
-                    !uiState.hasExactAlarmPermission -> {
-                        ExactAlarmPermissionScreen(
-                            onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
-                            onProvidePermissionClick = openExactAlarmSettings,
-                            onSkipClick = { viewModel.skipExactAlarmPermission() },
-                        )
-                    }
-
-                    !uiState.hasFullScreenIntentPermission -> {
-                        FullScreenIntentPermissionScreen(
-                            onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
-                            onOpenSettingsClick = openFullScreenIntentSettings,
-                            onSkipClick = { viewModel.skipFullScreenIntentPermission() },
-                        )
-                    }
-
-                    else -> {
-                        MainContent(
-                            uiState = uiState,
-                            onRefresh = { viewModel.onMonthChanged(uiState.currentMonth, true) },
-                            onToggle = viewModel::onAlarmsToggle,
-                            onEventToggle = viewModel::onEventAlarmToggle,
-                            onEventVibrateToggle = viewModel::onEventVibrateToggle,
-                            onMonthChanged = viewModel::onMonthChanged,
-                            onDateSelected = viewModel::onDateSelected,
-                            onEventClick = { event: Event ->
-                                val uri =
-                                    ContentUris.withAppendedId(
-                                        CalendarContract.Events.CONTENT_URI,
-                                        event.id,
-                                    )
-                                val intent =
-                                    Intent(Intent.ACTION_VIEW, uri).apply {
-                                        putExtra(
-                                            "beginTime",
-                                            event.startTime,
-                                        )
-                                    }
-                                try {
-                                    context.startActivity(intent)
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    Toast
-                                        .makeText(
-                                            context,
-                                            cannotOpenEvent,
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
-                                }
-                            },
-                            onDismissAutostart = viewModel::dismissAutostartSuggestion,
-                            onReturnToToday = viewModel::returnToToday,
-                            onVibrateToggle = viewModel::onVibrateOnlyChanged,
-                            onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
-                            onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
-                            onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
-                            onSnoozeTimeChanged = viewModel::onSnoozeTimeChanged,
-                            onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
-                            onSearchQueryChanged = viewModel::onSearchQueryChanged,
-                            windowSizeClass = windowSizeClass,
-                        )
-                    }
-                }
                 AdBannerView(
                     adId = ADMOB_BANNER_AD_UNIT_HOME,
                     isProUser = isProUser,
                 )
+                Box(
+                    modifier = Modifier.weight(1f),
+                ) {
+                    when {
+                        !uiState.hasCalendarPermission ||
+                            !uiState.hasPostNotificationsPermission -> {
+                            StandardPermissionsScreen(
+                                onSettingsClick = openAppSettings,
+                                onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
+                            )
+                        }
+
+                        !uiState.hasExactAlarmPermission -> {
+                            ExactAlarmPermissionScreen(
+                                onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
+                                onProvidePermissionClick = openExactAlarmSettings,
+                                onSkipClick = { viewModel.skipExactAlarmPermission() },
+                            )
+                        }
+
+                        !uiState.hasFullScreenIntentPermission -> {
+                            FullScreenIntentPermissionScreen(
+                                onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
+                                onOpenSettingsClick = openFullScreenIntentSettings,
+                                onSkipClick = { viewModel.skipFullScreenIntentPermission() },
+                            )
+                        }
+
+                        else -> {
+                            MainContent(
+                                uiState = uiState,
+                                onRefresh = { viewModel.onMonthChanged(uiState.currentMonth, true) },
+                                onToggle = viewModel::onAlarmsToggle,
+                                onEventToggle = viewModel::onEventAlarmToggle,
+                                onEventVibrateToggle = viewModel::onEventVibrateToggle,
+                                onMonthChanged = viewModel::onMonthChanged,
+                                onDateSelected = viewModel::onDateSelected,
+                                onEventClick = { event: Event ->
+                                    val uri =
+                                        ContentUris.withAppendedId(
+                                            CalendarContract.Events.CONTENT_URI,
+                                            event.id,
+                                        )
+                                    val intent =
+                                        Intent(Intent.ACTION_VIEW, uri).apply {
+                                            putExtra(
+                                                "beginTime",
+                                                event.startTime,
+                                            )
+                                        }
+                                    try {
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                cannotOpenEvent,
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                    }
+                                },
+                                onDismissAutostart = viewModel::dismissAutostartSuggestion,
+                                onReturnToToday = viewModel::returnToToday,
+                                onVibrateToggle = viewModel::onVibrateOnlyChanged,
+                                onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
+                                onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
+                                onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
+                                onSnoozeTimeChanged = viewModel::onSnoozeTimeChanged,
+                                onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
+                                onSearchQueryChanged = viewModel::onSearchQueryChanged,
+                                windowSizeClass = windowSizeClass,
+                            )
+                        }
+                    }
+                }
             }
         }
-    }
-    if (uiState.showUpgradeConfirmation) {
-        LaunchedEffect(uiState.showUpgradeConfirmation) {
-            onPurchaseRequest()
-            viewModel.onPurchaseFlowHandled()
+        if (uiState.showUpgradeConfirmation) {
+            LaunchedEffect(uiState.showUpgradeConfirmation) {
+                onPurchaseRequest()
+                viewModel.onPurchaseFlowHandled()
+            }
         }
-    }
 
-    if (uiState.showRatingDialog) {
-        AlertDialog(
-            onDismissRequest = { viewModel.onRatingDialogDismiss() },
-            title = { Text(stringResource(R.string.rate_app_title)) },
-            text = { Text(stringResource(R.string.rate_app_message)) },
-            confirmButton = {
-                Button(onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, "market://details?id=${context.packageName}".toUri())
-                    context.startActivity(intent)
-                    viewModel.onRateNow()
-                }) {
-                    Text(stringResource(R.string.rate_now))
-                }
-            },
-            dismissButton = {
-                Column {
-                    Button(onClick = { viewModel.onRateLater() }) {
-                        Text(stringResource(R.string.rate_later))
+        if (uiState.showRatingDialog) {
+            AlertDialog(
+                onDismissRequest = { viewModel.onRatingDialogDismiss() },
+                title = { Text(stringResource(R.string.rate_app_title)) },
+                text = { Text(stringResource(R.string.rate_app_message)) },
+                confirmButton = {
+                    Button(onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, "market://details?id=${context.packageName}".toUri())
+                        context.startActivity(intent)
+                        viewModel.onRateNow()
+                    }) {
+                        Text(stringResource(R.string.rate_now))
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { viewModel.onRateNeverShow() }) {
-                        Text(stringResource(R.string.rate_never))
+                },
+                dismissButton = {
+                    Column {
+                        Button(onClick = { viewModel.onRateLater() }) {
+                            Text(stringResource(R.string.rate_later))
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = { viewModel.onRateNeverShow() }) {
+                            Text(stringResource(R.string.rate_never))
+                        }
                     }
-                }
-            },
-        )
+                },
+            )
+        }
     }
 }

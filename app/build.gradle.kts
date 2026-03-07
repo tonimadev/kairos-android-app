@@ -57,7 +57,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
 
             val admobAppIdTest = "ca-app-pub-3940256099942544~3347511713"
-            val admobBannerAdUnitIdTest = "ca-app-pub-3940256099942544/6300978111"
+            val admobBannerAdUnitIdTest = "ca-app-pub-3940256099942544/9214589741"
 
             val admobAppId: String
             val admobBannerAdUnitIdHome: String
