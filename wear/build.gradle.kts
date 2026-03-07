@@ -1,12 +1,13 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.spotless)
-    alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.google.services)
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.jacoco.convention)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.spotless)
 }
 
 android {
@@ -63,68 +64,55 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":core"))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
 
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.wear.material.compose)
-    implementation(libs.androidx.wear.material.compose3)
-    implementation(libs.androidx.wear.compose.foundation)
-    implementation(libs.androidx.wear.tooling.preview)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+
+    implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
-    // Removed SwipeRefreshLayout; using Material3 PullToRefreshBox
-    implementation(libs.wear.tooling.preview)
-    implementation(libs.logcat)
-    implementation(libs.accompanist.permissions)
-    implementation(libs.play.services.wearable)
-    implementation(libs.androidx.wear.remote.interactions)
-
-    // Firebase
-    implementation(platform(libs.google.firebase.bom))
-    implementation(libs.google.firebase.analytics)
-    implementation(libs.google.firebase.crashlytics)
-
-    // watchface
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.watchface.complications.data.source)
     implementation(libs.androidx.watchface.complications.data.source.ktx)
-
-    // tiles
+    implementation(libs.androidx.wear.compose.foundation)
+    implementation(libs.androidx.wear.holoristic.tiles)
+    implementation(libs.androidx.wear.material.compose)
+    implementation(libs.androidx.wear.material.compose3)
+    implementation(libs.androidx.wear.protolayout)
+    implementation(libs.androidx.wear.protolayout.expression)
+    implementation(libs.androidx.wear.protolayout.material)
+    implementation(libs.androidx.wear.protolayout.material3)
+    implementation(libs.androidx.wear.remote.interactions)
     implementation(libs.androidx.wear.tiles)
     implementation(libs.androidx.wear.tiles.material)
     implementation(libs.androidx.wear.tiles.proto)
-    implementation(libs.androidx.wear.holoristic.tiles)
-
-    // protolayout
-    implementation(libs.androidx.wear.protolayout)
-    implementation(libs.androidx.wear.protolayout.material)
-    implementation(libs.androidx.wear.protolayout.material3)
-    implementation(libs.androidx.wear.protolayout.expression)
-
-    // hilt
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.compiler)
-    ksp(libs.androidx.hilt.compiler)
-    implementation(libs.hilt.binder)
-    implementation(libs.hilt.worker)
-    ksp(libs.hilt.binder.compiler)
-
-    // WorkManager (required for CoroutineWorker / HiltWorker)
+    implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.google.firebase.analytics)
+    implementation(libs.google.firebase.crashlytics)
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.binder)
+    implementation(libs.hilt.navigation.compose)
+    implementation(libs.hilt.worker)
+    implementation(libs.logcat)
+    implementation(libs.play.services.wearable)
+    implementation(libs.wear.tooling.preview)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(platform(libs.google.firebase.bom))
+    implementation(project(":core"))
 
-    // Unit test dependencies
-    testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
+    ksp(libs.androidx.hilt.compiler)
+    ksp(libs.hilt.binder.compiler)
+    ksp(libs.hilt.compiler)
+
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.coroutines.test)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
     testImplementation(libs.turbine)
-
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 apply(from = "../spotless.gradle")

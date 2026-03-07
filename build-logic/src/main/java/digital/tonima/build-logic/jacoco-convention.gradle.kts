@@ -19,7 +19,11 @@ tasks.register<JacocoReport>("createJacocoDebugCoverageReport") {
 
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/createJacocoDebugCoverageReport/createJacocoDebugCoverageReport.xml"))
+        xml.outputLocation.set(
+            layout.buildDirectory.file(
+                "reports/jacoco/createJacocoDebugCoverageReport/createJacocoDebugCoverageReport.xml",
+            ),
+        )
         html.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/createJacocoDebugCoverageReport/html"))
     }
@@ -52,7 +56,9 @@ tasks.register<JacocoReport>("createJacocoDebugCoverageReport") {
     executionData.setFrom(
         files(
             fileTree(layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") },
-            fileTree(layout.buildDirectory) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") }
-        )
+            fileTree(
+                layout.buildDirectory,
+            ) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") },
+        ),
     )
 }

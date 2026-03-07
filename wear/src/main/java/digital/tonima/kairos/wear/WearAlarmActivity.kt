@@ -86,7 +86,7 @@ private fun WearAlarmScreen(
     name = "Wear Alarm Screen",
 )
 @Composable
-private fun WearAlarmScreenPreview() {
+fun WearAlarmScreenPreview() {
     KairosTheme {
         WearAlarmScreen(
             title = "Reunião começa em 5 min",

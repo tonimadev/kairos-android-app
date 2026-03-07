@@ -12,7 +12,6 @@ import org.junit.Before
 import org.junit.Test
 
 class AutoStartHelperTest {
-
     private lateinit var context: Context
     private lateinit var packageManager: PackageManager
 

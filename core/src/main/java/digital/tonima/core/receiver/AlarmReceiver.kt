@@ -17,7 +17,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
-
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface SchedulerEntryPoint {
@@ -37,7 +36,10 @@ class AlarmReceiver : BroadcastReceiver() {
     lateinit var scheduler: EventAlarmScheduler
 
     @SuppressLint("MissingPermission")
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (intent.action == ACTION_SNOOZE) {
             val eventTitle = intent.getStringExtra(EXTRA_EVENT_TITLE) ?: ""
             val uniqueId = intent.getIntExtra(EXTRA_UNIQUE_ID, -1)
@@ -45,7 +47,8 @@ class AlarmReceiver : BroadcastReceiver() {
             val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
 
             // Usamos o scheduler para agendar o snooze
-            // Como é um BroadcastReceiver comum, precisamos de injeção manual se não estivermos usando Hilt @AndroidEntryPoint
+            // Como é um BroadcastReceiver comum, precisamos de injeção manual se não
+            // estivermos usando Hilt @AndroidEntryPoint
             // Mas o projeto usa Hilt. Vamos verificar se o Receiver está anotado.
             // Se não estiver, podemos usar o EntryPoint.
 
@@ -53,10 +56,11 @@ class AlarmReceiver : BroadcastReceiver() {
 
             // Tenta obter o scheduler via Hilt se possível
             try {
-                val schedulerEntryPoint = fromApplication(
-                    context.applicationContext,
-                    SchedulerEntryPoint::class.java
-                )
+                val schedulerEntryPoint =
+                    fromApplication(
+                        context.applicationContext,
+                        SchedulerEntryPoint::class.java,
+                    )
                 schedulerEntryPoint.scheduler().scheduleSnooze(eventTitle, uniqueId, eventId, startTime)
             } catch (e: Exception) {
                 logcat { "Failed to access EventAlarmScheduler via Hilt: ${e.message}" }

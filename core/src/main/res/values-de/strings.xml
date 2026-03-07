@@ -32,6 +32,8 @@
     <string name="autostart_fallback_toast">Der spezifische Bildschirm konnte nicht geöffnet werden. Bitte suchen Sie in den Einstellungen
         nach „Autostart“ oder „Akkumanager“.</string>
     <string name="remove_ads">Projekt unterstützen</string>
+    <string name="share_app">App teilen</string>
+    <string name="share_text">Schau dir Kairos an, eine tolle App zum Verwalten deiner Termine und Alarme: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">Menü</string>
     <string name="ringer_mode_vibrate_warning">Das Telefon ist im Vibrationsmodus. Alarme geben keinen Ton aus.</string>
     <string name="ringer_mode_silent_warning">Das Telefon ist im Stumm-Modus. Alarme geben keinen Ton aus.</string>

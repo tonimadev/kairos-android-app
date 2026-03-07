@@ -16,7 +16,7 @@ enum class AudioWarningState {
     NORMAL,
     VIBRATE,
     SILENT,
-    ALARM_MUTED
+    ALARM_MUTED,
 }
 
 /**
@@ -26,7 +26,7 @@ enum class AudioWarningState {
 class RingerModeRepositoryImpl
     @Inject
     constructor(
-        @ApplicationContext private val context: Context
+        @ApplicationContext private val context: Context,
     ) : RingerModeRepository {
         private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -37,7 +37,7 @@ class RingerModeRepositoryImpl
             object : BroadcastReceiver() {
                 override fun onReceive(
                     context: Context?,
-                    intent: Intent?
+                    intent: Intent?,
                 ) {
                     if (intent?.action == AudioManager.RINGER_MODE_CHANGED_ACTION) {
                         val alarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
@@ -45,15 +45,17 @@ class RingerModeRepositoryImpl
                             _ringerMode.value = AudioWarningState.ALARM_MUTED
                             return
                         }
-                        val newMode = intent.getIntExtra(
-                            AudioManager.EXTRA_RINGER_MODE,
-                            audioManager.ringerMode
-                        )
-                        _ringerMode.value = when (newMode) {
-                            AudioManager.RINGER_MODE_VIBRATE -> AudioWarningState.VIBRATE
-                            AudioManager.RINGER_MODE_SILENT -> AudioWarningState.SILENT
-                            else -> AudioWarningState.NORMAL
-                        }
+                        val newMode =
+                            intent.getIntExtra(
+                                AudioManager.EXTRA_RINGER_MODE,
+                                audioManager.ringerMode,
+                            )
+                        _ringerMode.value =
+                            when (newMode) {
+                                AudioManager.RINGER_MODE_VIBRATE -> AudioWarningState.VIBRATE
+                                AudioManager.RINGER_MODE_SILENT -> AudioWarningState.SILENT
+                                else -> AudioWarningState.NORMAL
+                            }
                     }
                 }
             }

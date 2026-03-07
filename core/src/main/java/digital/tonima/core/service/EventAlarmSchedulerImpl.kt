@@ -29,169 +29,183 @@ import javax.inject.Inject
 
 @BindType(installIn = BindType.Component.SINGLETON, to = EventAlarmScheduler::class)
 class EventAlarmSchedulerImpl
-@Inject
-constructor(
-    @ApplicationContext private val context: Context,
-    private val preferencesRepository: AppPreferencesRepository
-) : EventAlarmScheduler {
+    @Inject
+    constructor(
+        @ApplicationContext private val context: Context,
+        private val preferencesRepository: AppPreferencesRepository,
+    ) : EventAlarmScheduler {
+        @VisibleForTesting
+        internal var clock: Clock = Clock.systemDefaultZone()
 
-    @VisibleForTesting
-    internal var clock: Clock = Clock.systemDefaultZone()
+        private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
-    private val alarmManager = context.getSystemService(AlarmManager::class.java)
+        override fun schedule(event: Event) {
+            val alarmTime =
+                if (event.isAllDay) {
+                    val allDayAlarmsEnabled =
+                        runBlocking {
+                            preferencesRepository.isAllDayAlarmsEnabled().firstOrNull() ?: true
+                        }
 
-    override fun schedule(event: Event) {
-        val alarmTime = if (event.isAllDay) {
-            val allDayAlarmsEnabled = runBlocking {
-                preferencesRepository.isAllDayAlarmsEnabled().firstOrNull() ?: true
+                    if (!allDayAlarmsEnabled) {
+                        logcat {
+                            "Skipping alarm for all-day event (disabled in settings): ${event.title}"
+                        }
+                        return
+                    }
+
+                    val alarmHour =
+                        runBlocking {
+                            preferencesRepository.getAllDayAlarmHour().firstOrNull() ?: 9
+                        }
+
+                    val instant = Instant.ofEpochMilli(event.startTime)
+                    val localDate = instant.atZone(ZoneId.of("UTC")).toLocalDate()
+                    val alarmDateTime = localDate.atTime(LocalTime.of(alarmHour, 0))
+                    alarmDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                } else {
+                    val offsetMinutes =
+                        runBlocking {
+                            preferencesRepository.getAlarmOffsetMinutes().firstOrNull() ?: 0L
+                        }
+                    val offset = AlarmOffset.fromMinutes(offsetMinutes)
+                    event.startTime - java.util.concurrent.TimeUnit.MINUTES.toMillis(offset.minutes)
+                }
+
+            logcat {
+                "Scheduling alarm for event: ${event.title} at $alarmTime " +
+                    "(original: ${event.startTime}, isAllDay: ${event.isAllDay}) " +
+                    "with ID: ${event.uniqueIntentId}"
             }
 
-            if (!allDayAlarmsEnabled) {
+            if (alarmTime <= clock.millis()) {
                 logcat {
-                    "Skipping alarm for all-day event (disabled in settings): ${event.title}"
+                    "Skipping alarm for event '${event.title}': alarm time ($alarmTime) is in the past."
                 }
                 return
             }
 
-            val alarmHour = runBlocking {
-                preferencesRepository.getAllDayAlarmHour().firstOrNull() ?: 9
-            }
-
-            val instant = Instant.ofEpochMilli(event.startTime)
-            val localDate = instant.atZone(ZoneId.of("UTC")).toLocalDate()
-            val alarmDateTime = localDate.atTime(LocalTime.of(alarmHour, 0))
-            alarmDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        } else {
-            val offsetMinutes = runBlocking {
-                preferencesRepository.getAlarmOffsetMinutes().firstOrNull() ?: 0L
-            }
-            val offset = AlarmOffset.fromMinutes(offsetMinutes)
-            event.startTime - java.util.concurrent.TimeUnit.MINUTES.toMillis(offset.minutes)
-        }
-
-        logcat {
-            "Scheduling alarm for event: ${event.title} at $alarmTime (original: ${event.startTime}, isAllDay: ${event.isAllDay}) with ID: ${event.uniqueIntentId}"
-        }
-
-        if (alarmTime <= clock.millis()) {
-            logcat {
-                "Skipping alarm for event '${event.title}': alarm time ($alarmTime) is in the past."
-            }
-            return
-        }
-
-        val canScheduleExact =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                alarmManager.canScheduleExactAlarms()
-            } else {
-                true
-            }
-
-        val intent =
-            Intent(context, AlarmReceiver::class.java).apply {
-                action = ACTION_ALARM_TRIGGERED
-                data = "kairos://alarm/${event.uniqueIntentId}".toUri()
-
-                putExtra(EXTRA_EVENT_TITLE, event.title)
-                putExtra(EXTRA_UNIQUE_ID, event.uniqueIntentId)
-                putExtra(EXTRA_EVENT_ID, event.id)
-                putExtra(EXTRA_EVENT_START_TIME, event.startTime)
-            }
-        val pendingIntent =
-            PendingIntent.getBroadcast(
-                context,
-                event.uniqueIntentId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-        try {
-            if (canScheduleExact) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    alarmTime,
-                    pendingIntent
-                )
-                logcat {
-                    "Alarm scheduled EXACT for event: ${event.title}"
+            val canScheduleExact =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    alarmManager.canScheduleExactAlarms()
+                } else {
+                    true
                 }
-            } else {
-                alarmManager.setAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    alarmTime,
-                    pendingIntent
+
+            val intent =
+                Intent(context, AlarmReceiver::class.java).apply {
+                    action = ACTION_ALARM_TRIGGERED
+                    data = "kairos://alarm/${event.uniqueIntentId}".toUri()
+
+                    putExtra(EXTRA_EVENT_TITLE, event.title)
+                    putExtra(EXTRA_UNIQUE_ID, event.uniqueIntentId)
+                    putExtra(EXTRA_EVENT_ID, event.id)
+                    putExtra(EXTRA_EVENT_START_TIME, event.startTime)
+                }
+            val pendingIntent =
+                PendingIntent.getBroadcast(
+                    context,
+                    event.uniqueIntentId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
+
+            try {
+                if (canScheduleExact) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        alarmTime,
+                        pendingIntent,
+                    )
+                    logcat {
+                        "Alarm scheduled EXACT for event: ${event.title}"
+                    }
+                } else {
+                    alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        alarmTime,
+                        pendingIntent,
+                    )
+                    logcat {
+                        "FALLBACK: Alarm scheduled INEXACT (exact alarms not permitted) for event: ${event.title}"
+                    }
+                }
+            } catch (e: SecurityException) {
                 logcat {
-                    "FALLBACK: Alarm scheduled INEXACT (exact alarms not permitted) for event: ${event.title}"
+                    "ERROR: Could not schedule alarm for event ${event.title}: ${e.message}"
                 }
             }
-        } catch (e: SecurityException) {
+        }
+
+        override fun scheduleSnooze(
+            eventTitle: String,
+            uniqueId: Int,
+            eventId: Long,
+            startTime: Long,
+        ) {
+            val snoozeMinutes =
+                runBlocking {
+                    preferencesRepository.getSnoozeTimeMinutes().firstOrNull() ?: 10
+                }
+            val alarmTime = clock.millis() + java.util.concurrent.TimeUnit.MINUTES.toMillis(snoozeMinutes.toLong())
+
             logcat {
-                "ERROR: Could not schedule alarm for event ${event.title}: ${e.message}"
+                "Scheduling SNOOZE for event: $eventTitle at $alarmTime with ID: $uniqueId"
+            }
+
+            val intent =
+                Intent(context, AlarmReceiver::class.java).apply {
+                    action = ACTION_ALARM_TRIGGERED
+                    data = "kairos://alarm/$uniqueId/snooze".toUri()
+
+                    putExtra(EXTRA_EVENT_TITLE, eventTitle)
+                    putExtra(EXTRA_UNIQUE_ID, uniqueId)
+                    putExtra(EXTRA_EVENT_ID, eventId)
+                    putExtra(EXTRA_EVENT_START_TIME, startTime)
+                }
+
+            val pendingIntent =
+                PendingIntent.getBroadcast(
+                    context,
+                    uniqueId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+
+            val canScheduleExact =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    alarmManager.canScheduleExactAlarms()
+                } else {
+                    true
+                }
+
+            try {
+                if (canScheduleExact) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+                } else {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+                }
+            } catch (e: SecurityException) {
+                logcat { "ERROR: Could not schedule snooze for $eventTitle: ${e.message}" }
             }
         }
-    }
 
-    override fun scheduleSnooze(eventTitle: String, uniqueId: Int, eventId: Long, startTime: Long) {
-        val snoozeMinutes = runBlocking {
-            preferencesRepository.getSnoozeTimeMinutes().firstOrNull() ?: 10
-        }
-        val alarmTime = clock.millis() + java.util.concurrent.TimeUnit.MINUTES.toMillis(snoozeMinutes.toLong())
-
-        logcat {
-            "Scheduling SNOOZE for event: $eventTitle at $alarmTime with ID: $uniqueId"
-        }
-
-        val intent = Intent(context, AlarmReceiver::class.java).apply {
-            action = ACTION_ALARM_TRIGGERED
-            data = "kairos://alarm/$uniqueId/snooze".toUri()
-
-            putExtra(EXTRA_EVENT_TITLE, eventTitle)
-            putExtra(EXTRA_UNIQUE_ID, uniqueId)
-            putExtra(EXTRA_EVENT_ID, eventId)
-            putExtra(EXTRA_EVENT_START_TIME, startTime)
-        }
-
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            uniqueId,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val canScheduleExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            alarmManager.canScheduleExactAlarms()
-        } else {
-            true
-        }
-
-        try {
-            if (canScheduleExact) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
-            } else {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+        override fun cancel(event: Event) {
+            logcat {
+                "Cancelling alarm for event ID: ${event.uniqueIntentId}"
             }
-        } catch (e: SecurityException) {
-            logcat { "ERROR: Could not schedule snooze for $eventTitle: ${e.message}" }
+            val intent =
+                Intent(context, AlarmReceiver::class.java).apply {
+                    action = ACTION_ALARM_TRIGGERED
+                    data = "kairos://alarm/${event.uniqueIntentId}".toUri()
+                }
+            val pendingIntent =
+                PendingIntent.getBroadcast(
+                    context,
+                    event.uniqueIntentId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            alarmManager.cancel(pendingIntent)
         }
     }
-
-    override fun cancel(event: Event) {
-        logcat {
-            "Cancelling alarm for event ID: ${event.uniqueIntentId}"
-        }
-        val intent =
-            Intent(context, AlarmReceiver::class.java).apply {
-                action = ACTION_ALARM_TRIGGERED
-                data = "kairos://alarm/${event.uniqueIntentId}".toUri()
-            }
-        val pendingIntent =
-            PendingIntent.getBroadcast(
-                context,
-                event.uniqueIntentId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-        alarmManager.cancel(pendingIntent)
-    }
-}

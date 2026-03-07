@@ -11,10 +11,10 @@ interface InAppUpdateManager {
         onUpdateAvailable: (() -> Unit)? = null,
         onNoUpdateAvailable: (() -> Unit)? = null,
         onUpdateInProgress: (() -> Unit)? = null,
-        onError: ((Exception) -> Unit)? = null
+        onError: ((Exception) -> Unit)? = null,
     )
-    fun handleImmediateUpdateOnResume(
-        updateLauncher: ActivityResultLauncher<IntentSenderRequest>
-    )
+
+    fun handleImmediateUpdateOnResume(updateLauncher: ActivityResultLauncher<IntentSenderRequest>)
+
     fun completeFlexibleUpdate()
 }

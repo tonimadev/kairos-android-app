@@ -31,6 +31,8 @@
     <string name="autostart_fallback_toast">Не удалось открыть указанный экран. Пожалуйста, найдите «Автозапуск» или «Диспетчер батареи» в
         настройках.</string>
     <string name="remove_ads">Поддержать проект</string>
+    <string name="share_app">Поделиться приложением</string>
+    <string name="share_text">Посмотрите Kairos — отличное приложение для управления событиями и будильниками: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">Меню</string>
     <string name="ringer_mode_vibrate_warning">Телефон в режиме вибрации. Будильники не будут издавать звук.</string>
     <string name="ringer_mode_silent_warning">Телефон в беззвучном режиме. Будильники не будут издавать звук.</string>

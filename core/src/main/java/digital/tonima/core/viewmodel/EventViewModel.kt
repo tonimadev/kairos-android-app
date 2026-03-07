@@ -54,388 +54,417 @@ data class EventScreenUiState(
 
 @HiltViewModel
 class EventViewModel
-@Inject
-constructor(
-    proUserProvider: ProUserProvider,
-    private val getEventsForMonthUseCase: GetEventsForMonthUseCase,
-    private val appPreferencesRepository: AppPreferencesRepository,
-    private val ringerModeRepository: RingerModeRepository,
-    private val scheduler: EventAlarmScheduler,
-    private val permissionManager: PermissionManager,
-    private val calendarRepository: CalendarRepository
-) : ViewModel(), ProUserProvider by proUserProvider {
+    @Inject
+    constructor(
+        proUserProvider: ProUserProvider,
+        private val getEventsForMonthUseCase: GetEventsForMonthUseCase,
+        private val appPreferencesRepository: AppPreferencesRepository,
+        private val ringerModeRepository: RingerModeRepository,
+        private val scheduler: EventAlarmScheduler,
+        private val permissionManager: PermissionManager,
+        private val calendarRepository: CalendarRepository,
+    ) : ViewModel(), ProUserProvider by proUserProvider {
+        private val _uiState = MutableStateFlow(EventScreenUiState())
+        val uiState = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(EventScreenUiState())
-    val uiState = _uiState.asStateFlow()
+        init {
+            appPreferencesRepository.isGlobalAlarmEnabled()
+                .onEach { isEnabled ->
+                    _uiState.update { it.copy(isGlobalAlarmEnabled = isEnabled) }
+                    if (!isEnabled) {
+                        cancelAllLoadedAlarms()
+                    } else {
+                        if (_uiState.value.hasCalendarPermission) {
+                            onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                        }
+                    }
+                }
+                .launchIn(viewModelScope)
 
-    init {
-        appPreferencesRepository.isGlobalAlarmEnabled()
-            .onEach { isEnabled ->
-                _uiState.update { it.copy(isGlobalAlarmEnabled = isEnabled) }
-                if (!isEnabled) {
-                    cancelAllLoadedAlarms()
-                } else {
+            appPreferencesRepository.getAutostartSuggestionDismissed()
+                .onEach { dismissed ->
+                    _uiState.update { it.copy(showAutostartSuggestion = !dismissed) }
+                }
+                .launchIn(viewModelScope)
+
+            appPreferencesRepository.getVibrateOnly()
+                .onEach { vibrate -> _uiState.update { it.copy(vibrateOnly = vibrate) } }
+                .launchIn(viewModelScope)
+
+            appPreferencesRepository.isAllDayAlarmsEnabled()
+                .onEach { enabled ->
+                    _uiState.update { it.copy(allDayAlarmsEnabled = enabled) }
+                    if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled) {
+                        onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                    }
+                }
+                .launchIn(viewModelScope)
+
+            appPreferencesRepository.getAllDayAlarmHour()
+                .onEach { hour ->
+                    _uiState.update { it.copy(allDayAlarmHour = hour) }
+                    if (_uiState.value.hasCalendarPermission &&
+                        _uiState.value.isGlobalAlarmEnabled &&
+                        _uiState.value.allDayAlarmsEnabled
+                    ) {
+                        onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                    }
+                }
+                .launchIn(viewModelScope)
+
+            appPreferencesRepository.getAlarmOffsetMinutes()
+                .onEach { minutes ->
+                    _uiState.update { it.copy(alarmOffsetMinutes = minutes) }
+                    if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled) {
+                        onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                    }
+                }
+                .launchIn(viewModelScope)
+
+            appPreferencesRepository.getEnabledCalendarIds()
+                .onEach { idStrings ->
+                    val ids = idStrings.mapNotNull { it.toLongOrNull() }.toSet()
+                    _uiState.update { it.copy(enabledCalendarIds = ids) }
                     if (_uiState.value.hasCalendarPermission) {
                         onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
                     }
                 }
-            }
-            .launchIn(viewModelScope)
+                .launchIn(viewModelScope)
 
-        appPreferencesRepository.getAutostartSuggestionDismissed()
-            .onEach { dismissed ->
-                _uiState.update { it.copy(showAutostartSuggestion = !dismissed) }
-            }
-            .launchIn(viewModelScope)
+            appPreferencesRepository.getSnoozeTimeMinutes()
+                .onEach { minutes -> _uiState.update { it.copy(snoozeTimeMinutes = minutes) } }
+                .launchIn(viewModelScope)
 
-        appPreferencesRepository.getVibrateOnly()
-            .onEach { vibrate -> _uiState.update { it.copy(vibrateOnly = vibrate) } }
-            .launchIn(viewModelScope)
+            checkAllPermissions()
 
-        appPreferencesRepository.isAllDayAlarmsEnabled()
-            .onEach { enabled ->
-                _uiState.update { it.copy(allDayAlarmsEnabled = enabled) }
-                if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled) {
-                    onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+            ringerModeRepository.startObserving()
+            ringerModeRepository.ringerMode
+                .onEach { warning -> _uiState.update { it.copy(audioWarning = warning) } }
+                .launchIn(viewModelScope)
+
+            viewModelScope.launch {
+                val installationDate = appPreferencesRepository.getInstallationDate().firstOrNull() ?: 0L
+                val hasPrompted = appPreferencesRepository.isRatingPrompted().firstOrNull() ?: false
+                val hasCompleted = appPreferencesRepository.isRatingCompleted().firstOrNull() ?: false
+                val currentTime = System.currentTimeMillis()
+                val twoDaysInMillis = TimeUnit.DAYS.toMillis(2)
+                if (installationDate != 0L &&
+                    currentTime - installationDate >= twoDaysInMillis &&
+                    !hasPrompted &&
+                    !hasCompleted
+                ) {
+                    _uiState.update { it.copy(showRatingDialog = true) }
+                    appPreferencesRepository.setRatingPrompted(true)
                 }
             }
-            .launchIn(viewModelScope)
-
-        appPreferencesRepository.getAllDayAlarmHour()
-            .onEach { hour ->
-                _uiState.update { it.copy(allDayAlarmHour = hour) }
-                if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled && _uiState.value.allDayAlarmsEnabled) {
-                    onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
-                }
-            }
-            .launchIn(viewModelScope)
-
-        appPreferencesRepository.getAlarmOffsetMinutes()
-            .onEach { minutes ->
-                _uiState.update { it.copy(alarmOffsetMinutes = minutes) }
-                if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled) {
-                    onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
-                }
-            }
-            .launchIn(viewModelScope)
-
-        appPreferencesRepository.getEnabledCalendarIds()
-            .onEach { idStrings ->
-                val ids = idStrings.mapNotNull { it.toLongOrNull() }.toSet()
-                _uiState.update { it.copy(enabledCalendarIds = ids) }
-                if (_uiState.value.hasCalendarPermission) {
-                    onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
-                }
-            }
-            .launchIn(viewModelScope)
-
-        appPreferencesRepository.getSnoozeTimeMinutes()
-            .onEach { minutes -> _uiState.update { it.copy(snoozeTimeMinutes = minutes) } }
-            .launchIn(viewModelScope)
-
-        checkAllPermissions()
-
-        ringerModeRepository.startObserving()
-        ringerModeRepository.ringerMode
-            .onEach { warning -> _uiState.update { it.copy(audioWarning = warning) } }
-            .launchIn(viewModelScope)
-
-        viewModelScope.launch {
-            val installationDate = appPreferencesRepository.getInstallationDate().firstOrNull() ?: 0L
-            val hasPrompted = appPreferencesRepository.isRatingPrompted().firstOrNull() ?: false
-            val hasCompleted = appPreferencesRepository.isRatingCompleted().firstOrNull() ?: false
-            val currentTime = System.currentTimeMillis()
-            val twoDaysInMillis = TimeUnit.DAYS.toMillis(2)
-            if (installationDate != 0L && currentTime - installationDate >= twoDaysInMillis && !hasPrompted && !hasCompleted) {
-                _uiState.update { it.copy(showRatingDialog = true) }
-                appPreferencesRepository.setRatingPrompted(true)
-            }
         }
-    }
 
-    public override fun onCleared() {
-        super.onCleared()
-        ringerModeRepository.stopObserving()
-    }
-
-    fun checkAllPermissions() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                hasCalendarPermission = permissionManager.hasCalendarPermission(),
-                hasPostNotificationsPermission = permissionManager.hasPostNotificationsPermission(),
-                hasExactAlarmPermission = permissionManager.hasExactAlarmPermission(),
-                hasFullScreenIntentPermission = permissionManager.hasFullScreenIntentPermission()
-            )
+        public override fun onCleared() {
+            super.onCleared()
+            ringerModeRepository.stopObserving()
         }
-        if (_uiState.value.hasCalendarPermission) {
-            onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
-            loadAvailableCalendars()
-        }
-    }
 
-    fun dismissAutostartSuggestion() {
-        viewModelScope.launch {
-            appPreferencesRepository.setAutostartSuggestionDismissed(true)
-        }
-    }
-
-    fun skipExactAlarmPermission() {
-        logcat { "User skipped exact alarm permission request - alarms will be inexact" }
-        _uiState.update { it.copy(hasExactAlarmPermission = true) }
-    }
-
-    fun skipFullScreenIntentPermission() {
-        logcat { "User skipped full-screen intent permission request" }
-        _uiState.update { it.copy(hasFullScreenIntentPermission = true) }
-    }
-
-    fun onMonthChanged(yearMonth: YearMonth, forceRefresh: Boolean = false) {
-        if (!_uiState.value.hasCalendarPermission) {
-            logcat(LogPriority.WARN) { "Permissão de calendário não concedida. Não é possível mudar o mês ou carregar eventos." }
-            _uiState.update { it.copy(events = emptyList()) }
-            return
-        }
-        if (!forceRefresh && yearMonth == _uiState.value.currentMonth) return
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isRefreshing = true, currentMonth = yearMonth) }
-
-            val calendarEvents = getEventsForMonthUseCase.invoke(yearMonth)
-            val disabledInstanceIds = appPreferencesRepository.getDisabledEventIds().firstOrNull() ?: emptySet()
-            val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
-            val vibrateOnlyEventIds = appPreferencesRepository.getVibrateOnlyEventIds().firstOrNull() ?: emptySet()
-
-            val updatedEvents = calendarEvents.map { event ->
-                val isInstanceDisabled = disabledInstanceIds.contains(event.uniqueIntentId.toString())
-                val isSeriesDisabled = disabledSeriesIds.contains(event.id.toString())
-                val isVibrateOnly = vibrateOnlyEventIds.contains(event.uniqueIntentId.toString())
-                event.copy(
-                    isAlarmEnabled = !(isInstanceDisabled || isSeriesDisabled),
-                    vibrateOnly = isVibrateOnly,
-                )
-            }
-
+        fun checkAllPermissions() {
             _uiState.update { currentState ->
                 currentState.copy(
-                    events = updatedEvents,
-                    isRefreshing = false
+                    hasCalendarPermission = permissionManager.hasCalendarPermission(),
+                    hasPostNotificationsPermission = permissionManager.hasPostNotificationsPermission(),
+                    hasExactAlarmPermission = permissionManager.hasExactAlarmPermission(),
+                    hasFullScreenIntentPermission = permissionManager.hasFullScreenIntentPermission(),
                 )
             }
-
-            if (appPreferencesRepository.isGlobalAlarmEnabled().firstOrNull() == true) {
-                scheduleImmediateEvents(updatedEvents)
+            if (_uiState.value.hasCalendarPermission) {
+                onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                loadAvailableCalendars()
             }
         }
-    }
 
-    private fun scheduleImmediateEvents(events: List<Event>) {
-        val now = System.currentTimeMillis()
-        val offsetMinutes = _uiState.value.alarmOffsetMinutes
-        val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
-
-        events
-            .filter { it.isAlarmEnabled }
-            .filter { event ->
-                val alarmFireTime = event.startTime - TimeUnit.MINUTES.toMillis(offsetMinutes)
-                alarmFireTime in (now + 1)..scheduleWindowEnd
+        fun dismissAutostartSuggestion() {
+            viewModelScope.launch {
+                appPreferencesRepository.setAutostartSuggestionDismissed(true)
             }
-            .forEach { event ->
-                scheduler.schedule(event)
+        }
+
+        fun skipExactAlarmPermission() {
+            logcat { "User skipped exact alarm permission request - alarms will be inexact" }
+            _uiState.update { it.copy(hasExactAlarmPermission = true) }
+        }
+
+        fun skipFullScreenIntentPermission() {
+            logcat { "User skipped full-screen intent permission request" }
+            _uiState.update { it.copy(hasFullScreenIntentPermission = true) }
+        }
+
+        fun onMonthChanged(
+            yearMonth: YearMonth,
+            forceRefresh: Boolean = false,
+        ) {
+            if (!_uiState.value.hasCalendarPermission) {
+                logcat(LogPriority.WARN) {
+                    "Permissão de calendário não concedida. Não é possível mudar o mês ou carregar eventos."
+                }
+                _uiState.update { it.copy(events = emptyList()) }
+                return
             }
-    }
+            if (!forceRefresh && yearMonth == _uiState.value.currentMonth) return
 
-    fun onDateSelected(date: LocalDate) {
-        _uiState.update { it.copy(selectedDate = date) }
-    }
+            viewModelScope.launch {
+                _uiState.update { it.copy(isRefreshing = true, currentMonth = yearMonth) }
 
-    fun returnToToday() {
-        _uiState.update {
-            it.copy(
-                selectedDate = LocalDate.now(),
-                currentMonth = YearMonth.now()
-            )
-        }
-    }
+                val calendarEvents = getEventsForMonthUseCase.invoke(yearMonth)
+                val disabledInstanceIds = appPreferencesRepository.getDisabledEventIds().firstOrNull() ?: emptySet()
+                val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
+                val vibrateOnlyEventIds = appPreferencesRepository.getVibrateOnlyEventIds().firstOrNull() ?: emptySet()
 
-    fun onAlarmsToggle(isEnabled: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.setGlobalAlarmEnabled(isEnabled)
-        }
-    }
-
-    fun onVibrateOnlyChanged(enabled: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.setVibrateOnly(enabled)
-        }
-    }
-
-    fun onEventVibrateToggle(event: Event, vibrateOnly: Boolean) {
-        viewModelScope.launch {
-            val currentVibrateOnlyIds = appPreferencesRepository.getVibrateOnlyEventIds().firstOrNull()?.toMutableSet() ?: mutableSetOf()
-            val eventIdStr = event.uniqueIntentId.toString()
-
-            if (vibrateOnly) {
-                currentVibrateOnlyIds.add(eventIdStr)
-            } else {
-                currentVibrateOnlyIds.remove(eventIdStr)
-            }
-            appPreferencesRepository.setVibrateOnlyEventIds(currentVibrateOnlyIds)
-
-            _uiState.update { currentState ->
-                val updatedEvents = currentState.events.map {
-                    if (it.uniqueIntentId == event.uniqueIntentId) {
-                        it.copy(vibrateOnly = vibrateOnly)
-                    } else {
-                        it
+                val updatedEvents =
+                    calendarEvents.map { event ->
+                        val isInstanceDisabled = disabledInstanceIds.contains(event.uniqueIntentId.toString())
+                        val isSeriesDisabled = disabledSeriesIds.contains(event.id.toString())
+                        val isVibrateOnly = vibrateOnlyEventIds.contains(event.uniqueIntentId.toString())
+                        event.copy(
+                            isAlarmEnabled = !(isInstanceDisabled || isSeriesDisabled),
+                            vibrateOnly = isVibrateOnly,
+                        )
                     }
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        events = updatedEvents,
+                        isRefreshing = false,
+                    )
                 }
-                currentState.copy(events = updatedEvents)
+
+                if (appPreferencesRepository.isGlobalAlarmEnabled().firstOrNull() == true) {
+                    scheduleImmediateEvents(updatedEvents)
+                }
             }
         }
-    }
 
-    fun onEventAlarmToggle(event: Event, isEnabled: Boolean, disableAllOccurrences: Boolean = false) {
-        viewModelScope.launch {
-            val currentDisabledInstanceIds =
-                appPreferencesRepository.getDisabledEventIds().firstOrNull()?.toMutableSet() ?: mutableSetOf()
-            val currentDisabledSeriesIds =
-                appPreferencesRepository.getDisabledSeriesIds().firstOrNull()?.toMutableSet() ?: mutableSetOf()
-            val instanceIdStr = event.uniqueIntentId.toString()
-            val seriesIdStr = event.id.toString()
+        private fun scheduleImmediateEvents(events: List<Event>) {
+            val now = System.currentTimeMillis()
+            val offsetMinutes = _uiState.value.alarmOffsetMinutes
+            val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
 
-            if (isEnabled) {
-                if (disableAllOccurrences) {
-                    currentDisabledSeriesIds.remove(seriesIdStr)
-                    appPreferencesRepository.setDisabledSeriesIds(currentDisabledSeriesIds)
-                } else {
-                    currentDisabledInstanceIds.remove(instanceIdStr)
-                    appPreferencesRepository.setDisabledEventIds(currentDisabledInstanceIds)
+            events
+                .filter { it.isAlarmEnabled }
+                .filter { event ->
+                    val alarmFireTime = event.startTime - TimeUnit.MINUTES.toMillis(offsetMinutes)
+                    alarmFireTime in (now + 1)..scheduleWindowEnd
                 }
-            } else {
-                if (disableAllOccurrences) {
-                    currentDisabledSeriesIds.add(seriesIdStr)
-                    appPreferencesRepository.setDisabledSeriesIds(currentDisabledSeriesIds)
-                } else {
-                    currentDisabledInstanceIds.add(instanceIdStr)
-                    appPreferencesRepository.setDisabledEventIds(currentDisabledInstanceIds)
-                }
-            }
-
-            _uiState.update { currentState ->
-                val updatedEvents = currentState.events.map {
-                    if (it.uniqueIntentId == event.uniqueIntentId) {
-                        it.copy(isAlarmEnabled = isEnabled)
-                    } else {
-                        it
-                    }
-                }
-                currentState.copy(events = updatedEvents)
-            }
-
-            if (appPreferencesRepository.isGlobalAlarmEnabled().firstOrNull() == true) {
-                if (isEnabled) {
+                .forEach { event ->
                     scheduler.schedule(event)
+                }
+        }
+
+        fun onDateSelected(date: LocalDate) {
+            _uiState.update { it.copy(selectedDate = date) }
+        }
+
+        fun returnToToday() {
+            _uiState.update {
+                it.copy(
+                    selectedDate = LocalDate.now(),
+                    currentMonth = YearMonth.now(),
+                )
+            }
+        }
+
+        fun onAlarmsToggle(isEnabled: Boolean) {
+            viewModelScope.launch {
+                appPreferencesRepository.setGlobalAlarmEnabled(isEnabled)
+            }
+        }
+
+        fun onVibrateOnlyChanged(enabled: Boolean) {
+            viewModelScope.launch {
+                appPreferencesRepository.setVibrateOnly(enabled)
+            }
+        }
+
+        fun onEventVibrateToggle(
+            event: Event,
+            vibrateOnly: Boolean,
+        ) {
+            viewModelScope.launch {
+                val currentVibrateOnlyIds =
+                    appPreferencesRepository.getVibrateOnlyEventIds().firstOrNull()?.toMutableSet()
+                        ?: mutableSetOf()
+                val eventIdStr = event.uniqueIntentId.toString()
+
+                if (vibrateOnly) {
+                    currentVibrateOnlyIds.add(eventIdStr)
                 } else {
+                    currentVibrateOnlyIds.remove(eventIdStr)
+                }
+                appPreferencesRepository.setVibrateOnlyEventIds(currentVibrateOnlyIds)
+
+                _uiState.update { currentState ->
+                    val updatedEvents =
+                        currentState.events.map {
+                            if (it.uniqueIntentId == event.uniqueIntentId) {
+                                it.copy(vibrateOnly = vibrateOnly)
+                            } else {
+                                it
+                            }
+                        }
+                    currentState.copy(events = updatedEvents)
+                }
+            }
+        }
+
+        fun onEventAlarmToggle(
+            event: Event,
+            isEnabled: Boolean,
+            disableAllOccurrences: Boolean = false,
+        ) {
+            viewModelScope.launch {
+                val currentDisabledInstanceIds =
+                    appPreferencesRepository.getDisabledEventIds().firstOrNull()?.toMutableSet() ?: mutableSetOf()
+                val currentDisabledSeriesIds =
+                    appPreferencesRepository.getDisabledSeriesIds().firstOrNull()?.toMutableSet() ?: mutableSetOf()
+                val instanceIdStr = event.uniqueIntentId.toString()
+                val seriesIdStr = event.id.toString()
+
+                if (isEnabled) {
+                    if (disableAllOccurrences) {
+                        currentDisabledSeriesIds.remove(seriesIdStr)
+                        appPreferencesRepository.setDisabledSeriesIds(currentDisabledSeriesIds)
+                    } else {
+                        currentDisabledInstanceIds.remove(instanceIdStr)
+                        appPreferencesRepository.setDisabledEventIds(currentDisabledInstanceIds)
+                    }
+                } else {
+                    if (disableAllOccurrences) {
+                        currentDisabledSeriesIds.add(seriesIdStr)
+                        appPreferencesRepository.setDisabledSeriesIds(currentDisabledSeriesIds)
+                    } else {
+                        currentDisabledInstanceIds.add(instanceIdStr)
+                        appPreferencesRepository.setDisabledEventIds(currentDisabledInstanceIds)
+                    }
+                }
+
+                _uiState.update { currentState ->
+                    val updatedEvents =
+                        currentState.events.map {
+                            if (it.uniqueIntentId == event.uniqueIntentId) {
+                                it.copy(isAlarmEnabled = isEnabled)
+                            } else {
+                                it
+                            }
+                        }
+                    currentState.copy(events = updatedEvents)
+                }
+
+                if (appPreferencesRepository.isGlobalAlarmEnabled().firstOrNull() == true) {
+                    if (isEnabled) {
+                        scheduler.schedule(event)
+                    } else {
+                        scheduler.cancel(event)
+                    }
+                }
+            }
+        }
+
+        private fun cancelAllLoadedAlarms() {
+            viewModelScope.launch {
+                _uiState.value.events.forEach { event ->
                     scheduler.cancel(event)
                 }
             }
         }
-    }
 
-    private fun cancelAllLoadedAlarms() {
-        viewModelScope.launch {
-            _uiState.value.events.forEach { event ->
-                scheduler.cancel(event)
+        fun onUpgradeToProRequest() {
+            _uiState.update { it.copy(showUpgradeConfirmation = true) }
+        }
+
+        fun onPurchaseFlowHandled() {
+            _uiState.update { it.copy(showUpgradeConfirmation = false) }
+        }
+
+        fun onRatingDialogDismiss() {
+            _uiState.update { it.copy(showRatingDialog = false) }
+        }
+
+        fun onRateNow() {
+            viewModelScope.launch {
+                appPreferencesRepository.setRatingCompleted(true)
+                _uiState.update { it.copy(showRatingDialog = false) }
             }
         }
-    }
 
-    fun onUpgradeToProRequest() {
-        _uiState.update { it.copy(showUpgradeConfirmation = true) }
-    }
-
-    fun onPurchaseFlowHandled() {
-        _uiState.update { it.copy(showUpgradeConfirmation = false) }
-    }
-
-    fun onRatingDialogDismiss() {
-        _uiState.update { it.copy(showRatingDialog = false) }
-    }
-
-    fun onRateNow() {
-        viewModelScope.launch {
-            appPreferencesRepository.setRatingCompleted(true)
+        fun onRateLater() {
             _uiState.update { it.copy(showRatingDialog = false) }
         }
-    }
 
-    fun onRateLater() {
-        _uiState.update { it.copy(showRatingDialog = false) }
-    }
-    fun onRateNeverShow() {
-        viewModelScope.launch {
-            appPreferencesRepository.setRatingCompleted(true)
-            _uiState.update { it.copy(showRatingDialog = false) }
+        fun onRateNeverShow() {
+            viewModelScope.launch {
+                appPreferencesRepository.setRatingCompleted(true)
+                _uiState.update { it.copy(showRatingDialog = false) }
+            }
         }
-    }
-    fun onAllDayAlarmsToggle(enabled: Boolean) {
-        viewModelScope.launch {
-            appPreferencesRepository.setAllDayAlarmsEnabled(enabled)
-        }
-    }
 
-    fun onAllDayAlarmHourChanged(hour: Int) {
-        viewModelScope.launch {
-            appPreferencesRepository.setAllDayAlarmHour(hour)
+        fun onAllDayAlarmsToggle(enabled: Boolean) {
+            viewModelScope.launch {
+                appPreferencesRepository.setAllDayAlarmsEnabled(enabled)
+            }
         }
-    }
 
-    fun onAlarmOffsetChanged(offset: AlarmOffset) {
-        viewModelScope.launch {
-            appPreferencesRepository.setAlarmOffsetMinutes(offset.minutes)
+        fun onAllDayAlarmHourChanged(hour: Int) {
+            viewModelScope.launch {
+                appPreferencesRepository.setAllDayAlarmHour(hour)
+            }
         }
-    }
 
-    fun loadAvailableCalendars() {
-        viewModelScope.launch {
-            val calendars = calendarRepository.getAvailableCalendars()
-            _uiState.update { it.copy(availableCalendars = calendars) }
+        fun onAlarmOffsetChanged(offset: AlarmOffset) {
+            viewModelScope.launch {
+                appPreferencesRepository.setAlarmOffsetMinutes(offset.minutes)
+            }
         }
-    }
 
-    fun onCalendarFilterToggle(calendarId: Long, enabled: Boolean) {
-        viewModelScope.launch {
-            val allIds = _uiState.value.availableCalendars.map { it.id.toString() }.toSet()
-            val current = appPreferencesRepository.getEnabledCalendarIds()
-                .firstOrNull()
-                .let { saved ->
-                    if (saved.isNullOrEmpty()) allIds.toMutableSet() else saved.toMutableSet()
+        fun loadAvailableCalendars() {
+            viewModelScope.launch {
+                val calendars = calendarRepository.getAvailableCalendars()
+                _uiState.update { it.copy(availableCalendars = calendars) }
+            }
+        }
+
+        fun onCalendarFilterToggle(
+            calendarId: Long,
+            enabled: Boolean,
+        ) {
+            viewModelScope.launch {
+                val allIds = _uiState.value.availableCalendars.map { it.id.toString() }.toSet()
+                val current =
+                    appPreferencesRepository.getEnabledCalendarIds()
+                        .firstOrNull()
+                        .let { saved ->
+                            if (saved.isNullOrEmpty()) allIds.toMutableSet() else saved.toMutableSet()
+                        }
+
+                if (enabled) {
+                    current.add(calendarId.toString())
+                } else {
+                    current.remove(calendarId.toString())
                 }
 
-            if (enabled) {
-                current.add(calendarId.toString())
-            } else {
-                current.remove(calendarId.toString())
+                val newSet = if (current.containsAll(allIds)) emptySet() else current
+                appPreferencesRepository.setEnabledCalendarIds(newSet)
             }
+        }
 
-            val newSet = if (current.containsAll(allIds)) emptySet() else current
-            appPreferencesRepository.setEnabledCalendarIds(newSet)
+        fun clearCalendarFilter() {
+            viewModelScope.launch {
+                appPreferencesRepository.setEnabledCalendarIds(emptySet())
+            }
+        }
+
+        fun onSearchQueryChanged(query: String) {
+            _uiState.update { it.copy(searchQuery = query) }
+        }
+
+        fun onSnoozeTimeChanged(minutes: Int) {
+            viewModelScope.launch {
+                appPreferencesRepository.setSnoozeTimeMinutes(minutes)
+            }
         }
     }
-
-    fun clearCalendarFilter() {
-        viewModelScope.launch {
-            appPreferencesRepository.setEnabledCalendarIds(emptySet())
-        }
-    }
-
-    fun onSearchQueryChanged(query: String) {
-        _uiState.update { it.copy(searchQuery = query) }
-    }
-
-    fun onSnoozeTimeChanged(minutes: Int) {
-        viewModelScope.launch {
-            appPreferencesRepository.setSnoozeTimeMinutes(minutes)
-        }
-    }
-}

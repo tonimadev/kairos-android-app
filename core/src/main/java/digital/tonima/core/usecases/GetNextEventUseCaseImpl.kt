@@ -8,13 +8,15 @@ import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 @BindType(installIn = BindType.Component.SINGLETON, to = GetNextEventUseCase::class)
-class GetNextEventUseCaseImpl @Inject constructor(
-    private val eventsRepository: CalendarRepository,
-    private val appPreferencesRepository: AppPreferencesRepository
-) : GetNextEventUseCase {
-    override suspend fun invoke(): Event? {
-        val enabledCalendarIdStrings = appPreferencesRepository.getEnabledCalendarIds().firstOrNull() ?: emptySet()
-        val allowedCalendarIds = enabledCalendarIdStrings.mapNotNull { it.toLongOrNull() }
-        return eventsRepository.getNextUpcomingEvent(allowedCalendarIds)
+class GetNextEventUseCaseImpl
+    @Inject
+    constructor(
+        private val eventsRepository: CalendarRepository,
+        private val appPreferencesRepository: AppPreferencesRepository,
+    ) : GetNextEventUseCase {
+        override suspend fun invoke(): Event? {
+            val enabledCalendarIdStrings = appPreferencesRepository.getEnabledCalendarIds().firstOrNull() ?: emptySet()
+            val allowedCalendarIds = enabledCalendarIdStrings.mapNotNull { it.toLongOrNull() }
+            return eventsRepository.getNextUpcomingEvent(allowedCalendarIds)
+        }
     }
-}

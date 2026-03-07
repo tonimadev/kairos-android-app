@@ -30,6 +30,8 @@
     <string name="dismiss">تجاهل</string>
     <string name="autostart_fallback_toast">تعذر فتح الشاشة المحددة. يرجى البحث عن "البدء التلقائي" أو "مدير البطارية" في الإعدادات.</string>
     <string name="remove_ads">دعم المشروع</string>
+    <string name="share_app">مشاركة التطبيق</string>
+    <string name="share_text">تحقق من Kairos، تطبيق مذهل لإدارة الأحداث والمنبهات: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">قائمة</string>
     <string name="ringer_mode_vibrate_warning">الهاتف في وضع الاهتزاز. لن تصدر المنبهات صوتًا.</string>
     <string name="ringer_mode_silent_warning">الهاتف في الوضع الصامت. لن تصدر المنبهات صوتًا.</string>

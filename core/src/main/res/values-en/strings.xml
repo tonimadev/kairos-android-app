@@ -31,6 +31,8 @@
     <string name="autostart_fallback_toast">Could not open the specific screen. Please search for "Autostart" or "Battery Manager" in the
         settings.</string>
     <string name="remove_ads">Support Project</string>
+    <string name="share_app">Share App</string>
+    <string name="share_text">Check out Kairos, an amazing app for managing your events and alarms: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">Menu</string>
     <string name="ringer_mode_vibrate_warning">The phone is in vibrate mode. Alarms will not make a sound.</string>
     <string name="ringer_mode_silent_warning">The phone is in silent mode. Alarms will not make a sound.</string>

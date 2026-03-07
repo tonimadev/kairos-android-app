@@ -4,7 +4,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class EventTest {
-
     @Test
     fun `uniqueIntentId should be consistent for same id and startTime`() {
         val e1 = Event(id = 42L, title = "A", startTime = 1700000000000)

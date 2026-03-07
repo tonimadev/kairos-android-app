@@ -34,8 +34,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run Spotless Check
-        run: ./gradlew spotlessCheck
+      - name: Run Spotless Check and Sort Dependencies
+        run: ./gradlew spotlessCheck sortDependencies
+
+      - name: Run Detekt
+        run: ./gradlew detekt
 
       - name: Run tests and generate merged coverage report
         run: ./gradlew createJacocoMergedCoverageReport

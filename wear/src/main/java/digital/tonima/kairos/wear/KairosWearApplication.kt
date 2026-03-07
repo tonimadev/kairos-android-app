@@ -80,7 +80,8 @@ class KairosWearApplication :
             workManager.cancelUniqueWork("event-scheduler")
             workManager.cancelUniqueWork("initial-event-scheduler")
             workManager.cancelAllWorkByTag("digital.tonima.core.service.AlarmSchedulingWorker")
-        } catch (_: Throwable) {
+        } catch (e: Throwable) {
+            logcat(LogPriority.WARN) { "Failed to cancel legacy workers: ${e.localizedMessage}" }
         }
 
         val repeatingRequest =

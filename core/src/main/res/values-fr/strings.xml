@@ -33,6 +33,8 @@
     <string name="autostart_fallback_toast">Impossible d\'ouvrir l\'écran spécifique. Veuillez rechercher « Démarrage automatique » ou «
         Gestionnaire de batterie » dans les paramètres.</string>
     <string name="remove_ads">Soutenir le projet</string>
+    <string name="share_app">Partager l\'application</string>
+    <string name="share_text">Découvrez Kairos, une application incroyable para gérer vos événements et alarmes : https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">Menu</string>
     <string name="ringer_mode_vibrate_warning">Le téléphone est en mode vibreur. Les alarmes ne sonneront pas.</string>
     <string name="ringer_mode_silent_warning">Le téléphone est en mode silencieux. Les alarmes ne sonneront pas.</string>

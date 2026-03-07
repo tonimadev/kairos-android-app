@@ -52,7 +52,8 @@ object OpenOnPhone {
 
                             override fun onFailure(t2: Throwable) {
                                 logcat(tag = "WearApp", priority = LogPriority.ERROR) {
-                                    "OpenOnPhone failed to open Play Store on phone: ${t2.localizedMessage}. Trying web URL…"
+                                    "OpenOnPhone failed to open Play Store on phone: " +
+                                        "${t2.localizedMessage}. Trying web URL…"
                                 }
 
                                 val webIntent =

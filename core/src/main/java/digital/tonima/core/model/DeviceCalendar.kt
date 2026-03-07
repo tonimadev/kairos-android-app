@@ -6,4 +6,3 @@ data class DeviceCalendar(
     val accountName: String,
     val color: Int = 0,
 )
-

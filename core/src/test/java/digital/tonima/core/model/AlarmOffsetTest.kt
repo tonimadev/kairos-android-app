@@ -4,7 +4,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class AlarmOffsetTest {
-
     @Test
     fun `fromMinutes returns correct enum member`() {
         assertEquals(AlarmOffset.AT_TIME, AlarmOffset.fromMinutes(0))

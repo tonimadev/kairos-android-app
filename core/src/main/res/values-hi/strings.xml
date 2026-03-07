@@ -30,6 +30,8 @@
     <string name="dismiss">खारिज करें</string>
     <string name="autostart_fallback_toast">विशिष्ट स्क्रीन नहीं खुल सकी। कृपया सेटिंग्स में "ऑटोस्टार्ट" या "बैटरी मैनेजर" खोजें।</string>
     <string name="remove_ads">परियोजना का समर्थन करें</string>
+    <string name="share_app">ऐप साझा करें</string>
+    <string name="share_text">Kairos को देखें, जो आपके इवेंट और अलार्म को प्रबंधित करने के लिए एक अद्भुत ऐप है: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">मेनू</string>
     <string name="ringer_mode_vibrate_warning">फ़ोन वाइब्रेट मोड में है। अलार्म आवाज़ नहीं करेंगे।</string>
     <string name="ringer_mode_silent_warning">फ़ोन साइलेंट मोड में है। अलार्म आवाज़ नहीं करेंगे।</string>

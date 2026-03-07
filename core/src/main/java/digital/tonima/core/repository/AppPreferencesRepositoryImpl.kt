@@ -15,205 +15,207 @@ import javax.inject.Singleton
 
 @Singleton
 @BindType(installIn = BindType.Component.SINGLETON, to = AppPreferencesRepository::class)
-class AppPreferencesRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
-) : AppPreferencesRepository {
+class AppPreferencesRepositoryImpl
+    @Inject
+    constructor(
+        @ApplicationContext private val context: Context,
+    ) : AppPreferencesRepository {
+        private object PreferencesKeys {
+            val GLOBAL_ALARM_ENABLED = booleanPreferencesKey("global_alarm_enabled")
+            val DISABLED_EVENT_IDS = stringSetPreferencesKey("disabled_event_ids")
+            val DISABLED_SERIES_IDS = stringSetPreferencesKey("disabled_series_ids")
+            val VIBRATE_ONLY_EVENT_IDS = stringSetPreferencesKey("vibrate_only_event_ids")
+            val VIBRATE_ONLY = booleanPreferencesKey("vibrate_only")
+            val AUTOSTART_SUGGESTION_DISMISSED = booleanPreferencesKey("autostart_suggestion_dismissed")
+            val INSTALLATION_DATE = longPreferencesKey("installation_date")
+            val RATING_PROMPTED = booleanPreferencesKey("rating_prompted")
+            val RATING_COMPLETED = booleanPreferencesKey("rating_completed")
+            val ALL_DAY_ALARMS_ENABLED = booleanPreferencesKey("all_day_alarms_enabled")
+            val ALL_DAY_ALARM_HOUR = intPreferencesKey("all_day_alarm_hour")
+            val ALARM_OFFSET_MINUTES = longPreferencesKey("alarm_offset_minutes")
+            val ENABLED_CALENDAR_IDS = stringSetPreferencesKey("enabled_calendar_ids")
+            val SNOOZE_TIME_MINUTES = intPreferencesKey("snooze_time_minutes")
+        }
 
-    private object PreferencesKeys {
-        val GLOBAL_ALARM_ENABLED = booleanPreferencesKey("global_alarm_enabled")
-        val DISABLED_EVENT_IDS = stringSetPreferencesKey("disabled_event_ids")
-        val DISABLED_SERIES_IDS = stringSetPreferencesKey("disabled_series_ids")
-        val VIBRATE_ONLY_EVENT_IDS = stringSetPreferencesKey("vibrate_only_event_ids")
-        val VIBRATE_ONLY = booleanPreferencesKey("vibrate_only")
-        val AUTOSTART_SUGGESTION_DISMISSED = booleanPreferencesKey("autostart_suggestion_dismissed")
-        val INSTALLATION_DATE = longPreferencesKey("installation_date")
-        val RATING_PROMPTED = booleanPreferencesKey("rating_prompted")
-        val RATING_COMPLETED = booleanPreferencesKey("rating_completed")
-        val ALL_DAY_ALARMS_ENABLED = booleanPreferencesKey("all_day_alarms_enabled")
-        val ALL_DAY_ALARM_HOUR = intPreferencesKey("all_day_alarm_hour")
-        val ALARM_OFFSET_MINUTES = longPreferencesKey("alarm_offset_minutes")
-        val ENABLED_CALENDAR_IDS = stringSetPreferencesKey("enabled_calendar_ids")
-        val SNOOZE_TIME_MINUTES = intPreferencesKey("snooze_time_minutes")
-    }
+        override fun isGlobalAlarmEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.GLOBAL_ALARM_ENABLED] ?: true
+                }
+        }
 
-    override fun isGlobalAlarmEnabled(): Flow<Boolean> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.GLOBAL_ALARM_ENABLED] ?: true
+        override suspend fun setGlobalAlarmEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.GLOBAL_ALARM_ENABLED] = enabled
             }
-    }
+        }
 
-    override suspend fun setGlobalAlarmEnabled(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.GLOBAL_ALARM_ENABLED] = enabled
+        override fun getDisabledEventIds(): Flow<Set<String>> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.DISABLED_EVENT_IDS] ?: emptySet()
+                }
+        }
+
+        override suspend fun setDisabledEventIds(ids: Set<String>) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.DISABLED_EVENT_IDS] = ids
+            }
+        }
+
+        override fun getDisabledSeriesIds(): Flow<Set<String>> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.DISABLED_SERIES_IDS] ?: emptySet()
+                }
+        }
+
+        override suspend fun setDisabledSeriesIds(ids: Set<String>) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.DISABLED_SERIES_IDS] = ids
+            }
+        }
+
+        override fun getVibrateOnlyEventIds(): Flow<Set<String>> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.VIBRATE_ONLY_EVENT_IDS] ?: emptySet()
+                }
+        }
+
+        override suspend fun setVibrateOnlyEventIds(ids: Set<String>) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.VIBRATE_ONLY_EVENT_IDS] = ids
+            }
+        }
+
+        override fun getVibrateOnly(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.VIBRATE_ONLY] ?: false
+                }
+        }
+
+        override suspend fun setVibrateOnly(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.VIBRATE_ONLY] = enabled
+            }
+        }
+
+        override fun getAutostartSuggestionDismissed(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.AUTOSTART_SUGGESTION_DISMISSED] ?: false
+                }
+        }
+
+        override suspend fun setAutostartSuggestionDismissed(dismissed: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.AUTOSTART_SUGGESTION_DISMISSED] = dismissed
+            }
+        }
+
+        override fun getInstallationDate(): Flow<Long> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.INSTALLATION_DATE] ?: 0L
+                }
+        }
+
+        override suspend fun setInstallationDate(date: Long) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.INSTALLATION_DATE] = date
+            }
+        }
+
+        override fun isRatingPrompted(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.RATING_PROMPTED] ?: false
+                }
+        }
+
+        override suspend fun setRatingPrompted(prompted: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.RATING_PROMPTED] = prompted
+            }
+        }
+
+        override fun isRatingCompleted(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.RATING_COMPLETED] ?: false
+                }
+        }
+
+        override suspend fun setRatingCompleted(completed: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.RATING_COMPLETED] = completed
+            }
+        }
+
+        override fun isAllDayAlarmsEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.ALL_DAY_ALARMS_ENABLED] ?: true
+                }
+        }
+
+        override suspend fun setAllDayAlarmsEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ALL_DAY_ALARMS_ENABLED] = enabled
+            }
+        }
+
+        override fun getAllDayAlarmHour(): Flow<Int> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.ALL_DAY_ALARM_HOUR] ?: 9
+                }
+        }
+
+        override suspend fun setAllDayAlarmHour(hour: Int) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ALL_DAY_ALARM_HOUR] = hour
+            }
+        }
+
+        override fun getAlarmOffsetMinutes(): Flow<Long> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.ALARM_OFFSET_MINUTES] ?: 0L
+                }
+        }
+
+        override suspend fun setAlarmOffsetMinutes(minutes: Long) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ALARM_OFFSET_MINUTES] = minutes
+            }
+        }
+
+        override fun getEnabledCalendarIds(): Flow<Set<String>> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.ENABLED_CALENDAR_IDS] ?: emptySet()
+                }
+        }
+
+        override suspend fun setEnabledCalendarIds(ids: Set<String>) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ENABLED_CALENDAR_IDS] = ids
+            }
+        }
+
+        override fun getSnoozeTimeMinutes(): Flow<Int> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.SNOOZE_TIME_MINUTES] ?: 10
+                }
+        }
+
+        override suspend fun setSnoozeTimeMinutes(minutes: Int) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.SNOOZE_TIME_MINUTES] = minutes
+            }
         }
     }
-
-    override fun getDisabledEventIds(): Flow<Set<String>> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.DISABLED_EVENT_IDS] ?: emptySet()
-            }
-    }
-    override suspend fun setDisabledEventIds(ids: Set<String>) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DISABLED_EVENT_IDS] = ids
-        }
-    }
-
-    override fun getDisabledSeriesIds(): Flow<Set<String>> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.DISABLED_SERIES_IDS] ?: emptySet()
-            }
-    }
-
-    override suspend fun setDisabledSeriesIds(ids: Set<String>) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DISABLED_SERIES_IDS] = ids
-        }
-    }
-
-    override fun getVibrateOnlyEventIds(): Flow<Set<String>> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.VIBRATE_ONLY_EVENT_IDS] ?: emptySet()
-            }
-    }
-
-    override suspend fun setVibrateOnlyEventIds(ids: Set<String>) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.VIBRATE_ONLY_EVENT_IDS] = ids
-        }
-    }
-
-    override fun getVibrateOnly(): Flow<Boolean> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.VIBRATE_ONLY] ?: false
-            }
-    }
-
-    override suspend fun setVibrateOnly(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.VIBRATE_ONLY] = enabled
-        }
-    }
-
-    override fun getAutostartSuggestionDismissed(): Flow<Boolean> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.AUTOSTART_SUGGESTION_DISMISSED] ?: false
-            }
-    }
-
-    override suspend fun setAutostartSuggestionDismissed(dismissed: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.AUTOSTART_SUGGESTION_DISMISSED] = dismissed
-        }
-    }
-
-    override fun getInstallationDate(): Flow<Long> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.INSTALLATION_DATE] ?: 0L
-            }
-    }
-
-    override suspend fun setInstallationDate(date: Long) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.INSTALLATION_DATE] = date
-        }
-    }
-
-    override fun isRatingPrompted(): Flow<Boolean> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.RATING_PROMPTED] ?: false
-            }
-    }
-
-    override suspend fun setRatingPrompted(prompted: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.RATING_PROMPTED] = prompted
-        }
-    }
-
-    override fun isRatingCompleted(): Flow<Boolean> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.RATING_COMPLETED] ?: false
-            }
-    }
-
-    override suspend fun setRatingCompleted(completed: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.RATING_COMPLETED] = completed
-        }
-    }
-
-    override fun isAllDayAlarmsEnabled(): Flow<Boolean> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.ALL_DAY_ALARMS_ENABLED] ?: true
-            }
-    }
-
-    override suspend fun setAllDayAlarmsEnabled(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.ALL_DAY_ALARMS_ENABLED] = enabled
-        }
-    }
-
-    override fun getAllDayAlarmHour(): Flow<Int> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.ALL_DAY_ALARM_HOUR] ?: 9
-            }
-    }
-
-    override suspend fun setAllDayAlarmHour(hour: Int) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.ALL_DAY_ALARM_HOUR] = hour
-        }
-    }
-
-    override fun getAlarmOffsetMinutes(): Flow<Long> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.ALARM_OFFSET_MINUTES] ?: 0L
-            }
-    }
-
-    override suspend fun setAlarmOffsetMinutes(minutes: Long) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.ALARM_OFFSET_MINUTES] = minutes
-        }
-    }
-
-    override fun getEnabledCalendarIds(): Flow<Set<String>> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.ENABLED_CALENDAR_IDS] ?: emptySet()
-            }
-    }
-
-    override suspend fun setEnabledCalendarIds(ids: Set<String>) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.ENABLED_CALENDAR_IDS] = ids
-        }
-    }
-
-    override fun getSnoozeTimeMinutes(): Flow<Int> {
-        return context.dataStore.data
-            .map { preferences ->
-                preferences[PreferencesKeys.SNOOZE_TIME_MINUTES] ?: 10
-            }
-    }
-
-    override suspend fun setSnoozeTimeMinutes(minutes: Int) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SNOOZE_TIME_MINUTES] = minutes
-        }
-    }
-}

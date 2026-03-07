@@ -7,10 +7,16 @@ interface PermissionManager {
     val fullScreenIntentPermissions: List<String>
 
     fun hasCalendarPermission(): Boolean
+
     fun hasExactAlarmPermission(): Boolean
+
     fun hasFullScreenIntentPermission(): Boolean
+
     fun hasPostNotificationsPermission(): Boolean
+
     fun needsExactAlarmPermissionRequest(): Boolean
+
     fun needsFullScreenIntentPermissionRequest(): Boolean
+
     fun getMissingStandardPermissions(): List<String>
 }

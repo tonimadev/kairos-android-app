@@ -24,7 +24,6 @@ import java.time.ZonedDateTime
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class GetEventsForMonthUseCaseImplTest {
-
     private lateinit var mockEventsRepository: CalendarRepository
     private lateinit var mockAppPreferencesRepository: AppPreferencesRepository
     private lateinit var getEventsForMonthUseCase: GetEventsForMonthUseCase
@@ -38,33 +37,37 @@ class GetEventsForMonthUseCaseImplTest {
     }
 
     @Test
-    fun `invoke calls repository and returns list of events`() = runTest {
-        val yearMonth = YearMonth.of(2023, 10)
+    fun `invoke calls repository and returns list of events`() =
+        runTest {
+            val yearMonth = YearMonth.of(2023, 10)
 
-        fun toEpochMillis(date: LocalDate, time: LocalTime): Long {
-            return ZonedDateTime.of(date, time, ZoneId.systemDefault()).toInstant().toEpochMilli()
+            fun toEpochMillis(
+                date: LocalDate,
+                time: LocalTime,
+            ): Long {
+                return ZonedDateTime.of(date, time, ZoneId.systemDefault()).toInstant().toEpochMilli()
+            }
+
+            val expectedEvents =
+                listOf(
+                    Event(
+                        id = 1L,
+                        title = "Test Event 1",
+                        startTime = toEpochMillis(LocalDate.of(2023, 10, 26), LocalTime.of(10, 0)),
+                        isAlarmEnabled = true,
+                    ),
+                    Event(
+                        id = 2L,
+                        title = "Test Event 2",
+                        startTime = toEpochMillis(LocalDate.of(2023, 10, 27), LocalTime.of(14, 0)),
+                        isAlarmEnabled = false,
+                    ),
+                )
+            coEvery { mockEventsRepository.getEventsForMonth(yearMonth, emptyList()) } returns expectedEvents
+
+            val result = getEventsForMonthUseCase.invoke(yearMonth)
+
+            assertEquals(expectedEvents, result)
+            coVerify(exactly = 1) { mockEventsRepository.getEventsForMonth(yearMonth, emptyList()) }
         }
-
-        val expectedEvents = listOf(
-            Event(
-                id = 1L,
-                title = "Test Event 1",
-                startTime = toEpochMillis(LocalDate.of(2023, 10, 26), LocalTime.of(10, 0)),
-                isAlarmEnabled = true
-            ),
-            Event(
-                id = 2L,
-                title = "Test Event 2",
-                startTime = toEpochMillis(LocalDate.of(2023, 10, 27), LocalTime.of(14, 0)),
-                isAlarmEnabled = false
-            )
-        )
-        coEvery { mockEventsRepository.getEventsForMonth(yearMonth, emptyList()) } returns expectedEvents
-
-        val result = getEventsForMonthUseCase.invoke(yearMonth)
-
-        assertEquals(expectedEvents, result)
-        coVerify(exactly = 1) { mockEventsRepository.getEventsForMonth(yearMonth, emptyList()) }
-    }
 }
-

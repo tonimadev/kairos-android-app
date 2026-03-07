@@ -1,5 +1,6 @@
 package digital.tonima.kairos.ui.components
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import digital.tonima.kairos.R.drawable.favorite
+import digital.tonima.kairos.R.drawable.ic_share
 import digital.tonima.kairos.R.drawable.star
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.ic_k_monochrome
@@ -128,6 +130,25 @@ fun DrawerContent(
                     selected = false,
                     onClick = {
                         onOurOtherAppsClick()
+                        onCloseDrawer()
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                )
+
+                val shareText = stringResource(R.string.share_text)
+                NavigationDrawerItem(
+                    icon = { Icon(painterResource(ic_share), contentDescription = null) },
+                    label = { Text(stringResource(R.string.share_app)) },
+                    selected = false,
+                    onClick = {
+                        val sendIntent: Intent =
+                            Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, shareText)
+                                type = "text/plain"
+                            }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
                         onCloseDrawer()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),

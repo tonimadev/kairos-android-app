@@ -27,6 +27,8 @@
     <string name="dismiss">忽略</string>
     <string name="autostart_fallback_toast">无法打开特定屏幕。请在设置中搜索“自动启动”或“电池管家”。</string>
     <string name="remove_ads">支持项目</string>
+    <string name="share_app">分享应用</string>
+    <string name="share_text">推荐 Kairos，一款非常棒的活动和闹钟管理应用：https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">菜单</string>
     <string name="ringer_mode_vibrate_warning">手机处于振动模式。闹钟不会发出声音。</string>
     <string name="ringer_mode_silent_warning">手机处于静音模式。闹钟不会发出声音。</string>

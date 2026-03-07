@@ -9,6 +9,7 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.4"
 composeBom = "2026.02.01"
 accompanist="0.37.3"
+detekt = "1.23.8"
 spotless = "8.3.0"
 material1 = "1.10.4"
 compose-calendar = "2.10.0"
@@ -49,6 +50,7 @@ wearRemoteInteractions = "1.2.0"
 androix-test-core = "1.7.0"
 
 [libraries]
+androidx-compose-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androix-test-core" }
 androidx-wear = { module = "androidx.wear:wear", version.ref = "wear" }
@@ -127,3 +129,4 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 jacoco = { id = "jacoco" }
 jacoco-convention = { id = "jacoco-convention" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

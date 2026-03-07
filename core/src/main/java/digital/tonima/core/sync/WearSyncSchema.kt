@@ -1,4 +1,5 @@
 package digital.tonima.core.sync
+
 object WearSyncSchema {
     const val PATH_EVENTS_24H = "/kairos/events24h"
     const val PATH_REQUEST_SYNC = "/kairos/request_sync"

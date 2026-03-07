@@ -1,0 +1,174 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+  weights:
+    # complexity: 2
+    # LongParameterList: 1
+    # style: 1
+    # comments: 1
+
+config:
+  validation: true
+  warningsAsErrors: false
+  checkExhaustiveness: false
+  # suppresses:
+  #   - 'AbsenceOfStaticUsage'
+  #   - 'LateinitUsage'
+
+complexity:
+  active: true
+  ComplexCondition:
+    active: true
+    threshold: 6
+  ComplexInterface:
+    active: true
+    threshold: 30
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 30
+  LargeClass:
+    active: true
+    threshold: 600
+  LongMethod:
+    active: true
+    threshold: 300
+  LongParameterList:
+    active: true
+    functionThreshold: 20
+    constructorThreshold: 10
+  MethodOverloading:
+    active: true
+    threshold: 6
+  NestedBlockDepth:
+    active: true
+    threshold: 10
+  TooManyFunctions:
+    active: true
+    thresholdInClasses: 50
+    thresholdInInterfaces: 50
+    thresholdInObjects: 50
+    thresholdInEnums: 50
+
+coroutines:
+  active: true
+  GlobalCoroutineUsage:
+    active: true
+  RedundantSuspendModifier:
+    active: true
+  SuspendFunWithFlowReturnType:
+    active: true
+
+empty-blocks:
+  active: true
+  EmptyCatchBlock:
+    active: true
+    allowedExceptionNameRegex: '^(ignore|expected|ignored).*'
+  EmptyClassBlock:
+    active: true
+  EmptyDefaultConstructor:
+    active: true
+  EmptyDoWhileBlock:
+    active: true
+  EmptyElseBlock:
+    active: true
+  EmptyFinallyBlock:
+    active: true
+  EmptyForBlock:
+    active: true
+  EmptyFunctionBlock:
+    active: true
+  EmptyIfBlock:
+    active: true
+  EmptyInitBlock:
+    active: true
+  EmptySecondaryConstructor:
+    active: true
+  EmptyWhenBlock:
+    active: true
+  EmptyWhileBlock:
+    active: true
+
+exceptions:
+  active: true
+  ExceptionRaisedInUnexpectedLocation:
+    active: true
+  InstanceOfCheckForException:
+    active: true
+  NotImplementedDeclaration:
+    active: true
+  PrintStackTrace:
+    active: true
+  RethrowCaughtException:
+    active: true
+  ReturnFromFinally:
+    active: true
+  SwallowedException:
+    active: false
+  ThrowingExceptionFromFinally:
+    active: true
+  ThrowingExceptionInMain:
+    active: true
+  ThrowingExceptionsWithoutMessageOrCause:
+    active: true
+  ThrowingNewInstanceOfSameException:
+    active: true
+  TooGenericExceptionCaught:
+    active: false
+  TooGenericExceptionThrown:
+    active: true
+
+naming:
+  active: true
+  ClassNaming:
+    active: true
+  ConstructorParameterNaming:
+    active: true
+  EnumNaming:
+    active: true
+  FunctionNaming:
+    active: true
+    functionPattern: '([A-Z][a-zA-Z0-9]*)|([a-z][a-zA-Z0-9_]*)|(`.*`)'
+  InvalidPackageDeclaration:
+    active: true
+  MatchingDeclarationName:
+    active: false
+  PackageNaming:
+    active: true
+  TopLevelPropertyNaming:
+    active: true
+  VariableNaming:
+    active: true
+    variablePattern: '(_)?[a-zA-Z][A-Za-z0-9]*'
+    privateVariablePattern: '(_)?[a-zA-Z][A-Za-z0-9]*'
+
+performance:
+  active: true
+  ArrayPrimitive:
+    active: true
+  ForEachOnRange:
+    active: true
+  SpreadOperator:
+    active: true
+
+style:
+  active: true
+  CollapsibleIfStatements:
+    active: true
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+  MagicNumber:
+    active: false
+  ModifierOrder:
+    active: true
+  ReturnCount:
+    active: true
+    max: 3
+  SafeCast:
+    active: true
+  UnusedImports:
+    active: false
+  UnusedPrivateMember:
+    active: true
+  WildcardImport:
+    active: true

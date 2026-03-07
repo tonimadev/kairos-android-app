@@ -10,7 +10,7 @@ import javax.inject.Inject
 class DefaultProUserProvider
     @Inject
     constructor(
-        billingManager: BillingManager
+        billingManager: BillingManager,
     ) : ProUserProvider {
         override val isProUser: StateFlow<Boolean> = billingManager.isProUser
     }

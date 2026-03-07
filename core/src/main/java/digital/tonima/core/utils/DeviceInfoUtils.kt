@@ -5,7 +5,6 @@ import android.os.Build
 import android.os.UserManager
 
 object DeviceInfoUtils {
-
     fun isWorkProfile(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             try {

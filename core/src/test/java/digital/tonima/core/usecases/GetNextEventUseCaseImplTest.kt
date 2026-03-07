@@ -23,7 +23,6 @@ import java.time.ZonedDateTime
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class GetNextEventUseCaseImplTest {
-
     private lateinit var mockEventsRepository: CalendarRepository
     private lateinit var mockAppPreferencesRepository: AppPreferencesRepository
     private lateinit var getNextEventUseCase: GetNextEventUseCase
@@ -37,24 +36,27 @@ class GetNextEventUseCaseImplTest {
     }
 
     @Test
-    fun `invoke calls repository and returns list of events`() = runTest {
+    fun `invoke calls repository and returns list of events`() =
+        runTest {
+            fun toEpochMillis(
+                date: LocalDate,
+                time: LocalTime,
+            ): Long {
+                return ZonedDateTime.of(date, time, ZoneId.systemDefault()).toInstant().toEpochMilli()
+            }
 
-        fun toEpochMillis(date: LocalDate, time: LocalTime): Long {
-            return ZonedDateTime.of(date, time, ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val expectedEvent =
+                Event(
+                    id = 1L,
+                    title = "Test Event 1",
+                    startTime = toEpochMillis(LocalDate.of(2023, 10, 26), LocalTime.of(10, 0)),
+                    isAlarmEnabled = true,
+                )
+            coEvery { mockEventsRepository.getNextUpcomingEvent(emptyList()) } returns expectedEvent
+
+            val result = getNextEventUseCase.invoke()
+
+            assertEquals(expectedEvent, result)
+            coVerify(exactly = 1) { mockEventsRepository.getNextUpcomingEvent(emptyList()) }
         }
-
-        val expectedEvent = Event(
-            id = 1L,
-            title = "Test Event 1",
-            startTime = toEpochMillis(LocalDate.of(2023, 10, 26), LocalTime.of(10, 0)),
-            isAlarmEnabled = true
-        )
-        coEvery { mockEventsRepository.getNextUpcomingEvent(emptyList()) } returns expectedEvent
-
-        val result = getNextEventUseCase.invoke()
-
-        assertEquals(expectedEvent, result)
-        coVerify(exactly = 1) { mockEventsRepository.getNextUpcomingEvent(emptyList()) }
-    }
 }
-

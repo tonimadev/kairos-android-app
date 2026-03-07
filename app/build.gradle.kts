@@ -3,13 +3,14 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.spotless)
-    alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.google.services)
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.jacoco.convention)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.spotless)
 }
 
 val isRunningReleaseTask: Boolean = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
@@ -55,7 +56,6 @@ android {
 
             signingConfig = signingConfigs.getByName("release")
 
-
             val admobAppIdTest = "ca-app-pub-3940256099942544~3347511713"
             val admobBannerAdUnitIdTest = "ca-app-pub-3940256099942544/6300978111"
 
@@ -73,16 +73,16 @@ android {
                 admobAppId =
                     System.getenv("ADMOB_APP_ID")
                         ?: localProperties.getProperty("admob.app.id")
-                            ?: admobAppIdTest
+                        ?: admobAppIdTest
 
                 admobBannerAdUnitIdHome =
                     System.getenv("ADMOB_BANNER_AD_UNIT_HOME")
                         ?: localProperties.getProperty("admob.banner.ad.unit.home")
-                            ?: admobBannerAdUnitIdTest
+                        ?: admobBannerAdUnitIdTest
                 admobBannerAdUnitIdAlarm =
                     System.getenv("ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY")
                         ?: localProperties.getProperty("admob.banner.ad.unit.alarm_acitivity")
-                            ?: admobBannerAdUnitIdTest
+                        ?: admobBannerAdUnitIdTest
             } else {
                 admobAppId = admobAppIdTest
                 admobBannerAdUnitIdHome = admobBannerAdUnitIdTest
@@ -114,51 +114,49 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":core"))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+
+    implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.androidx.compose.calendar)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material3.window.size.class1)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material)
-    implementation(libs.androidx.compose.material3)
-    implementation("androidx.compose.material3:material3-window-size-class")
-    implementation(libs.androidx.compose.calendar)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.play.services.ads.api)
-    implementation(libs.accompanist.permissions)
     implementation(libs.google.firebase.analytics)
     implementation(libs.google.firebase.crashlytics)
     implementation(libs.google.inapp.update)
     implementation(libs.google.inapp.update.ktx)
-
-    implementation(libs.logcat)
-    implementation(libs.play.services.wearable)
-
-    // hilt
     implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.compiler)
-    // Required for @HiltWorker / WorkManager integration codegen
-    ksp(libs.androidx.hilt.compiler)
     implementation(libs.hilt.binder)
+    implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.worker)
-    ksp(libs.hilt.binder.compiler)
+    implementation(libs.logcat)
+    implementation(libs.play.services.ads.api)
+    implementation(libs.play.services.wearable)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(platform(libs.google.firebase.bom))
+    implementation(project(":core"))
 
+    ksp(libs.androidx.hilt.compiler)
+    ksp(libs.hilt.binder.compiler)
+    ksp(libs.hilt.compiler)
+
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
 apply(from = "../spotless.gradle")

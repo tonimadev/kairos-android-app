@@ -27,6 +27,8 @@
     <string name="dismiss">閉じる</string>
     <string name="autostart_fallback_toast">特定の画面を開けませんでした。設定で「自動起動」または「バッテリーマネージャー」を検索してください。</string>
     <string name="remove_ads">プロジェクトを支援</string>
+    <string name="share_app">アプリを共有</string>
+    <string name="share_text">Kairosをチェックしてみてください。イベントやアラームを管理するための素晴らしいアプリです: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">メニュー</string>
     <string name="ringer_mode_vibrate_warning">スマートフォンはバイブレーションモードです。アラームは鳴りません。</string>
     <string name="ringer_mode_silent_warning">スマートフォンはサイレントモードです。アラームは鳴りません。</string>
