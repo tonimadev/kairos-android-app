@@ -95,4 +95,17 @@
     <string name="cd_expand_settings">Expand settings</string>
     <string name="cd_collapse_settings">Collapse settings</string>
     <string name="cd_event_recurring">Recurring event</string>
+    <string name="daily_briefing_title">Assistant Summary</string>
+    <string name="daily_briefing_placeholder">Would you like an intelligent summary of your day?</string>
+    <string name="daily_briefing_pro_only">Daily Briefing is exclusive to Pro users. Try our new Monthly Plan!</string>
+    <string name="daily_briefing_trial_invite">Discover how AI can organize your day. Try the Monthly Plan now!</string>
+    <string name="subscribe_now">Subscribe Now</string>
+    <string name="generate_briefing">Generate Summary</string>
+    <string name="ai_briefing_instruction">The summary should be in English.</string>
+    <string name="smart_suggestion_title">Smart Suggestions (AI)</string>
+    <string name="smart_suggestion_placeholder">Analyze your habits for personalized tips?</string>
+    <string name="analyze_my_habits">Analyze My Habits</string>
+    <string name="smart_suggestion_trial_invite">Learn from your schedule and receive proactive alerts with the Pro Monthly Plan!</string>
+    <string name="pro_label">Pro ✨</string>
+    <string name="pro_ia_label">Pro + AI ✨</string>
 </resources>

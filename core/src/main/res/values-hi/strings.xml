@@ -94,4 +94,17 @@
     <string name="cd_expand_settings">सेटिंग विस्तार करें</string>
     <string name="cd_collapse_settings">सेटिंग समेटें</string>
     <string name="cd_event_recurring">आवर्ती घटना</string>
+    <string name="daily_briefing_title">सहायक सारांश</string>
+    <string name="daily_briefing_placeholder">क्या आप अपने दिन का एक स्मार्ट सारांश चाहेंगे?</string>
+    <string name="daily_briefing_pro_only">दैनिक सारांश प्रो उपयोगकर्ताओं के लिए विशेष है। हमारे नए मासिक प्लान को आजमाएं!</string>
+    <string name="daily_briefing_trial_invite">जानें कि कैसे AI आपके दिन को व्यवस्थित कर सकता है। अभी मासिक प्लान आजमाएं!</string>
+    <string name="subscribe_now">अभी सब्सक्राइब करें</string>
+    <string name="generate_briefing">सारांश तैयार करें</string>
+    <string name="ai_briefing_instruction">सारांश हिंदी में होना चाहिए।</string>
+    <string name="smart_suggestion_title">स्मार्ट सुझाव (AI)</string>
+    <string name="smart_suggestion_placeholder">व्यक्तिगत युक्तियों के लिए अपनी आदतों का विश्लेषण करें?</string>
+    <string name="analyze_my_habits">मेरी आदतों का विश्लेषण करें</string>
+    <string name="smart_suggestion_trial_invite">अपने शेड्यूल से सीखें और प्रो मंथली प्लान के साथ सक्रिय अलर्ट प्राप्त करें!</string>
+    <string name="pro_label">Pro ✨</string>
+    <string name="pro_ia_label">Pro + AI ✨</string>
 </resources>

@@ -97,4 +97,17 @@
     <string name="cd_expand_settings">Expandir configurações</string>
     <string name="cd_collapse_settings">Recolher configurações</string>
     <string name="cd_event_recurring">Evento recorrente</string>
+    <string name="daily_briefing_title">Resumo do Assistente</string>
+    <string name="daily_briefing_placeholder">Deseja um resumo inteligente do seu dia?</string>
+    <string name="daily_briefing_pro_only">O Resumo Diário é exclusivo para usuários Pro. Experimente nosso novo Plano Mensal!</string>
+    <string name="daily_briefing_trial_invite">Descubra como a IA pode organizar seu dia. Teste o Plano Mensal agora!</string>
+    <string name="subscribe_now">Assinar Agora</string>
+    <string name="generate_briefing">Gerar Resumo</string>
+    <string name="ai_briefing_instruction">O resumo deve ser em Português.</string>
+    <string name="smart_suggestion_title">Sugestões Inteligentes (IA)</string>
+    <string name="smart_suggestion_placeholder">Deseja analisar seus hábitos para receber dicas personalizadas?</string>
+    <string name="analyze_my_habits">Analisar Meus Hábitos</string>
+    <string name="smart_suggestion_trial_invite">Aprenda com seus horários e receba alertas proativos com o Plano Mensal Pro!</string>
+    <string name="pro_label">Pro ✨</string>
+    <string name="pro_ia_label">Pro + IA ✨</string>
 </resources>

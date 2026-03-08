@@ -91,4 +91,17 @@
     <string name="cd_expand_settings">設定を展開</string>
     <string name="cd_collapse_settings">設定を折りたたむ</string>
     <string name="cd_event_recurring">繰り返しイベント</string>
+    <string name="daily_briefing_title">アシスタント要約</string>
+    <string name="daily_briefing_placeholder">一日の要約を見ますか？</string>
+    <string name="daily_briefing_pro_only">デイリー要約はProユーザー専用です。新しい月間プランをお試しください！</string>
+    <string name="daily_briefing_trial_invite">AIが一日をどう整理するか体験しましょう。今すぐ月間プランを試してください！</string>
+    <string name="subscribe_now">今すぐ購読</string>
+    <string name="generate_briefing">要約を生成</string>
+    <string name="ai_briefing_instruction">要約は日本語である必要があります。</string>
+    <string name="smart_suggestion_title">スマート提案 (AI)</string>
+    <string name="smart_suggestion_placeholder">習慣を分析してパーソナライズされたヒントを受け取りますか？</string>
+    <string name="analyze_my_habits">習慣を分析する</string>
+    <string name="smart_suggestion_trial_invite">スケジュールから学習し、Pro月間プランでプロアクティブなアラートを受け取りましょう！</string>
+    <string name="pro_label">Pro ✨</string>
+    <string name="pro_ia_label">Pro + AI ✨</string>
 </resources>

@@ -96,4 +96,17 @@
     <string name="cd_expand_settings">Einstellungen erweitern</string>
     <string name="cd_collapse_settings">Einstellungen einklappen</string>
     <string name="cd_event_recurring">Wiederkehrendes Ereignis</string>
+    <string name="daily_briefing_title">Zusammenfassung des Assistenten</string>
+    <string name="daily_briefing_placeholder">Möchten Sie eine intelligente Zusammenfassung Ihres Tages?</string>
+    <string name="daily_briefing_pro_only">Die tägliche Zusammenfassung ist exklusiv für Pro-Benutzer. Probieren Sie unseren neuen Monatsplan aus!</string>
+    <string name="daily_briefing_trial_invite">Entdecken Sie, wie KI Ihren Tag organisieren kann. Probieren Sie jetzt den Monatsplan aus!</string>
+    <string name="subscribe_now">Jetzt abonnieren</string>
+    <string name="generate_briefing">Zusammenfassung erstellen</string>
+    <string name="ai_briefing_instruction">Die Zusammenfassung muss in Deutsch sein.</string>
+    <string name="smart_suggestion_title">Intelligente Vorschläge (KI)</string>
+    <string name="smart_suggestion_placeholder">Ihre Gewohnheiten für personalisierte Tipps analysieren?</string>
+    <string name="analyze_my_habits">Meine Gewohnheiten analysieren</string>
+    <string name="smart_suggestion_trial_invite">Lernen Sie aus Ihrem Zeitplan und erhalten Sie proaktive Benachrichtigungen mit dem Pro-Monatsplan!</string>
+    <string name="pro_label">Pro ✨</string>
+    <string name="pro_ia_label">Pro + KI ✨</string>
 </resources>

@@ -58,14 +58,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ControlPanel(
     uiState: EventScreenUiState,
-    onToggle: (Boolean) -> Unit,
-    onDismissAutostart: () -> Unit,
-    onVibrateToggle: (Boolean) -> Unit,
-    onAllDayAlarmsToggle: (Boolean) -> Unit,
-    onAllDayAlarmHourChanged: (Int) -> Unit,
-    onAlarmOffsetChanged: (AlarmOffset) -> Unit,
-    onSnoozeTimeChanged: (Int) -> Unit = {},
-    onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
+    settingsActions: SettingsActions,
 ) {
     val context = LocalContext.current
     var offsetExpanded by remember { mutableStateOf(false) }
@@ -79,7 +72,7 @@ fun ControlPanel(
         AlarmsToggleRow(
             modifier = Modifier.padding(top = Dimensions.PaddingSmall),
             alarmsEnabled = uiState.isGlobalAlarmEnabled,
-            onToggle = onToggle,
+            onToggle = settingsActions.onToggle,
         )
 
         Card(
@@ -183,7 +176,7 @@ fun ControlPanel(
                                 fontWeight = FontWeight.Medium,
                             )
                         }
-                        Switch(checked = uiState.vibrateOnly, onCheckedChange = onVibrateToggle)
+                        Switch(checked = uiState.vibrateOnly, onCheckedChange = settingsActions.onVibrateToggle)
                     }
 
                     Row(
@@ -208,7 +201,10 @@ fun ControlPanel(
                                 fontWeight = FontWeight.Medium,
                             )
                         }
-                        Switch(checked = uiState.allDayAlarmsEnabled, onCheckedChange = onAllDayAlarmsToggle)
+                        Switch(
+                            checked = uiState.allDayAlarmsEnabled,
+                            onCheckedChange = settingsActions.onAllDayAlarmsToggle,
+                        )
                     }
 
                     if (uiState.allDayAlarmsEnabled) {
@@ -221,7 +217,7 @@ fun ControlPanel(
                         )
                         Slider(
                             value = uiState.allDayAlarmHour.toFloat(),
-                            onValueChange = { onAllDayAlarmHourChanged(it.roundToInt()) },
+                            onValueChange = { settingsActions.onAllDayAlarmHourChanged(it.roundToInt()) },
                             valueRange = 0f..23f,
                             steps = 22,
                             modifier = Modifier.fillMaxWidth(),
@@ -253,7 +249,7 @@ fun ControlPanel(
                                 DropdownMenuItem(
                                     text = { Text(offsetLabel(offset)) },
                                     onClick = {
-                                        onAlarmOffsetChanged(offset)
+                                        settingsActions.onAlarmOffsetChanged(offset)
                                         offsetExpanded = false
                                     },
                                 )
@@ -271,7 +267,7 @@ fun ControlPanel(
                         )
                         Slider(
                             value = uiState.snoozeTimeMinutes.toFloat(),
-                            onValueChange = { onSnoozeTimeChanged(it.roundToInt()) },
+                            onValueChange = { settingsActions.onSnoozeTimeChanged(it.roundToInt()) },
                             valueRange = 5f..60f,
                             steps = 10,
                             modifier = Modifier.fillMaxWidth(),
@@ -310,7 +306,7 @@ fun ControlPanel(
                                 Switch(
                                     checked = isChecked,
                                     onCheckedChange = { checked ->
-                                        onCalendarFilterToggle(calendar.id, checked)
+                                        settingsActions.onCalendarFilterToggle(calendar.id, checked)
                                     },
                                 )
                             }
@@ -327,7 +323,7 @@ fun ControlPanel(
         if (uiState.showAutostartSuggestion) {
             AutostartSuggestionCard(
                 onOpenSettings = { openAutostartSettings(context) },
-                onDismiss = onDismissAutostart,
+                onDismiss = settingsActions.onDismissAutostart,
             )
         }
     }

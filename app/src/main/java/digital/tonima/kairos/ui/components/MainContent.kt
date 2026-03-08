@@ -15,34 +15,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import digital.tonima.core.model.AlarmOffset
-import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.kairos.ui.theme.Dimensions
 import java.time.Instant
-import java.time.LocalDate
-import java.time.YearMonth
 import java.time.ZoneId
 
 @Composable
 fun MainContent(
     uiState: EventScreenUiState,
-    onRefresh: () -> Unit,
-    onToggle: (Boolean) -> Unit,
-    onEventToggle: (event: Event, isEnabled: Boolean, disableAllOccurrences: Boolean) -> Unit,
-    onEventVibrateToggle: (event: Event, vibrateOnly: Boolean) -> Unit,
-    onMonthChanged: (YearMonth) -> Unit,
-    onDateSelected: (LocalDate) -> Unit,
-    onEventClick: (Event) -> Unit,
-    onDismissAutostart: () -> Unit,
-    onReturnToToday: () -> Unit,
-    onVibrateToggle: (Boolean) -> Unit,
-    onAllDayAlarmsToggle: (Boolean) -> Unit,
-    onAllDayAlarmHourChanged: (Int) -> Unit,
-    onAlarmOffsetChanged: (AlarmOffset) -> Unit,
-    onSnoozeTimeChanged: (Int) -> Unit = {},
-    onSearchQueryChanged: (String) -> Unit = {},
-    onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
+    eventActions: EventActions,
+    settingsActions: SettingsActions,
+    aiActions: AiActions,
     windowSizeClass: WindowSizeClass? = null,
 ) {
     val configuration = LocalConfiguration.current
@@ -74,23 +57,16 @@ fun MainContent(
             ) {
                 ControlPanel(
                     uiState = uiState,
-                    onToggle = onToggle,
-                    onDismissAutostart = onDismissAutostart,
-                    onVibrateToggle = onVibrateToggle,
-                    onAllDayAlarmsToggle = onAllDayAlarmsToggle,
-                    onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
-                    onAlarmOffsetChanged = onAlarmOffsetChanged,
-                    onSnoozeTimeChanged = onSnoozeTimeChanged,
-                    onCalendarFilterToggle = onCalendarFilterToggle,
+                    settingsActions = settingsActions,
                 )
                 CalendarView(
                     modifier = Modifier.padding(top = Dimensions.PaddingSmall),
                     currentMonth = uiState.currentMonth,
                     selectedDate = uiState.selectedDate,
                     eventsByDate = eventsByDate,
-                    onMonthChanged = onMonthChanged,
-                    onDateSelected = onDateSelected,
-                    onReturnToToday = onReturnToToday,
+                    onMonthChanged = eventActions.onMonthChanged,
+                    onDateSelected = eventActions.onDateSelected,
+                    onReturnToToday = eventActions.onReturnToToday,
                 )
             }
             EventList(
@@ -100,11 +76,8 @@ fun MainContent(
                         .padding(start = Dimensions.PaddingSmall, top = Dimensions.PaddingNormal),
                 uiState = uiState,
                 eventsByDate = eventsByDate,
-                onRefresh = onRefresh,
-                onEventToggle = onEventToggle,
-                onEventVibrateToggle = onEventVibrateToggle,
-                onEventClick = onEventClick,
-                onSearchQueryChanged = onSearchQueryChanged,
+                eventActions = eventActions,
+                aiActions = aiActions,
             )
         }
     } else {
@@ -115,32 +88,22 @@ fun MainContent(
                     .padding(horizontal = Dimensions.PaddingNormal),
             uiState = uiState,
             eventsByDate = eventsByDate,
-            onRefresh = onRefresh,
-            onEventToggle = onEventToggle,
-            onEventVibrateToggle = onEventVibrateToggle,
-            onEventClick = onEventClick,
-            onSearchQueryChanged = onSearchQueryChanged,
+            eventActions = eventActions,
+            aiActions = aiActions,
             headerContent = {
                 Column {
                     ControlPanel(
                         uiState = uiState,
-                        onToggle = onToggle,
-                        onDismissAutostart = onDismissAutostart,
-                        onVibrateToggle = onVibrateToggle,
-                        onAllDayAlarmsToggle = onAllDayAlarmsToggle,
-                        onAllDayAlarmHourChanged = onAllDayAlarmHourChanged,
-                        onAlarmOffsetChanged = onAlarmOffsetChanged,
-                        onSnoozeTimeChanged = onSnoozeTimeChanged,
-                        onCalendarFilterToggle = onCalendarFilterToggle,
+                        settingsActions = settingsActions,
                     )
                     CalendarView(
                         modifier = Modifier.padding(top = Dimensions.PaddingSmall),
                         currentMonth = uiState.currentMonth,
                         selectedDate = uiState.selectedDate,
                         eventsByDate = eventsByDate,
-                        onMonthChanged = onMonthChanged,
-                        onDateSelected = onDateSelected,
-                        onReturnToToday = onReturnToToday,
+                        onMonthChanged = eventActions.onMonthChanged,
+                        onDateSelected = eventActions.onDateSelected,
+                        onReturnToToday = eventActions.onReturnToToday,
                     )
                     Spacer(modifier = Modifier.height(Dimensions.SpacingNormal))
                 }

@@ -43,6 +43,7 @@ import digital.tonima.kairos.ui.theme.Dimensions
 @Composable
 fun DrawerContent(
     isProUser: Boolean,
+    isAiUser: Boolean,
     onUpgradeToProClick: () -> Unit,
     onOurOtherAppsClick: () -> Unit,
     onCloseDrawer: () -> Unit,
@@ -105,8 +106,16 @@ fun DrawerContent(
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                         if (isProUser) {
+                            val label =
+                                if (isAiUser) {
+                                    stringResource(
+                                        R.string.pro_ia_label,
+                                    )
+                                } else {
+                                    stringResource(R.string.pro_label)
+                                }
                             Text(
-                                text = "Pro ✨",
+                                text = label,
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold,

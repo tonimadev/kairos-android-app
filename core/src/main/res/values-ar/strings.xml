@@ -94,4 +94,17 @@
     <string name="cd_expand_settings">توسيع الإعدادات</string>
     <string name="cd_collapse_settings">طي الإعدادات</string>
     <string name="cd_event_recurring">حدث متكرر</string>
+    <string name="daily_briefing_title">ملخص المساعد</string>
+    <string name="daily_briefing_placeholder">هل تود ملخصًا ذكيًا ليومك؟</string>
+    <string name="daily_briefing_pro_only">الملخص اليومي حصري لمستخدمي النسخة الاحترافية. جرب خطتنا الشهرية الجديدة!</string>
+    <string name="daily_briefing_trial_invite">اكتشف كيف يمكن للذكاء الاصطناعي تنظيم يومك. جرب الخطة الشهرية الآن!</string>
+    <string name="subscribe_now">اشترك الآن</string>
+    <string name="generate_briefing">إنشاء الملخص</string>
+    <string name="ai_briefing_instruction">يجب أن يكون الملخص باللغة العربية.</string>
+    <string name="smart_suggestion_title">اقتراحات ذكية (ذكاء اصطناعي)</string>
+    <string name="smart_suggestion_placeholder">تحليل عاداتك للحصول على نصائح مخصصة؟</string>
+    <string name="analyze_my_habits">تحليل عاداتي</string>
+    <string name="smart_suggestion_trial_invite">تعلم من جدولك الزمني واحصل على تنبيهات استباقية مع الخطة الشهرية الاحترافية!</string>
+    <string name="pro_label">Pro ✨</string>
+    <string name="pro_ia_label">Pro + ذكاء ✨</string>
 </resources>

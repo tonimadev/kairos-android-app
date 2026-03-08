@@ -12,7 +12,9 @@ import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
+import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.usecases.GetSmartNotificationSuggestionsUseCase
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -56,6 +58,9 @@ class EventViewModelTest {
     private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val mockPermissionManager: PermissionManager = mockk(relaxed = true)
     private val mockCalendarRepository: CalendarRepository = mockk(relaxed = true)
+    private val mockGenerateDailyBriefingUseCase: GenerateDailyBriefingUseCase = mockk(relaxed = true)
+    private val mockGetSmartNotificationSuggestionsUseCase: GetSmartNotificationSuggestionsUseCase =
+        mockk(relaxed = true)
     private lateinit var viewModel: EventViewModel
 
     private val isGlobalAlarmEnabledFlow = MutableStateFlow(true)
@@ -68,11 +73,15 @@ class EventViewModelTest {
     private val ratingPromptedFlow = MutableStateFlow(false)
     private val ratingCompletedFlow = MutableStateFlow(false)
     private val snoozeTimeMinutesFlow = MutableStateFlow(10)
+    private val isProUserFlow = MutableStateFlow(false)
+    private val isAiUserFlow = MutableStateFlow(false)
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
 
+        every { mockProUserProvider.isProUser } returns isProUserFlow
+        every { mockProUserProvider.isAiUser } returns isAiUserFlow
         every { mockAppPreferencesRepository.isGlobalAlarmEnabled() } returns isGlobalAlarmEnabledFlow
         every { mockAppPreferencesRepository.getAutostartSuggestionDismissed() } returns
             autostartSuggestionDismissedFlow
@@ -101,6 +110,8 @@ class EventViewModelTest {
                 mockScheduler,
                 mockPermissionManager,
                 mockCalendarRepository,
+                mockGenerateDailyBriefingUseCase,
+                mockGetSmartNotificationSuggestionsUseCase,
             )
     }
 
@@ -221,6 +232,8 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockGenerateDailyBriefingUseCase,
+                    mockGetSmartNotificationSuggestionsUseCase,
                 )
 
             io.mockk.clearMocks(getEventsForMonthUseCase, answers = false)
@@ -249,6 +262,8 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockGenerateDailyBriefingUseCase,
+                    mockGetSmartNotificationSuggestionsUseCase,
                 )
             io.mockk.clearMocks(mockScheduler, answers = false)
 
@@ -455,6 +470,8 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockGenerateDailyBriefingUseCase,
+                    mockGetSmartNotificationSuggestionsUseCase,
                 )
             advanceUntilIdle()
 
@@ -484,6 +501,8 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockGenerateDailyBriefingUseCase,
+                    mockGetSmartNotificationSuggestionsUseCase,
                 )
             advanceUntilIdle()
 
@@ -511,6 +530,8 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockGenerateDailyBriefingUseCase,
+                    mockGetSmartNotificationSuggestionsUseCase,
                 )
             advanceUntilIdle()
 
@@ -538,6 +559,8 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockGenerateDailyBriefingUseCase,
+                    mockGetSmartNotificationSuggestionsUseCase,
                 )
             advanceUntilIdle()
 
@@ -671,5 +694,65 @@ class EventViewModelTest {
             viewModel.clearCalendarFilter()
             advanceUntilIdle()
             coVerify { mockAppPreferencesRepository.setEnabledCalendarIds(emptySet()) }
+        }
+
+    @Test
+    fun `generateDailyBriefing does nothing if user is not AI user`() =
+        runTest {
+            isAiUserFlow.value = false
+            advanceUntilIdle()
+
+            viewModel.generateDailyBriefing("instruction")
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { mockGenerateDailyBriefingUseCase.invoke(any(), any()) }
+        }
+
+    @Test
+    fun `generateDailyBriefing calls usecase if user is AI user and has events today`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+
+            val today = LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val mockEvents = listOf(Event(1, "Today Event", today))
+
+            val yearMonth = YearMonth.now()
+            coEvery { getEventsForMonthUseCase.invoke(yearMonth) } returns mockEvents
+
+            viewModel.onMonthChanged(yearMonth, forceRefresh = true)
+            advanceUntilIdle()
+
+            viewModel.generateDailyBriefing("instruction")
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { mockGenerateDailyBriefingUseCase.invoke(any(), "instruction") }
+        }
+
+    @Test
+    fun `generateSmartSuggestions does nothing if user is not AI user`() =
+        runTest {
+            isAiUserFlow.value = false
+            advanceUntilIdle()
+
+            viewModel.generateSmartSuggestions("instruction")
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { mockGetSmartNotificationSuggestionsUseCase.invoke(any(), any()) }
+        }
+
+    @Test
+    fun `generateSmartSuggestions calls usecase if user is AI user`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+
+            val mockEvents = listOf(Event(1, "Some Event", 1000L))
+            coEvery { getEventsForMonthUseCase.invoke(any()) } returns mockEvents
+
+            viewModel.generateSmartSuggestions("instruction")
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { mockGetSmartNotificationSuggestionsUseCase.invoke(any(), "instruction") }
         }
 }

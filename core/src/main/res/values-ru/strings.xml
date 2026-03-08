@@ -95,4 +95,17 @@
     <string name="cd_expand_settings">Развернуть настройки</string>
     <string name="cd_collapse_settings">Свернуть настройки</string>
     <string name="cd_event_recurring">Повторяющееся событие</string>
+    <string name="daily_briefing_title">Сводка ассистента</string>
+    <string name="daily_briefing_placeholder">Хотите умную сводку вашего дня?</string>
+    <string name="daily_briefing_pro_only">Ежедневная сводка доступна только Pro-пользователям. Попробуйте наш новый ежемесячный план!</string>
+    <string name="daily_briefing_trial_invite">Узнайте, как ИИ может организовать ваш день. Попробуйте ежемесячный план прямо сейчас!</string>
+    <string name="subscribe_now">Подписаться сейчас</string>
+    <string name="generate_briefing">Создать сводку</string>
+    <string name="ai_briefing_instruction">Сводка должна быть на русском языке.</string>
+    <string name="smart_suggestion_title">Умные предложения (ИИ)</string>
+    <string name="smart_suggestion_placeholder">Проанализировать ваши привычки для персональных советов?</string>
+    <string name="analyze_my_habits">Проанализировать мои привычки</string>
+    <string name="smart_suggestion_trial_invite">Учитесь на своем расписании и получайте проактивные оповещения с ежемесячным Pro-планом!</string>
+    <string name="pro_label">Pro ✨</string>
+    <string name="pro_ia_label">Pro + ИИ ✨</string>
 </resources>

@@ -13,7 +13,9 @@ import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
+import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.usecases.GetSmartNotificationSuggestionsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -23,8 +25,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import logcat.LogPriority
 import logcat.logcat
+import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -50,6 +54,12 @@ data class EventScreenUiState(
     val enabledCalendarIds: Set<Long> = emptySet(),
     val searchQuery: String = "",
     val snoozeTimeMinutes: Int = 10,
+    val dailyBriefing: String? = null,
+    val isGeneratingBriefing: Boolean = false,
+    val smartSuggestion: String? = null,
+    val isGeneratingSmartSuggestion: Boolean = false,
+    val isProUser: Boolean = false,
+    val isAiUser: Boolean = false,
 )
 
 @HiltViewModel
@@ -63,6 +73,8 @@ class EventViewModel
         private val scheduler: EventAlarmScheduler,
         private val permissionManager: PermissionManager,
         private val calendarRepository: CalendarRepository,
+        private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
+        private val getSmartNotificationSuggestionsUseCase: GetSmartNotificationSuggestionsUseCase,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
@@ -133,6 +145,14 @@ class EventViewModel
 
             appPreferencesRepository.getSnoozeTimeMinutes()
                 .onEach { minutes -> _uiState.update { it.copy(snoozeTimeMinutes = minutes) } }
+                .launchIn(viewModelScope)
+
+            isProUser
+                .onEach { pro -> _uiState.update { it.copy(isProUser = pro) } }
+                .launchIn(viewModelScope)
+
+            isAiUser
+                .onEach { ai -> _uiState.update { it.copy(isAiUser = ai) } }
                 .launchIn(viewModelScope)
 
             checkAllPermissions()
@@ -465,6 +485,55 @@ class EventViewModel
         fun onSnoozeTimeChanged(minutes: Int) {
             viewModelScope.launch {
                 appPreferencesRepository.setSnoozeTimeMinutes(minutes)
+            }
+        }
+
+        fun generateDailyBriefing(languageInstruction: String) {
+            val today = LocalDate.now()
+            val uiValue = _uiState.value
+            if (uiValue.selectedDate != today ||
+                uiValue.dailyBriefing != null ||
+                uiValue.isGeneratingBriefing ||
+                !uiValue.isAiUser
+            ) {
+                return
+            }
+
+            val eventsToday =
+                uiValue.events.filter { event ->
+                    Instant.ofEpochMilli(event.startTime).atZone(ZoneId.systemDefault()).toLocalDate() == today
+                }
+
+            if (eventsToday.isEmpty()) return
+
+            viewModelScope.launch {
+                _uiState.update { it.copy(isGeneratingBriefing = true) }
+                val briefing = generateDailyBriefingUseCase.invoke(eventsToday, languageInstruction)
+                _uiState.update { it.copy(dailyBriefing = briefing, isGeneratingBriefing = false) }
+            }
+        }
+
+        fun generateSmartSuggestions(languageInstruction: String) {
+            if (_uiState.value.smartSuggestion != null || _uiState.value.isGeneratingSmartSuggestion) return
+            if (!_uiState.value.isAiUser) return
+
+            viewModelScope.launch {
+                _uiState.update { it.copy(isGeneratingSmartSuggestion = true) }
+
+                val currentMonth = YearMonth.now()
+                val previousMonth = currentMonth.minusMonths(1)
+
+                val eventsRecent =
+                    getEventsForMonthUseCase.invoke(currentMonth) +
+                        getEventsForMonthUseCase.invoke(previousMonth)
+
+                if (eventsRecent.isEmpty()) {
+                    _uiState.update { it.copy(isGeneratingSmartSuggestion = false) }
+                    return@launch
+                }
+
+                val suggestion = getSmartNotificationSuggestionsUseCase.invoke(eventsRecent, languageInstruction)
+                _uiState.update { it.copy(smartSuggestion = suggestion, isGeneratingSmartSuggestion = false) }
             }
         }
     }

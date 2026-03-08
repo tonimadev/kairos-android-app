@@ -35,6 +35,7 @@ class AppPreferencesRepositoryImpl
             val ALARM_OFFSET_MINUTES = longPreferencesKey("alarm_offset_minutes")
             val ENABLED_CALENDAR_IDS = stringSetPreferencesKey("enabled_calendar_ids")
             val SNOOZE_TIME_MINUTES = intPreferencesKey("snooze_time_minutes")
+            val WAKE_UP_HISTORY = stringSetPreferencesKey("wake_up_history")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -216,6 +217,37 @@ class AppPreferencesRepositoryImpl
         override suspend fun setSnoozeTimeMinutes(minutes: Int) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.SNOOZE_TIME_MINUTES] = minutes
+            }
+        }
+
+        override fun getWakeUpHistory(): Flow<List<Long>> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.WAKE_UP_HISTORY]
+                        ?.mapNotNull { it.toLongOrNull() }
+                        ?.sorted()
+                        ?: emptyList()
+                }
+        }
+
+        override suspend fun addWakeUpTimestamp(timestamp: Long) {
+            context.dataStore.edit { preferences ->
+                val currentHistory =
+                    preferences[PreferencesKeys.WAKE_UP_HISTORY]
+                        ?.mapNotNull { it.toLongOrNull() }
+                        ?.toMutableList() ?: mutableListOf()
+
+                currentHistory.add(timestamp)
+
+                // Manter apenas os últimos 14 dias de histórico para análise
+                val limitedHistory =
+                    currentHistory
+                        .sortedDescending()
+                        .take(14)
+                        .map { it.toString() }
+                        .toSet()
+
+                preferences[PreferencesKeys.WAKE_UP_HISTORY] = limitedHistory
             }
         }
     }

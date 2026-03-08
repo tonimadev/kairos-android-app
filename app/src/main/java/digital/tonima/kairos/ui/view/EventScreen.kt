@@ -57,10 +57,13 @@ import digital.tonima.kairos.R.drawable
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.date_range
 import digital.tonima.kairos.ui.components.AdBannerView
+import digital.tonima.kairos.ui.components.AiActions
 import digital.tonima.kairos.ui.components.DrawerContent
+import digital.tonima.kairos.ui.components.EventActions
 import digital.tonima.kairos.ui.components.ExactAlarmPermissionScreen
 import digital.tonima.kairos.ui.components.FullScreenIntentPermissionScreen
 import digital.tonima.kairos.ui.components.MainContent
+import digital.tonima.kairos.ui.components.SettingsActions
 import digital.tonima.kairos.ui.components.StandardPermissionsScreen
 import kotlinx.coroutines.launch
 
@@ -70,10 +73,12 @@ fun EventScreen(
     viewModel: EventViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState,
     onPurchaseRequest: () -> Unit,
+    onSubscriptionRequest: () -> Unit,
     windowSizeClass: WindowSizeClass? = null,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isProUser by viewModel.isProUser.collectAsStateWithLifecycle()
+    val isAiUser by viewModel.isAiUser.collectAsStateWithLifecycle()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -132,6 +137,7 @@ fun EventScreen(
 
     val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
     val cannotOpenEvent = stringResource(R.string.cannot_open_event)
+    val aiInstruction = stringResource(R.string.ai_briefing_instruction)
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -154,6 +160,7 @@ fun EventScreen(
         drawerContent = {
             DrawerContent(
                 isProUser = isProUser,
+                isAiUser = isAiUser,
                 onUpgradeToProClick = viewModel::onUpgradeToProRequest,
                 onOurOtherAppsClick = {
                     val browserIntent =
@@ -267,46 +274,63 @@ fun EventScreen(
                         else -> {
                             MainContent(
                                 uiState = uiState,
-                                onRefresh = { viewModel.onMonthChanged(uiState.currentMonth, true) },
-                                onToggle = viewModel::onAlarmsToggle,
-                                onEventToggle = viewModel::onEventAlarmToggle,
-                                onEventVibrateToggle = viewModel::onEventVibrateToggle,
-                                onMonthChanged = viewModel::onMonthChanged,
-                                onDateSelected = viewModel::onDateSelected,
-                                onEventClick = { event: Event ->
-                                    val uri =
-                                        ContentUris.withAppendedId(
-                                            CalendarContract.Events.CONTENT_URI,
-                                            event.id,
-                                        )
-                                    val intent =
-                                        Intent(Intent.ACTION_VIEW, uri).apply {
-                                            putExtra(
-                                                "beginTime",
-                                                event.startTime,
-                                            )
-                                        }
-                                    try {
-                                        context.startActivity(intent)
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                        Toast
-                                            .makeText(
-                                                context,
-                                                cannotOpenEvent,
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                    }
-                                },
-                                onDismissAutostart = viewModel::dismissAutostartSuggestion,
-                                onReturnToToday = viewModel::returnToToday,
-                                onVibrateToggle = viewModel::onVibrateOnlyChanged,
-                                onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
-                                onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
-                                onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
-                                onSnoozeTimeChanged = viewModel::onSnoozeTimeChanged,
-                                onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
-                                onSearchQueryChanged = viewModel::onSearchQueryChanged,
+                                eventActions =
+                                    EventActions(
+                                        onRefresh = { viewModel.onMonthChanged(uiState.currentMonth, true) },
+                                        onEventToggle = viewModel::onEventAlarmToggle,
+                                        onEventVibrateToggle = viewModel::onEventVibrateToggle,
+                                        onMonthChanged = viewModel::onMonthChanged,
+                                        onDateSelected = viewModel::onDateSelected,
+                                        onEventClick = { event: Event ->
+                                            val uri =
+                                                ContentUris.withAppendedId(
+                                                    CalendarContract.Events.CONTENT_URI,
+                                                    event.id,
+                                                )
+                                            val intent =
+                                                Intent(Intent.ACTION_VIEW, uri).apply {
+                                                    putExtra(
+                                                        "beginTime",
+                                                        event.startTime,
+                                                    )
+                                                }
+                                            try {
+                                                context.startActivity(intent)
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
+                                                Toast
+                                                    .makeText(
+                                                        context,
+                                                        cannotOpenEvent,
+                                                        Toast.LENGTH_SHORT,
+                                                    ).show()
+                                            }
+                                        },
+                                        onReturnToToday = viewModel::returnToToday,
+                                        onSearchQueryChanged = viewModel::onSearchQueryChanged,
+                                    ),
+                                settingsActions =
+                                    SettingsActions(
+                                        onToggle = viewModel::onAlarmsToggle,
+                                        onDismissAutostart = viewModel::dismissAutostartSuggestion,
+                                        onVibrateToggle = viewModel::onVibrateOnlyChanged,
+                                        onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
+                                        onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
+                                        onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
+                                        onSnoozeTimeChanged = viewModel::onSnoozeTimeChanged,
+                                        onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
+                                    ),
+                                aiActions =
+                                    AiActions(
+                                        onGenerateBriefing = {
+                                            viewModel.generateDailyBriefing(aiInstruction)
+                                        },
+                                        onGenerateSmartSuggestion = {
+                                            viewModel.generateSmartSuggestions(aiInstruction)
+                                        },
+                                        onUpgradeToPro = viewModel::onUpgradeToProRequest,
+                                        onSubscriptionRequest = onSubscriptionRequest,
+                                    ),
                                 windowSizeClass = windowSizeClass,
                             )
                         }

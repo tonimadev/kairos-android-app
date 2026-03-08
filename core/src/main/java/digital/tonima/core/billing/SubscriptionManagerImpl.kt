@@ -25,15 +25,15 @@ import logcat.logcat
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val PRODUCT_ID_REMOVE_ADS = "remove_ads_premium"
+private const val MONTHLY_SUBSCRIPTION_PLAN = "month_subscription"
 
 @Singleton
-@BindType(installIn = SINGLETON, to = BillingManager::class)
-class BillingManagerImpl
+@BindType(installIn = SINGLETON, to = SubscriptionManager::class)
+class SubscriptionManagerImpl
     @Inject
     constructor(
         @ApplicationContext private val context: Context,
-    ) : BillingManager {
+    ) : SubscriptionManager {
         private val _isProUser = MutableStateFlow(false)
         override val isProUser = _isProUser.asStateFlow()
 
@@ -71,74 +71,88 @@ class BillingManagerImpl
                 object : BillingClientStateListener {
                     override fun onBillingSetupFinished(billingResult: BillingResult) {
                         if (billingResult.responseCode == OK) {
-                            logcat { "Billing client setup finished." }
+                            logcat { "Subscription client setup finished." }
                             queryPurchases()
                             onConnected?.invoke()
                         } else {
-                            logcat(LogPriority.ERROR) { "Billing client setup failed: ${billingResult.debugMessage}" }
+                            logcat(
+                                LogPriority.ERROR,
+                            ) { "Subscription client setup failed: ${billingResult.debugMessage}" }
                         }
                     }
 
                     override fun onBillingServiceDisconnected() {
-                        logcat(LogPriority.WARN) { "Billing service disconnected. Retrying..." }
-                        // Evitamos reconexão automática recursiva aqui
+                        logcat(LogPriority.WARN) { "Subscription service disconnected. Retrying..." }
+                        // Evitamos reconexão automática recursiva aqui para evitar loops
                     }
                 },
             )
         }
 
         private fun queryPurchases() {
-            val inAppParams =
-                QueryPurchasesParams
-                    .newBuilder()
-                    .setProductType(BillingClient.ProductType.INAPP)
+            val subsParams =
+                QueryPurchasesParams.newBuilder()
+                    .setProductType(BillingClient.ProductType.SUBS)
                     .build()
 
-            billingClient.queryPurchasesAsync(inAppParams) { _, inAppPurchases ->
-                val hasInAppPremium =
-                    inAppPurchases.any {
+            billingClient.queryPurchasesAsync(subsParams) { _, subsPurchases ->
+                val hasSubsPremium =
+                    subsPurchases.any {
                         it.products.contains(
-                            PRODUCT_ID_REMOVE_ADS,
+                            MONTHLY_SUBSCRIPTION_PLAN,
                         ) && it.isAcknowledged
                     }
-                _isProUser.value = hasInAppPremium
+                _isProUser.value = hasSubsPremium
             }
         }
 
-        override fun launchPurchaseFlow(activity: Activity) {
+        override fun launchSubscriptionFlow(activity: Activity) {
             if (!billingClient.isReady) {
                 logcat(LogPriority.ERROR) {
-                    "Billing client not ready. Attempting to reconnect."
+                    "Subscription client not ready. Attempting to reconnect."
                 }
                 connectInternal {
-                    launchPurchaseFlow(activity)
+                    launchSubscriptionFlow(activity)
                 }
                 return
             }
 
-            val inAppProduct =
+            val subsProduct =
                 QueryProductDetailsParams.Product
                     .newBuilder()
-                    .setProductId(PRODUCT_ID_REMOVE_ADS)
-                    .setProductType(BillingClient.ProductType.INAPP)
+                    .setProductId(MONTHLY_SUBSCRIPTION_PLAN)
+                    .setProductType(BillingClient.ProductType.SUBS)
                     .build()
 
-            val inAppParams =
+            val subsParams =
                 QueryProductDetailsParams.newBuilder()
-                    .setProductList(listOf(inAppProduct))
+                    .setProductList(listOf(subsProduct))
                     .build()
 
-            billingClient.queryProductDetailsAsync(inAppParams) { billingResult, queryProductDetailsResult ->
-                if (billingResult.responseCode == OK && queryProductDetailsResult.productDetailsList.isNotEmpty()) {
-                    val productDetails = queryProductDetailsResult.productDetailsList[0]
+            billingClient.queryProductDetailsAsync(subsParams) { billingResult, queryProductDetailsResult ->
+                val productDetailsList = queryProductDetailsResult.productDetailsList
+                logcat {
+                    "Subscription query finished. " +
+                        "Response: ${billingResult.responseCode}, Details list size: ${productDetailsList.size}"
+                }
+
+                if (billingResult.responseCode == OK && productDetailsList.isNotEmpty()) {
+                    val productDetails = productDetailsList[0]
                     launchBillingFlow(activity, productDetails)
                 } else {
                     logcat(LogPriority.ERROR) {
-                        "In-app product details not found or error. Response: ${billingResult.responseCode}"
+                        "Subscription product details not found or error. " +
+                            "ResponseCode: ${billingResult.responseCode}, DebugMsg: ${billingResult.debugMessage}"
+                    }
+                    if (productDetailsList.isEmpty()) {
+                        logcat(LogPriority.WARN) {
+                            "The product list for '$MONTHLY_SUBSCRIPTION_PLAN' " +
+                                "is empty. Verify ID in Play Console and account tester status."
+                        }
                     }
                     Toast.makeText(
                         context,
-                        "Não foi possível encontrar o item na loja. Verifique sua conexão.",
+                        "Assinatura não encontrada na loja. Verifique sua conexão ou conta de teste.",
                         Toast.LENGTH_LONG,
                     ).show()
                 }
@@ -149,13 +163,24 @@ class BillingManagerImpl
             activity: Activity,
             productDetails: com.android.billingclient.api.ProductDetails,
         ) {
-            val productDetailsParamsList = mutableListOf<BillingFlowParams.ProductDetailsParams>()
+            val offerToken =
+                productDetails.subscriptionOfferDetails
+                    ?.firstOrNull { it.basePlanId == "month_subscription" || it.basePlanId == "monthly-basic-plan" }
+                    ?.offerToken
+                    ?: productDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken
 
-            val productParamsBuilder =
-                BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setProductDetails(productDetails)
+            if (offerToken == null) {
+                logcat(LogPriority.ERROR) { "No offer token found for product: ${productDetails.productId}" }
+                return
+            }
 
-            productDetailsParamsList.add(productParamsBuilder.build())
+            val productDetailsParamsList =
+                listOf(
+                    BillingFlowParams.ProductDetailsParams.newBuilder()
+                        .setProductDetails(productDetails)
+                        .setOfferToken(offerToken)
+                        .build(),
+                )
 
             val billingFlowParams =
                 BillingFlowParams

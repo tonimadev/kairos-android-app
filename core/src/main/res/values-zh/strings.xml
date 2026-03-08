@@ -91,4 +91,17 @@
     <string name="cd_expand_settings">展开设置</string>
     <string name="cd_collapse_settings">收起设置</string>
     <string name="cd_event_recurring">周期性事件</string>
+    <string name="daily_briefing_title">助手摘要</string>
+    <string name="daily_briefing_placeholder">您想看看今天的智能摘要吗？</string>
+    <string name="daily_briefing_pro_only">每日摘要是专业用户的专属功能。试试我们新的月度计划吧！</string>
+    <string name="daily_briefing_trial_invite">了解人工智能如何协助安排您的一天。立即尝试月度计划！</string>
+    <string name="subscribe_now">立即订阅</string>
+    <string name="generate_briefing">生成摘要</string>
+    <string name="ai_briefing_instruction">摘要必须使用中文。</string>
+    <string name="smart_suggestion_title">智能建议 (AI)</string>
+    <string name="smart_suggestion_placeholder">分析您的习惯以获得个性化提示吗？</string>
+    <string name="analyze_my_habits">分析我的习惯</string>
+    <string name="smart_suggestion_trial_invite">从您的日程安排中学习，并随 Pro 月度计划接收主动提醒！</string>
+    <string name="pro_label">Pro ✨</string>
+    <string name="pro_ia_label">Pro + AI ✨</string>
 </resources>

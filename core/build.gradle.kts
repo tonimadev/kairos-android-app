@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.datastore.preferences.core)
     implementation(libs.google.firebase.analytics)
     implementation(libs.google.firebase.crashlytics)
+    implementation(libs.google.firebase.ia)
     implementation(libs.google.inapp.update)
     implementation(libs.google.inapp.update.ktx)
     implementation(libs.hilt.android)

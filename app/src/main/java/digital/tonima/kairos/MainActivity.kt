@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.billing.BillingManager
+import digital.tonima.core.billing.SubscriptionManager
 import digital.tonima.core.inappupdate.InAppUpdateManager
 import digital.tonima.kairos.inappupdate.InAppUpdateDelegate
 import digital.tonima.kairos.ui.theme.KairosTheme
@@ -29,6 +30,9 @@ import digital.tonima.kairos.core.R as CoreR
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var billingManager: BillingManager
+
+    @Inject
+    lateinit var subscriptionManager: SubscriptionManager
 
     @Inject
     lateinit var inAppUpdateManager: InAppUpdateManager
@@ -52,6 +56,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         billingManager.connect()
+        subscriptionManager.connect()
         setContent {
             KairosTheme {
                 val windowSizeClass = calculateWindowSizeClass(this)
@@ -80,6 +85,7 @@ class MainActivity : ComponentActivity() {
                     EventScreen(
                         snackbarHostState = rememberSnackbarHostState,
                         onPurchaseRequest = { billingManager.launchPurchaseFlow(this) },
+                        onSubscriptionRequest = { subscriptionManager.launchSubscriptionFlow(this) },
                         windowSizeClass = windowSizeClass,
                     )
                 }

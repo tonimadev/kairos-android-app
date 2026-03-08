@@ -39,14 +39,13 @@ fun EventList(
     modifier: Modifier = Modifier,
     uiState: EventScreenUiState,
     eventsByDate: Map<LocalDate, List<Event>>,
-    onRefresh: () -> Unit,
-    onEventToggle: (event: Event, isEnabled: Boolean, disableAllOccurrences: Boolean) -> Unit,
-    onEventVibrateToggle: (event: Event, vibrateOnly: Boolean) -> Unit,
-    onEventClick: (Event) -> Unit,
-    onSearchQueryChanged: (String) -> Unit = {},
+    eventActions: EventActions,
+    aiActions: AiActions,
     headerContent: (@Composable () -> Unit)? = null,
 ) {
-    val pullRefreshState = rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = onRefresh)
+    val pullRefreshState =
+        rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = eventActions.onRefresh)
+    val today = remember { LocalDate.now() }
     val eventsInDay =
         remember(uiState.selectedDate, eventsByDate, uiState.searchQuery) {
             val allInDay = eventsByDate[uiState.selectedDate] ?: emptyList()
@@ -74,7 +73,7 @@ fun EventList(
                 item {
                     OutlinedTextField(
                         value = uiState.searchQuery,
-                        onValueChange = onSearchQueryChanged,
+                        onValueChange = eventActions.onSearchQueryChanged,
                         modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -83,7 +82,7 @@ fun EventList(
                         leadingIcon = { Icon(painterResource(R.drawable.date_range), contentDescription = null) },
                         trailingIcon = {
                             if (uiState.searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { onSearchQueryChanged("") }) {
+                                IconButton(onClick = { eventActions.onSearchQueryChanged("") }) {
                                     Icon(
                                         painterResource(digital.tonima.kairos.core.R.drawable.ic_k_monochrome),
                                         contentDescription = null,
@@ -93,6 +92,32 @@ fun EventList(
                         },
                         singleLine = true,
                     )
+                }
+
+                if (uiState.selectedDate == today && uiState.searchQuery.isBlank() && eventsInDay.isNotEmpty()) {
+                    item {
+                        DailyBriefingCard(
+                            briefing = uiState.dailyBriefing,
+                            isGenerating = uiState.isGeneratingBriefing,
+                            isAiUser = uiState.isAiUser,
+                            onGenerateClick = aiActions.onGenerateBriefing,
+                            onUpgradeClick = aiActions.onSubscriptionRequest,
+                            modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
+                        )
+                    }
+                }
+
+                if (uiState.selectedDate == today && uiState.searchQuery.isBlank() && eventsInDay.isNotEmpty()) {
+                    item {
+                        SmartSuggestionCard(
+                            suggestion = uiState.smartSuggestion,
+                            isGenerating = uiState.isGeneratingSmartSuggestion,
+                            isAiUser = uiState.isAiUser,
+                            onGenerateClick = aiActions.onGenerateSmartSuggestion,
+                            onUpgradeClick = aiActions.onSubscriptionRequest,
+                            modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
+                        )
+                    }
                 }
 
                 if (eventsInDay.isEmpty() && !uiState.isRefreshing) {
@@ -113,11 +138,11 @@ fun EventList(
                                 if (event.isRecurring) {
                                     pendingToggle.value = event to isEnabled
                                 } else {
-                                    onEventToggle(event, isEnabled, false)
+                                    eventActions.onEventToggle(event, isEnabled, false)
                                 }
                             },
-                            onVibrateToggle = { onEventVibrateToggle(event, it) },
-                            onEventClick = { onEventClick(event) },
+                            onVibrateToggle = { eventActions.onEventVibrateToggle(event, it) },
+                            onEventClick = { eventActions.onEventClick(event) },
                         )
                     }
                 }
@@ -139,13 +164,13 @@ fun EventList(
                     text = { Text(stringResource(R.string.update_alarm_message)) },
                     confirmButton = {
                         TextButton(onClick = {
-                            onEventToggle(pendingEvent, pendingEnabled, true)
+                            eventActions.onEventToggle(pendingEvent, pendingEnabled, true)
                             pendingToggle.value = null
                         }) { Text(stringResource(R.string.recurring_option)) }
                     },
                     dismissButton = {
                         TextButton(onClick = {
-                            onEventToggle(pendingEvent, pendingEnabled, false)
+                            eventActions.onEventToggle(pendingEvent, pendingEnabled, false)
                             pendingToggle.value = null
                         }) { Text(stringResource(R.string.only_this_option)) }
                     },

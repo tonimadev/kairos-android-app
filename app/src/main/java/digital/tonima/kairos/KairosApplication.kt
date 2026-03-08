@@ -16,6 +16,7 @@ import dagger.hilt.android.HiltAndroidApp
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSchedulingWorker
 import digital.tonima.core.utils.DeviceInfoUtils
+import digital.tonima.core.utils.NotificationHelper
 import digital.tonima.kairos.service.CalendarChangeObserver
 import digital.tonima.kairos.service.PhoneEventSyncWorker.Companion.enqueuePeriodic
 import kotlinx.coroutines.CoroutineScope
@@ -59,6 +60,7 @@ class KairosApplication :
             }
         }
         setupLogger()
+        NotificationHelper.createNotificationChannels(this)
 
         logcat(LogPriority.INFO) {
             "Kairos running in: ${DeviceInfoUtils.getProfileDescription(this)}"
