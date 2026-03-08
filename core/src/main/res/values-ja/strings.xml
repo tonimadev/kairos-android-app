@@ -102,6 +102,8 @@
     <string name="pro_ia_label">Pro + AI ✨</string>
     <string name="ai_voice_interaction_title">カイロス音声AI</string>
     <string name="ai_answering">質問を処理しています…</string>
+    <string name="cd_speak">回答を聴く</string>
+    <string name="cd_stop_speaking">読み上げを停止</string>
     <string name="cd_voice_capture">音声コマンドを開始</string>
     <string name="cd_close">AIの応答を閉じる</string>
 </resources>

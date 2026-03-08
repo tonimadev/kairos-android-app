@@ -105,6 +105,8 @@
     <string name="pro_ia_label">Pro + ذكاء ✨</string>
     <string name="ai_voice_interaction_title">كايروس صوت الذكاء الاصطناعي</string>
     <string name="ai_answering">جاري معالجة سؤالك…</string>
+    <string name="cd_speak">استمع إلى الإجابة</string>
+    <string name="cd_stop_speaking">توقف عن التحدث</string>
     <string name="cd_voice_capture">بدء الأمر الصوتي</string>
     <string name="cd_close">إغلاق استجابة الذكاء الاصطناعي</string>
 </resources>

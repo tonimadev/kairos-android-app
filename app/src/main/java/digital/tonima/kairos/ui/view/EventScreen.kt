@@ -218,6 +218,8 @@ fun EventScreen(
                     uiState = uiState,
                     isAiUser = isAiUser,
                     onClearAiResponse = viewModel::clearAiResponse,
+                    onSpeakAiResponse = viewModel::speakAiResponse,
+                    onStopSpeaking = viewModel::stopSpeaking,
                     onStartVoiceCapture = startVoiceCapture,
                     onOpenCalendar = {
                         val intent =
@@ -333,6 +335,8 @@ fun EventScreen(
                                         onSubscriptionRequest = onSubscriptionRequest,
                                         onVoiceCaptureClick = startVoiceCapture,
                                         onClearAiResponse = viewModel::clearAiResponse,
+                                        onSpeakAiResponse = viewModel::speakAiResponse,
+                                        onStopSpeaking = viewModel::stopSpeaking,
                                     ),
                                 windowSizeClass = windowSizeClass,
                             )
@@ -397,6 +401,8 @@ private fun EventFloatingActionButtons(
     uiState: digital.tonima.core.viewmodel.EventScreenUiState,
     isAiUser: Boolean,
     onClearAiResponse: () -> Unit,
+    onSpeakAiResponse: () -> Unit,
+    onStopSpeaking: () -> Unit,
     onStartVoiceCapture: () -> Unit,
     onOpenCalendar: () -> Unit,
 ) {
@@ -408,6 +414,9 @@ private fun EventFloatingActionButtons(
             question = uiState.lastAiQuestion,
             response = uiState.aiResponse,
             isAsking = uiState.isAskingAi,
+            isSpeaking = uiState.isSpeaking,
+            onSpeak = onSpeakAiResponse,
+            onStopSpeaking = onStopSpeaking,
             onDismiss = onClearAiResponse,
             modifier = Modifier.padding(bottom = Dimensions.SpacingSmall),
         )

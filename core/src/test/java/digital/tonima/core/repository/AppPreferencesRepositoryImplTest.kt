@@ -126,4 +126,16 @@ class AppPreferencesRepositoryImplTest {
                 cancelAndIgnoreRemainingEvents()
             }
         }
+
+    @Test
+    fun `getWakeUpHistory defaults to empty and can add items`() =
+        runTest {
+            repository.getWakeUpHistory().test {
+                assertEquals(emptyList<Long>(), awaitItem())
+                val timestamp = 123456789L
+                repository.addWakeUpTimestamp(timestamp)
+                assertEquals(listOf(timestamp), awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 }

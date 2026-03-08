@@ -16,6 +16,7 @@ import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.utils.TextToSpeechHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -61,11 +62,13 @@ data class EventScreenUiState(
     val aiResponse: String? = null,
     val isAskingAi: Boolean = false,
     val lastAiQuestion: String? = null,
+    val isSpeaking: Boolean = false,
 )
 
 @HiltViewModel
 class EventViewModel
     @Inject
+    @Suppress("LongParameterList")
     constructor(
         proUserProvider: ProUserProvider,
         private val getEventsForMonthUseCase: GetEventsForMonthUseCase,
@@ -76,6 +79,7 @@ class EventViewModel
         private val calendarRepository: CalendarRepository,
         private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
         private val askAiAboutScheduleUseCase: AskAiAboutScheduleUseCase,
+        private val ttsHelper: TextToSpeechHelper,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
@@ -183,6 +187,7 @@ class EventViewModel
         public override fun onCleared() {
             super.onCleared()
             ringerModeRepository.stopObserving()
+            ttsHelper.shutdown()
         }
 
         fun checkAllPermissions() {
@@ -536,10 +541,30 @@ class EventViewModel
                         languageInstruction = languageInstruction,
                     )
                 _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
+                response?.let { speak(it) }
             }
         }
 
+        private fun speak(text: String) {
+            _uiState.update { it.copy(isSpeaking = true) }
+            ttsHelper.speak(text) {
+                _uiState.update { it.copy(isSpeaking = false) }
+            }
+        }
+
+        fun speakAiResponse() {
+            _uiState.value.aiResponse?.let {
+                speak(it)
+            }
+        }
+
+        fun stopSpeaking() {
+            ttsHelper.stop()
+            _uiState.update { it.copy(isSpeaking = false) }
+        }
+
         fun clearAiResponse() {
+            stopSpeaking()
             _uiState.update { it.copy(aiResponse = null, lastAiQuestion = null) }
         }
     }

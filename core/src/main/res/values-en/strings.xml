@@ -106,6 +106,8 @@
     <string name="pro_ia_label">Pro + AI ✨</string>
     <string name="ai_voice_interaction_title">Kairos Voice AI</string>
     <string name="ai_answering">Processing your question…</string>
+    <string name="cd_speak">Listen to response</string>
+    <string name="cd_stop_speaking">Stop speaking</string>
     <string name="cd_voice_capture">Start voice command</string>
     <string name="cd_close">Close AI response</string>
 </resources>

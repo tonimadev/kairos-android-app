@@ -107,6 +107,8 @@
     <string name="pro_ia_label">Pro + IA ✨</string>
     <string name="ai_voice_interaction_title">IA de Voz Kairos</string>
     <string name="ai_answering">Procesando su pregunta…</string>
+    <string name="cd_speak">Escuchar respuesta</string>
+    <string name="cd_stop_speaking">Dejar de hablar</string>
     <string name="cd_voice_capture">Iniciar comando de voz</string>
     <string name="cd_close">Cerrar respuesta de IA</string>
 </resources>

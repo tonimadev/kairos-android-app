@@ -105,6 +105,8 @@
     <string name="pro_ia_label">Pro + AI ✨</string>
     <string name="ai_voice_interaction_title">कैरोस वॉयस एआई</string>
     <string name="ai_answering">आपके प्रश्न पर कार्रवाई की जा रही है…</string>
+    <string name="cd_speak">उत्तर सुनें</string>
+    <string name="cd_stop_speaking">बोलना बंद करें</string>
     <string name="cd_voice_capture">वॉयस कमांड शुरू करें</string>
     <string name="cd_close">एआई प्रतिक्रिया बंद करें</string>
 </resources>

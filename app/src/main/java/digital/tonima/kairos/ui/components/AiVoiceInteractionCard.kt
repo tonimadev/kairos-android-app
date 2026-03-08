@@ -40,6 +40,9 @@ fun AiVoiceInteractionCard(
     question: String?,
     response: String?,
     isAsking: Boolean,
+    isSpeaking: Boolean,
+    onSpeak: () -> Unit,
+    onStopSpeaking: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -87,6 +90,30 @@ fun AiVoiceInteractionCard(
                                 color = MaterialTheme.colorScheme.tertiary,
                             )
                         } else {
+                            if (response != null) {
+                                IconButton(
+                                    onClick = { if (isSpeaking) onStopSpeaking() else onSpeak() },
+                                    modifier = Modifier.size(24.dp),
+                                ) {
+                                    Icon(
+                                        painter =
+                                            painterResource(
+                                                if (isSpeaking) {
+                                                    digital.tonima.kairos.R.drawable.volume_off
+                                                } else {
+                                                    digital.tonima.kairos.R.drawable.volume_up
+                                                },
+                                            ),
+                                        contentDescription =
+                                            stringResource(
+                                                if (isSpeaking) R.string.cd_stop_speaking else R.string.cd_speak,
+                                            ),
+                                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
+                            }
+
                             IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
                                 Icon(
                                     painter = painterResource(digital.tonima.kairos.R.drawable.ic_expand_less),

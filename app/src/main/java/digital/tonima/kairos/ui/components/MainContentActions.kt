@@ -33,4 +33,6 @@ data class AiActions(
     val onSubscriptionRequest: () -> Unit = {},
     val onVoiceCaptureClick: () -> Unit = {},
     val onClearAiResponse: () -> Unit = {},
+    val onSpeakAiResponse: () -> Unit = {},
+    val onStopSpeaking: () -> Unit = {},
 )

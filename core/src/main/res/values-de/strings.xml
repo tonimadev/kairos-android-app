@@ -107,6 +107,8 @@
     <string name="pro_ia_label">Pro + KI ✨</string>
     <string name="ai_voice_interaction_title">Kairos Sprach-KI</string>
     <string name="ai_answering">Frage wird verarbeitet…</string>
+    <string name="cd_speak">Antwort anhören</string>
+    <string name="cd_stop_speaking">Sprachausgabe stoppen</string>
     <string name="cd_voice_capture">Sprachbefehl starten</string>
     <string name="cd_close">KI-Antwort schließen</string>
 </resources>
