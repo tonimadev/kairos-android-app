@@ -103,10 +103,10 @@
     <string name="subscribe_now">Suscribirse Ahora</string>
     <string name="generate_briefing">Generar Resumen</string>
     <string name="ai_briefing_instruction">El resumen debe estar en español.</string>
-    <string name="smart_suggestion_title">Sugerencias Inteligentes (IA)</string>
-    <string name="smart_suggestion_placeholder">¿Analizar tus hábitos para recibir consejos personalizados?</string>
-    <string name="analyze_my_habits">Analizar Mis Hábitos</string>
-    <string name="smart_suggestion_trial_invite">¡Aprende de tus horarios y recibe alertas proactivas con el Plan Mensual Pro!</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + IA ✨</string>
+    <string name="ai_voice_interaction_title">IA de Voz Kairos</string>
+    <string name="ai_answering">Procesando su pregunta…</string>
+    <string name="cd_voice_capture">Iniciar comando de voz</string>
+    <string name="cd_close">Cerrar respuesta de IA</string>
 </resources>

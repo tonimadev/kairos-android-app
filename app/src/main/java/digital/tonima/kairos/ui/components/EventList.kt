@@ -107,19 +107,6 @@ fun EventList(
                     }
                 }
 
-                if (uiState.selectedDate == today && uiState.searchQuery.isBlank() && eventsInDay.isNotEmpty()) {
-                    item {
-                        SmartSuggestionCard(
-                            suggestion = uiState.smartSuggestion,
-                            isGenerating = uiState.isGeneratingSmartSuggestion,
-                            isAiUser = uiState.isAiUser,
-                            onGenerateClick = aiActions.onGenerateSmartSuggestion,
-                            onUpgradeClick = aiActions.onSubscriptionRequest,
-                            modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
-                        )
-                    }
-                }
-
                 if (eventsInDay.isEmpty() && !uiState.isRefreshing) {
                     item {
                         Box(

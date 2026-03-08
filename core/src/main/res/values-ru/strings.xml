@@ -102,10 +102,10 @@
     <string name="subscribe_now">Подписаться сейчас</string>
     <string name="generate_briefing">Создать сводку</string>
     <string name="ai_briefing_instruction">Сводка должна быть на русском языке.</string>
-    <string name="smart_suggestion_title">Умные предложения (ИИ)</string>
-    <string name="smart_suggestion_placeholder">Проанализировать ваши привычки для персональных советов?</string>
-    <string name="analyze_my_habits">Проанализировать мои привычки</string>
-    <string name="smart_suggestion_trial_invite">Учитесь на своем расписании и получайте проактивные оповещения с ежемесячным Pro-планом!</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + ИИ ✨</string>
+    <string name="ai_voice_interaction_title">Голосовой ИИ Kairos</string>
+    <string name="ai_answering">Обработка вашего вопроса…</string>
+    <string name="cd_voice_capture">Запустить голосовую команду</string>
+    <string name="cd_close">Закрыть ответ ИИ</string>
 </resources>

@@ -2,9 +2,10 @@ package digital.tonima.core.usecases
 
 import digital.tonima.core.model.Event
 
-interface GetSmartNotificationSuggestionsUseCase {
+interface AskAiAboutScheduleUseCase {
     suspend fun invoke(
-        recentEvents: List<Event>,
+        events: List<Event>,
+        question: String,
         languageInstruction: String,
     ): String?
 }

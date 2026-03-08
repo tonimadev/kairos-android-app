@@ -29,7 +29,8 @@ data class SettingsActions(
 
 data class AiActions(
     val onGenerateBriefing: () -> Unit = {},
-    val onGenerateSmartSuggestion: () -> Unit = {},
     val onUpgradeToPro: () -> Unit = {},
     val onSubscriptionRequest: () -> Unit = {},
+    val onVoiceCaptureClick: () -> Unit = {},
+    val onClearAiResponse: () -> Unit = {},
 )

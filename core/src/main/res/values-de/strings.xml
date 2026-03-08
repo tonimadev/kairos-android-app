@@ -103,10 +103,10 @@
     <string name="subscribe_now">Jetzt abonnieren</string>
     <string name="generate_briefing">Zusammenfassung erstellen</string>
     <string name="ai_briefing_instruction">Die Zusammenfassung muss in Deutsch sein.</string>
-    <string name="smart_suggestion_title">Intelligente Vorschläge (KI)</string>
-    <string name="smart_suggestion_placeholder">Ihre Gewohnheiten für personalisierte Tipps analysieren?</string>
-    <string name="analyze_my_habits">Meine Gewohnheiten analysieren</string>
-    <string name="smart_suggestion_trial_invite">Lernen Sie aus Ihrem Zeitplan und erhalten Sie proaktive Benachrichtigungen mit dem Pro-Monatsplan!</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + KI ✨</string>
+    <string name="ai_voice_interaction_title">Kairos Sprach-KI</string>
+    <string name="ai_answering">Frage wird verarbeitet…</string>
+    <string name="cd_voice_capture">Sprachbefehl starten</string>
+    <string name="cd_close">KI-Antwort schließen</string>
 </resources>

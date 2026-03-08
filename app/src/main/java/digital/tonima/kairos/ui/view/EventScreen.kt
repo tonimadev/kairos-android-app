@@ -1,17 +1,22 @@
 package digital.tonima.kairos.ui.view
 
 import android.Manifest
+import android.app.Activity
 import android.content.ContentUris
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.CalendarContract
 import android.provider.Settings
+import android.speech.RecognizerIntent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -37,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,6 +64,7 @@ import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.date_range
 import digital.tonima.kairos.ui.components.AdBannerView
 import digital.tonima.kairos.ui.components.AiActions
+import digital.tonima.kairos.ui.components.AiVoiceInteractionCard
 import digital.tonima.kairos.ui.components.DrawerContent
 import digital.tonima.kairos.ui.components.EventActions
 import digital.tonima.kairos.ui.components.ExactAlarmPermissionScreen
@@ -65,6 +72,7 @@ import digital.tonima.kairos.ui.components.FullScreenIntentPermissionScreen
 import digital.tonima.kairos.ui.components.MainContent
 import digital.tonima.kairos.ui.components.SettingsActions
 import digital.tonima.kairos.ui.components.StandardPermissionsScreen
+import digital.tonima.kairos.ui.theme.Dimensions
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
@@ -138,6 +146,33 @@ fun EventScreen(
     val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
     val cannotOpenEvent = stringResource(R.string.cannot_open_event)
     val aiInstruction = stringResource(R.string.ai_briefing_instruction)
+    val voiceCapturePrompt = stringResource(R.string.cd_voice_capture)
+
+    val speechRecognizerLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val results = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                val spokenText = results?.firstOrNull()
+                if (spokenText != null) {
+                    viewModel.askAi(spokenText, aiInstruction)
+                }
+            }
+        }
+
+    val startVoiceCapture = {
+        val intent =
+            Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_PROMPT, voiceCapturePrompt)
+            }
+        try {
+            speechRecognizerLauncher.launch(intent)
+        } catch (e: Exception) {
+            Toast.makeText(context, R.string.cannot_open_event, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -176,60 +211,29 @@ fun EventScreen(
     ) {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.app_name),
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                    },
-                    colors =
-                        TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        ),
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                painterResource(drawable.menu),
-                                contentDescription = stringResource(R.string.cd_open_menu),
-                            )
+                EventTopBar(onOpenMenu = { scope.launch { drawerState.open() } })
+            },
+            floatingActionButton = {
+                EventFloatingActionButtons(
+                    uiState = uiState,
+                    isAiUser = isAiUser,
+                    onClearAiResponse = viewModel::clearAiResponse,
+                    onStartVoiceCapture = startVoiceCapture,
+                    onOpenCalendar = {
+                        val intent =
+                            context.packageManager.getLaunchIntentForPackage("com.google.android.calendar")
+                        if (intent != null) {
+                            context.startActivity(intent)
+                        } else {
+                            Toast
+                                .makeText(
+                                    context,
+                                    googleCalendarNotFound,
+                                    Toast.LENGTH_SHORT,
+                                ).show()
                         }
                     },
                 )
-            },
-            floatingActionButton = {
-                if (
-                    uiState.hasCalendarPermission &&
-                    uiState.hasExactAlarmPermission &&
-                    uiState.hasFullScreenIntentPermission
-                ) {
-                    FloatingActionButton(
-                        onClick = {
-                            val intent =
-                                context.packageManager.getLaunchIntentForPackage("com.google.android.calendar")
-                            if (intent != null) {
-                                context.startActivity(intent)
-                            } else {
-                                Toast
-                                    .makeText(
-                                        context,
-                                        googleCalendarNotFound,
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
-                            }
-                        },
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ) {
-                        Icon(
-                            painterResource(date_range),
-                            contentDescription = stringResource(R.string.open_calendar),
-                        )
-                    }
-                }
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
@@ -325,11 +329,10 @@ fun EventScreen(
                                         onGenerateBriefing = {
                                             viewModel.generateDailyBriefing(aiInstruction)
                                         },
-                                        onGenerateSmartSuggestion = {
-                                            viewModel.generateSmartSuggestions(aiInstruction)
-                                        },
                                         onUpgradeToPro = viewModel::onUpgradeToProRequest,
                                         onSubscriptionRequest = onSubscriptionRequest,
+                                        onVoiceCaptureClick = startVoiceCapture,
+                                        onClearAiResponse = viewModel::clearAiResponse,
                                     ),
                                 windowSizeClass = windowSizeClass,
                             )
@@ -346,31 +349,127 @@ fun EventScreen(
         }
 
         if (uiState.showRatingDialog) {
-            AlertDialog(
+            RatingDialog(
                 onDismissRequest = { viewModel.onRatingDialogDismiss() },
-                title = { Text(stringResource(R.string.rate_app_title)) },
-                text = { Text(stringResource(R.string.rate_app_message)) },
-                confirmButton = {
-                    Button(onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, "market://details?id=${context.packageName}".toUri())
-                        context.startActivity(intent)
-                        viewModel.onRateNow()
-                    }) {
-                        Text(stringResource(R.string.rate_now))
-                    }
+                onRateNow = {
+                    val intent = Intent(Intent.ACTION_VIEW, "market://details?id=${context.packageName}".toUri())
+                    context.startActivity(intent)
+                    viewModel.onRateNow()
                 },
-                dismissButton = {
-                    Column {
-                        Button(onClick = { viewModel.onRateLater() }) {
-                            Text(stringResource(R.string.rate_later))
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.onRateNeverShow() }) {
-                            Text(stringResource(R.string.rate_never))
-                        }
-                    }
-                },
+                onRateLater = { viewModel.onRateLater() },
+                onRateNeverShow = { viewModel.onRateNeverShow() },
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EventTopBar(onOpenMenu: () -> Unit) {
+    TopAppBar(
+        title = {
+            Text(
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.titleLarge,
+            )
+        },
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            ),
+        navigationIcon = {
+            IconButton(onClick = onOpenMenu) {
+                Icon(
+                    painterResource(drawable.menu),
+                    contentDescription = stringResource(R.string.cd_open_menu),
+                )
+            }
+        },
+        actions = { },
+    )
+}
+
+@Composable
+private fun EventFloatingActionButtons(
+    uiState: digital.tonima.core.viewmodel.EventScreenUiState,
+    isAiUser: Boolean,
+    onClearAiResponse: () -> Unit,
+    onStartVoiceCapture: () -> Unit,
+    onOpenCalendar: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Dimensions.PaddingNormal),
+        horizontalAlignment = Alignment.End,
+    ) {
+        AiVoiceInteractionCard(
+            question = uiState.lastAiQuestion,
+            response = uiState.aiResponse,
+            isAsking = uiState.isAskingAi,
+            onDismiss = onClearAiResponse,
+            modifier = Modifier.padding(bottom = Dimensions.SpacingSmall),
+        )
+
+        if (isAiUser) {
+            FloatingActionButton(
+                onClick = onStartVoiceCapture,
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.onSecondary,
+                modifier = Modifier.padding(bottom = Dimensions.SpacingNormal),
+            ) {
+                Icon(
+                    painter = painterResource(digital.tonima.kairos.core.R.drawable.ic_mic),
+                    contentDescription = stringResource(R.string.cd_voice_capture),
+                )
+            }
+        }
+        if (
+            uiState.hasCalendarPermission &&
+            uiState.hasExactAlarmPermission &&
+            uiState.hasFullScreenIntentPermission
+        ) {
+            FloatingActionButton(
+                onClick = onOpenCalendar,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ) {
+                Icon(
+                    painterResource(date_range),
+                    contentDescription = stringResource(R.string.open_calendar),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RatingDialog(
+    onDismissRequest: () -> Unit,
+    onRateNow: () -> Unit,
+    onRateLater: () -> Unit,
+    onRateNeverShow: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text(stringResource(R.string.rate_app_title)) },
+        text = { Text(stringResource(R.string.rate_app_message)) },
+        confirmButton = {
+            Button(onClick = onRateNow) {
+                Text(stringResource(R.string.rate_now))
+            }
+        },
+        dismissButton = {
+            Column {
+                Button(onClick = onRateLater) {
+                    Text(stringResource(R.string.rate_later))
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = onRateNeverShow) {
+                    Text(stringResource(R.string.rate_never))
+                }
+            }
+        },
+    )
 }

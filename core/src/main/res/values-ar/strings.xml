@@ -101,10 +101,10 @@
     <string name="subscribe_now">اشترك الآن</string>
     <string name="generate_briefing">إنشاء الملخص</string>
     <string name="ai_briefing_instruction">يجب أن يكون الملخص باللغة العربية.</string>
-    <string name="smart_suggestion_title">اقتراحات ذكية (ذكاء اصطناعي)</string>
-    <string name="smart_suggestion_placeholder">تحليل عاداتك للحصول على نصائح مخصصة؟</string>
-    <string name="analyze_my_habits">تحليل عاداتي</string>
-    <string name="smart_suggestion_trial_invite">تعلم من جدولك الزمني واحصل على تنبيهات استباقية مع الخطة الشهرية الاحترافية!</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + ذكاء ✨</string>
+    <string name="ai_voice_interaction_title">كايروس صوت الذكاء الاصطناعي</string>
+    <string name="ai_answering">جاري معالجة سؤالك…</string>
+    <string name="cd_voice_capture">بدء الأمر الصوتي</string>
+    <string name="cd_close">إغلاق استجابة الذكاء الاصطناعي</string>
 </resources>

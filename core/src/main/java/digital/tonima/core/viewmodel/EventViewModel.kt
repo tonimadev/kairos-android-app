@@ -13,9 +13,9 @@ import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
+import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
-import digital.tonima.core.usecases.GetSmartNotificationSuggestionsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -56,10 +56,11 @@ data class EventScreenUiState(
     val snoozeTimeMinutes: Int = 10,
     val dailyBriefing: String? = null,
     val isGeneratingBriefing: Boolean = false,
-    val smartSuggestion: String? = null,
-    val isGeneratingSmartSuggestion: Boolean = false,
     val isProUser: Boolean = false,
     val isAiUser: Boolean = false,
+    val aiResponse: String? = null,
+    val isAskingAi: Boolean = false,
+    val lastAiQuestion: String? = null,
 )
 
 @HiltViewModel
@@ -74,7 +75,7 @@ class EventViewModel
         private val permissionManager: PermissionManager,
         private val calendarRepository: CalendarRepository,
         private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
-        private val getSmartNotificationSuggestionsUseCase: GetSmartNotificationSuggestionsUseCase,
+        private val askAiAboutScheduleUseCase: AskAiAboutScheduleUseCase,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
@@ -513,27 +514,32 @@ class EventViewModel
             }
         }
 
-        fun generateSmartSuggestions(languageInstruction: String) {
-            if (_uiState.value.smartSuggestion != null || _uiState.value.isGeneratingSmartSuggestion) return
-            if (!_uiState.value.isAiUser) return
+        fun askAi(
+            question: String,
+            languageInstruction: String,
+        ) {
+            if (question.isBlank() || _uiState.value.isAskingAi || !_uiState.value.isAiUser) return
 
             viewModelScope.launch {
-                _uiState.update { it.copy(isGeneratingSmartSuggestion = true) }
+                _uiState.update { it.copy(isAskingAi = true, lastAiQuestion = question, aiResponse = null) }
 
                 val currentMonth = YearMonth.now()
-                val previousMonth = currentMonth.minusMonths(1)
-
                 val eventsRecent =
-                    getEventsForMonthUseCase.invoke(currentMonth) +
-                        getEventsForMonthUseCase.invoke(previousMonth)
+                    getEventsForMonthUseCase.invoke(currentMonth.minusMonths(1)) +
+                        getEventsForMonthUseCase.invoke(currentMonth) +
+                        getEventsForMonthUseCase.invoke(currentMonth.plusMonths(1))
 
-                if (eventsRecent.isEmpty()) {
-                    _uiState.update { it.copy(isGeneratingSmartSuggestion = false) }
-                    return@launch
-                }
-
-                val suggestion = getSmartNotificationSuggestionsUseCase.invoke(eventsRecent, languageInstruction)
-                _uiState.update { it.copy(smartSuggestion = suggestion, isGeneratingSmartSuggestion = false) }
+                val response =
+                    askAiAboutScheduleUseCase.invoke(
+                        events = eventsRecent,
+                        question = question,
+                        languageInstruction = languageInstruction,
+                    )
+                _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
             }
+        }
+
+        fun clearAiResponse() {
+            _uiState.update { it.copy(aiResponse = null, lastAiQuestion = null) }
         }
     }

@@ -98,10 +98,10 @@
     <string name="subscribe_now">立即订阅</string>
     <string name="generate_briefing">生成摘要</string>
     <string name="ai_briefing_instruction">摘要必须使用中文。</string>
-    <string name="smart_suggestion_title">智能建议 (AI)</string>
-    <string name="smart_suggestion_placeholder">分析您的习惯以获得个性化提示吗？</string>
-    <string name="analyze_my_habits">分析我的习惯</string>
-    <string name="smart_suggestion_trial_invite">从您的日程安排中学习，并随 Pro 月度计划接收主动提醒！</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
+    <string name="ai_voice_interaction_title">Kairos 语音 AI</string>
+    <string name="ai_answering">正在处理您的问题…</string>
+    <string name="cd_voice_capture">开始语音命令</string>
+    <string name="cd_close">关闭 AI 响应</string>
 </resources>

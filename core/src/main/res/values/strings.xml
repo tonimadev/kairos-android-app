@@ -104,10 +104,10 @@
     <string name="subscribe_now">Assinar Agora</string>
     <string name="generate_briefing">Gerar Resumo</string>
     <string name="ai_briefing_instruction">O resumo deve ser em Português.</string>
-    <string name="smart_suggestion_title">Sugestões Inteligentes (IA)</string>
-    <string name="smart_suggestion_placeholder">Deseja analisar seus hábitos para receber dicas personalizadas?</string>
-    <string name="analyze_my_habits">Analisar Meus Hábitos</string>
-    <string name="smart_suggestion_trial_invite">Aprenda com seus horários e receba alertas proativos com o Plano Mensal Pro!</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + IA ✨</string>
+    <string name="ai_voice_interaction_title">Kairos Voice AI</string>
+    <string name="ai_answering">Processando sua pergunta…</string>
+    <string name="cd_voice_capture">Iniciar comando de voz</string>
+    <string name="cd_close">Fechar resposta da IA</string>
 </resources>

@@ -102,10 +102,10 @@
     <string name="subscribe_now">Subscribe Now</string>
     <string name="generate_briefing">Generate Summary</string>
     <string name="ai_briefing_instruction">The summary should be in English.</string>
-    <string name="smart_suggestion_title">Smart Suggestions (AI)</string>
-    <string name="smart_suggestion_placeholder">Analyze your habits for personalized tips?</string>
-    <string name="analyze_my_habits">Analyze My Habits</string>
-    <string name="smart_suggestion_trial_invite">Learn from your schedule and receive proactive alerts with the Pro Monthly Plan!</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
+    <string name="ai_voice_interaction_title">Kairos Voice AI</string>
+    <string name="ai_answering">Processing your question…</string>
+    <string name="cd_voice_capture">Start voice command</string>
+    <string name="cd_close">Close AI response</string>
 </resources>

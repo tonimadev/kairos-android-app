@@ -98,10 +98,10 @@
     <string name="subscribe_now">今すぐ購読</string>
     <string name="generate_briefing">要約を生成</string>
     <string name="ai_briefing_instruction">要約は日本語である必要があります。</string>
-    <string name="smart_suggestion_title">スマート提案 (AI)</string>
-    <string name="smart_suggestion_placeholder">習慣を分析してパーソナライズされたヒントを受け取りますか？</string>
-    <string name="analyze_my_habits">習慣を分析する</string>
-    <string name="smart_suggestion_trial_invite">スケジュールから学習し、Pro月間プランでプロアクティブなアラートを受け取りましょう！</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
+    <string name="ai_voice_interaction_title">カイロス音声AI</string>
+    <string name="ai_answering">質問を処理しています…</string>
+    <string name="cd_voice_capture">音声コマンドを開始</string>
+    <string name="cd_close">AIの応答を閉じる</string>
 </resources>

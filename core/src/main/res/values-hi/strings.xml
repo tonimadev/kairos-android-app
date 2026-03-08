@@ -101,10 +101,10 @@
     <string name="subscribe_now">अभी सब्सक्राइब करें</string>
     <string name="generate_briefing">सारांश तैयार करें</string>
     <string name="ai_briefing_instruction">सारांश हिंदी में होना चाहिए।</string>
-    <string name="smart_suggestion_title">स्मार्ट सुझाव (AI)</string>
-    <string name="smart_suggestion_placeholder">व्यक्तिगत युक्तियों के लिए अपनी आदतों का विश्लेषण करें?</string>
-    <string name="analyze_my_habits">मेरी आदतों का विश्लेषण करें</string>
-    <string name="smart_suggestion_trial_invite">अपने शेड्यूल से सीखें और प्रो मंथली प्लान के साथ सक्रिय अलर्ट प्राप्त करें!</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
+    <string name="ai_voice_interaction_title">कैरोस वॉयस एआई</string>
+    <string name="ai_answering">आपके प्रश्न पर कार्रवाई की जा रही है…</string>
+    <string name="cd_voice_capture">वॉयस कमांड शुरू करें</string>
+    <string name="cd_close">एआई प्रतिक्रिया बंद करें</string>
 </resources>

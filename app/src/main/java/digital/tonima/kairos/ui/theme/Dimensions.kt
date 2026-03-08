@@ -13,8 +13,10 @@ object Dimensions {
     val PaddingNormal = 16.dp
     val PaddingLarge = 24.dp
 
+    val SpacingExtraTiny = 2.dp
     val SpacingTiny = 4.dp
     val SpacingSmall = 8.dp
+    val SpacingExtraSmall = 6.dp
     val SpacingMedium = 10.dp
     val SpacingDefault = 12.dp
     val SpacingNormal = 16.dp
