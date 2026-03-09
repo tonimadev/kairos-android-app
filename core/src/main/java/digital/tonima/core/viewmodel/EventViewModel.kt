@@ -14,6 +14,7 @@ import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
+import digital.tonima.core.usecases.CreateEventUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
@@ -63,6 +64,7 @@ data class EventScreenUiState(
     val isAskingAi: Boolean = false,
     val lastAiQuestion: String? = null,
     val isSpeaking: Boolean = false,
+    val showCreateEventDialog: Boolean = false,
 )
 
 @HiltViewModel
@@ -79,6 +81,7 @@ class EventViewModel
         private val calendarRepository: CalendarRepository,
         private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
         private val askAiAboutScheduleUseCase: AskAiAboutScheduleUseCase,
+        private val createEventUseCase: CreateEventUseCase,
         private val ttsHelper: TextToSpeechHelper,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
@@ -566,5 +569,37 @@ class EventViewModel
         fun clearAiResponse() {
             stopSpeaking()
             _uiState.update { it.copy(aiResponse = null, lastAiQuestion = null) }
+        }
+
+        fun onCreateEventRequest() {
+            _uiState.update { it.copy(showCreateEventDialog = true) }
+        }
+
+        fun onCreateEventDismiss() {
+            _uiState.update { it.copy(showCreateEventDialog = false) }
+        }
+
+        fun createEvent(
+            calendarId: Long,
+            title: String,
+            description: String?,
+            location: String?,
+            startTime: Long,
+            endTime: Long,
+            isAllDay: Boolean,
+        ) {
+            viewModelScope.launch {
+                createEventUseCase.invoke(
+                    calendarId = calendarId,
+                    title = title,
+                    description = description,
+                    location = location,
+                    startTime = startTime,
+                    endTime = endTime,
+                    isAllDay = isAllDay,
+                )
+                _uiState.update { it.copy(showCreateEventDialog = false) }
+                onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+            }
         }
     }

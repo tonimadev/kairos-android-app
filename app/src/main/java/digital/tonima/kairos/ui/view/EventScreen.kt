@@ -65,6 +65,7 @@ import digital.tonima.kairos.core.R.drawable.date_range
 import digital.tonima.kairos.ui.components.AdBannerView
 import digital.tonima.kairos.ui.components.AiActions
 import digital.tonima.kairos.ui.components.AiVoiceInteractionCard
+import digital.tonima.kairos.ui.components.CreateEventDialog
 import digital.tonima.kairos.ui.components.DrawerContent
 import digital.tonima.kairos.ui.components.EventActions
 import digital.tonima.kairos.ui.components.ExactAlarmPermissionScreen
@@ -93,7 +94,10 @@ fun EventScreen(
 
     val standardPermissionsToRequest =
         remember {
-            mutableListOf(Manifest.permission.READ_CALENDAR).apply {
+            mutableListOf(
+                Manifest.permission.READ_CALENDAR,
+                Manifest.permission.WRITE_CALENDAR,
+            ).apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     add(Manifest.permission.POST_NOTIFICATIONS)
                 }
@@ -235,10 +239,19 @@ fun EventScreen(
                                 ).show()
                         }
                     },
+                    onCreateEvent = viewModel::onCreateEventRequest,
                 )
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
+            if (uiState.showCreateEventDialog) {
+                CreateEventDialog(
+                    onDismiss = viewModel::onCreateEventDismiss,
+                    onCreate = viewModel::createEvent,
+                    availableCalendars = uiState.availableCalendars,
+                    initialDate = uiState.selectedDate,
+                )
+            }
             Column(
                 modifier =
                     Modifier
@@ -405,6 +418,7 @@ private fun EventFloatingActionButtons(
     onStopSpeaking: () -> Unit,
     onStartVoiceCapture: () -> Unit,
     onOpenCalendar: () -> Unit,
+    onCreateEvent: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = Dimensions.PaddingNormal),
@@ -431,6 +445,19 @@ private fun EventFloatingActionButtons(
                 Icon(
                     painter = painterResource(digital.tonima.kairos.core.R.drawable.ic_mic),
                     contentDescription = stringResource(R.string.cd_voice_capture),
+                )
+            }
+        }
+        if (uiState.hasCalendarPermission) {
+            FloatingActionButton(
+                onClick = onCreateEvent,
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = MaterialTheme.colorScheme.onTertiary,
+                modifier = Modifier.padding(bottom = Dimensions.SpacingNormal),
+            ) {
+                Icon(
+                    painter = painterResource(digital.tonima.kairos.R.drawable.ic_add),
+                    contentDescription = stringResource(digital.tonima.kairos.core.R.string.create_event),
                 )
             }
         }

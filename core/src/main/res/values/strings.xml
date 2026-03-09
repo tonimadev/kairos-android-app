@@ -112,4 +112,16 @@
     <string name="cd_stop_speaking">Parar de falar</string>
     <string name="cd_voice_capture">Iniciar comando de voz</string>
     <string name="cd_close">Fechar resposta da IA</string>
+    <string name="create_event">Criar Evento</string>
+    <string name="event_title">Título do Evento</string>
+    <string name="calendar">Calendário</string>
+    <string name="all_day">Dia todo</string>
+    <string name="start_date">Data de Início</string>
+    <string name="start_time">Hora de Início</string>
+    <string name="end_date">Data de Término</string>
+    <string name="end_time">Hora de Término</string>
+    <string name="description">Descrição</string>
+    <string name="location">Localização</string>
+    <string name="create">Criar</string>
+    <string name="cancel">Cancelar</string>
 </resources>

@@ -110,4 +110,16 @@
     <string name="cd_stop_speaking">Stop speaking</string>
     <string name="cd_voice_capture">Start voice command</string>
     <string name="cd_close">Close AI response</string>
+    <string name="create_event">Create Event</string>
+    <string name="event_title">Event Title</string>
+    <string name="calendar">Calendar</string>
+    <string name="all_day">All day</string>
+    <string name="start_date">Start Date</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_date">End Date</string>
+    <string name="end_time">End Time</string>
+    <string name="description">Description</string>
+    <string name="location">Location</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
 </resources>

@@ -67,9 +67,10 @@ class TextToSpeechHelper
         }
 
         private fun speakText(text: String) {
+            val cleanedText = text.replace("**", "")
             val params = android.os.Bundle()
             params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ai_response")
-            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params, "ai_response")
+            tts?.speak(cleanedText, TextToSpeech.QUEUE_FLUSH, params, "ai_response")
         }
 
         fun stop() {

@@ -32,12 +32,13 @@ object NotificationHelper {
         title: String,
         content: String,
     ) {
+        val cleanedContent = content.replace("**", "")
         val builder =
             NotificationCompat.Builder(context, CHANNEL_DAILY_BRIEFING)
                 .setSmallIcon(R.drawable.ic_k_monochrome)
                 .setContentTitle(title)
-                .setContentText(content)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(content))
+                .setContentText(cleanedContent)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(cleanedContent))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
 

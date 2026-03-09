@@ -15,4 +15,14 @@ interface CalendarRepository {
     suspend fun getNextUpcomingEvent(allowedCalendarIds: List<Long> = emptyList()): Event?
 
     suspend fun isRecurring(eventId: Long): Boolean
+
+    suspend fun insertEvent(
+        calendarId: Long,
+        title: String,
+        description: String? = null,
+        location: String? = null,
+        startTime: Long,
+        endTime: Long,
+        isAllDay: Boolean = false,
+    ): Long?
 }

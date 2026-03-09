@@ -46,6 +46,10 @@ class CalendarRepositoryImpl
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
                 PackageManager.PERMISSION_GRANTED
 
+        private fun hasWriteCalendarPermission() =
+            ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) ==
+                PackageManager.PERMISSION_GRANTED
+
         override suspend fun getAvailableCalendars(): List<DeviceCalendar> =
             withContext(Dispatchers.IO) {
                 if (!hasCalendarPermission()) {
@@ -259,5 +263,38 @@ class CalendarRepositoryImpl
                     }
                 }
                 return@withContext recurring
+            }
+
+        override suspend fun insertEvent(
+            calendarId: Long,
+            title: String,
+            description: String?,
+            location: String?,
+            startTime: Long,
+            endTime: Long,
+            isAllDay: Boolean,
+        ): Long? =
+            withContext(Dispatchers.IO) {
+                if (!hasWriteCalendarPermission()) {
+                    logcat { "Tentativa de inserir evento sem a permissão WRITE_CALENDAR." }
+                    return@withContext null
+                }
+
+                val values =
+                    android.content.ContentValues().apply {
+                        put(CalendarContract.Events.DTSTART, startTime)
+                        put(CalendarContract.Events.DTEND, endTime)
+                        put(CalendarContract.Events.TITLE, title)
+                        put(CalendarContract.Events.DESCRIPTION, description)
+                        put(CalendarContract.Events.CALENDAR_ID, calendarId)
+                        put(CalendarContract.Events.EVENT_TIMEZONE, ZoneId.systemDefault().id)
+                        put(CalendarContract.Events.ALL_DAY, if (isAllDay) 1 else 0)
+                        if (location != null) {
+                            put(CalendarContract.Events.EVENT_LOCATION, location)
+                        }
+                    }
+
+                val uri = context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
+                return@withContext uri?.lastPathSegment?.toLongOrNull()
             }
     }

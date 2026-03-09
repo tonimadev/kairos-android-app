@@ -13,6 +13,7 @@ import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
+import digital.tonima.core.usecases.CreateEventUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
@@ -63,6 +64,7 @@ class EventViewModelTest {
     private val mockCalendarRepository: CalendarRepository = mockk(relaxed = true)
     private val mockGenerateDailyBriefingUseCase: GenerateDailyBriefingUseCase = mockk(relaxed = true)
     private val mockAskAiAboutScheduleUseCase: AskAiAboutScheduleUseCase = mockk(relaxed = true)
+    private val mockCreateEventUseCase: CreateEventUseCase = mockk(relaxed = true)
 
     private val ttsHelper: TextToSpeechHelper = mockk(relaxed = true)
     private lateinit var viewModel: EventViewModel
@@ -116,6 +118,7 @@ class EventViewModelTest {
                 mockCalendarRepository,
                 mockGenerateDailyBriefingUseCase,
                 mockAskAiAboutScheduleUseCase,
+                mockCreateEventUseCase,
                 ttsHelper,
             )
     }
@@ -239,6 +242,7 @@ class EventViewModelTest {
                     mockCalendarRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
+                    mockCreateEventUseCase,
                     ttsHelper,
                 )
 
@@ -270,6 +274,7 @@ class EventViewModelTest {
                     mockCalendarRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
+                    mockCreateEventUseCase,
                     ttsHelper,
                 )
             io.mockk.clearMocks(mockScheduler, answers = false)
@@ -479,6 +484,7 @@ class EventViewModelTest {
                     mockCalendarRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
+                    mockCreateEventUseCase,
                     ttsHelper,
                 )
             advanceUntilIdle()
@@ -511,6 +517,7 @@ class EventViewModelTest {
                     mockCalendarRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
+                    mockCreateEventUseCase,
                     ttsHelper,
                 )
             advanceUntilIdle()
@@ -541,6 +548,7 @@ class EventViewModelTest {
                     mockCalendarRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
+                    mockCreateEventUseCase,
                     ttsHelper,
                 )
             advanceUntilIdle()
@@ -571,6 +579,7 @@ class EventViewModelTest {
                     mockCalendarRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
+                    mockCreateEventUseCase,
                     ttsHelper,
                 )
             advanceUntilIdle()

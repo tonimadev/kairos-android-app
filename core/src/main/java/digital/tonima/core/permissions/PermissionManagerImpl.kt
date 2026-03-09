@@ -17,7 +17,11 @@ class PermissionManagerImpl
     constructor(
         @ApplicationContext private val context: Context,
     ) : PermissionManager {
-        override val calendarPermissions: List<String> = listOf(Manifest.permission.READ_CALENDAR)
+        override val calendarPermissions: List<String> =
+            listOf(
+                Manifest.permission.READ_CALENDAR,
+                Manifest.permission.WRITE_CALENDAR,
+            )
         override val notificationPermissions: List<String> =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 listOf(Manifest.permission.POST_NOTIFICATIONS)
@@ -33,7 +37,11 @@ class PermissionManagerImpl
             return ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_CALENDAR,
-            ) == PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.WRITE_CALENDAR,
+                ) == PackageManager.PERMISSION_GRANTED
         }
 
         override fun hasPostNotificationsPermission(): Boolean {
@@ -75,8 +83,19 @@ class PermissionManagerImpl
 
         override fun getMissingStandardPermissions(): List<String> {
             val missing = mutableListOf<String>()
-            if (!hasCalendarPermission()) {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_CALENDAR,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 missing.add(Manifest.permission.READ_CALENDAR)
+            }
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.WRITE_CALENDAR,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                missing.add(Manifest.permission.WRITE_CALENDAR)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasPostNotificationsPermission()) {
                 missing.add(Manifest.permission.POST_NOTIFICATIONS)
