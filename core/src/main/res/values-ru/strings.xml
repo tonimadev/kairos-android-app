@@ -110,4 +110,22 @@
     <string name="cd_stop_speaking">Остановить чтение</string>
     <string name="cd_voice_capture">Запустить голосовую команду</string>
     <string name="cd_close">Закрыть ответ ИИ</string>
+    <string name="create_event">Создать событие</string>
+    <string name="event_title">Заголовок события</string>
+    <string name="calendar">Календарь</string>
+    <string name="all_day">Весь день</string>
+    <string name="start_date">Дата начала</string>
+    <string name="start_time">Время начала</string>
+    <string name="end_date">Дата окончания</string>
+    <string name="end_time">Время окончания</string>
+    <string name="description">Описание</string>
+    <string name="location">Местоположение</string>
+    <string name="create">Создать</string>
+    <string name="cancel">Отмена</string>
+    <string name="ai_suggestions_title">Чем я могу помочь?</string>
+    <string name="ai_suggestion_sleep">Во сколько мне стоит лечь спать сегодня?</string>
+    <string name="ai_suggestion_create_event">Записать к стоматологу на завтра на 10 утра</string>
+    <string name="ai_suggestion_reminder">Напомнить купить молоко сегодня</string>
+    <string name="ai_suggestion_agenda">Как выглядит мой график на сегодня?</string>
+    <string name="manage_subscription">Управление подпиской</string>
 </resources>

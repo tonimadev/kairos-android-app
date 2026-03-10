@@ -770,6 +770,46 @@ class EventViewModelTest {
         }
 
     @Test
+    fun `askAi with JSON in markdown blocks opens create event dialog`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+
+            val jsonResponse =
+                """
+                ```json
+                {
+                  "title": "Dentista",
+                  "startTime": 1710101000000,
+                  "endTime": 1710104600000,
+                  "isAllDay": false
+                }
+                ```
+                """.trimIndent()
+
+            coEvery {
+                mockAskAiAboutScheduleUseCase.invoke(any(), any(), any())
+            } returns jsonResponse
+
+            viewModel.uiState.test {
+                // Pegar o estado atual após advanceUntilIdle
+                val initialState = awaitItem()
+                assertTrue(initialState.isAiUser)
+
+                viewModel.askAi("Marcar dentista", "instrucao")
+
+                val loadingState = awaitItem()
+                assertTrue(loadingState.isAskingAi)
+
+                val finalState = awaitItem()
+                assertFalse(finalState.isAskingAi)
+                assertTrue(finalState.showCreateEventDialog)
+                assertEquals("Dentista", finalState.voiceEventData?.title)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
     fun `clearAiResponse resets UI state`() =
         runTest {
             viewModel.askAi("Q", "I")
@@ -784,5 +824,17 @@ class EventViewModelTest {
                 assertNull(state.lastAiQuestion)
                 cancelAndConsumeRemainingEvents()
             }
+        }
+
+    @Test
+    fun `onStartVoiceCaptureRequest and onDismissAiSuggestions toggle UI state`() =
+        runTest {
+            viewModel.onStartVoiceCaptureRequest()
+            advanceUntilIdle()
+            assertTrue(viewModel.uiState.value.showAiSuggestionsDialog)
+
+            viewModel.onDismissAiSuggestions()
+            advanceUntilIdle()
+            assertFalse(viewModel.uiState.value.showAiSuggestionsDialog)
         }
 }

@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.net.toUri
 import digital.tonima.kairos.R.drawable.favorite
 import digital.tonima.kairos.R.drawable.ic_share
 import digital.tonima.kairos.R.drawable.star
@@ -134,6 +135,24 @@ fun DrawerContent(
                     selected = false,
                     onClick = {
                         onUpgradeToProClick()
+                        onCloseDrawer()
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                )
+            }
+
+            if (isProUser) {
+                NavigationDrawerItem(
+                    icon = { Icon(painterResource(star), contentDescription = null) },
+                    label = { Text(stringResource(digital.tonima.kairos.core.R.string.manage_subscription)) },
+                    selected = false,
+                    onClick = {
+                        val browserIntent =
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                "https://play.google.com/store/account/subscriptions".toUri(),
+                            )
+                        context.startActivity(browserIntent)
                         onCloseDrawer()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),

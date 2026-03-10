@@ -9,4 +9,6 @@ interface BillingManager {
     fun connect()
 
     fun launchPurchaseFlow(activity: Activity)
+
+    fun refresh()
 }

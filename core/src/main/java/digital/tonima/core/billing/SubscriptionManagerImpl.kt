@@ -106,6 +106,10 @@ class SubscriptionManagerImpl
             }
         }
 
+        override fun refresh() {
+            queryPurchases()
+        }
+
         override fun launchSubscriptionFlow(activity: Activity) {
             if (!billingClient.isReady) {
                 logcat(LogPriority.ERROR) {
@@ -201,7 +205,9 @@ class SubscriptionManagerImpl
 
                 billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
                     if (billingResult.responseCode == OK) {
+                        logcat { "Subscription acknowledged successfully. Updating pro status." }
                         _isProUser.value = true
+                        queryPurchases()
                     }
                 }
             }

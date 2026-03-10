@@ -1,3 +1,8 @@
+- Voice assistant for smart event creation.
+- New AI command suggestions dialog.
+- Daily AI briefing card now always visible.
+- "Manage subscription" option added to the side menu.
+- Fixed automatic Pro status update after purchase.
 - Added event search functionality.
 - New Snooze feature for alarms with customizable delay time.
 - System-synced calendar colors for better visualization.

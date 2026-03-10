@@ -77,6 +77,22 @@ class AskAiAboutScheduleUseCaseImpl
                 Responda à pergunta do usuário de forma direta, útil e amigável.
                 Se a pergunta for sobre horários (ex: "quando dormir"), analise os compromissos do dia seguinte para dar uma sugestão fundamentada.
 
+                CRIAÇÃO DE EVENTOS:
+                Se o usuário expressar a intenção de criar um evento, lembrete ou alarme (ex: "marcar dentista amanhã às 10h", "lembrar de comprar leite hoje", "criar alarme para reunião às 15h"), você deve retornar EXCLUSIVAMENTE um objeto JSON com as informações do evento. Não inclua nenhum texto adicional antes ou depois do JSON.
+                O formato do JSON deve ser:
+                {
+                  "title": "Título do evento",
+                  "description": "Descrição opcional",
+                  "location": "Local opcional",
+                  "startTime": 1710101000000,
+                  "endTime": 1710104600000,
+                  "isAllDay": false
+                }
+                - startTime e endTime devem ser em milissegundos (Unix Timestamp).
+                - Se o usuário não especificar a duração, assuma 1 hora.
+                - Se o usuário não especificar a data, assuma hoje (ou amanhã se o horário já tiver passado hoje).
+                - Se for um evento de dia inteiro, defina isAllDay como true.
+
                 Data e Hora atual: $nowStr
 
                 Pergunta do usuário: "$question"

@@ -111,4 +111,22 @@
     <string name="cd_stop_speaking">Sprachausgabe stoppen</string>
     <string name="cd_voice_capture">Sprachbefehl starten</string>
     <string name="cd_close">KI-Antwort schließen</string>
+    <string name="create_event">Ereignis erstellen</string>
+    <string name="event_title">Titel des Ereignisses</string>
+    <string name="calendar">Kalender</string>
+    <string name="all_day">Ganztägig</string>
+    <string name="start_date">Startdatum</string>
+    <string name="start_time">Startzeit</string>
+    <string name="end_date">Enddatum</string>
+    <string name="end_time">Endzeit</string>
+    <string name="description">Beschreibung</string>
+    <string name="location">Standort</string>
+    <string name="create">Erstellen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="ai_suggestions_title">Wie kann ich dir helfen?</string>
+    <string name="ai_suggestion_sleep">Wann sollte ich heute schlafen gehen?</string>
+    <string name="ai_suggestion_create_event">Zahnarzttermin für morgen um 10 Uhr eintragen</string>
+    <string name="ai_suggestion_reminder">Erinnere mich daran, heute Milch zu kaufen</string>
+    <string name="ai_suggestion_agenda">Wie sieht mein Terminplan für heute aus?</string>
+    <string name="manage_subscription">Abonnement verwalten</string>
 </resources>

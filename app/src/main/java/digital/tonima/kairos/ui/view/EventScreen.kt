@@ -64,6 +64,7 @@ import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.date_range
 import digital.tonima.kairos.ui.components.AdBannerView
 import digital.tonima.kairos.ui.components.AiActions
+import digital.tonima.kairos.ui.components.AiSuggestionsDialog
 import digital.tonima.kairos.ui.components.AiVoiceInteractionCard
 import digital.tonima.kairos.ui.components.CreateEventDialog
 import digital.tonima.kairos.ui.components.DrawerContent
@@ -165,7 +166,7 @@ fun EventScreen(
             }
         }
 
-    val startVoiceCapture = {
+    val launchVoiceCapture = {
         val intent =
             Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -177,6 +178,8 @@ fun EventScreen(
             Toast.makeText(context, R.string.cannot_open_event, Toast.LENGTH_SHORT).show()
         }
     }
+
+    val startVoiceCapture = viewModel::onStartVoiceCaptureRequest
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -250,6 +253,17 @@ fun EventScreen(
                     onCreate = viewModel::createEvent,
                     availableCalendars = uiState.availableCalendars,
                     initialDate = uiState.selectedDate,
+                    voiceEventData = uiState.voiceEventData,
+                )
+            }
+            if (uiState.showAiSuggestionsDialog) {
+                AiSuggestionsDialog(
+                    onDismiss = viewModel::onDismissAiSuggestions,
+                    onSuggestionClick = { suggestion -> viewModel.askAi(suggestion, aiInstruction) },
+                    onVoiceClick = {
+                        viewModel.onDismissAiSuggestions()
+                        launchVoiceCapture()
+                    },
                 )
             }
             Column(
@@ -443,7 +457,7 @@ private fun EventFloatingActionButtons(
                 modifier = Modifier.padding(bottom = Dimensions.SpacingNormal),
             ) {
                 Icon(
-                    painter = painterResource(digital.tonima.kairos.core.R.drawable.ic_mic),
+                    painter = painterResource(R.drawable.ic_mic),
                     contentDescription = stringResource(R.string.cd_voice_capture),
                 )
             }
@@ -457,7 +471,7 @@ private fun EventFloatingActionButtons(
             ) {
                 Icon(
                     painter = painterResource(digital.tonima.kairos.R.drawable.ic_add),
-                    contentDescription = stringResource(digital.tonima.kairos.core.R.string.create_event),
+                    contentDescription = stringResource(R.string.create_event),
                 )
             }
         }

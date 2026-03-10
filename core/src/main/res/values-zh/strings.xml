@@ -106,4 +106,22 @@
     <string name="cd_stop_speaking">停止播放</string>
     <string name="cd_voice_capture">开始语音命令</string>
     <string name="cd_close">关闭 AI 响应</string>
+    <string name="create_event">创建事件</string>
+    <string name="event_title">事件标题</string>
+    <string name="calendar">日历</string>
+    <string name="all_day">全天</string>
+    <string name="start_date">开始日期</string>
+    <string name="start_time">开始时间</string>
+    <string name="end_date">结束日期</string>
+    <string name="end_time">结束时间</string>
+    <string name="description">说明</string>
+    <string name="location">位置</string>
+    <string name="create">创建</string>
+    <string name="cancel">取消</string>
+    <string name="ai_suggestions_title">我能帮您什么？</string>
+    <string name="ai_suggestion_sleep">我今天几点该睡觉？</string>
+    <string name="ai_suggestion_create_event">预约明天上午 10 点看牙医</string>
+    <string name="ai_suggestion_reminder">提醒我今天买牛奶</string>
+    <string name="ai_suggestion_agenda">我今天的日程安排是什么？</string>
+    <string name="manage_subscription">管理订阅</string>
 </resources>

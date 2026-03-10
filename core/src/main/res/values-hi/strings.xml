@@ -109,4 +109,22 @@
     <string name="cd_stop_speaking">बोलना बंद करें</string>
     <string name="cd_voice_capture">वॉयस कमांड शुरू करें</string>
     <string name="cd_close">एआई प्रतिक्रिया बंद करें</string>
+    <string name="create_event">ईवेंट बनाएँ</string>
+    <string name="event_title">ईवेंट शीर्षक</string>
+    <string name="calendar">कैलेंडर</string>
+    <string name="all_day">पूरा दिन</string>
+    <string name="start_date">प्रारंभ तिथि</string>
+    <string name="start_time">प्रारंभ समय</string>
+    <string name="end_date">समाप्ति तिथि</string>
+    <string name="end_time">समाप्ति समय</string>
+    <string name="description">विवरण</string>
+    <string name="location">स्थान</string>
+    <string name="create">बनाएँ</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="ai_suggestions_title">मैं आपकी क्या मदद कर सकता हूँ?</string>
+    <string name="ai_suggestion_sleep">मुझे आज किस समय सोना चाहिए?</string>
+    <string name="ai_suggestion_create_event">कल सुबह 10 बजे डेंटिस्ट का अपॉइंटमेंट शेड्यूल करें</string>
+    <string name="ai_suggestion_reminder">आज दूध खरीदने के लिए याद दिलाएं</string>
+    <string name="ai_suggestion_agenda">आज मेरा एजेंडा कैसा है?</string>
+    <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
 </resources>

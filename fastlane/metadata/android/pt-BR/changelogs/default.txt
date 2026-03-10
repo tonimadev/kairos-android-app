@@ -1,3 +1,8 @@
+- Assistente de voz para criação inteligente de eventos.
+- Novo diálogo com sugestões de comandos para a IA.
+- Card de resumo diário da IA sempre visível.
+- Opção "Gerenciar assinatura" adicionada ao menu lateral.
+- Correção na atualização automática do status Pro após a compra.
 - Adicionado sistema de busca de eventos.
 - Novo recurso de Adiar (Snooze) para alarmes com tempo configurável.
 - Cores de calendário sincronizadas do sistema para melhor visualização.

@@ -94,7 +94,8 @@ fun EventList(
                     )
                 }
 
-                if (uiState.selectedDate == today && uiState.searchQuery.isBlank() && eventsInDay.isNotEmpty()) {
+                val showBriefingCard = uiState.selectedDate == today && uiState.searchQuery.isBlank()
+                if (showBriefingCard) {
                     item {
                         DailyBriefingCard(
                             briefing = uiState.dailyBriefing,
@@ -112,7 +113,15 @@ fun EventList(
                         Box(
                             modifier =
                                 Modifier
-                                    .fillParentMaxSize(),
+                                    .then(
+                                        if (showBriefingCard) {
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = Dimensions.PaddingLarge)
+                                        } else {
+                                            Modifier.fillParentMaxSize()
+                                        },
+                                    ),
                             contentAlignment = Alignment.Center,
                         ) { Text(stringResource(R.string.no_events_found_for_this_day)) }
                     }

@@ -103,7 +103,6 @@
     <string name="daily_briefing_trial_invite">Descubra como a IA pode organizar seu dia. Teste o Plano Mensal agora!</string>
     <string name="subscribe_now">Assinar Agora</string>
     <string name="generate_briefing">Gerar Resumo</string>
-    <string name="ai_briefing_instruction">O resumo deve ser em Português.</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + IA ✨</string>
     <string name="ai_voice_interaction_title">Kairos Voice AI</string>
@@ -124,4 +123,11 @@
     <string name="location">Localização</string>
     <string name="create">Criar</string>
     <string name="cancel">Cancelar</string>
+    <string name="ai_suggestions_title">Como posso te ajudar?</string>
+    <string name="ai_suggestion_sleep">Que horas devo dormir hoje?</string>
+    <string name="ai_suggestion_create_event">Marcar dentista amanhã às 10h</string>
+    <string name="ai_suggestion_reminder">Lembrar de comprar leite hoje</string>
+    <string name="ai_suggestion_agenda">Como está minha agenda de hoje?</string>
+    <string name="manage_subscription">Gerenciar assinatura</string>
+    <string name="ai_briefing_instruction">O resumo deve ser em Português.</string>
 </resources>

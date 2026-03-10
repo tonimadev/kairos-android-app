@@ -68,10 +68,11 @@ class RingerModeRepositoryImpl
          * Inicia a observação das alterações do modo de som.
          */
         override fun startObserving() {
-            val filter = IntentFilter().apply {
-                addAction(AudioManager.RINGER_MODE_CHANGED_ACTION)
-                addAction("android.media.VOLUME_CHANGED_ACTION")
-            }
+            val filter =
+                IntentFilter().apply {
+                    addAction(AudioManager.RINGER_MODE_CHANGED_ACTION)
+                    addAction("android.media.VOLUME_CHANGED_ACTION")
+                }
             context.registerReceiver(ringerModeReceiver, filter)
         }
 

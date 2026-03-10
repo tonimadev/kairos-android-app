@@ -34,6 +34,15 @@ import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+data class VoiceEventData(
+    val title: String,
+    val description: String? = null,
+    val location: String? = null,
+    val startTime: Long? = null,
+    val endTime: Long? = null,
+    val isAllDay: Boolean = false,
+)
+
 data class EventScreenUiState(
     val events: List<Event> = emptyList(),
     val isGlobalAlarmEnabled: Boolean = true,
@@ -65,6 +74,8 @@ data class EventScreenUiState(
     val lastAiQuestion: String? = null,
     val isSpeaking: Boolean = false,
     val showCreateEventDialog: Boolean = false,
+    val voiceEventData: VoiceEventData? = null,
+    val showAiSuggestionsDialog: Boolean = false,
 )
 
 @HiltViewModel
@@ -408,6 +419,7 @@ class EventViewModel
 
         fun onPurchaseFlowHandled() {
             _uiState.update { it.copy(showUpgradeConfirmation = false) }
+            refresh()
         }
 
         fun onRatingDialogDismiss() {
@@ -543,9 +555,63 @@ class EventViewModel
                         question = question,
                         languageInstruction = languageInstruction,
                     )
-                _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
-                response?.let { speak(it) }
+
+                if (response != null) {
+                    val trimmedResponse = response.trim()
+                    val hasJsonStart = trimmedResponse.contains("\"title\":") && trimmedResponse.contains("{")
+
+                    if (hasJsonStart) {
+                        try {
+                            val voiceEventData = parseVoiceEventData(trimmedResponse)
+                            if (voiceEventData != null) {
+                                _uiState.update {
+                                    it.copy(
+                                        isAskingAi = false,
+                                        showCreateEventDialog = true,
+                                        voiceEventData = voiceEventData,
+                                    )
+                                }
+                            } else {
+                                // Caso não consiga extrair dados válidos do JSON suspeito
+                                _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
+                                speak(response)
+                            }
+                        } catch (e: Exception) {
+                            logcat(LogPriority.ERROR) { "Error parsing voice event data: ${e.message}" }
+                            _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
+                            speak(response)
+                        }
+                    } else {
+                        _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
+                        speak(response)
+                    }
+                } else {
+                    _uiState.update { it.copy(isAskingAi = false) }
+                }
             }
+        }
+
+        private fun parseVoiceEventData(jsonStr: String): VoiceEventData? {
+            val titleMatch = Regex("\"title\":\\s*\"([^\"]+)\"").find(jsonStr)
+            val title = titleMatch?.groupValues?.get(1) ?: return null
+
+            val description = Regex("\"description\":\\s*\"([^\"]+)\"").find(jsonStr)?.groupValues?.get(1)
+            val location = Regex("\"location\":\\s*\"([^\"]+)\"").find(jsonStr)?.groupValues?.get(1)
+            val startTime = Regex("\"startTime\":\\s*(\\d+)").find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
+            val endTime = Regex("\"endTime\":\\s*(\\d+)").find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
+            val isAllDay =
+                Regex(
+                    "\"isAllDay\":\\s*(true|false)",
+                ).find(jsonStr)?.groupValues?.get(1)?.toBoolean() ?: false
+
+            return VoiceEventData(
+                title = title,
+                description = description,
+                location = location,
+                startTime = startTime,
+                endTime = endTime,
+                isAllDay = isAllDay,
+            )
         }
 
         private fun speak(text: String) {
@@ -571,12 +637,20 @@ class EventViewModel
             _uiState.update { it.copy(aiResponse = null, lastAiQuestion = null) }
         }
 
-        fun onCreateEventRequest() {
-            _uiState.update { it.copy(showCreateEventDialog = true) }
+        fun onCreateEventRequest(voiceEventData: VoiceEventData? = null) {
+            _uiState.update { it.copy(showCreateEventDialog = true, voiceEventData = voiceEventData) }
         }
 
         fun onCreateEventDismiss() {
-            _uiState.update { it.copy(showCreateEventDialog = false) }
+            _uiState.update { it.copy(showCreateEventDialog = false, voiceEventData = null) }
+        }
+
+        fun onStartVoiceCaptureRequest() {
+            _uiState.update { it.copy(showAiSuggestionsDialog = true) }
+        }
+
+        fun onDismissAiSuggestions() {
+            _uiState.update { it.copy(showAiSuggestionsDialog = false) }
         }
 
         fun createEvent(

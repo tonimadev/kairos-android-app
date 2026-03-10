@@ -9,4 +9,6 @@ interface SubscriptionManager {
     fun connect()
 
     fun launchSubscriptionFlow(activity: Activity)
+
+    fun refresh()
 }

@@ -122,4 +122,10 @@
     <string name="location">Location</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
+    <string name="ai_suggestions_title">How can I help you?</string>
+    <string name="ai_suggestion_sleep">What time should I sleep today?</string>
+    <string name="ai_suggestion_create_event">Schedule dentist tomorrow at 10am</string>
+    <string name="ai_suggestion_reminder">Remind me to buy milk today</string>
+    <string name="ai_suggestion_agenda">How is my agenda for today?</string>
+    <string name="manage_subscription">Manage subscription</string>
 </resources>

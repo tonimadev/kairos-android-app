@@ -106,4 +106,22 @@
     <string name="cd_stop_speaking">読み上げを停止</string>
     <string name="cd_voice_capture">音声コマンドを開始</string>
     <string name="cd_close">AIの応答を閉じる</string>
+    <string name="create_event">イベントを作成</string>
+    <string name="event_title">イベントタイトル</string>
+    <string name="calendar">カレンダー</string>
+    <string name="all_day">終日</string>
+    <string name="start_date">開始日</string>
+    <string name="start_time">開始時刻</string>
+    <string name="end_date">終了日</string>
+    <string name="end_time">終了時刻</string>
+    <string name="description">説明</string>
+    <string name="location">場所</string>
+    <string name="create">作成</string>
+    <string name="cancel">キャンセル</string>
+    <string name="ai_suggestions_title">何かお手伝いできることはありますか？</string>
+    <string name="ai_suggestion_sleep">今日は何時に寝るべきですか？</string>
+    <string name="ai_suggestion_create_event">明日の午前10時に歯医者の予約を入れる</string>
+    <string name="ai_suggestion_reminder">今日、牛乳を買うのを忘れないようにする</string>
+    <string name="ai_suggestion_agenda">今日の予定はどうなっていますか？</string>
+    <string name="manage_subscription">サブスクリプションの管理</string>
 </resources>

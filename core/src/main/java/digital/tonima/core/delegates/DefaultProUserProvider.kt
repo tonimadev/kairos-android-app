@@ -16,10 +16,15 @@ import javax.inject.Inject
 class DefaultProUserProvider
     @Inject
     constructor(
-        billingManager: BillingManager,
-        subscriptionManager: SubscriptionManager,
+        private val billingManager: BillingManager,
+        private val subscriptionManager: SubscriptionManager,
     ) : ProUserProvider {
         private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+        override fun refresh() {
+            billingManager.refresh()
+            subscriptionManager.refresh()
+        }
 
         override val isProUser: StateFlow<Boolean> =
             combine(

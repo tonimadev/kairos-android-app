@@ -109,4 +109,22 @@
     <string name="cd_stop_speaking">توقف عن التحدث</string>
     <string name="cd_voice_capture">بدء الأمر الصوتي</string>
     <string name="cd_close">إغلاق استجابة الذكاء الاصطناعي</string>
+    <string name="create_event">إنشاء حدث</string>
+    <string name="event_title">عنوان الحدث</string>
+    <string name="calendar">التقويم</string>
+    <string name="all_day">طوال اليوم</string>
+    <string name="start_date">تاريخ البدء</string>
+    <string name="start_time">وقت البدء</string>
+    <string name="end_date">تاريخ الانتهاء</string>
+    <string name="end_time">وقت الانتهاء</string>
+    <string name="description">الوصف</string>
+    <string name="location">الموقع</string>
+    <string name="create">إنشاء</string>
+    <string name="cancel">إلغاء</string>
+    <string name="ai_suggestions_title">كيف يمكنني مساعدتك؟</string>
+    <string name="ai_suggestion_sleep">ما هو الوقت الذي يجب أن أنام فيه اليوم؟</string>
+    <string name="ai_suggestion_create_event">حدد موعدًا لطبيب الأسنان غدًا الساعة 10 صباحًا</string>
+    <string name="ai_suggestion_reminder">ذكرني بشراء الحليب اليوم</string>
+    <string name="ai_suggestion_agenda">كيف هو جدول أعمالي اليوم؟</string>
+    <string name="manage_subscription">إدارة الاشتراك</string>
 </resources>

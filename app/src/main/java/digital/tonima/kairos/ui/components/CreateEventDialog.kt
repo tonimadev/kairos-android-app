@@ -60,15 +60,27 @@ fun CreateEventDialog(
     ) -> Unit,
     availableCalendars: List<DeviceCalendar>,
     initialDate: LocalDate = LocalDate.now(),
+    voiceEventData: digital.tonima.core.viewmodel.VoiceEventData? = null,
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf(initialDate) }
-    var startTime by remember { mutableStateOf(LocalTime.now().plusHours(1).withMinute(0)) }
-    var endDate by remember { mutableStateOf(initialDate) }
-    var endTime by remember { mutableStateOf(LocalTime.now().plusHours(2).withMinute(0)) }
-    var isAllDay by remember { mutableStateOf(false) }
+    var title by remember { mutableStateOf(voiceEventData?.title ?: "") }
+    var description by remember { mutableStateOf(voiceEventData?.description ?: "") }
+    var location by remember { mutableStateOf(voiceEventData?.location ?: "") }
+
+    val initialStartDateTime =
+        voiceEventData?.startTime?.let {
+            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        } ?: LocalDateTime.of(initialDate, LocalTime.now().plusHours(1).withMinute(0))
+
+    val initialEndDateTime =
+        voiceEventData?.endTime?.let {
+            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        } ?: initialStartDateTime.plusHours(1)
+
+    var startDate by remember { mutableStateOf(initialStartDateTime.toLocalDate()) }
+    var startTime by remember { mutableStateOf(initialStartDateTime.toLocalTime()) }
+    var endDate by remember { mutableStateOf(initialEndDateTime.toLocalDate()) }
+    var endTime by remember { mutableStateOf(initialEndDateTime.toLocalTime()) }
+    var isAllDay by remember { mutableStateOf(voiceEventData?.isAllDay ?: false) }
     var selectedCalendar by remember { mutableStateOf(availableCalendars.firstOrNull()) }
     var calendarExpanded by remember { mutableStateOf(false) }
 

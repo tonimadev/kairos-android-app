@@ -1,3 +1,8 @@
+- Asistente de voz para creación inteligente de eventos.
+- Nuevo diálogo con sugerencias de comandos de IA.
+- Tarjeta de resumen diario de IA ahora siempre visible.
+- Opción "Gestionar suscripción" añadida al menú lateral.
+- Se corrigió la actualización automática del estado Pro tras la compra.
 - Añadida funcionalidad de búsqueda de eventos.
 - Nueva función de Pospone (Snooze) para alarmas con tiempo configurable.
 - Colores de calendario sincronizados del sistema para una mejor visualización.
