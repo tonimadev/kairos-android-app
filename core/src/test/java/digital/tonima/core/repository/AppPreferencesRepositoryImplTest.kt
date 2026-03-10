@@ -128,13 +128,57 @@ class AppPreferencesRepositoryImplTest {
         }
 
     @Test
-    fun `getWakeUpHistory defaults to empty and can add items`() =
+    fun `isAllDayAlarmsEnabled defaults to true and can be toggled`() =
         runTest {
-            repository.getWakeUpHistory().test {
-                assertEquals(emptyList<Long>(), awaitItem())
-                val timestamp = 123456789L
-                repository.addWakeUpTimestamp(timestamp)
-                assertEquals(listOf(timestamp), awaitItem())
+            repository.isAllDayAlarmsEnabled().test {
+                assertEquals(true, awaitItem())
+                repository.setAllDayAlarmsEnabled(false)
+                assertEquals(false, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `getAllDayAlarmHour defaults to 9 and can be set`() =
+        runTest {
+            repository.getAllDayAlarmHour().test {
+                assertEquals(9, awaitItem())
+                repository.setAllDayAlarmHour(10)
+                assertEquals(10, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `getAlarmOffsetMinutes defaults to 0 and can be set`() =
+        runTest {
+            repository.getAlarmOffsetMinutes().test {
+                assertEquals(0L, awaitItem())
+                repository.setAlarmOffsetMinutes(15L)
+                assertEquals(15L, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `getEnabledCalendarIds defaults to empty and can be set`() =
+        runTest {
+            repository.getEnabledCalendarIds().test {
+                assertEquals(emptySet<String>(), awaitItem())
+                val ids = setOf("cal1", "cal2")
+                repository.setEnabledCalendarIds(ids)
+                assertEquals(ids, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `getSnoozeTimeMinutes defaults to 10 and can be set`() =
+        runTest {
+            repository.getSnoozeTimeMinutes().test {
+                assertEquals(10, awaitItem())
+                repository.setSnoozeTimeMinutes(5)
+                assertEquals(5, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
         }

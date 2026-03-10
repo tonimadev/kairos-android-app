@@ -102,4 +102,27 @@ class RingerModeRepositoryImplTest {
 
             repo.stopObserving()
         }
+
+    @Test
+    fun `receiver updates state on VOLUME_CHANGED_ACTION broadcast`() =
+        runTest {
+            audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, 5, 0)
+            val repo = RingerModeRepositoryImpl(context)
+            repo.startObserving()
+
+            // Change volume to 0 and send broadcast
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, 0, 0)
+            context.sendBroadcast(
+                Intent("android.media.VOLUME_CHANGED_ACTION").apply {
+                    putExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", AudioManager.STREAM_ALARM)
+                    putExtra("android.media.EXTRA_VOLUME_STREAM_VALUE", 0)
+                },
+            )
+
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
+            assertEquals(AudioWarningState.ALARM_MUTED, repo.ringerMode.first())
+
+            repo.stopObserving()
+        }
 }
