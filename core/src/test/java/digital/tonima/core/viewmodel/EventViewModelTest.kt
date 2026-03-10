@@ -214,11 +214,11 @@ class EventViewModelTest {
         }
 
     @Test
-    fun `onPurchaseFlowHandled sets showUpgradeConfirmation to false`() =
+    fun `onDismissUpgradeConfirmation sets showUpgradeConfirmation to false`() =
         runTest {
             viewModel.onUpgradeToProRequest()
             advanceUntilIdle()
-            viewModel.onPurchaseFlowHandled()
+            viewModel.onDismissUpgradeConfirmation()
             advanceUntilIdle()
             viewModel.uiState.test {
                 val state = awaitItem()

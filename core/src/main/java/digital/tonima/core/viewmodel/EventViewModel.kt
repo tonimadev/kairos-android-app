@@ -417,9 +417,8 @@ class EventViewModel
             _uiState.update { it.copy(showUpgradeConfirmation = true) }
         }
 
-        fun onPurchaseFlowHandled() {
+        fun onDismissUpgradeConfirmation() {
             _uiState.update { it.copy(showUpgradeConfirmation = false) }
-            refresh()
         }
 
         fun onRatingDialogDismiss() {

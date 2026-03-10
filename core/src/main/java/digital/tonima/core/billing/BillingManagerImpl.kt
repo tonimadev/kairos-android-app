@@ -182,7 +182,8 @@ class BillingManagerImpl
                     if (billingResult.responseCode == OK) {
                         logcat { "Purchase acknowledged successfully. Updating pro status." }
                         _isProUser.value = true
-                        queryPurchases()
+                        // Não chamamos queryPurchases() imediatamente aqui para evitar que a latência do cache
+                        // da Play Store sobrescreva o valor 'true' que acabamos de definir.
                     }
                 }
             }

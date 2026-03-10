@@ -23,7 +23,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -73,6 +72,8 @@ import digital.tonima.kairos.ui.components.ExactAlarmPermissionScreen
 import digital.tonima.kairos.ui.components.FullScreenIntentPermissionScreen
 import digital.tonima.kairos.ui.components.MainContent
 import digital.tonima.kairos.ui.components.SettingsActions
+import digital.tonima.kairos.ui.components.SpeedDialFab
+import digital.tonima.kairos.ui.components.SpeedDialItem
 import digital.tonima.kairos.ui.components.StandardPermissionsScreen
 import digital.tonima.kairos.ui.theme.Dimensions
 import kotlinx.coroutines.launch
@@ -187,7 +188,7 @@ fun EventScreen(
             LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
                     viewModel.checkAllPermissions()
-                    viewModel.onMonthChanged(uiState.currentMonth, forceRefresh = true)
+                    viewModel.refresh()
                 }
             }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -375,7 +376,7 @@ fun EventScreen(
         if (uiState.showUpgradeConfirmation) {
             LaunchedEffect(uiState.showUpgradeConfirmation) {
                 onPurchaseRequest()
-                viewModel.onPurchaseFlowHandled()
+                viewModel.onDismissUpgradeConfirmation()
             }
         }
 
@@ -434,6 +435,46 @@ private fun EventFloatingActionButtons(
     onOpenCalendar: () -> Unit,
     onCreateEvent: () -> Unit,
 ) {
+    val speedDialItems =
+        buildList {
+            if (isAiUser) {
+                add(
+                    SpeedDialItem(
+                        icon = painterResource(R.drawable.ic_mic),
+                        label = stringResource(R.string.cd_voice_capture),
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary,
+                        onClick = onStartVoiceCapture,
+                    ),
+                )
+            }
+            if (uiState.hasCalendarPermission) {
+                add(
+                    SpeedDialItem(
+                        icon = painterResource(digital.tonima.kairos.R.drawable.ic_add),
+                        label = stringResource(R.string.create_event),
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onTertiary,
+                        onClick = onCreateEvent,
+                    ),
+                )
+            }
+            if (uiState.hasCalendarPermission &&
+                uiState.hasExactAlarmPermission &&
+                uiState.hasFullScreenIntentPermission
+            ) {
+                add(
+                    SpeedDialItem(
+                        icon = painterResource(date_range),
+                        label = stringResource(R.string.open_calendar),
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        onClick = onOpenCalendar,
+                    ),
+                )
+            }
+        }
+
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = Dimensions.PaddingNormal),
         horizontalAlignment = Alignment.End,
@@ -449,48 +490,7 @@ private fun EventFloatingActionButtons(
             modifier = Modifier.padding(bottom = Dimensions.SpacingSmall),
         )
 
-        if (isAiUser) {
-            FloatingActionButton(
-                onClick = onStartVoiceCapture,
-                containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.onSecondary,
-                modifier = Modifier.padding(bottom = Dimensions.SpacingNormal),
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_mic),
-                    contentDescription = stringResource(R.string.cd_voice_capture),
-                )
-            }
-        }
-        if (uiState.hasCalendarPermission) {
-            FloatingActionButton(
-                onClick = onCreateEvent,
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.onTertiary,
-                modifier = Modifier.padding(bottom = Dimensions.SpacingNormal),
-            ) {
-                Icon(
-                    painter = painterResource(digital.tonima.kairos.R.drawable.ic_add),
-                    contentDescription = stringResource(R.string.create_event),
-                )
-            }
-        }
-        if (
-            uiState.hasCalendarPermission &&
-            uiState.hasExactAlarmPermission &&
-            uiState.hasFullScreenIntentPermission
-        ) {
-            FloatingActionButton(
-                onClick = onOpenCalendar,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                Icon(
-                    painterResource(date_range),
-                    contentDescription = stringResource(R.string.open_calendar),
-                )
-            }
-        }
+        SpeedDialFab(items = speedDialItems)
     }
 }
 
