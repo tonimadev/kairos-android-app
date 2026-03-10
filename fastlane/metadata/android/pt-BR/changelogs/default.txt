@@ -1,10 +1,10 @@
-- Assistente de voz para criação inteligente de eventos.
-- Novo diálogo com sugestões de comandos para a IA.
-- Card de resumo diário da IA sempre visível.
-- Opção "Gerenciar assinatura" adicionada ao menu lateral.
-- Correção na atualização automática do status Pro após a compra.
-- Adicionado sistema de busca de eventos.
-- Novo recurso de Adiar (Snooze) para alarmes com tempo configurável.
-- Cores de calendário sincronizadas do sistema para melhor visualização.
-- Interface adaptada para tablets, dobráveis e modo paisagem.
-- Apoiar projeto: agora você pode apoiar o desenvolvimento do app.
+- Assistente de voz inteligente para eventos.
+- Novas sugestões de comandos de IA.
+- Resumo diário da IA sempre visível.
+- "Gerenciar assinatura" no menu lateral.
+- Correção do status Pro após a compra.
+- Adicionada busca de eventos.
+- Recurso de Adiar (Snooze) para alarmes.
+- Cores do calendário sincronizadas.
+- Interface para tablets e modo paisagem.
+- Apoie o desenvolvimento do projeto.

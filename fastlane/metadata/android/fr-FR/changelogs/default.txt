@@ -1,10 +1,10 @@
-- Assistant vocal pour la création intelligente d'événements.
-- Nouveau dialogue de suggestions de commandes IA.
-- Carte de briefing quotidien IA désormais toujours visible.
-- Option "Gérer l'abonnement" ajoutée au menu latéral.
-- Correction de la mise à jour automatique du statut Pro après l'achat.
-- Ajout de la fonctionnalité de recherche d'événements.
-- Nouvelle fonction de Répétition (Snooze) pour les alarmes avec délai personnalisable.
-- Couleurs de calendrier synchronisées du système pour une meilleure visualisation.
-- Interface adaptée pour les tablettes, pliables et mode paysage.
-- Soutenir le projet : vous pouvez désormais soutenir le développement de l'application.
+- Assistant vocal intelligent pour les événements.
+- Suggestions de commandes IA.
+- Briefing quotidien IA toujours visible.
+- Option "Gérer l'abonnement" au menu.
+- Correction du statut Pro après achat.
+- Recherche d'événements ajoutée.
+- Fonction Snooze pour les alarmes.
+- Couleurs du calendrier synchronisées.
+- UI pour tablettes, pliables et paysage.
+- Soutenez le développement du projet.

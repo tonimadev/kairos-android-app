@@ -1,10 +1,10 @@
-- Sprachassistent für die intelligente Erstellung von Ereignissen.
-- Neuer Dialog für KI-Befehlsvorschläge.
-- KI-Tagesbericht-Karte jetzt immer sichtbar.
-- Option "Abonnement verwalten" im Seitenmenü hinzugefügt.
-- Automatische Aktualisierung des Pro-Status nach dem Kauf behoben.
+- Intelligenter Sprachassistent für Ereignisse.
+- Neue KI-Befehlsvorschläge.
+- KI-Tagesbericht-Karte immer sichtbar.
+- "Abonnement verwalten" hinzugefügt.
+- Fehlerhafter Pro-Status-Update behoben.
 - Ereignissuche hinzugefügt.
-- Neue Schlummerfunktion (Snooze) für Alarme mit anpassbarer Verzögerungszeit.
-- Vom System synchronisierte Kalenderfarben für bessere Visualisierung.
-- Benutzeroberfläche angepasst für Tablets, Foldables und Querformat.
-- Projekt unterstützen: Sie können jetzt die Entwicklung der App unterstützen.
+- Schlummerfunktion (Snooze) für Alarme.
+- Synchronisierte Kalenderfarben.
+- UI für Tablets und Querformat angepasst.
+- Projekt unterstützen: Jetzt App-Entwicklung unterstützen.

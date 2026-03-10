@@ -4,7 +4,7 @@
 - "Manage subscription" option added to the side menu.
 - Fixed automatic Pro status update after purchase.
 - Added event search functionality.
-- New Snooze feature for alarms with customizable delay time.
-- System-synced calendar colors for better visualization.
-- UI adapted for tablets, foldables, and landscape mode.
+- New Snooze feature for alarms.
+- System-synced calendar colors.
+- UI adapted for tablets, foldables, and landscape.
 - Support project: now you can support the app's development.
