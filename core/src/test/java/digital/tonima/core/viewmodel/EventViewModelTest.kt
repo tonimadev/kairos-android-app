@@ -750,6 +750,23 @@ class EventViewModelTest {
         }
 
     @Test
+    fun `generateDailyBriefing calls usecase even if user has no events today`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+
+            coEvery { getEventsForMonthUseCase.invoke(any()) } returns emptyList()
+
+            viewModel.onMonthChanged(YearMonth.now(), forceRefresh = true)
+            advanceUntilIdle()
+
+            viewModel.generateDailyBriefing("instruction")
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { mockGenerateDailyBriefingUseCase.invoke(emptyList(), "instruction") }
+        }
+
+    @Test
     fun `askAi updates UI state and calls usecase`() =
         runTest {
             isAiUserFlow.value = true

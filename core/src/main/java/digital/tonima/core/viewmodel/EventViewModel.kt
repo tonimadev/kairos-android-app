@@ -524,8 +524,6 @@ class EventViewModel
                     Instant.ofEpochMilli(event.startTime).atZone(ZoneId.systemDefault()).toLocalDate() == today
                 }
 
-            if (eventsToday.isEmpty()) return
-
             viewModelScope.launch {
                 _uiState.update { it.copy(isGeneratingBriefing = true) }
                 val briefing = generateDailyBriefingUseCase.invoke(eventsToday, languageInstruction)

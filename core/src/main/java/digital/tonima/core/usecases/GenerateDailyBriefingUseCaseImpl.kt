@@ -22,8 +22,6 @@ class GenerateDailyBriefingUseCaseImpl
             languageInstruction: String,
             wakeUpTime: String?,
         ): String? {
-            if (events.isEmpty()) return null
-
             val model =
                 Firebase.ai(backend = GenerativeBackend.googleAI())
                     .generativeModel("gemini-2.5-flash-lite")
@@ -45,18 +43,22 @@ class GenerateDailyBriefingUseCaseImpl
             wakeUpTime: String?,
         ): String {
             val eventsStr =
-                events.joinToString("\n") { event ->
-                    val time =
-                        if (event.isAllDay) {
-                            "Dia inteiro"
-                        } else {
-                            val localTime =
-                                Instant.ofEpochMilli(event.startTime)
-                                    .atZone(ZoneId.systemDefault())
-                                    .toLocalTime()
-                            timeFormatter.format(localTime)
-                        }
-                    "- $time: ${event.title}"
+                if (events.isEmpty()) {
+                    "Nenhum evento agendado para hoje."
+                } else {
+                    events.joinToString("\n") { event ->
+                        val time =
+                            if (event.isAllDay) {
+                                "Dia inteiro"
+                            } else {
+                                val localTime =
+                                    Instant.ofEpochMilli(event.startTime)
+                                        .atZone(ZoneId.systemDefault())
+                                        .toLocalTime()
+                                timeFormatter.format(localTime)
+                            }
+                        "- $time: ${event.title}"
+                    }
                 }
 
             val wakeUpContext =
