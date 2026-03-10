@@ -4,8 +4,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import com.google.firebase.ai.ai
 import com.google.firebase.ai.GenerativeModel
+import com.google.firebase.ai.ai
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -34,7 +34,7 @@ class GenerateDailyBriefingUseCaseTest {
                     .setApplicationId("abc")
                     .setApiKey("xyz")
                     .setProjectId("123")
-                    .build()
+                    .build(),
             )
         }
         mockkStatic("com.google.firebase.ai.FirebaseAIKt")
@@ -49,13 +49,15 @@ class GenerateDailyBriefingUseCaseTest {
     fun `when events list is empty should return null`() =
         runBlocking {
             val mockModel = mockk<GenerativeModel>()
-            coEvery { mockModel.generateContent(any<String>()) } returns mockk {
-                every { text } returns null
-            }
+            coEvery { mockModel.generateContent(any<String>()) } returns
+                mockk {
+                    every { text } returns null
+                }
 
-            every { Firebase.ai(any(), any()) } returns mockk {
-                every { generativeModel(any(), any(), any(), any(), any(), any(), any()) } returns mockModel
-            }
+            every { Firebase.ai(any(), any()) } returns
+                mockk {
+                    every { generativeModel(any(), any(), any(), any(), any(), any(), any()) } returns mockModel
+                }
 
             val result = useCase.invoke(emptyList(), "Instruction", null)
             assertNull(result)
@@ -65,22 +67,25 @@ class GenerateDailyBriefingUseCaseTest {
     fun `when events exist should return briefing text`() =
         runBlocking {
             val mockModel = mockk<GenerativeModel>()
-            coEvery { mockModel.generateContent(any<String>()) } returns mockk {
-                every { text } returns "Briefing content"
-            }
+            coEvery { mockModel.generateContent(any<String>()) } returns
+                mockk {
+                    every { text } returns "Briefing content"
+                }
 
-            every { Firebase.ai(any(), any()) } returns mockk {
-                every { generativeModel(any(), any(), any(), any(), any(), any(), any()) } returns mockModel
-            }
+            every { Firebase.ai(any(), any()) } returns
+                mockk {
+                    every { generativeModel(any(), any(), any(), any(), any(), any(), any()) } returns mockModel
+                }
 
-            val events = listOf(
-                digital.tonima.core.model.Event(
-                    id = 1L,
-                    title = "Event 1",
-                    startTime = 1710000000000L,
-                    isAllDay = false
+            val events =
+                listOf(
+                    digital.tonima.core.model.Event(
+                        id = 1L,
+                        title = "Event 1",
+                        startTime = 1710000000000L,
+                        isAllDay = false,
+                    ),
                 )
-            )
 
             val result = useCase.invoke(events, "Instruction", "08:00")
             org.junit.Assert.assertEquals("Briefing content", result)
