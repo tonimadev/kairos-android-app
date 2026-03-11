@@ -106,3 +106,8 @@ To verify your environment, you can run the following command for a simple test:
 
 - **Fastlane Metadata**: When large new features are developed, ensure to update the changelogs in `fastlane/metadata/android/<lang>/changelogs/default.txt` for all supported languages.
 - **Character Limit**: Changelog entries should be concise and must not exceed 500 characters per file to ensure compatibility with Google Play Store limits.
+
+## compatibility
+- **Minimum SDK**: The app should support a minimum SDK of 30 to ensure compatibility with a wide range of devices while still leveraging modern Android features.
+- **Target SDK**: The app should target SDK 36 to take advantage of the latest Android features and optimizations while maintaining backward compatibility.
+- **Watch out for SDK version specific logic**: When implementing features that may have different behavior or requirements based on the Android version, ensure to use appropriate checks (e.g., `Build.VERSION.SDK_INT`) to maintain compatibility across supported versions.
