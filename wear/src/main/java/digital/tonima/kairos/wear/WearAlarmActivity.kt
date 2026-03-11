@@ -1,6 +1,7 @@
 package digital.tonima.kairos.wear
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,6 +29,7 @@ import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_ID
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_START_TIME
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE
+import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_MEETING_URL
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_SOURCE
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.core.service.AlarmSoundAndVibrateService
@@ -51,14 +53,35 @@ class WearAlarmActivity : ComponentActivity() {
         val uniqueId = intent?.getIntExtra(EXTRA_UNIQUE_ID, -1) ?: -1
         val eventId = intent?.getLongExtra(EXTRA_EVENT_ID, -1L) ?: -1L
         val startTime = intent?.getLongExtra(EXTRA_EVENT_START_TIME, -1L) ?: -1L
+        val meetingUrl = intent?.getStringExtra(EXTRA_MEETING_URL)
 
         // Iniciamos o serviço de som e vibração
-        AlarmSoundAndVibrateService.startAlarm(this, title, uniqueId, eventId, startTime)
+        AlarmSoundAndVibrateService.startAlarm(this, title, uniqueId, eventId, startTime, meetingUrl)
 
         setContent {
             KairosTheme {
                 WearAlarmScreen(
                     title = title,
+                    meetingUrl = meetingUrl,
+                    onJoinMeeting = {
+                        analytics.logEvent(
+                            Analytics.EVENT_ALARM_STOP,
+                            mapOf(
+                                Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY,
+                                "action" to "join_meeting",
+                            ),
+                        )
+                        AlarmSoundAndVibrateService.stopAlarm(this, Analytics.SOURCE_ACTIVITY)
+                        try {
+                            val meetingIntent = Intent(Intent.ACTION_VIEW, Uri.parse(meetingUrl))
+                            meetingIntent.addCategory(Intent.CATEGORY_BROWSABLE)
+                            meetingIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(meetingIntent)
+                        } catch (e: Exception) {
+                            // No Wear OS, pode falhar se não houver navegador/app.
+                        }
+                        finish()
+                    },
                     onSnooze = {
                         analytics.logEvent(
                             Analytics.EVENT_ALARM_SNOOZE,
@@ -72,6 +95,7 @@ class WearAlarmActivity : ComponentActivity() {
                                 putExtra(EXTRA_UNIQUE_ID, uniqueId)
                                 putExtra(EXTRA_EVENT_ID, eventId)
                                 putExtra(EXTRA_EVENT_START_TIME, startTime)
+                                putExtra(EXTRA_MEETING_URL, meetingUrl)
                             }
                         sendBroadcast(snoozeIntent)
                         finish()
@@ -98,6 +122,8 @@ class WearAlarmActivity : ComponentActivity() {
 @Composable
 private fun WearAlarmScreen(
     title: String,
+    meetingUrl: String? = null,
+    onJoinMeeting: () -> Unit,
     onSnooze: () -> Unit,
     onStop: () -> Unit,
 ) {
@@ -117,6 +143,23 @@ private fun WearAlarmScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = Dimensions.PaddingMedium),
         )
+
+        if (!meetingUrl.isNullOrEmpty()) {
+            Button(
+                onClick = onJoinMeeting,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = Dimensions.PaddingSmall),
+            ) {
+                Text(
+                    text = stringResource(R.string.disable_alarm_and_join_meeting),
+                    fontSize = Dimensions.ButtonFontSize,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -156,6 +199,8 @@ fun WearAlarmScreenPreview() {
     KairosTheme {
         WearAlarmScreen(
             title = "Reunião começa em 5 min",
+            meetingUrl = "https://meet.google.com/abc-defg-hij",
+            onJoinMeeting = {},
             onSnooze = {},
             onStop = {},
         )

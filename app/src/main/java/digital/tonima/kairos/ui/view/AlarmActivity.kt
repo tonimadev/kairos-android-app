@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -40,6 +41,7 @@ import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.components.AdBannerView
 import digital.tonima.kairos.ui.theme.KairosTheme
+import logcat.logcat
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -68,10 +70,11 @@ class AlarmActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val eventTitle =
-            intent.getStringExtra("EXTRA_EVENT_TITLE") ?: getString(R.string.upcoming_event)
-        val uniqueId = intent.getIntExtra("EXTRA_UNIQUE_ID", -1)
-        val eventId = intent.getLongExtra("EXTRA_EVENT_ID", -1L)
-        val startTime = intent.getLongExtra("EXTRA_EVENT_START_TIME", -1L)
+            intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_TITLE) ?: getString(R.string.upcoming_event)
+        val uniqueId = intent.getIntExtra(AlarmReceiver.EXTRA_UNIQUE_ID, -1)
+        val eventId = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_ID, -1L)
+        val startTime = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, -1L)
+        val meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL)
 
         setContent {
             val isProUser by proUserProvider.isProUser.collectAsStateWithLifecycle()
@@ -113,6 +116,48 @@ class AlarmActivity : ComponentActivity() {
                                 style = MaterialTheme.typography.headlineLarge,
                             )
                             Spacer(modifier = Modifier.height(48.dp))
+
+                            if (!meetingUrl.isNullOrEmpty()) {
+                                Button(
+                                    onClick = {
+                                        userStoppedAlarm = true
+                                        analytics.logEvent(
+                                            Analytics.EVENT_ALARM_STOP,
+                                            mapOf(
+                                                Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY,
+                                                "action" to "join_meeting",
+                                            ),
+                                        )
+                                        AlarmSoundAndVibrateService.stopAlarm(
+                                            this@AlarmActivity,
+                                            Analytics.SOURCE_ACTIVITY,
+                                        )
+                                        try {
+                                            val meetingIntent = Intent(Intent.ACTION_VIEW, Uri.parse(meetingUrl))
+                                            startActivity(meetingIntent)
+                                        } catch (e: Exception) {
+                                            logcat { "Failed to open meeting URL: ${e.message}" }
+                                        }
+                                        finish()
+                                    },
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 60.dp),
+                                    colors =
+                                        ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        ),
+                                ) {
+                                    Text(
+                                        text = getString(R.string.disable_alarm_and_join_meeting),
+                                        fontSize = 18.sp,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),

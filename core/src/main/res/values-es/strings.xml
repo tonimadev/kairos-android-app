@@ -129,4 +129,10 @@
     <string name="ai_suggestion_reminder">Recordarme comprar leche hoy</string>
     <string name="ai_suggestion_agenda">¿Cómo está mi agenda de hoy?</string>
     <string name="manage_subscription">Gestionar suscripción</string>
+    <string name="widget_daily_briefing_name">Resumen del día (IA)</string>
+    <string name="widget_daily_briefing_description">Muestra el resumen inteligente de tu día generado por la IA.</string>
+    <string name="widget_no_briefing">No hay resumen disponible. ¡Abre la aplicación para generarlo!</string>
+    <string name="next_events_title">Próximos eventos</string>
+    <string name="no_more_events_today">No hay más eventos hoy</string>
+    <string name="disable_alarm_and_join_meeting">Desactivar alarma y unirse a la reunión</string>
 </resources>

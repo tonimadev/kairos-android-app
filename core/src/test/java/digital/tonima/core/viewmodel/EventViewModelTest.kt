@@ -10,6 +10,7 @@ import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.CalendarRepository
+import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
@@ -17,6 +18,7 @@ import digital.tonima.core.usecases.CreateEventUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
+import digital.tonima.core.utils.WidgetUpdater
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -62,11 +64,13 @@ class EventViewModelTest {
     private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val mockPermissionManager: PermissionManager = mockk(relaxed = true)
     private val mockCalendarRepository: CalendarRepository = mockk(relaxed = true)
+    private val mockDailyBriefingRepository: DailyBriefingRepository = mockk(relaxed = true)
     private val mockGenerateDailyBriefingUseCase: GenerateDailyBriefingUseCase = mockk(relaxed = true)
     private val mockAskAiAboutScheduleUseCase: AskAiAboutScheduleUseCase = mockk(relaxed = true)
     private val mockCreateEventUseCase: CreateEventUseCase = mockk(relaxed = true)
 
     private val ttsHelper: TextToSpeechHelper = mockk(relaxed = true)
+    private val mockWidgetUpdater: WidgetUpdater = mockk(relaxed = true)
     private lateinit var viewModel: EventViewModel
 
     private val isGlobalAlarmEnabledFlow = MutableStateFlow(true)
@@ -81,6 +85,7 @@ class EventViewModelTest {
     private val snoozeTimeMinutesFlow = MutableStateFlow(10)
     private val isProUserFlow = MutableStateFlow(false)
     private val isAiUserFlow = MutableStateFlow(false)
+    private val dailyBriefingFlow = MutableStateFlow<String?>(null)
 
     @Before
     fun setup() {
@@ -98,6 +103,7 @@ class EventViewModelTest {
         every { mockAppPreferencesRepository.isRatingPrompted() } returns ratingPromptedFlow
         every { mockAppPreferencesRepository.isRatingCompleted() } returns ratingCompletedFlow
         every { mockAppPreferencesRepository.getSnoozeTimeMinutes() } returns snoozeTimeMinutesFlow
+        every { mockDailyBriefingRepository.getDailyBriefing() } returns dailyBriefingFlow
         every { mockRingerModeRepository.ringerMode } returns ringerModeFlow
         every { mockRingerModeRepository.startObserving() } just Runs
         every { mockRingerModeRepository.stopObserving() } just Runs
@@ -116,10 +122,12 @@ class EventViewModelTest {
                 mockScheduler,
                 mockPermissionManager,
                 mockCalendarRepository,
+                mockDailyBriefingRepository,
                 mockGenerateDailyBriefingUseCase,
                 mockAskAiAboutScheduleUseCase,
                 mockCreateEventUseCase,
                 ttsHelper,
+                mockWidgetUpdater,
             )
     }
 
@@ -240,10 +248,12 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockDailyBriefingRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
                     ttsHelper,
+                    mockWidgetUpdater,
                 )
 
             io.mockk.clearMocks(getEventsForMonthUseCase, answers = false)
@@ -272,10 +282,12 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockDailyBriefingRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
                     ttsHelper,
+                    mockWidgetUpdater,
                 )
             io.mockk.clearMocks(mockScheduler, answers = false)
 
@@ -482,10 +494,12 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockDailyBriefingRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
                     ttsHelper,
+                    mockWidgetUpdater,
                 )
             advanceUntilIdle()
 
@@ -515,10 +529,12 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockDailyBriefingRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
                     ttsHelper,
+                    mockWidgetUpdater,
                 )
             advanceUntilIdle()
 
@@ -546,10 +562,12 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockDailyBriefingRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
                     ttsHelper,
+                    mockWidgetUpdater,
                 )
             advanceUntilIdle()
 
@@ -577,10 +595,12 @@ class EventViewModelTest {
                     mockScheduler,
                     mockPermissionManager,
                     mockCalendarRepository,
+                    mockDailyBriefingRepository,
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
                     ttsHelper,
+                    mockWidgetUpdater,
                 )
             advanceUntilIdle()
 

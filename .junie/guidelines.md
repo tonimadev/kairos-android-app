@@ -94,3 +94,15 @@ To verify your environment, you can run the following command for a simple test:
 - **Tiles & Complications**: Expose key information via Tiles (using Protolayout) and Complications to provide glanceable data without opening the app.
 - **Horologist**: Leverage the [Horologist](https://github.com/google/horologist) libraries to implement common Wear OS patterns like media playback or list optimization.
 - **Data Layer API**: Use the Wearable Data Layer to synchronize state efficiently between the phone and watch apps.
+
+### localization
+
+- **String Resources**: All user-facing text should be defined in `strings.xml` for both `app` and `wear` modules to support localization.
+- **Pluralization**: Use `plurals` for any text that varies based on quantity (e.g., "1 event" vs "2 events").
+- **Accessibility**: Ensure all UI components have appropriate content descriptions and support for screen readers, especially on Wear OS where screen space is limited.
+- **Translations**: If adding new features, consider providing translations for all supported languages by the app(simplified Chinese, Spanish, English,French,Arabian, hindi,Japanese,Russian, German) to broaden accessibility. the base language is Brazilian Portuguese, so all new strings should be added to `strings.xml` in the `values/` directory, and then translated versions can be added to `values-<language>/strings.xml` as needed.
+
+## 📦 Release & Metadata
+
+- **Fastlane Metadata**: When large new features are developed, ensure to update the changelogs in `fastlane/metadata/android/<lang>/changelogs/default.txt` for all supported languages.
+- **Character Limit**: Changelog entries should be concise and must not exceed 500 characters per file to ensure compatibility with Google Play Store limits.

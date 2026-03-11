@@ -1,8 +1,8 @@
+- Neues Daily Briefing Widget (KI Pro) und nächste Termine.
+- Tippen Sie auf das Widget, um die App/Kalender zu öffnen.
 - Intelligenter Sprachassistent für Ereignisse.
-- Neue KI-Befehlsvorschläge.
 - KI-Tagesbericht-Karte immer sichtbar.
 - "Abonnement verwalten" hinzugefügt.
-- Fehlerhafter Pro-Status-Update behoben.
 - Ereignissuche hinzugefügt.
 - Schlummerfunktion (Snooze) für Alarme.
 - Synchronisierte Kalenderfarben.

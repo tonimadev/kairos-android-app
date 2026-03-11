@@ -1,8 +1,8 @@
+- Nuevo Widget de Resumen Diario (IA Pro) y próximos eventos.
+- Toca el widget para abrir la app o el calendario directamente.
 - Asistente de voz inteligente para eventos.
-- Nuevas sugerencias de comandos de IA.
-- Resumen diario de IA siempre visible.
-- "Gestionar suscripción" en el menú.
-- Corrección del estado Pro tras la compra.
+- Resumen diario de IA siempre visible en la app.
+- "Gestionar suscripción" en el menú lateral.
 - Añadida búsqueda de eventos.
 - Función Pospone (Snooze) para alarmas.
 - Colores de calendario sincronizados.

@@ -11,6 +11,7 @@ import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.CalendarRepository
+import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
@@ -18,6 +19,7 @@ import digital.tonima.core.usecases.CreateEventUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
+import digital.tonima.core.utils.WidgetUpdater
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -90,10 +92,12 @@ class EventViewModel
         private val scheduler: EventAlarmScheduler,
         private val permissionManager: PermissionManager,
         private val calendarRepository: CalendarRepository,
+        private val dailyBriefingRepository: DailyBriefingRepository,
         private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
         private val askAiAboutScheduleUseCase: AskAiAboutScheduleUseCase,
         private val createEventUseCase: CreateEventUseCase,
         private val ttsHelper: TextToSpeechHelper,
+        private val widgetUpdater: WidgetUpdater,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
@@ -164,6 +168,10 @@ class EventViewModel
 
             appPreferencesRepository.getSnoozeTimeMinutes()
                 .onEach { minutes -> _uiState.update { it.copy(snoozeTimeMinutes = minutes) } }
+                .launchIn(viewModelScope)
+
+            dailyBriefingRepository.getDailyBriefing()
+                .onEach { briefing -> _uiState.update { it.copy(dailyBriefing = briefing) } }
                 .launchIn(viewModelScope)
 
             isProUser
@@ -527,6 +535,10 @@ class EventViewModel
             viewModelScope.launch {
                 _uiState.update { it.copy(isGeneratingBriefing = true) }
                 val briefing = generateDailyBriefingUseCase.invoke(eventsToday, languageInstruction)
+                if (briefing != null) {
+                    dailyBriefingRepository.saveDailyBriefing(briefing)
+                    widgetUpdater.updateDailyBriefingWidget()
+                }
                 _uiState.update { it.copy(dailyBriefing = briefing, isGeneratingBriefing = false) }
             }
         }

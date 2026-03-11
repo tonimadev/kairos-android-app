@@ -127,4 +127,10 @@
     <string name="ai_suggestion_reminder">आज दूध खरीदने के लिए याद दिलाएं</string>
     <string name="ai_suggestion_agenda">आज मेरा एजेंडा कैसा है?</string>
     <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
+    <string name="widget_daily_briefing_name">दैनिक सारांश (IA)</string>
+    <string name="widget_daily_briefing_description">AI द्वारा जेनरेट किया गया आपके दिन का स्मार्ट सारांश दिखाता है।</string>
+    <string name="widget_no_briefing">कोई सारांश उपलब्ध नहीं है। जेनरेट करने के लिए ऐप खोलें!</string>
+    <string name="next_events_title">आने वाले कार्यक्रम</string>
+    <string name="no_more_events_today">आज और कोई कार्यक्रम नहीं है</string>
+    <string name="disable_alarm_and_join_meeting">अलार्म बंद करें और बैठक में शामिल हों</string>
 </resources>

@@ -127,4 +127,10 @@
     <string name="ai_suggestion_reminder">ذكرني بشراء الحليب اليوم</string>
     <string name="ai_suggestion_agenda">كيف هو جدول أعمالي اليوم؟</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
+    <string name="widget_daily_briefing_name">ملخص اليوم (IA)</string>
+    <string name="widget_daily_briefing_description">يعرض ملخصًا ذكيًا ليومك تم إنشاؤه بواسطة الذكاء الاصطناعي.</string>
+    <string name="widget_no_briefing">لا يوجد ملخص متاح. افتح التطبيق لإنشائه!</string>
+    <string name="next_events_title">الأحداث القادمة</string>
+    <string name="no_more_events_today">لا يوجد مزيد من الأحداث اليوم</string>
+    <string name="disable_alarm_and_join_meeting">تعطيل المنبه والانضمام إلى الاجتماع</string>
 </resources>

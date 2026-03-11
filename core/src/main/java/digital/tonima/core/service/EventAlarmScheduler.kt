@@ -10,6 +10,7 @@ interface EventAlarmScheduler {
         uniqueId: Int,
         eventId: Long,
         startTime: Long,
+        meetingUrl: String? = null,
     )
 
     fun cancel(event: Event)

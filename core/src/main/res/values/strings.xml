@@ -130,4 +130,10 @@
     <string name="ai_suggestion_agenda">Como está minha agenda de hoje?</string>
     <string name="manage_subscription">Gerenciar assinatura</string>
     <string name="ai_briefing_instruction">O resumo deve ser em Português.</string>
+    <string name="widget_daily_briefing_name">Resumo do Dia (IA)</string>
+    <string name="widget_daily_briefing_description">Exibe o resumo inteligente do seu dia gerado pela IA.</string>
+    <string name="widget_no_briefing">Nenhum resumo disponível. Abra o app para gerar!</string>
+    <string name="next_events_title">Próximos Eventos</string>
+    <string name="no_more_events_today">Sem mais eventos hoje</string>
+    <string name="disable_alarm_and_join_meeting">Desativar alarme e entrar na reunião</string>
 </resources>

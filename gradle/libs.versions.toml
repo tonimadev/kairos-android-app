@@ -33,6 +33,7 @@ androidx-hilt-compiler = "1.3.0"
 watchface-complications = "1.3.0"
 datastoreCore = "1.2.0"
 datastoreCoreVersion = "1.2.0"
+glance = "1.1.1"
 mockk= "1.14.9"
 coroutines= "1.10.2"
 core-testing= "2.2.0"
@@ -86,6 +87,8 @@ hilt-worker = { group = "androidx.hilt", name = "hilt-work", version.ref = "hilt
 billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billingKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 logcat = { group = "com.squareup.logcat", name = "logcat", version.ref = "logcat" }
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
+androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastoreCore" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }

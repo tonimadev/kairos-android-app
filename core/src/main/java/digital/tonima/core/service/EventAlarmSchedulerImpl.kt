@@ -16,6 +16,7 @@ import digital.tonima.core.receiver.AlarmReceiver.Companion.ACTION_ALARM_TRIGGER
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_ID
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_START_TIME
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE
+import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_MEETING_URL
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.core.repository.AppPreferencesRepository
 import kotlinx.coroutines.flow.firstOrNull
@@ -101,6 +102,7 @@ class EventAlarmSchedulerImpl
                     putExtra(EXTRA_UNIQUE_ID, event.uniqueIntentId)
                     putExtra(EXTRA_EVENT_ID, event.id)
                     putExtra(EXTRA_EVENT_START_TIME, event.startTime)
+                    putExtra(EXTRA_MEETING_URL, event.meetingUrl)
                 }
             val pendingIntent =
                 PendingIntent.getBroadcast(
@@ -142,6 +144,7 @@ class EventAlarmSchedulerImpl
             uniqueId: Int,
             eventId: Long,
             startTime: Long,
+            meetingUrl: String?,
         ) {
             val snoozeMinutes =
                 runBlocking {
@@ -162,6 +165,7 @@ class EventAlarmSchedulerImpl
                     putExtra(EXTRA_UNIQUE_ID, uniqueId)
                     putExtra(EXTRA_EVENT_ID, eventId)
                     putExtra(EXTRA_EVENT_START_TIME, startTime)
+                    putExtra(EXTRA_MEETING_URL, meetingUrl)
                 }
 
             val pendingIntent =

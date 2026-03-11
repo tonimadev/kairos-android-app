@@ -124,4 +124,10 @@
     <string name="ai_suggestion_reminder">今日、牛乳を買うのを忘れないようにする</string>
     <string name="ai_suggestion_agenda">今日の予定はどうなっていますか？</string>
     <string name="manage_subscription">サブスクリプションの管理</string>
+    <string name="widget_daily_briefing_name">今日の要約 (AI)</string>
+    <string name="widget_daily_briefing_description">AIによって生成された今日のスマートな要約を表示します。</string>
+    <string name="widget_no_briefing">要約がありません。アプリを開いて生成してください！</string>
+    <string name="next_events_title">今後のイベント</string>
+    <string name="no_more_events_today">本日の予定はもうありません</string>
+    <string name="disable_alarm_and_join_meeting">アラームをオフにして会議に参加する</string>
 </resources>

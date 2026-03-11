@@ -8,9 +8,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.repository.CalendarRepository
+import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.PredictWakeUpTimeUseCase
 import digital.tonima.core.utils.NotificationHelper
+import digital.tonima.core.utils.WidgetUpdater
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -28,6 +30,8 @@ class DailyBriefingWorker
         @Assisted workerParams: WorkerParameters,
         private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
         private val calendarRepository: CalendarRepository,
+        private val dailyBriefingRepository: DailyBriefingRepository,
+        private val widgetUpdater: WidgetUpdater,
         private val proUserProvider: ProUserProvider,
         private val predictWakeUpTimeUseCase: PredictWakeUpTimeUseCase,
     ) : CoroutineWorker(appContext, workerParams) {
@@ -68,6 +72,8 @@ class DailyBriefingWorker
                     val briefing = generateDailyBriefingUseCase.invoke(events, languageInstruction, wakeUpTimeStr)
 
                     if (!briefing.isNullOrBlank()) {
+                        dailyBriefingRepository.saveDailyBriefing(briefing)
+                        widgetUpdater.updateDailyBriefingWidget()
                         val title = appContext.getString(R.string.daily_briefing_title)
                         NotificationHelper.showDailyBriefingNotification(appContext, title, briefing)
                         logcat(LogPriority.INFO) { "Notificação de Daily Briefing enviada com sucesso." }

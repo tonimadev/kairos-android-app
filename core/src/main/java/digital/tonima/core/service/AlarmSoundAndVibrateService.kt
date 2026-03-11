@@ -20,6 +20,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.analytics.Analytics
+import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.repository.AppPreferencesRepositoryImpl
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.flow.first
@@ -45,16 +46,18 @@ class AlarmSoundAndVibrateService : Service() {
             uniqueId: Int = -1,
             eventId: Long = -1L,
             startTime: Long = -1L,
+            meetingUrl: String? = null,
         ) {
             val intent =
                 Intent(context, AlarmSoundAndVibrateService::class.java).apply {
                     action = ACTION_START_ALARM
                     if (!eventTitle.isNullOrEmpty()) {
-                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
+                        putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
                     }
-                    putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
-                    putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_ID, eventId)
-                    putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
+                    putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+                    putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
+                    putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
+                    putExtra(AlarmReceiver.EXTRA_MEETING_URL, meetingUrl)
                 }
             ContextCompat.startForegroundService(context, intent)
         }
@@ -92,18 +95,19 @@ class AlarmSoundAndVibrateService : Service() {
                 stopAndReleaseResources()
 
                 val eventTitle =
-                    intent.getStringExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE)
+                    intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_TITLE)
                 val uniqueId =
-                    intent.getIntExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_UNIQUE_ID, -1)
+                    intent.getIntExtra(AlarmReceiver.EXTRA_UNIQUE_ID, -1)
                 val eventId =
-                    intent.getLongExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_ID, -1L)
+                    intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_ID, -1L)
                 val startTime =
                     intent.getLongExtra(
-                        digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_START_TIME,
+                        AlarmReceiver.EXTRA_EVENT_START_TIME,
                         -1L,
                     )
+                val meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL)
 
-                ensureForeground(eventTitle, uniqueId, eventId, startTime)
+                ensureForeground(eventTitle, uniqueId, eventId, startTime, meetingUrl)
 
                 val vibrateOnly =
                     try {
@@ -215,6 +219,7 @@ class AlarmSoundAndVibrateService : Service() {
         uniqueId: Int = -1,
         eventId: Long = -1L,
         startTime: Long = -1L,
+        meetingUrl: String? = null,
     ) {
         val isWatch = packageManager.hasSystemFeature("android.hardware.type.watch")
         val fullScreenPendingIntent =
@@ -231,10 +236,11 @@ class AlarmSoundAndVibrateService : Service() {
                         Class.forName(activityClassName),
                     ).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
-                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
-                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_ID, eventId)
-                        putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
+                        putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
+                        putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+                        putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
+                        putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
+                        putExtra(AlarmReceiver.EXTRA_MEETING_URL, meetingUrl)
                     }
                 PendingIntent.getActivity(
                     applicationContext,
@@ -263,12 +269,13 @@ class AlarmSoundAndVibrateService : Service() {
         nm.createNotificationChannel(channel)
 
         val snoozeIntent =
-            Intent(this, digital.tonima.core.receiver.AlarmReceiver::class.java).apply {
-                action = digital.tonima.core.receiver.AlarmReceiver.ACTION_SNOOZE
-                putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
-                putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
-                putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_ID, eventId)
-                putExtra(digital.tonima.core.receiver.AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
+            Intent(this, AlarmReceiver::class.java).apply {
+                action = AlarmReceiver.ACTION_SNOOZE
+                putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
+                putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+                putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
+                putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
+                putExtra(AlarmReceiver.EXTRA_MEETING_URL, meetingUrl)
             }
         val snoozePendingIntent =
             PendingIntent.getBroadcast(

@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
+import digital.tonima.core.model.Event
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -13,6 +14,7 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
@@ -79,7 +81,7 @@ class GenerateDailyBriefingUseCaseTest {
 
             val events =
                 listOf(
-                    digital.tonima.core.model.Event(
+                    Event(
                         id = 1L,
                         title = "Event 1",
                         startTime = 1710000000000L,
@@ -88,6 +90,6 @@ class GenerateDailyBriefingUseCaseTest {
                 )
 
             val result = useCase.invoke(events, "Instruction", "08:00")
-            org.junit.Assert.assertEquals("Briefing content", result)
+            assertEquals("Briefing content", result)
         }
 }

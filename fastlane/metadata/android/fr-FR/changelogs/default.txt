@@ -1,8 +1,8 @@
+- Nouveau widget de briefing quotidien (IA Pro) et événements.
+- Appuyez sur le widget pour ouvrir l'app ou le calendrier.
 - Assistant vocal intelligent pour les événements.
-- Suggestions de commandes IA.
 - Briefing quotidien IA toujours visible.
 - Option "Gérer l'abonnement" au menu.
-- Correction du statut Pro après achat.
 - Recherche d'événements ajoutée.
 - Fonction Snooze pour les alarmes.
 - Couleurs du calendrier synchronisées.

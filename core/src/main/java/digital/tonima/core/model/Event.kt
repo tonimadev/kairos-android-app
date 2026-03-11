@@ -9,6 +9,7 @@ data class Event(
     var vibrateOnly: Boolean = false,
     val isAllDay: Boolean = false,
     val calendarColor: Int = 0,
+    val meetingUrl: String? = null,
 ) {
     val uniqueIntentId: Int
         get() = (id.toString() + startTime.toString()).hashCode()

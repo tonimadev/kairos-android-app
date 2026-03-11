@@ -34,6 +34,8 @@ class CalendarRepositoryImpl
                 CalendarContract.Instances.ALL_DAY,
                 CalendarContract.Instances.CALENDAR_ID,
                 CalendarContract.Instances.CALENDAR_COLOR,
+                CalendarContract.Instances.DESCRIPTION,
+                CalendarContract.Instances.EVENT_LOCATION,
             )
 
         private val projectionIdIndex = 0
@@ -41,6 +43,8 @@ class CalendarRepositoryImpl
         private val projectionBeginIndex = 2
         private val projectionAllDayIndex = 3
         private val projectionCalendarColorIndex = 5
+        private val projectionDescriptionIndex = 6
+        private val projectionLocationIndex = 7
 
         private fun hasCalendarPermission() =
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
@@ -142,6 +146,8 @@ class CalendarRepositoryImpl
                         val begin = it.getLong(projectionBeginIndex)
                         val isAllDay = it.getInt(projectionAllDayIndex) == 1
                         val color = it.getInt(projectionCalendarColorIndex)
+                        val description = it.getString(projectionDescriptionIndex)
+                        val location = it.getString(projectionLocationIndex)
 
                         events.add(
                             Event(
@@ -150,6 +156,7 @@ class CalendarRepositoryImpl
                                 startTime = begin,
                                 isAllDay = isAllDay,
                                 calendarColor = color,
+                                meetingUrl = extractMeetLink(description, location),
                             ),
                         )
                     }
@@ -217,6 +224,8 @@ class CalendarRepositoryImpl
                         val begin = it.getLong(projectionBeginIndex)
                         val isAllDay = it.getInt(projectionAllDayIndex) == 1
                         val color = it.getInt(projectionCalendarColorIndex)
+                        val description = it.getString(projectionDescriptionIndex)
+                        val location = it.getString(projectionLocationIndex)
                         nextEvent =
                             Event(
                                 id = eventId,
@@ -224,6 +233,7 @@ class CalendarRepositoryImpl
                                 startTime = begin,
                                 isAllDay = isAllDay,
                                 calendarColor = color,
+                                meetingUrl = extractMeetLink(description, location),
                             )
                     }
                 }
@@ -297,4 +307,14 @@ class CalendarRepositoryImpl
                 val uri = context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
                 return@withContext uri?.lastPathSegment?.toLongOrNull()
             }
+
+        private fun extractMeetLink(
+            description: String?,
+            location: String?,
+        ): String? {
+            if (description == null && location == null) return null
+            val combinedText = "${description ?: ""} ${location ?: ""}"
+            val meetRegex = "https://meet\\.google\\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}".toRegex()
+            return meetRegex.find(combinedText)?.value
+        }
     }

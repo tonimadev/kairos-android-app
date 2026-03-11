@@ -30,6 +30,7 @@ class AlarmReceiver : BroadcastReceiver() {
         const val EXTRA_UNIQUE_ID = "EXTRA_UNIQUE_ID"
         const val EXTRA_EVENT_ID = "EXTRA_EVENT_ID"
         const val EXTRA_EVENT_START_TIME = "EXTRA_EVENT_START_TIME"
+        const val EXTRA_MEETING_URL = "EXTRA_MEETING_URL"
         const val ACTION_SNOOZE = "digital.tonima.core.ACTION_SNOOZE"
         const val EXTRA_SOURCE = "EXTRA_SOURCE"
     }
@@ -50,6 +51,7 @@ class AlarmReceiver : BroadcastReceiver() {
             val uniqueId = intent.getIntExtra(EXTRA_UNIQUE_ID, -1)
             val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
             val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
+            val meetingUrl = intent.getStringExtra(EXTRA_MEETING_URL)
             val source = intent.getStringExtra(EXTRA_SOURCE) ?: Analytics.SOURCE_NOTIFICATION
 
             if (source == Analytics.SOURCE_NOTIFICATION) {
@@ -67,7 +69,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         context.applicationContext,
                         SchedulerEntryPoint::class.java,
                     )
-                schedulerEntryPoint.scheduler().scheduleSnooze(eventTitle, uniqueId, eventId, startTime)
+                schedulerEntryPoint.scheduler().scheduleSnooze(eventTitle, uniqueId, eventId, startTime, meetingUrl)
             } catch (e: Exception) {
                 logcat { "Failed to access EventAlarmScheduler via Hilt: ${e.message}" }
             }
@@ -79,6 +81,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val uniqueId = intent.getIntExtra(EXTRA_UNIQUE_ID, System.currentTimeMillis().toInt())
         val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
         val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
+        val meetingUrl = intent.getStringExtra(EXTRA_MEETING_URL)
 
         // No Wear OS (ou se o contexto indicar hardware.type.watch), iniciamos a Activity diretamente
         // para evitar ForegroundServiceStartNotAllowedException
@@ -94,6 +97,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         putExtra(EXTRA_UNIQUE_ID, uniqueId)
                         putExtra(EXTRA_EVENT_ID, eventId)
                         putExtra(EXTRA_EVENT_START_TIME, startTime)
+                        putExtra(EXTRA_MEETING_URL, meetingUrl)
                     }
                 context.startActivity(activityIntent)
                 return
@@ -103,6 +107,6 @@ class AlarmReceiver : BroadcastReceiver() {
             }
         }
 
-        AlarmSoundAndVibrateService.startAlarm(context, eventTitle, uniqueId, eventId, startTime)
+        AlarmSoundAndVibrateService.startAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl)
     }
 }
