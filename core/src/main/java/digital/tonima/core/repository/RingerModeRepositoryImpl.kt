@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.os.Build
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,7 +74,12 @@ class RingerModeRepositoryImpl
                     addAction(AudioManager.RINGER_MODE_CHANGED_ACTION)
                     addAction("android.media.VOLUME_CHANGED_ACTION")
                 }
-            context.registerReceiver(ringerModeReceiver, filter)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(ringerModeReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                @Suppress("UnspecifiedRegisterReceiverFlag")
+                context.registerReceiver(ringerModeReceiver, filter)
+            }
         }
 
         /**
