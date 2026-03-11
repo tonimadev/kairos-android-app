@@ -257,7 +257,6 @@ class AlarmSoundAndVibrateService : Service() {
             }
 
         val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        nm.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID)
         val channel =
             NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
