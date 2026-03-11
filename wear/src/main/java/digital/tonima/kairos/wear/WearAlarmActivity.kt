@@ -6,23 +6,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.Vignette
+import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TimeText
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.receiver.AlarmReceiver
@@ -127,63 +131,73 @@ private fun WearAlarmScreen(
     onSnooze: () -> Unit,
     onStop: () -> Unit,
 ) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(Dimensions.PaddingNormal),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+    val listState = rememberScalingLazyListState()
+    Scaffold(
+        timeText = { TimeText() },
+        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
+        positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
     ) {
-        Text(
-            color = MaterialTheme.colorScheme.primary,
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = Dimensions.PaddingMedium),
-        )
-
-        if (!meetingUrl.isNullOrEmpty()) {
-            Button(
-                onClick = onJoinMeeting,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = Dimensions.PaddingSmall),
-            ) {
-                Text(
-                    text = stringResource(R.string.disable_alarm_and_join_meeting),
-                    fontSize = Dimensions.ButtonFontSize,
-                    textAlign = TextAlign.Center,
-                )
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(
-                onClick = onSnooze,
-                modifier = Modifier.weight(1f),
-            ) {
+            item {
                 Text(
-                    text = stringResource(R.string.snooze),
-                    fontSize = Dimensions.ButtonFontSize,
+                    color = MaterialTheme.colorScheme.primary,
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = Dimensions.PaddingMedium),
                 )
             }
-            Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
-            Button(
-                onClick = onStop,
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(
-                    text = stringResource(R.string.stop),
-                    fontSize = Dimensions.ButtonFontSize,
-                    textAlign = TextAlign.Center,
-                )
+
+            if (!meetingUrl.isNullOrEmpty()) {
+                item {
+                    Button(
+                        onClick = onJoinMeeting,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = Dimensions.PaddingSmall),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.disable_alarm_and_join_meeting),
+                            fontSize = Dimensions.ButtonFontSize,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Button(
+                        onClick = onSnooze,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.snooze),
+                            fontSize = Dimensions.ButtonFontSize,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
+                    Button(
+                        onClick = onStop,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.stop),
+                            fontSize = Dimensions.ButtonFontSize,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
             }
         }
     }

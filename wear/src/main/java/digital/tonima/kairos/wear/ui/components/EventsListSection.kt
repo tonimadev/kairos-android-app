@@ -2,15 +2,11 @@ package digital.tonima.kairos.wear.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Dialog
@@ -63,73 +63,85 @@ fun EventsListSection(
                         visible = true,
                         onDismissRequest = { pendingToggle.value = null },
                     ) {
-                        val scrollState = rememberScrollState()
+                        val listState = rememberScalingLazyListState()
 
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.background),
-                            contentAlignment = Alignment.Center,
+                        Scaffold(
+                            positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
                         ) {
-                            Column(
+                            ScalingLazyColumn(
                                 modifier =
                                     Modifier
                                         .fillMaxSize()
-                                        .verticalScroll(scrollState)
-                                        .padding(horizontal = 24.dp, vertical = 32.dp),
+                                        .background(MaterialTheme.colorScheme.background),
+                                state = listState,
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center,
                             ) {
-                                Text(
-                                    text = stringResource(coreR.string.update_alarm_title),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    textAlign = TextAlign.Center,
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = stringResource(coreR.string.update_alarm_message),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Center,
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Button(
-                                    onClick = {
-                                        onEventToggle(pendingEvent, pendingEnabled, true)
-                                        pendingToggle.value = null
-                                    },
-                                    colors =
-                                        ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.primary,
-                                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                                        ),
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) {
+                                item {
                                     Text(
-                                        text = stringResource(coreR.string.recurring_option),
+                                        text = stringResource(coreR.string.update_alarm_title),
+                                        style = MaterialTheme.typography.titleMedium,
                                         textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(horizontal = 24.dp),
                                     )
                                 }
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Button(
-                                    onClick = {
-                                        onEventToggle(pendingEvent, pendingEnabled, false)
-                                        pendingToggle.value = null
-                                    },
-                                    colors =
-                                        ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                            contentColor = MaterialTheme.colorScheme.onSurface,
-                                        ),
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) {
+                                item { Spacer(modifier = Modifier.height(8.dp)) }
+                                item {
                                     Text(
-                                        text = stringResource(coreR.string.only_this_option),
+                                        text = stringResource(coreR.string.update_alarm_message),
+                                        style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(horizontal = 24.dp),
                                     )
+                                }
+                                item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                                item {
+                                    Button(
+                                        onClick = {
+                                            onEventToggle(pendingEvent, pendingEnabled, true)
+                                            pendingToggle.value = null
+                                        },
+                                        colors =
+                                            ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary,
+                                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                                            ),
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 24.dp),
+                                    ) {
+                                        Text(
+                                            text = stringResource(coreR.string.recurring_option),
+                                            textAlign = TextAlign.Center,
+                                        )
+                                    }
+                                }
+
+                                item { Spacer(modifier = Modifier.height(8.dp)) }
+
+                                item {
+                                    Button(
+                                        onClick = {
+                                            onEventToggle(pendingEvent, pendingEnabled, false)
+                                            pendingToggle.value = null
+                                        },
+                                        colors =
+                                            ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                            ),
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 24.dp),
+                                    ) {
+                                        Text(
+                                            text = stringResource(coreR.string.only_this_option),
+                                            textAlign = TextAlign.Center,
+                                        )
+                                    }
                                 }
                             }
                         }
