@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.worker)
     implementation(libs.logcat)
+    implementation(libs.play.review)
+    implementation(libs.play.review.ktx)
     implementation(platform(libs.google.firebase.bom))
 
     ksp(libs.androidx.hilt.compiler)

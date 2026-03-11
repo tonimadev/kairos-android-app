@@ -3,6 +3,8 @@ package digital.tonima.kairos.ui.view
 import android.Manifest
 import android.app.Activity
 import android.content.ContentUris
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -19,21 +21,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -77,6 +82,15 @@ import digital.tonima.kairos.ui.components.SpeedDialItem
 import digital.tonima.kairos.ui.components.StandardPermissionsScreen
 import digital.tonima.kairos.ui.theme.Dimensions
 import kotlinx.coroutines.launch
+
+fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    return null
+}
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -380,13 +394,18 @@ fun EventScreen(
             }
         }
 
-        if (uiState.showRatingDialog) {
-            RatingDialog(
+        if (uiState.showRatingBottomSheet) {
+            RatingBottomSheet(
                 onDismissRequest = { viewModel.onRatingDialogDismiss() },
                 onRateNow = {
-                    val intent = Intent(Intent.ACTION_VIEW, "market://details?id=${context.packageName}".toUri())
-                    context.startActivity(intent)
-                    viewModel.onRateNow()
+                    context.findActivity()?.let { activity ->
+                        viewModel.onRateNow(activity)
+                    } ?: run {
+                        // Fallback caso não encontre atividade
+                        val intent = Intent(Intent.ACTION_VIEW, "market://details?id=${context.packageName}".toUri())
+                        context.startActivity(intent)
+                        viewModel.onRateNow()
+                    }
                 },
                 onRateLater = { viewModel.onRateLater() },
                 onRateNeverShow = { viewModel.onRateNeverShow() },
@@ -494,32 +513,79 @@ private fun EventFloatingActionButtons(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RatingDialog(
+private fun RatingBottomSheet(
     onDismissRequest: () -> Unit,
     onRateNow: () -> Unit,
     onRateLater: () -> Unit,
     onRateNeverShow: () -> Unit,
 ) {
-    AlertDialog(
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        title = { Text(stringResource(R.string.rate_app_title)) },
-        text = { Text(stringResource(R.string.rate_app_message)) },
-        confirmButton = {
-            Button(onClick = onRateNow) {
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { },
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(Dimensions.PaddingNormal),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = stringResource(R.string.rate_app_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
+
+            Spacer(modifier = Modifier.height(Dimensions.SpacingNormal))
+
+            Text(
+                text = stringResource(R.string.rate_app_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(Dimensions.PaddingLarge))
+
+            Button(
+                onClick = onRateNow,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text(stringResource(R.string.rate_now))
             }
-        },
-        dismissButton = {
-            Column {
-                Button(onClick = onRateLater) {
-                    Text(stringResource(R.string.rate_later))
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = onRateNeverShow) {
-                    Text(stringResource(R.string.rate_never))
-                }
+
+            Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
+
+            TextButton(
+                onClick = onRateLater,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.rate_later))
             }
-        },
-    )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = Dimensions.SpacingSmall),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
+
+            TextButton(
+                onClick = onRateNeverShow,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = stringResource(R.string.rate_never),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(Dimensions.PaddingLarge))
+        }
+    }
 }

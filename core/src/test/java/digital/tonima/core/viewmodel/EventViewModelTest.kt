@@ -12,6 +12,7 @@ import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.RingerModeRepository
+import digital.tonima.core.review.ReviewManager
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
 import digital.tonima.core.usecases.CreateEventUseCase
@@ -71,6 +72,7 @@ class EventViewModelTest {
 
     private val ttsHelper: TextToSpeechHelper = mockk(relaxed = true)
     private val mockWidgetUpdater: WidgetUpdater = mockk(relaxed = true)
+    private val mockReviewManager: ReviewManager = mockk(relaxed = true)
     private lateinit var viewModel: EventViewModel
 
     private val isGlobalAlarmEnabledFlow = MutableStateFlow(true)
@@ -128,6 +130,7 @@ class EventViewModelTest {
                 mockCreateEventUseCase,
                 ttsHelper,
                 mockWidgetUpdater,
+                mockReviewManager,
             )
     }
 
@@ -254,6 +257,7 @@ class EventViewModelTest {
                     mockCreateEventUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
+                    mockReviewManager,
                 )
 
             io.mockk.clearMocks(getEventsForMonthUseCase, answers = false)
@@ -288,6 +292,7 @@ class EventViewModelTest {
                     mockCreateEventUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
+                    mockReviewManager,
                 )
             io.mockk.clearMocks(mockScheduler, answers = false)
 
@@ -500,12 +505,13 @@ class EventViewModelTest {
                     mockCreateEventUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
+                    mockReviewManager,
                 )
             advanceUntilIdle()
 
             vm.uiState.test {
                 val state = awaitItem()
-                assertTrue(state.showRatingDialog)
+                assertTrue(state.showRatingBottomSheet)
                 coVerify(exactly = 1) { mockAppPreferencesRepository.setRatingPrompted(true) }
                 cancelAndConsumeRemainingEvents()
             }
@@ -535,12 +541,13 @@ class EventViewModelTest {
                     mockCreateEventUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
+                    mockReviewManager,
                 )
             advanceUntilIdle()
 
             vm.uiState.test {
                 val state = awaitItem()
-                assertFalse(state.showRatingDialog)
+                assertFalse(state.showRatingBottomSheet)
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -568,12 +575,13 @@ class EventViewModelTest {
                     mockCreateEventUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
+                    mockReviewManager,
                 )
             advanceUntilIdle()
 
             vm.uiState.test {
                 val state = awaitItem()
-                assertFalse(state.showRatingDialog)
+                assertFalse(state.showRatingBottomSheet)
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -601,12 +609,13 @@ class EventViewModelTest {
                     mockCreateEventUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
+                    mockReviewManager,
                 )
             advanceUntilIdle()
 
             vm.uiState.test {
                 val state = awaitItem()
-                assertFalse(state.showRatingDialog)
+                assertFalse(state.showRatingBottomSheet)
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -623,7 +632,7 @@ class EventViewModelTest {
                 advanceUntilIdle()
 
                 val state = awaitItem()
-                assertFalse(state.showRatingDialog)
+                assertFalse(state.showRatingBottomSheet)
                 coVerify(exactly = 1) { mockAppPreferencesRepository.setRatingCompleted(true) }
                 cancelAndConsumeRemainingEvents()
             }
@@ -639,7 +648,7 @@ class EventViewModelTest {
                 advanceUntilIdle()
 
                 val state = awaitItem()
-                assertFalse(state.showRatingDialog)
+                assertFalse(state.showRatingBottomSheet)
                 coVerify(exactly = 0) { mockAppPreferencesRepository.setRatingCompleted(true) }
                 cancelAndConsumeRemainingEvents()
             }
@@ -655,7 +664,7 @@ class EventViewModelTest {
                 advanceUntilIdle()
 
                 val state = awaitItem()
-                assertFalse(state.showRatingDialog)
+                assertFalse(state.showRatingBottomSheet)
                 cancelAndConsumeRemainingEvents()
             }
         }

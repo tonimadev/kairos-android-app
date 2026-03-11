@@ -146,6 +146,8 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.worker)
     implementation(libs.logcat)
+    implementation(libs.play.review)
+    implementation(libs.play.review.ktx)
     implementation(libs.play.services.ads.api)
     implementation(libs.play.services.wearable)
     implementation(platform(libs.androidx.compose.bom))

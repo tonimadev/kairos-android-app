@@ -59,7 +59,7 @@ data class EventScreenUiState(
     val hasFullScreenIntentPermission: Boolean = false,
     val audioWarning: AudioWarningState = AudioWarningState.NORMAL,
     val vibrateOnly: Boolean = false,
-    val showRatingDialog: Boolean = false,
+    val showRatingBottomSheet: Boolean = false,
     val allDayAlarmsEnabled: Boolean = true,
     val allDayAlarmHour: Int = 9,
     val alarmOffsetMinutes: Long = 0L,
@@ -98,6 +98,7 @@ class EventViewModel
         private val createEventUseCase: CreateEventUseCase,
         private val ttsHelper: TextToSpeechHelper,
         private val widgetUpdater: WidgetUpdater,
+        private val reviewManager: digital.tonima.core.review.ReviewManager,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
@@ -200,7 +201,7 @@ class EventViewModel
                     !hasPrompted &&
                     !hasCompleted
                 ) {
-                    _uiState.update { it.copy(showRatingDialog = true) }
+                    _uiState.update { it.copy(showRatingBottomSheet = true) }
                     appPreferencesRepository.setRatingPrompted(true)
                 }
             }
@@ -430,24 +431,34 @@ class EventViewModel
         }
 
         fun onRatingDialogDismiss() {
-            _uiState.update { it.copy(showRatingDialog = false) }
+            _uiState.update { it.copy(showRatingBottomSheet = false) }
+        }
+
+        fun onRateNow(activity: android.app.Activity) {
+            viewModelScope.launch {
+                appPreferencesRepository.setRatingCompleted(true)
+                _uiState.update { it.copy(showRatingBottomSheet = false) }
+                reviewManager.requestReview(activity) {
+                    // Completo
+                }
+            }
         }
 
         fun onRateNow() {
             viewModelScope.launch {
                 appPreferencesRepository.setRatingCompleted(true)
-                _uiState.update { it.copy(showRatingDialog = false) }
+                _uiState.update { it.copy(showRatingBottomSheet = false) }
             }
         }
 
         fun onRateLater() {
-            _uiState.update { it.copy(showRatingDialog = false) }
+            _uiState.update { it.copy(showRatingBottomSheet = false) }
         }
 
         fun onRateNeverShow() {
             viewModelScope.launch {
                 appPreferencesRepository.setRatingCompleted(true)
-                _uiState.update { it.copy(showRatingDialog = false) }
+                _uiState.update { it.copy(showRatingBottomSheet = false) }
             }
         }
 
