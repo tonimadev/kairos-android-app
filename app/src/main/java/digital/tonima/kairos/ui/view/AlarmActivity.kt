@@ -68,6 +68,19 @@ class AlarmActivity : ComponentActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                    android.view.WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
+                    android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+            )
+        }
+
         super.onCreate(savedInstanceState)
         val eventTitle =
             intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_TITLE) ?: getString(R.string.upcoming_event)

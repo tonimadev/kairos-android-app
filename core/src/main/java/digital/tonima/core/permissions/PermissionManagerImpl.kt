@@ -29,9 +29,17 @@ class PermissionManagerImpl
                 emptyList()
             }
         override val exactAlarmPermissions: List<String> =
-            emptyList()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                listOf(Manifest.permission.SCHEDULE_EXACT_ALARM)
+            } else {
+                emptyList()
+            }
         override val fullScreenIntentPermissions: List<String> =
-            emptyList()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                listOf(Manifest.permission.USE_FULL_SCREEN_INTENT)
+            } else {
+                emptyList()
+            }
 
         override fun hasCalendarPermission(): Boolean {
             return ContextCompat.checkSelfPermission(

@@ -257,6 +257,7 @@ class AlarmSoundAndVibrateService : Service() {
             }
 
         val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        nm.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID)
         val channel =
             NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
@@ -265,6 +266,9 @@ class AlarmSoundAndVibrateService : Service() {
             ).apply {
                 description = getString(R.string.notification_description)
                 setShowBadge(false)
+                setSound(null, null)
+                enableVibration(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
         nm.createNotificationChannel(channel)
 
@@ -301,8 +305,11 @@ class AlarmSoundAndVibrateService : Service() {
                 .setContentTitle(getString(R.string.event_alarm))
                 .setContentText(contentText)
                 .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(Notification.CATEGORY_ALARM)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setLocalOnly(true)
+                .setAutoCancel(false)
                 .addAction(0, getString(R.string.snooze), snoozePendingIntent)
                 .addAction(0, getString(R.string.stop), stopPendingIntent)
 
@@ -312,7 +319,19 @@ class AlarmSoundAndVibrateService : Service() {
 
         val notification = notificationBuilder.build()
 
-        startForeground(NOTIFICATION_ID, notification)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
+        } catch (e: Exception) {
+            logcat(logcat.LogPriority.ERROR) { "AlarmSoundAndVibrateService: Error starting foreground: ${e.message}" }
+        }
     }
 
     private fun stopAndReleaseResources() {

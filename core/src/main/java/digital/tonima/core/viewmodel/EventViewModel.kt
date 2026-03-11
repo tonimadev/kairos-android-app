@@ -237,11 +237,13 @@ class EventViewModel
         fun skipExactAlarmPermission() {
             logcat { "User skipped exact alarm permission request - alarms will be inexact" }
             _uiState.update { it.copy(hasExactAlarmPermission = true) }
+            checkAllPermissions()
         }
 
         fun skipFullScreenIntentPermission() {
             logcat { "User skipped full-screen intent permission request" }
             _uiState.update { it.copy(hasFullScreenIntentPermission = true) }
+            checkAllPermissions()
         }
 
         fun onMonthChanged(
