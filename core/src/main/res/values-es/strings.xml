@@ -138,7 +138,7 @@
     <string name="location_alarm_title">Alarma Inteligente por Geolocalización</string>
     <string name="location_alarm_description">Dispara la alarma basada en el tiempo de viaje para eventos con dirección.</string>
     <string name="location_permission_required">Permiso de Ubicación Requerido</string>
-    <string name="location_permission_disclaimer">Para calcular el tiempo de viaje, la app necesita conocer tu ubicación, incluso en segundo plano.</string>
+    <string name="location_permission_disclaimer">Para calcular el tiempo de viaje, la app necesita conocer tu ubicación.</string>
     <string name="transport_mode_label">Modo de transporte preferido</string>
     <string name="transport_driving">Coche</string>
     <string name="transport_walking">Caminando</string>

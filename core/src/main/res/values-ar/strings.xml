@@ -136,7 +136,7 @@
     <string name="location_alarm_title">منبه ذكي بموقع جغرافي</string>
     <string name="location_alarm_description">تشغيل المنبه بناءً على وقت السفر للأحداث التي تحتوي على عناوين.</string>
     <string name="location_permission_required">إذن الموقع مطلوب</string>
-    <string name="location_permission_disclaimer">لحساب وقت السفر، يحتاج التطبيق إلى معرفة موقعك، حتى في الخلفية.</string>
+    <string name="location_permission_disclaimer">لحساب وقت السفر، يحتاج التطبيق إلى معرفة موقعك.</string>
     <string name="transport_mode_label">وضع النقل المفضل</string>
     <string name="transport_driving">سيارة</string>
     <string name="transport_walking">مشياً</string>

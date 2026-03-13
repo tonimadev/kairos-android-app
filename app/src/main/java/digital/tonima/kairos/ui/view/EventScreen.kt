@@ -133,26 +133,13 @@ fun EventScreen(
     val locationPermissionState =
         rememberMultiplePermissionsState(permissions = locationPermissionsToRequest)
 
-    val backgroundLocationPermissionToRequest =
-        remember {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                listOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-            } else {
-                emptyList()
-            }
-        }
+    val backgroundLocationPermissionToRequest = emptyList<String>()
     val backgroundLocationPermissionState =
         rememberMultiplePermissionsState(permissions = backgroundLocationPermissionToRequest)
 
     LaunchedEffect(uiState.isLocationAlarmEnabled) {
-        if (uiState.isLocationAlarmEnabled) {
-            if (!locationPermissionState.allPermissionsGranted) {
-                locationPermissionState.launchMultiplePermissionRequest()
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                !backgroundLocationPermissionState.allPermissionsGranted
-            ) {
-                backgroundLocationPermissionState.launchMultiplePermissionRequest()
-            }
+        if (uiState.isLocationAlarmEnabled && !locationPermissionState.allPermissionsGranted) {
+            locationPermissionState.launchMultiplePermissionRequest()
         }
     }
 

@@ -139,7 +139,7 @@
     <string name="location_alarm_title">Alarme Intelligente par Géolocalisation</string>
     <string name="location_alarm_description">Déclencher l\'alarme en fonction du temps de trajet pour les événements avec adresse.</string>
     <string name="location_permission_required">Autorisation de Localisation Requise</string>
-    <string name="location_permission_disclaimer">Pour calculer le temps de trajet, l\'application doit connaître votre position, même en arrière-plan.</string>
+    <string name="location_permission_disclaimer">Pour calculer le temps de trajet, l\'application doit connaître votre position.</string>
     <string name="transport_mode_label">Mode de transport préféré</string>
     <string name="transport_driving">Voiture</string>
     <string name="transport_walking">À pied</string>

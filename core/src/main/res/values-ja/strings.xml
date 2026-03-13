@@ -133,7 +133,7 @@
     <string name="location_alarm_title">位置情報スマートアラーム</string>
     <string name="location_alarm_description">住所のあるイベントに対して、移動時間に基づいたアラームを鳴らします。</string>
     <string name="location_permission_required">位置情報の権限が必要です</string>
-    <string name="location_permission_disclaimer">移動時間を計算するため、アプリはバックグラウンドでも位置情報を知る必要があります。</string>
+    <string name="location_permission_disclaimer">移動時間を計算するため、アプリは位置情報を知る必要があります。</string>
     <string name="transport_mode_label">優先する交通手段</string>
     <string name="transport_driving">車</string>
     <string name="transport_walking">徒歩</string>

@@ -133,7 +133,7 @@
     <string name="location_alarm_title">基于地理位置的智能闹钟</string>
     <string name="location_alarm_description">对于带有地址的事件，根据通勤时间触发闹钟。</string>
     <string name="location_permission_required">需要位置权限</string>
-    <string name="location_permission_disclaimer">为了计算通勤时间，应用需要知道您的位置，即使在后台运行时也是如此。</string>
+    <string name="location_permission_disclaimer">为了计算通勤时间，应用需要知道您的位置。</string>
     <string name="transport_mode_label">首选交通方式</string>
     <string name="transport_driving">驾车</string>
     <string name="transport_walking">步行</string>

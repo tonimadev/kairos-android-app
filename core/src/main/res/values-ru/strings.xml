@@ -137,7 +137,7 @@
     <string name="location_alarm_title">Умный будильник по геолокации</string>
     <string name="location_alarm_description">Срабатывание будильника на основе времени в пути для событий с адресом.</string>
     <string name="location_permission_required">Требуется разрешение на местоположение</string>
-    <string name="location_permission_disclaimer">Для расчета времени в пути приложению нужно знать ваше местоположение, даже в фоновом режиме.</string>
+    <string name="location_permission_disclaimer">Для расчета времени в пути приложению нужно знать ваше местоположение.</string>
     <string name="transport_mode_label">Предпочтительный вид транспорта</string>
     <string name="transport_driving">Машина</string>
     <string name="transport_walking">Пешком</string>

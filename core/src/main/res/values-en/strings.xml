@@ -137,7 +137,7 @@
     <string name="location_alarm_title">Smart Geolocation Alarm</string>
     <string name="location_alarm_description">Trigger alarm based on travel time for events with addresses.</string>
     <string name="location_permission_required">Location Permission Required</string>
-    <string name="location_permission_disclaimer">To calculate travel time, the app needs to know your location, even in the background.</string>
+    <string name="location_permission_disclaimer">To calculate travel time, the app needs to know your location.</string>
     <string name="transport_mode_label">Preferred transport mode</string>
     <string name="transport_driving">Driving</string>
     <string name="transport_walking">Walking</string>

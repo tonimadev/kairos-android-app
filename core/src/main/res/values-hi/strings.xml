@@ -136,7 +136,7 @@
     <string name="location_alarm_title">स्मार्ट जियोलोकेशन अलार्म</string>
     <string name="location_alarm_description">पते वाले ईवेंट के लिए यात्रा के समय के आधार पर अलार्म बजाएं।</string>
     <string name="location_permission_required">स्थान अनुमति आवश्यक है</string>
-    <string name="location_permission_disclaimer">यात्रा के समय की गणना करने के लिए, ऐप को आपके स्थान की जानकारी होनी चाहिए, यहाँ तक कि बैकग्राउंड में भी।</string>
+    <string name="location_permission_disclaimer">यात्रा के समय की गणना करने के लिए, ऐप को आपके स्थान की जानकारी होनी चाहिए।</string>
     <string name="transport_mode_label">पसंदीदा परिवहन मोड</string>
     <string name="transport_driving">कार</string>
     <string name="transport_walking">पैदल</string>

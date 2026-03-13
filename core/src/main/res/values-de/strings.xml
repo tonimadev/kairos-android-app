@@ -138,7 +138,7 @@
     <string name="location_alarm_title">Intelligenter Geostandort-Alarm</string>
     <string name="location_alarm_description">Löst den Alarm basierend auf der Fahrzeit für Termine mit Adresse aus.</string>
     <string name="location_permission_required">Standortberechtigung erforderlich</string>
-    <string name="location_permission_disclaimer">Um die Fahrzeit zu berechnen, muss die App Ihren Standort kennen, auch im Hintergrund.</string>
+    <string name="location_permission_disclaimer">Um die Fahrzeit zu berechnen, muss die App Ihren Standort kennen.</string>
     <string name="transport_mode_label">Bevorzugtes Verkehrsmittel</string>
     <string name="transport_driving">Auto</string>
     <string name="transport_walking">Zu Fuß</string>
