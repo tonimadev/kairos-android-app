@@ -141,7 +141,7 @@ fun DrawerContent(
                 )
             }
 
-            if (isProUser) {
+            if (isAiUser) {
                 NavigationDrawerItem(
                     icon = { Icon(painterResource(star), contentDescription = null) },
                     label = { Text(stringResource(digital.tonima.kairos.core.R.string.manage_subscription)) },

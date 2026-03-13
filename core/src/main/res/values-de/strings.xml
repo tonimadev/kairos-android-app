@@ -135,4 +135,23 @@
     <string name="next_events_title">Anstehende Termine</string>
     <string name="no_more_events_today">Heute keine weiteren Ereignisse</string>
     <string name="disable_alarm_and_join_meeting">Alarm deaktivieren und an Besprechung teilnehmen</string>
+    <string name="location_alarm_title">Intelligenter Geostandort-Alarm</string>
+    <string name="location_alarm_description">Löst den Alarm basierend auf der Fahrzeit für Termine mit Adresse aus.</string>
+    <string name="location_permission_required">Standortberechtigung erforderlich</string>
+    <string name="location_permission_disclaimer">Um die Fahrzeit zu berechnen, muss die App Ihren Standort kennen, auch im Hintergrund.</string>
+    <string name="transport_mode_label">Bevorzugtes Verkehrsmittel</string>
+    <string name="transport_driving">Auto</string>
+    <string name="transport_walking">Zu Fuß</string>
+    <string name="transport_bicycling">Fahrrad</string>
+    <string name="transport_transit">Öffentliche Verkehrsmittel</string>
+    <string name="travel_time_label">Fahrzeit: %1$d Min.</string>
+    <string name="alarm_in_label">Alarm in %1$s</string>
+    <string name="alarm_now_label">Alarm jetzt</string>
+    <string name="minutes_short">%1$d Min.</string>
+    <string name="hours_short">%1$d Std.</string>
+    <string name="pro_feature_restricted">Exklusive Pro + KI-Funktion</string>
+    <string name="geo_alarm_pro_only">Geo-Alarme sind exklusiv für Pro + KI-Abonnenten verfügbar.</string>
+    <string name="geo_alarm_upgrade_trial_title">Probieren Sie den intelligenten Alarm aus!</string>
+    <string name="geo_alarm_upgrade_trial_desc">Vermeiden Sie Verspätungen! Aktivieren Sie mit dem Pro + KI-Plan Alarme basierend auf dem Echtzeit-Verkehr.</string>
+    <string name="try_pro_plan">Pro-Plan ausprobieren</string>
 </resources>

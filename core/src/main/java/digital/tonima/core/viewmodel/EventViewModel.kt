@@ -15,6 +15,7 @@ import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
+import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.usecases.CreateEventUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
@@ -52,7 +53,8 @@ data class EventScreenUiState(
     val selectedDate: LocalDate = LocalDate.now(),
     val currentMonth: YearMonth = YearMonth.now(),
     val showAutostartSuggestion: Boolean = false,
-    val showUpgradeConfirmation: Boolean = false,
+    val showPurchaseConfirmation: Boolean = false,
+    val showSubscriptionConfirmation: Boolean = false,
     val hasCalendarPermission: Boolean = false,
     val hasPostNotificationsPermission: Boolean = false,
     val hasExactAlarmPermission: Boolean = false,
@@ -78,6 +80,10 @@ data class EventScreenUiState(
     val showCreateEventDialog: Boolean = false,
     val voiceEventData: VoiceEventData? = null,
     val showAiSuggestionsDialog: Boolean = false,
+    val isLocationAlarmEnabled: Boolean = false,
+    val preferredTransportMode: String = "driving",
+    val hasLocationPermission: Boolean = false,
+    val hasBackgroundLocationPermission: Boolean = false,
 )
 
 @HiltViewModel
@@ -96,6 +102,7 @@ class EventViewModel
         private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
         private val askAiAboutScheduleUseCase: AskAiAboutScheduleUseCase,
         private val createEventUseCase: CreateEventUseCase,
+        private val calculateDepartureTimeUseCase: CalculateDepartureTimeUseCase,
         private val ttsHelper: TextToSpeechHelper,
         private val widgetUpdater: WidgetUpdater,
         private val reviewManager: digital.tonima.core.review.ReviewManager,
@@ -152,6 +159,27 @@ class EventViewModel
                 .onEach { minutes ->
                     _uiState.update { it.copy(alarmOffsetMinutes = minutes) }
                     if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled) {
+                        onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                    }
+                }
+                .launchIn(viewModelScope)
+
+            appPreferencesRepository.isLocationAlarmEnabled()
+                .onEach { enabled ->
+                    _uiState.update { it.copy(isLocationAlarmEnabled = enabled) }
+                    if (_uiState.value.hasCalendarPermission && _uiState.value.isGlobalAlarmEnabled) {
+                        onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
+                    }
+                }
+                .launchIn(viewModelScope)
+
+            appPreferencesRepository.getPreferredTransportMode()
+                .onEach { mode ->
+                    _uiState.update { it.copy(preferredTransportMode = mode) }
+                    if (_uiState.value.hasCalendarPermission &&
+                        _uiState.value.isGlobalAlarmEnabled &&
+                        _uiState.value.isLocationAlarmEnabled
+                    ) {
                         onMonthChanged(_uiState.value.currentMonth, forceRefresh = true)
                     }
                 }
@@ -220,6 +248,8 @@ class EventViewModel
                     hasPostNotificationsPermission = permissionManager.hasPostNotificationsPermission(),
                     hasExactAlarmPermission = permissionManager.hasExactAlarmPermission(),
                     hasFullScreenIntentPermission = permissionManager.hasFullScreenIntentPermission(),
+                    hasLocationPermission = permissionManager.hasLocationPermission(),
+                    hasBackgroundLocationPermission = permissionManager.hasBackgroundLocationPermission(),
                 )
             }
             if (_uiState.value.hasCalendarPermission) {
@@ -272,9 +302,29 @@ class EventViewModel
                         val isInstanceDisabled = disabledInstanceIds.contains(event.uniqueIntentId.toString())
                         val isSeriesDisabled = disabledSeriesIds.contains(event.id.toString())
                         val isVibrateOnly = vibrateOnlyEventIds.contains(event.uniqueIntentId.toString())
+                        val isAlarmEnabled = !(isInstanceDisabled || isSeriesDisabled)
+
+                        var departureTime: Long? = null
+                        var travelTimeMinutes: Int? = null
+
+                        if (isAlarmEnabled && _uiState.value.isAiUser) {
+                            val departureInfo =
+                                if (event.location != null) {
+                                    calculateDepartureTimeUseCase.invoke(
+                                        event,
+                                    )
+                                } else {
+                                    null
+                                }
+                            departureTime = departureInfo?.departureTime
+                            travelTimeMinutes = departureInfo?.travelTimeMinutes
+                        }
+
                         event.copy(
-                            isAlarmEnabled = !(isInstanceDisabled || isSeriesDisabled),
+                            isAlarmEnabled = isAlarmEnabled,
                             vibrateOnly = isVibrateOnly,
+                            departureTime = departureTime,
+                            travelTimeMinutes = travelTimeMinutes,
                         )
                     }
 
@@ -296,15 +346,31 @@ class EventViewModel
             val offsetMinutes = _uiState.value.alarmOffsetMinutes
             val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
 
-            events
-                .filter { it.isAlarmEnabled }
-                .filter { event ->
-                    val alarmFireTime = event.startTime - TimeUnit.MINUTES.toMillis(offsetMinutes)
-                    alarmFireTime in (now + 1)..scheduleWindowEnd
-                }
-                .forEach { event ->
-                    scheduler.schedule(event)
-                }
+            viewModelScope.launch {
+                events
+                    .filter { it.isAlarmEnabled }
+                    .forEach { event ->
+                        val departureInfo =
+                            if (_uiState.value.isAiUser) {
+                                calculateDepartureTimeUseCase.invoke(
+                                    event,
+                                )
+                            } else {
+                                null
+                            }
+                        val alarmFireTime =
+                            departureInfo?.departureTime ?: (
+                                event.startTime -
+                                    TimeUnit.MINUTES.toMillis(
+                                        offsetMinutes,
+                                    )
+                            )
+
+                        if (alarmFireTime in (now + 1)..scheduleWindowEnd) {
+                            scheduler.schedule(event, departureInfo?.departureTime)
+                        }
+                    }
+            }
         }
 
         fun onDateSelected(date: LocalDate) {
@@ -425,11 +491,11 @@ class EventViewModel
         }
 
         fun onUpgradeToProRequest() {
-            _uiState.update { it.copy(showUpgradeConfirmation = true) }
+            _uiState.update { it.copy(showSubscriptionConfirmation = true) }
         }
 
         fun onDismissUpgradeConfirmation() {
-            _uiState.update { it.copy(showUpgradeConfirmation = false) }
+            _uiState.update { it.copy(showSubscriptionConfirmation = false, showPurchaseConfirmation = false) }
         }
 
         fun onRatingDialogDismiss() {
@@ -529,6 +595,22 @@ class EventViewModel
             }
         }
 
+        fun onLocationAlarmToggle(enabled: Boolean) {
+            if (!_uiState.value.isAiUser && enabled) {
+                _uiState.update { it.copy(showSubscriptionConfirmation = true) }
+                return
+            }
+            viewModelScope.launch {
+                appPreferencesRepository.setLocationAlarmEnabled(enabled)
+            }
+        }
+
+        fun onTransportModeChanged(mode: String) {
+            viewModelScope.launch {
+                appPreferencesRepository.setPreferredTransportMode(mode)
+            }
+        }
+
         fun generateDailyBriefing(languageInstruction: String) {
             val today = LocalDate.now()
             val uiValue = _uiState.value
@@ -547,7 +629,13 @@ class EventViewModel
 
             viewModelScope.launch {
                 _uiState.update { it.copy(isGeneratingBriefing = true) }
-                val briefing = generateDailyBriefingUseCase.invoke(eventsToday, languageInstruction)
+                val city = appPreferencesRepository.getPreferredCity().firstOrNull()
+                val briefing =
+                    generateDailyBriefingUseCase.invoke(
+                        eventsToday,
+                        languageInstruction,
+                        city = city,
+                    )
                 if (briefing != null) {
                     dailyBriefingRepository.saveDailyBriefing(briefing)
                     widgetUpdater.updateDailyBriefingWidget()
@@ -571,69 +659,47 @@ class EventViewModel
                         getEventsForMonthUseCase.invoke(currentMonth) +
                         getEventsForMonthUseCase.invoke(currentMonth.plusMonths(1))
 
-                val response =
-                    askAiAboutScheduleUseCase.invoke(
-                        events = eventsRecent,
-                        question = question,
-                        languageInstruction = languageInstruction,
-                    )
+                val response = askAiAboutScheduleUseCase.invoke(eventsRecent, question, languageInstruction)
 
                 if (response != null) {
-                    val trimmedResponse = response.trim()
-                    val hasJsonStart = trimmedResponse.contains("\"title\":") && trimmedResponse.contains("{")
-
-                    if (hasJsonStart) {
-                        try {
-                            val voiceEventData = parseVoiceEventData(trimmedResponse)
-                            if (voiceEventData != null) {
-                                _uiState.update {
-                                    it.copy(
-                                        isAskingAi = false,
-                                        showCreateEventDialog = true,
-                                        voiceEventData = voiceEventData,
-                                    )
-                                }
-                            } else {
-                                // Caso não consiga extrair dados válidos do JSON suspeito
-                                _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
-                                speak(response)
-                            }
-                        } catch (e: Exception) {
-                            logcat(LogPriority.ERROR) { "Error parsing voice event data: ${e.message}" }
-                            _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
-                            speak(response)
-                        }
-                    } else {
-                        _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
-                        speak(response)
-                    }
+                    processAiResponse(response)
                 } else {
                     _uiState.update { it.copy(isAskingAi = false) }
                 }
             }
         }
 
+        private fun processAiResponse(response: String) {
+            val trimmedResponse = response.trim()
+            val hasJsonStart = trimmedResponse.contains("\"title\":") && trimmedResponse.contains("{")
+
+            if (hasJsonStart) {
+                parseVoiceEventData(trimmedResponse)?.let { voiceEventData ->
+                    _uiState.update {
+                        it.copy(isAskingAi = false, showCreateEventDialog = true, voiceEventData = voiceEventData)
+                    }
+                    return
+                }
+            }
+            _uiState.update { it.copy(aiResponse = response, isAskingAi = false) }
+            speak(response)
+        }
+
         private fun parseVoiceEventData(jsonStr: String): VoiceEventData? {
-            val titleMatch = Regex("\"title\":\\s*\"([^\"]+)\"").find(jsonStr)
-            val title = titleMatch?.groupValues?.get(1) ?: return null
+            return try {
+                val title = Regex("\"title\":\\s*\"([^\"]+)\"").find(jsonStr)?.groupValues?.get(1) ?: return null
+                val description = Regex("\"description\":\\s*\"([^\"]+)\"").find(jsonStr)?.groupValues?.get(1)
+                val location = Regex("\"location\":\\s*\"([^\"]+)\"").find(jsonStr)?.groupValues?.get(1)
+                val startTime = Regex("\"startTime\":\\s*(\\d+)").find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
+                val endTime = Regex("\"endTime\":\\s*(\\d+)").find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
+                val isAllDay =
+                    Regex("\"isAllDay\":\\s*(true|false)")
+                        .find(jsonStr)?.groupValues?.get(1)?.toBoolean() ?: false
 
-            val description = Regex("\"description\":\\s*\"([^\"]+)\"").find(jsonStr)?.groupValues?.get(1)
-            val location = Regex("\"location\":\\s*\"([^\"]+)\"").find(jsonStr)?.groupValues?.get(1)
-            val startTime = Regex("\"startTime\":\\s*(\\d+)").find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
-            val endTime = Regex("\"endTime\":\\s*(\\d+)").find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
-            val isAllDay =
-                Regex(
-                    "\"isAllDay\":\\s*(true|false)",
-                ).find(jsonStr)?.groupValues?.get(1)?.toBoolean() ?: false
-
-            return VoiceEventData(
-                title = title,
-                description = description,
-                location = location,
-                startTime = startTime,
-                endTime = endTime,
-                isAllDay = isAllDay,
-            )
+                VoiceEventData(title, description, location, startTime, endTime, isAllDay)
+            } catch (e: Exception) {
+                null
+            }
         }
 
         private fun speak(text: String) {

@@ -133,4 +133,23 @@
     <string name="next_events_title">الأحداث القادمة</string>
     <string name="no_more_events_today">لا يوجد مزيد من الأحداث اليوم</string>
     <string name="disable_alarm_and_join_meeting">تعطيل المنبه والانضمام إلى الاجتماع</string>
+    <string name="location_alarm_title">منبه ذكي بموقع جغرافي</string>
+    <string name="location_alarm_description">تشغيل المنبه بناءً على وقت السفر للأحداث التي تحتوي على عناوين.</string>
+    <string name="location_permission_required">إذن الموقع مطلوب</string>
+    <string name="location_permission_disclaimer">لحساب وقت السفر، يحتاج التطبيق إلى معرفة موقعك، حتى في الخلفية.</string>
+    <string name="transport_mode_label">وضع النقل المفضل</string>
+    <string name="transport_driving">سيارة</string>
+    <string name="transport_walking">مشياً</string>
+    <string name="transport_bicycling">دراجة هوائية</string>
+    <string name="transport_transit">وسائل النقل العام</string>
+    <string name="travel_time_label">التنقل: %1$d دقيقة</string>
+    <string name="alarm_in_label">المنبه خلال %1$s</string>
+    <string name="alarm_now_label">المنبه الآن</string>
+    <string name="minutes_short">%1$d دقيقة</string>
+    <string name="hours_short">%1$d ساعة</string>
+    <string name="pro_feature_restricted">ميزة حصرية لـ Pro + الذكاء الاصطناعي</string>
+    <string name="geo_alarm_pro_only">المنبهات الجغرافية حصرية لمشتركي Pro + الذكاء الاصطناعي.</string>
+    <string name="geo_alarm_upgrade_trial_title">جرب المنبه الذكي!</string>
+    <string name="geo_alarm_upgrade_trial_desc">تجنب التأخير! قم بتفعيل المنبهات القائمة على حركة المرور في الوقت الفعلي مع خطة Pro + الذكاء الاصطناعي.</string>
+    <string name="try_pro_plan">جرب خطة Pro</string>
 </resources>

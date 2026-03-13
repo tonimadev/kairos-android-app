@@ -69,6 +69,8 @@ class EventViewModelTest {
     private val mockGenerateDailyBriefingUseCase: GenerateDailyBriefingUseCase = mockk(relaxed = true)
     private val mockAskAiAboutScheduleUseCase: AskAiAboutScheduleUseCase = mockk(relaxed = true)
     private val mockCreateEventUseCase: CreateEventUseCase = mockk(relaxed = true)
+    private val mockCalculateDepartureTimeUseCase: digital.tonima.core.usecases.CalculateDepartureTimeUseCase =
+        mockk(relaxed = true)
 
     private val ttsHelper: TextToSpeechHelper = mockk(relaxed = true)
     private val mockWidgetUpdater: WidgetUpdater = mockk(relaxed = true)
@@ -128,6 +130,7 @@ class EventViewModelTest {
                 mockGenerateDailyBriefingUseCase,
                 mockAskAiAboutScheduleUseCase,
                 mockCreateEventUseCase,
+                mockCalculateDepartureTimeUseCase,
                 ttsHelper,
                 mockWidgetUpdater,
                 mockReviewManager,
@@ -210,7 +213,7 @@ class EventViewModelTest {
         }
 
     @Test
-    fun `onUpgradeToProRequest updates showUpgradeConfirmation to true`() =
+    fun `onUpgradeToProRequest updates showSubscriptionConfirmation to true`() =
         runTest {
             viewModel.uiState.test {
                 skipItems(1)
@@ -219,13 +222,13 @@ class EventViewModelTest {
                 advanceUntilIdle()
 
                 val updatedState = awaitItem()
-                assertTrue(updatedState.showUpgradeConfirmation)
+                assertTrue(updatedState.showSubscriptionConfirmation)
                 cancelAndConsumeRemainingEvents()
             }
         }
 
     @Test
-    fun `onDismissUpgradeConfirmation sets showUpgradeConfirmation to false`() =
+    fun `onDismissUpgradeConfirmation sets showSubscriptionConfirmation and showPurchaseConfirmation to false`() =
         runTest {
             viewModel.onUpgradeToProRequest()
             advanceUntilIdle()
@@ -233,7 +236,8 @@ class EventViewModelTest {
             advanceUntilIdle()
             viewModel.uiState.test {
                 val state = awaitItem()
-                assertFalse(state.showUpgradeConfirmation)
+                assertFalse(state.showSubscriptionConfirmation)
+                assertFalse(state.showPurchaseConfirmation)
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -255,6 +259,7 @@ class EventViewModelTest {
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
+                    mockCalculateDepartureTimeUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
                     mockReviewManager,
@@ -290,6 +295,7 @@ class EventViewModelTest {
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
+                    mockCalculateDepartureTimeUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
                     mockReviewManager,
@@ -503,6 +509,7 @@ class EventViewModelTest {
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
+                    mockCalculateDepartureTimeUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
                     mockReviewManager,
@@ -539,6 +546,7 @@ class EventViewModelTest {
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
+                    mockCalculateDepartureTimeUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
                     mockReviewManager,
@@ -573,6 +581,7 @@ class EventViewModelTest {
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
+                    mockCalculateDepartureTimeUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
                     mockReviewManager,
@@ -607,6 +616,7 @@ class EventViewModelTest {
                     mockGenerateDailyBriefingUseCase,
                     mockAskAiAboutScheduleUseCase,
                     mockCreateEventUseCase,
+                    mockCalculateDepartureTimeUseCase,
                     ttsHelper,
                     mockWidgetUpdater,
                     mockReviewManager,

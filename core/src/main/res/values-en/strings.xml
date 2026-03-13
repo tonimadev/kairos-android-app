@@ -134,4 +134,23 @@
     <string name="next_events_title">Upcoming Events</string>
     <string name="no_more_events_today">No more events today</string>
     <string name="disable_alarm_and_join_meeting">Disable alarm and join meeting</string>
+    <string name="location_alarm_title">Smart Geolocation Alarm</string>
+    <string name="location_alarm_description">Trigger alarm based on travel time for events with addresses.</string>
+    <string name="location_permission_required">Location Permission Required</string>
+    <string name="location_permission_disclaimer">To calculate travel time, the app needs to know your location, even in the background.</string>
+    <string name="transport_mode_label">Preferred transport mode</string>
+    <string name="transport_driving">Driving</string>
+    <string name="transport_walking">Walking</string>
+    <string name="transport_bicycling">Bicycling</string>
+    <string name="transport_transit">Public Transit</string>
+    <string name="travel_time_label">Travel: %1$d min</string>
+    <string name="alarm_in_label">Alarm in %1$s</string>
+    <string name="alarm_now_label">Alarm now</string>
+    <string name="minutes_short">%1$d min</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="pro_feature_restricted">Exclusive Pro + AI Feature</string>
+    <string name="geo_alarm_pro_only">Geo-alarms are exclusive to Pro + AI subscribers.</string>
+    <string name="geo_alarm_upgrade_trial_title">Try the Smart Alarm!</string>
+    <string name="geo_alarm_upgrade_trial_desc">Avoid delays! Enable real-time traffic-based alarms with the Pro + AI plan.</string>
+    <string name="try_pro_plan">Try Pro Plan</string>
 </resources>

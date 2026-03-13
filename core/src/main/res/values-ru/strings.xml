@@ -134,4 +134,23 @@
     <string name="next_events_title">Предстоящие события</string>
     <string name="no_more_events_today">Больше событий сегодня нет</string>
     <string name="disable_alarm_and_join_meeting">Отключить будильник и присоединиться к встрече</string>
+    <string name="location_alarm_title">Умный будильник по геолокации</string>
+    <string name="location_alarm_description">Срабатывание будильника на основе времени в пути для событий с адресом.</string>
+    <string name="location_permission_required">Требуется разрешение на местоположение</string>
+    <string name="location_permission_disclaimer">Для расчета времени в пути приложению нужно знать ваше местоположение, даже в фоновом режиме.</string>
+    <string name="transport_mode_label">Предпочтительный вид транспорта</string>
+    <string name="transport_driving">Машина</string>
+    <string name="transport_walking">Пешком</string>
+    <string name="transport_bicycling">Велосипед</string>
+    <string name="transport_transit">Общественный транспорт</string>
+    <string name="travel_time_label">В пути: %1$d мин</string>
+    <string name="alarm_in_label">Будильник через %1$s</string>
+    <string name="alarm_now_label">Будильник сейчас</string>
+    <string name="minutes_short">%1$d мин</string>
+    <string name="hours_short">%1$d ч</string>
+    <string name="pro_feature_restricted">Эксклюзивная функция Pro + ИИ</string>
+    <string name="geo_alarm_pro_only">Геобудильники доступны только для подписчиков Pro + ИИ.</string>
+    <string name="geo_alarm_upgrade_trial_title">Попробуйте умный будильник!</string>
+    <string name="geo_alarm_upgrade_trial_desc">Избегайте опозданий! Включите будильники на основе дорожной обстановки с планом Pro + ИИ.</string>
+    <string name="try_pro_plan">Попробовать план Pro</string>
 </resources>

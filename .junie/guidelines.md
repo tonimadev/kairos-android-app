@@ -15,6 +15,8 @@ This document provides essential information for developers working on the **Kai
 - **Install Wear OS App**: `./gradlew :wear:installDebug`
 - **Apply Code Style**: `./gradlew spotlessApply`
 - **Check Style & Lint**: `./gradlew detekt`
+- **Sort Dependencies**: `./gradlew sortDependencies`
+
 
 ### Firebase & AdMob Configuration
 For full functionality (Release builds):

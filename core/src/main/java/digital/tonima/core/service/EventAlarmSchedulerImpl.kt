@@ -40,9 +40,14 @@ class EventAlarmSchedulerImpl
 
         private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
-        override fun schedule(event: Event) {
+        override fun schedule(
+            event: Event,
+            triggerTime: Long?,
+        ) {
             val alarmTime =
-                if (event.isAllDay) {
+                if (triggerTime != null) {
+                    triggerTime
+                } else if (event.isAllDay) {
                     val allDayAlarmsEnabled =
                         runBlocking {
                             preferencesRepository.isAllDayAlarmsEnabled().firstOrNull() ?: true

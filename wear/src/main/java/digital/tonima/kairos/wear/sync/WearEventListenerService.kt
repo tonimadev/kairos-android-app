@@ -10,10 +10,14 @@ import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
 import digital.tonima.core.model.Event
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
+import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
 import digital.tonima.core.sync.WearSyncSchema.KEY_EVENTS
 import digital.tonima.core.sync.WearSyncSchema.KEY_ID
+import digital.tonima.core.sync.WearSyncSchema.KEY_LOCATION
+import digital.tonima.core.sync.WearSyncSchema.KEY_RECUR
 import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
+import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
 import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
 import digital.tonima.kairos.wear.WorkNames
 import logcat.logcat
@@ -41,10 +45,31 @@ class WearEventListenerService : WearableListenerService() {
                             val id = dm.getLong(KEY_ID)
                             val title = dm.getString(KEY_TITLE) ?: "(sem título)"
                             val start = dm.getLong(KEY_START)
-                            val rec = dm.getBoolean(digital.tonima.core.sync.WearSyncSchema.KEY_RECUR)
+                            val rec = dm.getBoolean(KEY_RECUR)
                             val allDay = dm.getBoolean(KEY_ALL_DAY)
+                            val location = dm.getString(KEY_LOCATION)
+                            val departureTime =
+                                if (dm.containsKey(
+                                        KEY_DEPARTURE_TIME,
+                                    )
+                                ) {
+                                    dm.getLong(KEY_DEPARTURE_TIME)
+                                } else {
+                                    null
+                                }
+                            val travelTime = if (dm.containsKey(KEY_TRAVEL_TIME)) dm.getInt(KEY_TRAVEL_TIME) else null
+
                             events.add(
-                                Event(id = id, title = title, startTime = start, isRecurring = rec, isAllDay = allDay),
+                                Event(
+                                    id = id,
+                                    title = title,
+                                    startTime = start,
+                                    isRecurring = rec,
+                                    isAllDay = allDay,
+                                    location = location,
+                                    departureTime = departureTime,
+                                    travelTimeMinutes = travelTime,
+                                ),
                             )
                         }
                     } catch (t: Throwable) {

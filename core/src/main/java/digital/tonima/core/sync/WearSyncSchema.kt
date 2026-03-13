@@ -9,5 +9,8 @@ object WearSyncSchema {
     const val KEY_START = "start"
     const val KEY_RECUR = "recurring"
     const val KEY_ALL_DAY = "all_day"
+    const val KEY_LOCATION = "location"
+    const val KEY_DEPARTURE_TIME = "departure_time"
+    const val KEY_TRAVEL_TIME = "travel_time"
     const val KEY_GENERATED_AT = "generated_at"
 }

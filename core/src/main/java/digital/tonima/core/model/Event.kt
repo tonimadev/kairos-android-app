@@ -10,6 +10,9 @@ data class Event(
     val isAllDay: Boolean = false,
     val calendarColor: Int = 0,
     val meetingUrl: String? = null,
+    val location: String? = null,
+    val departureTime: Long? = null,
+    val travelTimeMinutes: Int? = null,
 ) {
     val uniqueIntentId: Int
         get() = (id.toString() + startTime.toString()).hashCode()

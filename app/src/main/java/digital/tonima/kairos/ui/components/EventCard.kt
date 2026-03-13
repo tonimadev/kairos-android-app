@@ -141,6 +141,21 @@ fun EventCard(
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         },
                 )
+                if (!event.location.isNullOrBlank()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(top = 2.dp),
+                    ) {
+                        Text(
+                            text = "📍 " + event.location,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(Dimensions.EventCardSpacing))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -196,6 +211,36 @@ fun EventCard(
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
                         }
+                    }
+                    if (event.isAlarmEnabled && event.travelTimeMinutes != null) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .padding(top = Dimensions.EventCardSpacing)
+                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
+                                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                                    .padding(
+                                        horizontal = Dimensions.EventTagHorizontalPadding,
+                                        vertical = Dimensions.EventTagVerticalPadding,
+                                    ),
+                        ) {
+                            Text(
+                                text = "🚗 " + stringResource(R.string.travel_time_label, event.travelTimeMinutes!!),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            )
+                        }
+                    }
+                    if (event.isAlarmEnabled) {
+                        val alarmTime = event.departureTime ?: (event.startTime)
+                        val timeRemaining = formatTimeRemaining(LocalContext.current, alarmTime)
+                        Text(
+                            text = stringResource(R.string.alarm_in_label, timeRemaining),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 4.dp),
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
                 }
             }
@@ -258,6 +303,33 @@ fun formatMillisToTime(millis: Long): String {
     return stringResource(R.string.at_time, formattedTime)
 }
 
+@Composable
+fun formatTimeRemaining(
+    context: android.content.Context,
+    targetTime: Long,
+): String {
+    val now = System.currentTimeMillis()
+    val diff = targetTime - now
+    if (diff <= 0) return stringResource(R.string.alarm_now_label)
+
+    val diffSeconds = diff / 1000
+    val diffMinutes = diffSeconds / 60
+    val diffHours = diffMinutes / 60
+
+    return when {
+        diffHours > 0 -> {
+            val h = diffHours.toInt()
+            val m = (diffMinutes % 60).toInt()
+            if (m > 0) {
+                stringResource(R.string.hours_short, h) + " " + stringResource(R.string.minutes_short, m)
+            } else {
+                stringResource(R.string.hours_short, h)
+            }
+        }
+        else -> stringResource(R.string.minutes_short, diffMinutes.toInt())
+    }
+}
+
 @Preview
 @Composable
 fun EventCardPreview() {
@@ -267,6 +339,9 @@ fun EventCardPreview() {
             title = "Team Meeting",
             startTime = System.currentTimeMillis() + 3600000,
             isAlarmEnabled = true,
+            location = "Av. Paulista, 1000",
+            travelTimeMinutes = 25,
+            departureTime = System.currentTimeMillis() + 3600000 - (25 * 60 * 1000L) - (300 * 1000L),
         )
     EventCard(
         event = sampleEvent,

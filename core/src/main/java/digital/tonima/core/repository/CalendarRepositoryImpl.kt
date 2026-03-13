@@ -157,6 +157,7 @@ class CalendarRepositoryImpl
                                 isAllDay = isAllDay,
                                 calendarColor = color,
                                 meetingUrl = extractMeetLink(description, location),
+                                location = location,
                             ),
                         )
                     }
@@ -234,6 +235,7 @@ class CalendarRepositoryImpl
                                 isAllDay = isAllDay,
                                 calendarColor = color,
                                 meetingUrl = extractMeetLink(description, location),
+                                location = location,
                             )
                     }
                 }

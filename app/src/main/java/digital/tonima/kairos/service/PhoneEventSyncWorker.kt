@@ -15,15 +15,21 @@ import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
+import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
 import digital.tonima.core.sync.WearSyncSchema.KEY_EVENTS
 import digital.tonima.core.sync.WearSyncSchema.KEY_GENERATED_AT
 import digital.tonima.core.sync.WearSyncSchema.KEY_ID
+import digital.tonima.core.sync.WearSyncSchema.KEY_LOCATION
 import digital.tonima.core.sync.WearSyncSchema.KEY_RECUR
 import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
+import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
 import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
+import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import logcat.LogPriority
 import logcat.logcat
@@ -36,9 +42,12 @@ class PhoneEventSyncWorker
         @Assisted appContext: Context,
         @Assisted workerParams: WorkerParameters,
         private val calendarRepository: CalendarRepository,
+        private val proUserProvider: ProUserProvider,
+        private val calculateDepartureTimeUseCase: CalculateDepartureTimeUseCase,
     ) : CoroutineWorker(appContext, workerParams) {
         override suspend fun doWork(): Result =
             try {
+                val isAiUser = proUserProvider.isAiUser.first()
                 val now = System.currentTimeMillis()
                 val end = now + TimeUnit.HOURS.toMillis(24)
                 val ymNow = java.time.YearMonth.now()
@@ -49,7 +58,7 @@ class PhoneEventSyncWorker
                     ).filter { it.startTime in now..end }
                         .sortedBy { it.startTime }
                 val events = monthEvents
-                logcat { "Phone→Wear sync: sending ${events.size} events." }
+                logcat { "Phone→Wear sync: sending ${events.size} events (Pro: $isAiUser)." }
 
                 val dataClient: DataClient = Wearable.getDataClient(applicationContext)
                 val putReq = PutDataMapRequest.create(PATH_EVENTS_24H)
@@ -64,6 +73,17 @@ class PhoneEventSyncWorker
                     dm.putLong(KEY_START, e.startTime)
                     dm.putBoolean(KEY_RECUR, e.isRecurring)
                     dm.putBoolean(KEY_ALL_DAY, e.isAllDay)
+
+                    val loc = e.location
+                    if (isAiUser && !loc.isNullOrBlank()) {
+                        dm.putString(KEY_LOCATION, loc)
+                        val departureInfo = calculateDepartureTimeUseCase.invoke(e)
+                        if (departureInfo != null) {
+                            dm.putLong(KEY_DEPARTURE_TIME, departureInfo.departureTime)
+                            dm.putInt(KEY_TRAVEL_TIME, departureInfo.travelTimeMinutes)
+                        }
+                    }
+
                     list.add(dm)
                 }
                 map.putDataMapArrayList(KEY_EVENTS, list)

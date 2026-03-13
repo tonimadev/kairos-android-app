@@ -22,4 +22,16 @@ interface AppStatusRepository {
     fun getWakeUpHistory(): Flow<List<Long>>
 
     suspend fun addWakeUpTimestamp(timestamp: Long)
+
+    fun getPreferredCity(): Flow<String?>
+
+    suspend fun setPreferredCity(city: String)
+
+    fun isLocationAlarmEnabled(): Flow<Boolean>
+
+    suspend fun setLocationAlarmEnabled(enabled: Boolean)
+
+    fun getPreferredTransportMode(): Flow<String>
+
+    suspend fun setPreferredTransportMode(mode: String)
 }

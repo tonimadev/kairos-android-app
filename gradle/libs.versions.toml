@@ -1,17 +1,17 @@
 [versions]
 agp = "9.1.0"
 kotlin = "2.3.10"
-coreKtx = "1.17.0"
+coreKtx = "1.18.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.4"
-composeBom = "2026.02.01"
+activityCompose = "1.13.0"
+composeBom = "2026.03.00"
 accompanist="0.37.3"
 detekt = "1.23.8"
 spotless = "8.3.0"
-material1 = "1.10.4"
+material1 = "1.10.5"
 compose-calendar = "2.10.0"
 wear = "1.4.0"
 workManager="2.11.1"
@@ -31,8 +31,8 @@ wearToolingPreview = "1.0.0"
 logcat = "0.4"
 androidx-hilt-compiler = "1.3.0"
 watchface-complications = "1.3.0"
-datastoreCore = "1.2.0"
-datastoreCoreVersion = "1.2.0"
+datastoreCore = "1.2.1"
+datastoreCoreVersion = "1.2.1"
 glance = "1.1.1"
 mockk= "1.14.9"
 coroutines= "1.10.2"
@@ -46,8 +46,13 @@ horologist = "0.7.15"
 protolayout = "1.3.0"
 robolectric = "4.16.1"
 playServicesWearable = "19.0.0"
+playServicesLocation = "21.3.0"
 wearRemoteInteractions = "1.2.0"
 androix-test-core = "1.7.0"
+retrofit = "3.0.0"
+okhttp = "5.3.2"
+kotlinxSerializationJson = "1.10.0"
+retrofitKotlinxSerializationConverter = "1.0.0"
 
 [libraries]
 androidx-compose-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class" }
@@ -73,10 +78,10 @@ accompanist-permissions = { group = "com.google.accompanist", name = "accompanis
 androidx-compose-calendar = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "compose-calendar" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 play-services-ads-api = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAdsApi" }
+location-play-services = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
-google-firebase-analytics-ktx = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
 google-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 google-firebase-ia = { group = "com.google.firebase", name = "firebase-ai" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
@@ -100,6 +105,10 @@ google-inapp-update-ktx = { group = "com.google.android.play", name = "app-updat
 play-review = { group = "com.google.android.play", name = "review", version.ref = "play-review" }
 play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "play-review" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-kotlin-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerializationConverter" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 # -- bibliotecas para Wear OS --
 androidx-wear-material-compose = { group = "androidx.wear.compose", name = "compose-material", version.ref = "wear-compose" }
@@ -130,7 +139,7 @@ crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyti
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-jacoco = { id = "jacoco" }
 jacoco-convention = { id = "jacoco-convention" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

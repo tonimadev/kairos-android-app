@@ -133,4 +133,23 @@
     <string name="next_events_title">आने वाले कार्यक्रम</string>
     <string name="no_more_events_today">आज और कोई कार्यक्रम नहीं है</string>
     <string name="disable_alarm_and_join_meeting">अलार्म बंद करें और बैठक में शामिल हों</string>
+    <string name="location_alarm_title">स्मार्ट जियोलोकेशन अलार्म</string>
+    <string name="location_alarm_description">पते वाले ईवेंट के लिए यात्रा के समय के आधार पर अलार्म बजाएं।</string>
+    <string name="location_permission_required">स्थान अनुमति आवश्यक है</string>
+    <string name="location_permission_disclaimer">यात्रा के समय की गणना करने के लिए, ऐप को आपके स्थान की जानकारी होनी चाहिए, यहाँ तक कि बैकग्राउंड में भी।</string>
+    <string name="transport_mode_label">पसंदीदा परिवहन मोड</string>
+    <string name="transport_driving">कार</string>
+    <string name="transport_walking">पैदल</string>
+    <string name="transport_bicycling">साइकिल</string>
+    <string name="transport_transit">सार्वजनिक परिवहन</string>
+    <string name="travel_time_label">यात्रा: %1$d मिनट</string>
+    <string name="alarm_in_label">%1$s में अलार्म</string>
+    <string name="alarm_now_label">अलार्म अभी</string>
+    <string name="minutes_short">%1$d मिनट</string>
+    <string name="hours_short">%1$d घंटे</string>
+    <string name="pro_feature_restricted">विशेष प्रो + एआई फीचर</string>
+    <string name="geo_alarm_pro_only">जियो-अलार्म विशेष रूप से प्रो + एआई ग्राहकों के लिए हैं।</string>
+    <string name="geo_alarm_upgrade_trial_title">स्मार्ट अलार्म आज़माएँ!</string>
+    <string name="geo_alarm_upgrade_trial_desc">देरी से बचें! प्रो + एआई प्लान के साथ रीयल-टाइम ट्रैफ़िक-आधारित अलार्म सक्षम करें।</string>
+    <string name="try_pro_plan">प्रो प्लान आज़माएँ</string>
 </resources>

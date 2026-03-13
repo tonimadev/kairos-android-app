@@ -16,6 +16,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -121,6 +122,39 @@ fun EventScreen(
         }
     val standardPermissionState =
         rememberMultiplePermissionsState(permissions = standardPermissionsToRequest)
+
+    val locationPermissionsToRequest =
+        remember {
+            mutableListOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            )
+        }
+    val locationPermissionState =
+        rememberMultiplePermissionsState(permissions = locationPermissionsToRequest)
+
+    val backgroundLocationPermissionToRequest =
+        remember {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                listOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            } else {
+                emptyList()
+            }
+        }
+    val backgroundLocationPermissionState =
+        rememberMultiplePermissionsState(permissions = backgroundLocationPermissionToRequest)
+
+    LaunchedEffect(uiState.isLocationAlarmEnabled) {
+        if (uiState.isLocationAlarmEnabled) {
+            if (!locationPermissionState.allPermissionsGranted) {
+                locationPermissionState.launchMultiplePermissionRequest()
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                !backgroundLocationPermissionState.allPermissionsGranted
+            ) {
+                backgroundLocationPermissionState.launchMultiplePermissionRequest()
+            }
+        }
+    }
 
     val openAppSettings = {
         context.startActivity(
@@ -262,133 +296,31 @@ fun EventScreen(
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
-            if (uiState.showCreateEventDialog) {
-                CreateEventDialog(
-                    onDismiss = viewModel::onCreateEventDismiss,
-                    onCreate = viewModel::createEvent,
-                    availableCalendars = uiState.availableCalendars,
-                    initialDate = uiState.selectedDate,
-                    voiceEventData = uiState.voiceEventData,
-                )
-            }
-            if (uiState.showAiSuggestionsDialog) {
-                AiSuggestionsDialog(
-                    onDismiss = viewModel::onDismissAiSuggestions,
-                    onSuggestionClick = { suggestion -> viewModel.askAi(suggestion, aiInstruction) },
-                    onVoiceClick = {
-                        viewModel.onDismissAiSuggestions()
-                        launchVoiceCapture()
-                    },
-                )
-            }
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-            ) {
-                AdBannerView(
-                    adId = ADMOB_BANNER_AD_UNIT_HOME,
-                    isProUser = isProUser,
-                )
-                Box(
-                    modifier = Modifier.weight(1f),
-                ) {
-                    when {
-                        !uiState.hasCalendarPermission ||
-                            !uiState.hasPostNotificationsPermission -> {
-                            StandardPermissionsScreen(
-                                onSettingsClick = openAppSettings,
-                                onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
-                            )
-                        }
-
-                        !uiState.hasExactAlarmPermission -> {
-                            ExactAlarmPermissionScreen(
-                                onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
-                                onProvidePermissionClick = openExactAlarmSettings,
-                                onSkipClick = { viewModel.skipExactAlarmPermission() },
-                            )
-                        }
-
-                        !uiState.hasFullScreenIntentPermission -> {
-                            FullScreenIntentPermissionScreen(
-                                onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
-                                onOpenSettingsClick = openFullScreenIntentSettings,
-                                onSkipClick = { viewModel.skipFullScreenIntentPermission() },
-                            )
-                        }
-
-                        else -> {
-                            MainContent(
-                                uiState = uiState,
-                                eventActions =
-                                    EventActions(
-                                        onRefresh = { viewModel.onMonthChanged(uiState.currentMonth, true) },
-                                        onEventToggle = viewModel::onEventAlarmToggle,
-                                        onEventVibrateToggle = viewModel::onEventVibrateToggle,
-                                        onMonthChanged = viewModel::onMonthChanged,
-                                        onDateSelected = viewModel::onDateSelected,
-                                        onEventClick = { event: Event ->
-                                            val uri =
-                                                ContentUris.withAppendedId(
-                                                    CalendarContract.Events.CONTENT_URI,
-                                                    event.id,
-                                                )
-                                            val intent =
-                                                Intent(Intent.ACTION_VIEW, uri).apply {
-                                                    putExtra(
-                                                        "beginTime",
-                                                        event.startTime,
-                                                    )
-                                                }
-                                            try {
-                                                context.startActivity(intent)
-                                            } catch (e: Exception) {
-                                                e.printStackTrace()
-                                                Toast
-                                                    .makeText(
-                                                        context,
-                                                        cannotOpenEvent,
-                                                        Toast.LENGTH_SHORT,
-                                                    ).show()
-                                            }
-                                        },
-                                        onReturnToToday = viewModel::returnToToday,
-                                        onSearchQueryChanged = viewModel::onSearchQueryChanged,
-                                    ),
-                                settingsActions =
-                                    SettingsActions(
-                                        onToggle = viewModel::onAlarmsToggle,
-                                        onDismissAutostart = viewModel::dismissAutostartSuggestion,
-                                        onVibrateToggle = viewModel::onVibrateOnlyChanged,
-                                        onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
-                                        onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
-                                        onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
-                                        onSnoozeTimeChanged = viewModel::onSnoozeTimeChanged,
-                                        onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
-                                    ),
-                                aiActions =
-                                    AiActions(
-                                        onGenerateBriefing = {
-                                            viewModel.generateDailyBriefing(aiInstruction)
-                                        },
-                                        onUpgradeToPro = viewModel::onUpgradeToProRequest,
-                                        onSubscriptionRequest = onSubscriptionRequest,
-                                        onVoiceCaptureClick = startVoiceCapture,
-                                        onClearAiResponse = viewModel::clearAiResponse,
-                                        onSpeakAiResponse = viewModel::speakAiResponse,
-                                        onStopSpeaking = viewModel::stopSpeaking,
-                                    ),
-                                windowSizeClass = windowSizeClass,
-                            )
-                        }
-                    }
-                }
+            EventScreenContent(
+                paddingValues = paddingValues,
+                uiState = uiState,
+                viewModel = viewModel,
+                isProUser = isProUser,
+                isAiUser = isAiUser,
+                standardPermissionState = standardPermissionState,
+                openAppSettings = openAppSettings,
+                openExactAlarmSettings = openExactAlarmSettings,
+                openFullScreenIntentSettings = openFullScreenIntentSettings,
+                launchVoiceCapture = launchVoiceCapture,
+                onSubscriptionRequest = onSubscriptionRequest,
+                onPurchaseRequest = onPurchaseRequest,
+                windowSizeClass = windowSizeClass,
+            )
+        }
+        if (uiState.showSubscriptionConfirmation) {
+            LaunchedEffect(uiState.showSubscriptionConfirmation) {
+                onSubscriptionRequest()
+                viewModel.onDismissUpgradeConfirmation()
             }
         }
-        if (uiState.showUpgradeConfirmation) {
-            LaunchedEffect(uiState.showUpgradeConfirmation) {
+
+        if (uiState.showPurchaseConfirmation) {
+            LaunchedEffect(uiState.showPurchaseConfirmation) {
                 onPurchaseRequest()
                 viewModel.onDismissUpgradeConfirmation()
             }
@@ -410,6 +342,155 @@ fun EventScreen(
                 onRateLater = { viewModel.onRateLater() },
                 onRateNeverShow = { viewModel.onRateNeverShow() },
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@Composable
+private fun EventScreenContent(
+    paddingValues: PaddingValues,
+    uiState: digital.tonima.core.viewmodel.EventScreenUiState,
+    viewModel: EventViewModel,
+    isProUser: Boolean,
+    isAiUser: Boolean,
+    standardPermissionState: com.google.accompanist.permissions.MultiplePermissionsState,
+    openAppSettings: () -> Unit,
+    openExactAlarmSettings: () -> Unit,
+    openFullScreenIntentSettings: () -> Unit,
+    launchVoiceCapture: () -> Unit,
+    onSubscriptionRequest: () -> Unit,
+    onPurchaseRequest: () -> Unit,
+    windowSizeClass: WindowSizeClass?,
+) {
+    val context = LocalContext.current
+    val cannotOpenEvent = stringResource(R.string.cannot_open_event)
+    val aiInstruction = stringResource(R.string.ai_briefing_instruction)
+
+    if (uiState.showCreateEventDialog) {
+        CreateEventDialog(
+            onDismiss = viewModel::onCreateEventDismiss,
+            onCreate = viewModel::createEvent,
+            availableCalendars = uiState.availableCalendars,
+            initialDate = uiState.selectedDate,
+            voiceEventData = uiState.voiceEventData,
+        )
+    }
+    if (uiState.showAiSuggestionsDialog) {
+        AiSuggestionsDialog(
+            onDismiss = viewModel::onDismissAiSuggestions,
+            onSuggestionClick = { suggestion -> viewModel.askAi(suggestion, aiInstruction) },
+            onVoiceClick = {
+                viewModel.onDismissAiSuggestions()
+                launchVoiceCapture()
+            },
+        )
+    }
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+    ) {
+        AdBannerView(
+            adId = ADMOB_BANNER_AD_UNIT_HOME,
+            isProUser = isProUser,
+        )
+        Box(
+            modifier = Modifier.weight(1f),
+        ) {
+            when {
+                !uiState.hasCalendarPermission ||
+                    !uiState.hasPostNotificationsPermission -> {
+                    StandardPermissionsScreen(
+                        onSettingsClick = openAppSettings,
+                        onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
+                    )
+                }
+
+                !uiState.hasExactAlarmPermission -> {
+                    ExactAlarmPermissionScreen(
+                        onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
+                        onProvidePermissionClick = openExactAlarmSettings,
+                        onSkipClick = { viewModel.skipExactAlarmPermission() },
+                    )
+                }
+
+                !uiState.hasFullScreenIntentPermission -> {
+                    FullScreenIntentPermissionScreen(
+                        onAlreadyAuthorizedClick = viewModel::checkAllPermissions,
+                        onOpenSettingsClick = openFullScreenIntentSettings,
+                        onSkipClick = { viewModel.skipFullScreenIntentPermission() },
+                    )
+                }
+
+                else -> {
+                    MainContent(
+                        uiState = uiState,
+                        eventActions =
+                            EventActions(
+                                onRefresh = { viewModel.onMonthChanged(uiState.currentMonth, true) },
+                                onEventToggle = viewModel::onEventAlarmToggle,
+                                onEventVibrateToggle = viewModel::onEventVibrateToggle,
+                                onMonthChanged = viewModel::onMonthChanged,
+                                onDateSelected = viewModel::onDateSelected,
+                                onEventClick = { event: Event ->
+                                    val uri =
+                                        ContentUris.withAppendedId(
+                                            CalendarContract.Events.CONTENT_URI,
+                                            event.id,
+                                        )
+                                    val intent =
+                                        Intent(Intent.ACTION_VIEW, uri).apply {
+                                            putExtra(
+                                                "beginTime",
+                                                event.startTime,
+                                            )
+                                        }
+                                    try {
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                cannotOpenEvent,
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                    }
+                                },
+                                onReturnToToday = viewModel::returnToToday,
+                                onSearchQueryChanged = viewModel::onSearchQueryChanged,
+                            ),
+                        settingsActions =
+                            SettingsActions(
+                                onToggle = viewModel::onAlarmsToggle,
+                                onDismissAutostart = viewModel::dismissAutostartSuggestion,
+                                onVibrateToggle = viewModel::onVibrateOnlyChanged,
+                                onAllDayAlarmsToggle = viewModel::onAllDayAlarmsToggle,
+                                onAllDayAlarmHourChanged = viewModel::onAllDayAlarmHourChanged,
+                                onAlarmOffsetChanged = viewModel::onAlarmOffsetChanged,
+                                onSnoozeTimeChanged = viewModel::onSnoozeTimeChanged,
+                                onCalendarFilterToggle = viewModel::onCalendarFilterToggle,
+                                onLocationAlarmToggle = viewModel::onLocationAlarmToggle,
+                                onTransportModeChanged = viewModel::onTransportModeChanged,
+                            ),
+                        aiActions =
+                            AiActions(
+                                onGenerateBriefing = {
+                                    viewModel.generateDailyBriefing(aiInstruction)
+                                },
+                                onUpgradeToPro = viewModel::onUpgradeToProRequest,
+                                onSubscriptionRequest = onSubscriptionRequest,
+                                onVoiceCaptureClick = viewModel::onStartVoiceCaptureRequest,
+                                onClearAiResponse = viewModel::clearAiResponse,
+                                onSpeakAiResponse = viewModel::speakAiResponse,
+                                onStopSpeaking = viewModel::stopSpeaking,
+                            ),
+                        windowSizeClass = windowSizeClass,
+                    )
+                }
+            }
         }
     }
 }
@@ -443,6 +524,7 @@ private fun EventTopBar(onOpenMenu: () -> Unit) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EventFloatingActionButtons(
     uiState: digital.tonima.core.viewmodel.EventScreenUiState,

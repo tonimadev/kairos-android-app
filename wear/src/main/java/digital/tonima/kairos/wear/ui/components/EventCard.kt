@@ -75,14 +75,24 @@ fun EventCard(
                     .fillMaxWidth()
                     .padding(Dimensions.PaddingMedium),
         ) {
-            Text(text = event.title)
+            Text(text = event.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+
+            if (!event.location.isNullOrBlank()) {
+                Text(
+                    text = "📍 " + event.location,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             Spacer(modifier = Modifier.height(Dimensions.SpacingExtraSmall))
             Text(
                 text = formattedTime,
                 style = MaterialTheme.typography.bodyMedium,
             )
+
             if (event.isRecurring) {
-                Spacer(modifier = Modifier.height(Dimensions.SpacingTiny))
                 Text(
                     text = "🔁 " + stringResource(R.string.recurring_label),
                     style = MaterialTheme.typography.bodySmall,
@@ -92,7 +102,29 @@ fun EventCard(
                         },
                 )
             }
-            Spacer(modifier = Modifier.height(Dimensions.SpacingSmallMedium))
+
+            if (event.isAlarmEnabled && event.travelTimeMinutes != null) {
+                Text(
+                    text = "🚗 " + stringResource(R.string.minutes_short, event.travelTimeMinutes!!),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+            }
+
+            if (event.isAlarmEnabled) {
+                val alarmTime = event.departureTime ?: (event.startTime)
+                val diff = alarmTime - System.currentTimeMillis()
+                val diffMinutes = diff / (1000 * 60)
+                if (diffMinutes > 0) {
+                    Text(
+                        text = "⏰ " + stringResource(R.string.minutes_short, diffMinutes.toInt()),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

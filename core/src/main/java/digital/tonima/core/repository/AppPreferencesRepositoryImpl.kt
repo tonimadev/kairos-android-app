@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -36,6 +37,9 @@ class AppPreferencesRepositoryImpl
             val ENABLED_CALENDAR_IDS = stringSetPreferencesKey("enabled_calendar_ids")
             val SNOOZE_TIME_MINUTES = intPreferencesKey("snooze_time_minutes")
             val WAKE_UP_HISTORY = stringSetPreferencesKey("wake_up_history")
+            val PREFERRED_CITY = stringPreferencesKey("preferred_city")
+            val LOCATION_ALARM_ENABLED = booleanPreferencesKey("location_alarm_enabled")
+            val PREFERRED_TRANSPORT_MODE = stringPreferencesKey("preferred_transport_mode")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -248,6 +252,45 @@ class AppPreferencesRepositoryImpl
                         .toSet()
 
                 preferences[PreferencesKeys.WAKE_UP_HISTORY] = limitedHistory
+            }
+        }
+
+        override fun getPreferredCity(): Flow<String?> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.PREFERRED_CITY]
+                }
+        }
+
+        override suspend fun setPreferredCity(city: String) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.PREFERRED_CITY] = city
+            }
+        }
+
+        override fun isLocationAlarmEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.LOCATION_ALARM_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setLocationAlarmEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.LOCATION_ALARM_ENABLED] = enabled
+            }
+        }
+
+        override fun getPreferredTransportMode(): Flow<String> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.PREFERRED_TRANSPORT_MODE] ?: "driving"
+                }
+        }
+
+        override suspend fun setPreferredTransportMode(mode: String) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.PREFERRED_TRANSPORT_MODE] = mode
             }
         }
     }

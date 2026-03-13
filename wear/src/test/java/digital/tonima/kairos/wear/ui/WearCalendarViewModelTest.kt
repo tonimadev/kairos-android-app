@@ -11,6 +11,7 @@ import digital.tonima.kairos.wear.sync.SyncActions
 import digital.tonima.kairos.wear.sync.WearEventCache
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -129,6 +130,24 @@ class WearCalendarViewModelTest {
 
         override suspend fun addWakeUpTimestamp(timestamp: Long) {
             wakeUpHistory.value = wakeUpHistory.value + timestamp
+        }
+
+        override fun getPreferredCity(): Flow<String?> = flowOf(null)
+
+        override suspend fun setPreferredCity(city: String) {
+            // No-op
+        }
+
+        override fun isLocationAlarmEnabled(): Flow<Boolean> = flowOf(false)
+
+        override suspend fun setLocationAlarmEnabled(enabled: Boolean) {
+            // No-op
+        }
+
+        override fun getPreferredTransportMode(): Flow<String> = flowOf("driving")
+
+        override suspend fun setPreferredTransportMode(mode: String) {
+            // No-op
         }
     }
 

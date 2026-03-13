@@ -25,6 +25,8 @@ data class SettingsActions(
     val onAlarmOffsetChanged: (AlarmOffset) -> Unit,
     val onSnoozeTimeChanged: (Int) -> Unit = {},
     val onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
+    val onLocationAlarmToggle: (Boolean) -> Unit = {},
+    val onTransportModeChanged: (String) -> Unit = {},
 )
 
 data class AiActions(

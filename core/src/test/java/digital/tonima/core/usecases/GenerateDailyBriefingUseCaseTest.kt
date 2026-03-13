@@ -7,6 +7,7 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
 import digital.tonima.core.model.Event
+import digital.tonima.core.repository.WeatherRepository
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -25,7 +26,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class GenerateDailyBriefingUseCaseTest {
-    private val useCase = GenerateDailyBriefingUseCaseImpl()
+    private val weatherRepository = mockk<WeatherRepository>()
+    private val useCase = GenerateDailyBriefingUseCaseImpl(weatherRepository)
 
     @Before
     fun setup() {
@@ -50,6 +52,7 @@ class GenerateDailyBriefingUseCaseTest {
     @Test
     fun `when events list is empty should return null`() =
         runBlocking {
+            coEvery { weatherRepository.getWeather(any()) } returns null
             val mockModel = mockk<GenerativeModel>()
             coEvery { mockModel.generateContent(any<String>()) } returns
                 mockk {

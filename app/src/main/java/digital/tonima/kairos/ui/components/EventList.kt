@@ -95,6 +95,13 @@ fun EventList(
                 }
 
                 val showBriefingCard = uiState.selectedDate == today && uiState.searchQuery.isBlank()
+                if (!uiState.isAiUser) {
+                    item {
+                        ProUpgradeCard(
+                            onUpgradeClick = aiActions.onSubscriptionRequest,
+                        )
+                    }
+                }
                 if (showBriefingCard) {
                     item {
                         DailyBriefingCard(

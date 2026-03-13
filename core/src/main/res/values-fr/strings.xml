@@ -136,4 +136,23 @@
     <string name="next_events_title">Événements à venir</string>
     <string name="no_more_events_today">Plus d\'événements aujourd\'hui</string>
     <string name="disable_alarm_and_join_meeting">Désactiver l\'alarme et rejoindre la réunion</string>
+    <string name="location_alarm_title">Alarme Intelligente par Géolocalisation</string>
+    <string name="location_alarm_description">Déclencher l\'alarme en fonction du temps de trajet pour les événements avec adresse.</string>
+    <string name="location_permission_required">Autorisation de Localisation Requise</string>
+    <string name="location_permission_disclaimer">Pour calculer le temps de trajet, l\'application doit connaître votre position, même en arrière-plan.</string>
+    <string name="transport_mode_label">Mode de transport préféré</string>
+    <string name="transport_driving">Voiture</string>
+    <string name="transport_walking">À pied</string>
+    <string name="transport_bicycling">Vélo</string>
+    <string name="transport_transit">Transports en Commun</string>
+    <string name="travel_time_label">Trajet : %1$d min</string>
+    <string name="alarm_in_label">Alarme dans %1$s</string>
+    <string name="alarm_now_label">Alarme maintenant</string>
+    <string name="minutes_short">%1$d min</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="pro_feature_restricted">Fonctionnalité Exclusive Pro + IA</string>
+    <string name="geo_alarm_pro_only">Les géo-alarmes sont exclusives aux abonnés Pro + IA.</string>
+    <string name="geo_alarm_upgrade_trial_title">Essayez l\'Alarme Intelligente !</string>
+    <string name="geo_alarm_upgrade_trial_desc">Évitez les retards ! Activez les alarmes basées sur le trafic en temps réel avec le plan Pro + IA.</string>
+    <string name="try_pro_plan">Essayer le Plan Pro</string>
 </resources>

@@ -130,4 +130,23 @@
     <string name="next_events_title">接下来的活动</string>
     <string name="no_more_events_today">今天没有更多活动</string>
     <string name="disable_alarm_and_join_meeting">禁用闹钟并加入会议</string>
+    <string name="location_alarm_title">基于地理位置的智能闹钟</string>
+    <string name="location_alarm_description">对于带有地址的事件，根据通勤时间触发闹钟。</string>
+    <string name="location_permission_required">需要位置权限</string>
+    <string name="location_permission_disclaimer">为了计算通勤时间，应用需要知道您的位置，即使在后台运行时也是如此。</string>
+    <string name="transport_mode_label">首选交通方式</string>
+    <string name="transport_driving">驾车</string>
+    <string name="transport_walking">步行</string>
+    <string name="transport_bicycling">骑行</string>
+    <string name="transport_transit">公共交通</string>
+    <string name="travel_time_label">通勤: %1$d 分钟</string>
+    <string name="alarm_in_label">闹钟将在 %1$s 后响铃</string>
+    <string name="alarm_now_label">立即响铃</string>
+    <string name="minutes_short">%1$d 分钟</string>
+    <string name="hours_short">%1$d 小时</string>
+    <string name="pro_feature_restricted">专业版 + AI 专属功能</string>
+    <string name="geo_alarm_pro_only">地理位置闹钟是专业版 + AI 订阅者的专属功能。</string>
+    <string name="geo_alarm_upgrade_trial_title">试用智能闹钟！</string>
+    <string name="geo_alarm_upgrade_trial_desc">避免迟到！通过专业版 + AI 计划启用基于实时路况的闹钟。</string>
+    <string name="try_pro_plan">试用专业版计划</string>
 </resources>

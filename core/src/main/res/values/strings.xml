@@ -136,4 +136,23 @@
     <string name="next_events_title">Próximos Eventos</string>
     <string name="no_more_events_today">Sem mais eventos hoje</string>
     <string name="disable_alarm_and_join_meeting">Desativar alarme e entrar na reunião</string>
+    <string name="location_alarm_title">Alarme Inteligente por Geolocalização</string>
+    <string name="location_alarm_description">Disparar alarme baseado no tempo de deslocamento para eventos com endereço.</string>
+    <string name="location_permission_required">Permissão de Localização Necessária</string>
+    <string name="location_permission_disclaimer">Para calcular o tempo de deslocamento, o app precisa saber onde você está, mesmo em segundo plano.</string>
+    <string name="transport_mode_label">Modo de transporte preferido</string>
+    <string name="transport_driving">Carro</string>
+    <string name="transport_walking">Andando</string>
+    <string name="transport_bicycling">Bicicleta</string>
+    <string name="transport_transit">Transporte Público</string>
+    <string name="travel_time_label">Deslocamento: %1$d min</string>
+    <string name="alarm_in_label">Alarme em %1$s</string>
+    <string name="alarm_now_label">Alarme agora</string>
+    <string name="minutes_short">%1$d min</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="pro_feature_restricted">Recurso Exclusivo Pro + IA</string>
+    <string name="geo_alarm_pro_only">Geoalarmes são exclusivos para assinantes do plano Pro + IA.</string>
+    <string name="geo_alarm_upgrade_trial_title">Experimente o Alarme Inteligente!</string>
+    <string name="geo_alarm_upgrade_trial_desc">Evite atrasos! Ative alarmes baseados no trânsito em tempo real com o plano Pro + IA.</string>
+    <string name="try_pro_plan">Testar Plano Pro</string>
 </resources>

@@ -7,5 +7,6 @@ interface GenerateDailyBriefingUseCase {
         events: List<Event>,
         languageInstruction: String,
         wakeUpTime: String? = null,
+        city: String? = null,
     ): String?
 }

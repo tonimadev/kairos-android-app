@@ -3,7 +3,10 @@ package digital.tonima.core.service
 import digital.tonima.core.model.Event
 
 interface EventAlarmScheduler {
-    fun schedule(event: Event)
+    fun schedule(
+        event: Event,
+        triggerTime: Long? = null,
+    )
 
     fun scheduleSnooze(
         eventTitle: String,
