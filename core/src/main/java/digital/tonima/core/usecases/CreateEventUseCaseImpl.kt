@@ -10,7 +10,7 @@ class CreateEventUseCaseImpl
     constructor(
         private val calendarRepository: CalendarRepository,
     ) : CreateEventUseCase {
-        override suspend fun invoke(
+        override suspend operator fun invoke(
             calendarId: Long,
             title: String,
             description: String?,

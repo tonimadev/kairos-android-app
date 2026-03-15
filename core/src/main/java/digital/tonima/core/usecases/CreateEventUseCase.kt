@@ -1,7 +1,7 @@
 package digital.tonima.core.usecases
 
 interface CreateEventUseCase {
-    suspend fun invoke(
+    suspend operator fun invoke(
         calendarId: Long,
         title: String,
         description: String? = null,

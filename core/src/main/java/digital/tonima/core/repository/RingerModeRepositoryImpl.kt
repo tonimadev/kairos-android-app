@@ -23,7 +23,7 @@ enum class AudioWarningState {
 /**
  * Repositório para observar e expor o estado do modo de som do dispositivo em tempo real.
  */
-@BindType(installIn = BindType.Component.VIEW_MODEL, to = RingerModeRepository::class)
+@BindType(installIn = BindType.Component.SINGLETON, to = RingerModeRepository::class)
 class RingerModeRepositoryImpl
     @Inject
     constructor(

@@ -7,11 +7,15 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
+import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.kairos.wear.sync.SyncActions
 import digital.tonima.kairos.wear.sync.WearEventCache
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -20,6 +24,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
+@ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [30], application = android.app.Application::class)
 class WearCalendarViewModelTest {
@@ -151,15 +156,26 @@ class WearCalendarViewModelTest {
         }
     }
 
+    private fun createVm(repo: FakePrefsRepo): WearCalendarViewModel {
+        val vm =
+            WearCalendarViewModel(
+                context,
+                ObserveAppPreferencesUseCase(repo),
+                UpdateAppPreferenceUseCase(repo),
+            )
+        // Run all init coroutines (reloadFromCache + observePreferences collector)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        return vm
+    }
+
     @Test
     fun `loads cached events on init`() {
         val now = System.currentTimeMillis()
         val initial = listOf(Event(1, "A", now + 60_000L), Event(2, "B", now + 120_000L))
         WearEventCache.save(context, initial)
 
-        val vm = WearCalendarViewModel(context, FakePrefsRepo())
+        val vm = createVm(FakePrefsRepo())
 
-        // After mapping, default is global enabled and no disabled ids, so isAlarmEnabled should be true
         assertEquals(initial.map { it.copy(isAlarmEnabled = true) }, vm.next24hEvents.value)
     }
 
@@ -167,7 +183,7 @@ class WearCalendarViewModelTest {
     fun `updates when ACTION_EVENTS_UPDATED is broadcast`() {
         val now = System.currentTimeMillis()
         WearEventCache.save(context, listOf(Event(1, "First", now + 10_000L)))
-        val vm = WearCalendarViewModel(context, FakePrefsRepo())
+        val vm = createVm(FakePrefsRepo())
         assertEquals(1, vm.next24hEvents.value.size)
 
         // change cache and notify
@@ -184,11 +200,12 @@ class WearCalendarViewModelTest {
     fun `requestRescan reloads from cache`() {
         val now = System.currentTimeMillis()
         WearEventCache.save(context, listOf(Event(5, "Old", now + 50_000L)))
-        val vm = WearCalendarViewModel(context, FakePrefsRepo())
+        val vm = createVm(FakePrefsRepo())
         assertEquals(1, vm.next24hEvents.value.size)
 
         WearEventCache.save(context, listOf(Event(6, "New", now + 60_000L)))
         vm.requestRescan()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         assertEquals(1, vm.next24hEvents.value.size)
         assertEquals(6L, vm.next24hEvents.value[0].id)
@@ -196,28 +213,30 @@ class WearCalendarViewModelTest {
 
     @Test
     fun `isGlobalAlarmEnabled follows preference`() =
-        runTest {
+        runTest(UnconfinedTestDispatcher()) {
             val repo = FakePrefsRepo()
-            val vm = WearCalendarViewModel(context, repo)
+            val vm = createVm(repo)
 
             vm.isGlobalAlarmEnabled.test {
                 assertEquals(true, awaitItem())
 
                 repo.setGlobalAlarmEnabled(false)
+                Shadows.shadowOf(Looper.getMainLooper()).idle()
                 assertEquals(false, awaitItem())
             }
         }
 
     @Test
     fun `toggleGlobalAlarm calls repository`() =
-        runTest {
+        runTest(UnconfinedTestDispatcher()) {
             val repo = FakePrefsRepo()
-            val vm = WearCalendarViewModel(context, repo)
+            val vm = createVm(repo)
 
             vm.isGlobalAlarmEnabled.test {
                 assertEquals(true, awaitItem())
 
                 vm.toggleGlobalAlarm(false)
+                Shadows.shadowOf(Looper.getMainLooper()).idle()
                 assertEquals(false, awaitItem())
             }
         }
@@ -231,7 +250,7 @@ class WearCalendarViewModelTest {
             WearEventCache.save(context, listOf(event1, event2))
 
             val repo = FakePrefsRepo()
-            val vm = WearCalendarViewModel(context, repo)
+            val vm = createVm(repo)
 
             assertEquals(2, vm.next24hEvents.value.size)
             assertEquals(true, vm.next24hEvents.value[0].isAlarmEnabled)

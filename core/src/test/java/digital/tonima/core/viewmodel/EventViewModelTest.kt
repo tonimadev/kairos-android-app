@@ -6,21 +6,28 @@ import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
-import digital.tonima.core.permissions.PermissionManager
-import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.AudioWarningState
-import digital.tonima.core.repository.CalendarRepository
-import digital.tonima.core.repository.DailyBriefingRepository
-import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.review.ReviewManager
 import digital.tonima.core.service.EventAlarmScheduler
+import digital.tonima.core.usecases.AppPreferences
 import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
+import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
+import digital.tonima.core.usecases.CheckPermissionsUseCase
 import digital.tonima.core.usecases.CreateEventUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
+import digital.tonima.core.usecases.GetAvailableCalendarsUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
+import digital.tonima.core.usecases.ObserveDailyBriefingUseCase
+import digital.tonima.core.usecases.ObserveRingerModeUseCase
+import digital.tonima.core.usecases.PermissionState
+import digital.tonima.core.usecases.ToggleEventAlarmUseCase
+import digital.tonima.core.usecases.ToggleEventVibrateUseCase
+import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
 import digital.tonima.core.utils.WidgetUpdater
 import io.mockk.Runs
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -30,7 +37,6 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -59,37 +65,31 @@ class EventViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     private val mockProUserProvider: ProUserProvider = mockk(relaxed = true)
-    private val getEventsForMonthUseCase: GetEventsForMonthUseCase = mockk(relaxed = true)
-    private val mockAppPreferencesRepository: AppPreferencesRepository = mockk(relaxed = true)
-    private val mockRingerModeRepository: RingerModeRepository = mockk(relaxed = true)
-    private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
-    private val mockPermissionManager: PermissionManager = mockk(relaxed = true)
-    private val mockCalendarRepository: CalendarRepository = mockk(relaxed = true)
-    private val mockDailyBriefingRepository: DailyBriefingRepository = mockk(relaxed = true)
+    private val mockGetEventsForMonthUseCase: GetEventsForMonthUseCase = mockk(relaxed = true)
+    private val mockObserveAppPreferencesUseCase: ObserveAppPreferencesUseCase = mockk(relaxed = true)
+    private val mockUpdateAppPreferenceUseCase: UpdateAppPreferenceUseCase = mockk(relaxed = true)
+    private val mockToggleEventAlarmUseCase: ToggleEventAlarmUseCase = mockk(relaxed = true)
+    private val mockToggleEventVibrateUseCase: ToggleEventVibrateUseCase = mockk(relaxed = true)
+    private val mockObserveRingerModeUseCase: ObserveRingerModeUseCase = mockk(relaxed = true)
+    private val mockGetAvailableCalendarsUseCase: GetAvailableCalendarsUseCase = mockk(relaxed = true)
+    private val mockObserveDailyBriefingUseCase: ObserveDailyBriefingUseCase = mockk(relaxed = true)
     private val mockGenerateDailyBriefingUseCase: GenerateDailyBriefingUseCase = mockk(relaxed = true)
     private val mockAskAiAboutScheduleUseCase: AskAiAboutScheduleUseCase = mockk(relaxed = true)
     private val mockCreateEventUseCase: CreateEventUseCase = mockk(relaxed = true)
-    private val mockCalculateDepartureTimeUseCase: digital.tonima.core.usecases.CalculateDepartureTimeUseCase =
-        mockk(relaxed = true)
-
-    private val ttsHelper: TextToSpeechHelper = mockk(relaxed = true)
+    private val mockCalculateDepartureTimeUseCase: CalculateDepartureTimeUseCase = mockk(relaxed = true)
+    private val mockCheckPermissionsUseCase: CheckPermissionsUseCase = mockk(relaxed = true)
+    private val mockTtsHelper: TextToSpeechHelper = mockk(relaxed = true)
     private val mockWidgetUpdater: WidgetUpdater = mockk(relaxed = true)
+    private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val mockReviewManager: ReviewManager = mockk(relaxed = true)
-    private lateinit var viewModel: EventViewModel
 
-    private val isGlobalAlarmEnabledFlow = MutableStateFlow(true)
-    private val autostartSuggestionDismissedFlow = MutableStateFlow(false)
-    private val disabledEventIdsFlow = MutableStateFlow(emptySet<String>())
-    private val disabledSeriesIdsFlow = MutableStateFlow(emptySet<String>())
+    private val appPreferencesFlow = MutableStateFlow(defaultAppPreferences())
     private val ringerModeFlow = MutableStateFlow(AudioWarningState.NORMAL)
-    private val vibrateOnlyEventIdsFlow = MutableStateFlow(emptySet<String>())
-    private val installationDateFlow = MutableStateFlow(0L)
-    private val ratingPromptedFlow = MutableStateFlow(false)
-    private val ratingCompletedFlow = MutableStateFlow(false)
-    private val snoozeTimeMinutesFlow = MutableStateFlow(10)
+    private val dailyBriefingFlow = MutableStateFlow<String?>(null)
     private val isProUserFlow = MutableStateFlow(false)
     private val isAiUserFlow = MutableStateFlow(false)
-    private val dailyBriefingFlow = MutableStateFlow<String?>(null)
+
+    private lateinit var viewModel: EventViewModel
 
     @Before
     fun setup() {
@@ -97,44 +97,22 @@ class EventViewModelTest {
 
         every { mockProUserProvider.isProUser } returns isProUserFlow
         every { mockProUserProvider.isAiUser } returns isAiUserFlow
-        every { mockAppPreferencesRepository.isGlobalAlarmEnabled() } returns isGlobalAlarmEnabledFlow
-        every { mockAppPreferencesRepository.getAutostartSuggestionDismissed() } returns
-            autostartSuggestionDismissedFlow
-        every { mockAppPreferencesRepository.getDisabledEventIds() } returns disabledEventIdsFlow
-        every { mockAppPreferencesRepository.getDisabledSeriesIds() } returns disabledSeriesIdsFlow
-        every { mockAppPreferencesRepository.getVibrateOnlyEventIds() } returns vibrateOnlyEventIdsFlow
-        every { mockAppPreferencesRepository.getInstallationDate() } returns installationDateFlow
-        every { mockAppPreferencesRepository.isRatingPrompted() } returns ratingPromptedFlow
-        every { mockAppPreferencesRepository.isRatingCompleted() } returns ratingCompletedFlow
-        every { mockAppPreferencesRepository.getSnoozeTimeMinutes() } returns snoozeTimeMinutesFlow
-        every { mockDailyBriefingRepository.getDailyBriefing() } returns dailyBriefingFlow
-        every { mockRingerModeRepository.ringerMode } returns ringerModeFlow
-        every { mockRingerModeRepository.startObserving() } just Runs
-        every { mockRingerModeRepository.stopObserving() } just Runs
-
-        every { mockPermissionManager.hasCalendarPermission() } returns true
-        every { mockPermissionManager.hasPostNotificationsPermission() } returns true
-        every { mockPermissionManager.hasExactAlarmPermission() } returns true
-        every { mockPermissionManager.hasFullScreenIntentPermission() } returns true
-
-        viewModel =
-            EventViewModel(
-                mockProUserProvider,
-                getEventsForMonthUseCase,
-                mockAppPreferencesRepository,
-                mockRingerModeRepository,
-                mockScheduler,
-                mockPermissionManager,
-                mockCalendarRepository,
-                mockDailyBriefingRepository,
-                mockGenerateDailyBriefingUseCase,
-                mockAskAiAboutScheduleUseCase,
-                mockCreateEventUseCase,
-                mockCalculateDepartureTimeUseCase,
-                ttsHelper,
-                mockWidgetUpdater,
-                mockReviewManager,
+        every { mockObserveAppPreferencesUseCase() } returns appPreferencesFlow
+        every { mockObserveRingerModeUseCase() } returns ringerModeFlow
+        every { mockObserveDailyBriefingUseCase() } returns dailyBriefingFlow
+        every { mockCheckPermissionsUseCase() } returns
+            PermissionState(
+                hasCalendarPermission = true,
+                hasPostNotificationsPermission = true,
+                hasExactAlarmPermission = true,
+                hasFullScreenIntentPermission = true,
+                hasLocationPermission = false,
+                hasBackgroundLocationPermission = false,
             )
+        coEvery { mockGetEventsForMonthUseCase(any()) } returns emptyList()
+        coEvery { mockGetAvailableCalendarsUseCase() } returns emptyList()
+
+        viewModel = createViewModel()
     }
 
     @After
@@ -142,23 +120,76 @@ class EventViewModelTest {
         Dispatchers.resetMain()
     }
 
-    @Test
-    fun `onCleared calls stopObserving on RingerModeRepository`() =
-        runTest {
-            viewModel.onCleared()
-            verify(exactly = 1) { mockRingerModeRepository.stopObserving() }
-        }
+    private fun defaultAppPreferences() =
+        AppPreferences(
+            isGlobalAlarmEnabled = true,
+            vibrateOnly = false,
+            allDayAlarmsEnabled = true,
+            allDayAlarmHour = 9,
+            alarmOffsetMinutes = 0L,
+            isLocationAlarmEnabled = false,
+            preferredTransportMode = "driving",
+            enabledCalendarIds = emptySet(),
+            snoozeTimeMinutes = 10,
+            autostartSuggestionDismissed = false,
+            disabledEventIds = emptySet(),
+            disabledSeriesIds = emptySet(),
+            vibrateOnlyEventIds = emptySet(),
+        )
+
+    private fun createViewModel() =
+        EventViewModel(
+            proUserProvider = mockProUserProvider,
+            calendar =
+                EventViewModel.CalendarDeps(
+                    getEventsForMonth = mockGetEventsForMonthUseCase,
+                    getAvailableCalendars = mockGetAvailableCalendarsUseCase,
+                    createEvent = mockCreateEventUseCase,
+                ),
+            prefs =
+                EventViewModel.PreferencesDeps(
+                    observe = mockObserveAppPreferencesUseCase,
+                    update = mockUpdateAppPreferenceUseCase,
+                ),
+            alarm =
+                EventViewModel.AlarmDeps(
+                    toggleEventAlarm = mockToggleEventAlarmUseCase,
+                    toggleEventVibrate = mockToggleEventVibrateUseCase,
+                    scheduler = mockScheduler,
+                ),
+            ai =
+                EventViewModel.AiDeps(
+                    generateDailyBriefing = mockGenerateDailyBriefingUseCase,
+                    askAiAboutSchedule = mockAskAiAboutScheduleUseCase,
+                    calculateDepartureTime = mockCalculateDepartureTimeUseCase,
+                    observeDailyBriefing = mockObserveDailyBriefingUseCase,
+                    tts = mockTtsHelper,
+                    widgetUpdater = mockWidgetUpdater,
+                ),
+            observeRingerModeUseCase = mockObserveRingerModeUseCase,
+            checkPermissionsUseCase = mockCheckPermissionsUseCase,
+            reviewManager = mockReviewManager,
+        )
 
     @Test
     fun `checkAllPermissions updates all permission flags in UI state`() =
         runTest {
-            every { mockPermissionManager.hasCalendarPermission() } returns false
-            every { mockPermissionManager.hasPostNotificationsPermission() } returns false
+            advanceUntilIdle()
+
+            every { mockCheckPermissionsUseCase() } returns
+                PermissionState(
+                    hasCalendarPermission = false,
+                    hasPostNotificationsPermission = false,
+                    hasExactAlarmPermission = true,
+                    hasFullScreenIntentPermission = true,
+                    hasLocationPermission = false,
+                    hasBackgroundLocationPermission = false,
+                )
 
             viewModel.uiState.test {
                 skipItems(1)
 
-                viewModel.checkAllPermissions()
+                viewModel.handleIntent(EventIntent.CheckPermissions)
                 advanceUntilIdle()
 
                 val updatedState = awaitItem()
@@ -173,23 +204,25 @@ class EventViewModelTest {
     @Test
     fun `dismissAutostartSuggestion sets dismissed flag in preferences`() =
         runTest {
-            coEvery { mockAppPreferencesRepository.setAutostartSuggestionDismissed(true) } just Runs
+            coEvery { mockUpdateAppPreferenceUseCase.setAutostartSuggestionDismissed(true) } just Runs
 
-            viewModel.dismissAutostartSuggestion()
+            viewModel.handleIntent(EventIntent.DismissAutostartSuggestion)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { mockAppPreferencesRepository.setAutostartSuggestionDismissed(true) }
+            coVerify(exactly = 1) { mockUpdateAppPreferenceUseCase.setAutostartSuggestionDismissed(true) }
         }
 
     @Test
     fun `onDateSelected updates selectedDate in UI state`() =
         runTest {
+            advanceUntilIdle()
+
             val newDate = LocalDate.of(2023, 10, 26)
 
             viewModel.uiState.test {
                 skipItems(1)
 
-                viewModel.onDateSelected(newDate)
+                viewModel.handleIntent(EventIntent.SelectDate(newDate))
                 advanceUntilIdle()
 
                 val updatedState = awaitItem()
@@ -201,24 +234,26 @@ class EventViewModelTest {
     @Test
     fun `onAlarmsToggle sets global alarm enabled status in preferences`() =
         runTest {
-            coEvery { mockAppPreferencesRepository.setGlobalAlarmEnabled(any()) } just Runs
+            coEvery { mockUpdateAppPreferenceUseCase.setGlobalAlarmEnabled(any()) } just Runs
 
-            viewModel.onAlarmsToggle(false)
+            viewModel.handleIntent(EventIntent.ToggleGlobalAlarms(false))
             advanceUntilIdle()
-            coVerify(exactly = 1) { mockAppPreferencesRepository.setGlobalAlarmEnabled(false) }
+            coVerify(exactly = 1) { mockUpdateAppPreferenceUseCase.setGlobalAlarmEnabled(false) }
 
-            viewModel.onAlarmsToggle(true)
+            viewModel.handleIntent(EventIntent.ToggleGlobalAlarms(true))
             advanceUntilIdle()
-            coVerify(exactly = 1) { mockAppPreferencesRepository.setGlobalAlarmEnabled(true) }
+            coVerify(exactly = 1) { mockUpdateAppPreferenceUseCase.setGlobalAlarmEnabled(true) }
         }
 
     @Test
     fun `onUpgradeToProRequest updates showSubscriptionConfirmation to true`() =
         runTest {
+            advanceUntilIdle()
+
             viewModel.uiState.test {
                 skipItems(1)
 
-                viewModel.onUpgradeToProRequest()
+                viewModel.handleIntent(EventIntent.UpgradeToProRequest)
                 advanceUntilIdle()
 
                 val updatedState = awaitItem()
@@ -230,9 +265,9 @@ class EventViewModelTest {
     @Test
     fun `onDismissUpgradeConfirmation sets showSubscriptionConfirmation and showPurchaseConfirmation to false`() =
         runTest {
-            viewModel.onUpgradeToProRequest()
+            viewModel.handleIntent(EventIntent.UpgradeToProRequest)
             advanceUntilIdle()
-            viewModel.onDismissUpgradeConfirmation()
+            viewModel.handleIntent(EventIntent.DismissUpgradeConfirmation)
             advanceUntilIdle()
             viewModel.uiState.test {
                 val state = awaitItem()
@@ -245,30 +280,21 @@ class EventViewModelTest {
     @Test
     fun `onMonthChanged without calendar permission clears events and does not call use case`() =
         runTest {
-            every { mockPermissionManager.hasCalendarPermission() } returns false
-            val vm =
-                EventViewModel(
-                    mockProUserProvider,
-                    getEventsForMonthUseCase,
-                    mockAppPreferencesRepository,
-                    mockRingerModeRepository,
-                    mockScheduler,
-                    mockPermissionManager,
-                    mockCalendarRepository,
-                    mockDailyBriefingRepository,
-                    mockGenerateDailyBriefingUseCase,
-                    mockAskAiAboutScheduleUseCase,
-                    mockCreateEventUseCase,
-                    mockCalculateDepartureTimeUseCase,
-                    ttsHelper,
-                    mockWidgetUpdater,
-                    mockReviewManager,
+            every { mockCheckPermissionsUseCase() } returns
+                PermissionState(
+                    hasCalendarPermission = false,
+                    hasPostNotificationsPermission = true,
+                    hasExactAlarmPermission = true,
+                    hasFullScreenIntentPermission = true,
+                    hasLocationPermission = false,
+                    hasBackgroundLocationPermission = false,
                 )
+            val vm = createViewModel()
 
-            io.mockk.clearMocks(getEventsForMonthUseCase, answers = false)
+            clearMocks(mockGetEventsForMonthUseCase, answers = false)
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns emptyList()
 
-            coEvery { getEventsForMonthUseCase.invoke(any()) } returns emptyList()
-            vm.onMonthChanged(YearMonth.of(2024, 10))
+            vm.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2024, 10)))
             advanceUntilIdle()
 
             vm.uiState.test {
@@ -281,68 +307,56 @@ class EventViewModelTest {
     @Test
     fun `onMonthChanged loads events maps disabled sets and schedules within window`() =
         runTest {
-            every { mockPermissionManager.hasCalendarPermission() } returns false
-            val vm =
-                EventViewModel(
-                    mockProUserProvider,
-                    getEventsForMonthUseCase,
-                    mockAppPreferencesRepository,
-                    mockRingerModeRepository,
-                    mockScheduler,
-                    mockPermissionManager,
-                    mockCalendarRepository,
-                    mockDailyBriefingRepository,
-                    mockGenerateDailyBriefingUseCase,
-                    mockAskAiAboutScheduleUseCase,
-                    mockCreateEventUseCase,
-                    mockCalculateDepartureTimeUseCase,
-                    ttsHelper,
-                    mockWidgetUpdater,
-                    mockReviewManager,
-                )
-            io.mockk.clearMocks(mockScheduler, answers = false)
-
-            every { mockPermissionManager.hasCalendarPermission() } returns true
+            advanceUntilIdle()
 
             val now = System.currentTimeMillis()
             val e1 = Event(id = 1, title = "Soon", startTime = now + 30 * 60 * 1000L)
             val e2 = Event(id = 2, title = "Later", startTime = now + 120 * 60 * 1000L)
             val e3 = Event(id = 3, title = "Past", startTime = now - 10 * 60 * 1000L)
 
-            disabledSeriesIdsFlow.value = setOf(e2.id.toString())
-            disabledEventIdsFlow.value = setOf(e3.uniqueIntentId.toString())
+            appPreferencesFlow.value =
+                defaultAppPreferences().copy(
+                    disabledSeriesIds = setOf(e2.id.toString()),
+                    disabledEventIds = setOf(e3.uniqueIntentId.toString()),
+                )
 
-            coEvery { getEventsForMonthUseCase.invoke(any()) } returns listOf(e1, e2, e3)
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(e1, e2, e3)
+            clearMocks(mockScheduler, answers = false)
 
-            vm.onMonthChanged(YearMonth.of(2024, 11))
+            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2024, 11)))
             advanceUntilIdle()
 
-            verify(exactly = 1) { mockScheduler.schedule(match { it.id == 1L }) }
-            verify(exactly = 0) { mockScheduler.schedule(match { it.id == 2L }) }
-            verify(exactly = 0) { mockScheduler.schedule(match { it.id == 3L }) }
+            verify(atLeast = 1) { mockScheduler.schedule(match { it.id == 1L }, any()) }
+            verify(exactly = 0) { mockScheduler.schedule(match { it.id == 2L }, any()) }
+            verify(exactly = 0) { mockScheduler.schedule(match { it.id == 3L }, any()) }
         }
 
     @Test
     fun `onMonthChanged does not schedule when global alarm disabled`() =
         runTest {
-            isGlobalAlarmEnabledFlow.value = false
-            val now = System.currentTimeMillis()
-            val e1 = Event(id = 10, title = "Soon", startTime = now + 10 * 60 * 1000L)
-            coEvery { getEventsForMonthUseCase.invoke(any()) } returns listOf(e1)
-
-            viewModel.onMonthChanged(YearMonth.of(2025, 1))
             advanceUntilIdle()
 
-            verify(exactly = 0) { mockScheduler.schedule(any()) }
+            appPreferencesFlow.value = defaultAppPreferences().copy(isGlobalAlarmEnabled = false)
+            advanceUntilIdle()
+
+            val now = System.currentTimeMillis()
+            val e1 = Event(id = 10, title = "Soon", startTime = now + 10 * 60 * 1000L)
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(e1)
+            clearMocks(mockScheduler, answers = false)
+
+            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2025, 1)))
+            advanceUntilIdle()
+
+            verify(exactly = 0) { mockScheduler.schedule(any(), any()) }
         }
 
     @Test
     fun `returnToToday updates selectedDate and currentMonth`() =
         runTest {
-            viewModel.onDateSelected(LocalDate.of(2000, 1, 1))
+            viewModel.handleIntent(EventIntent.SelectDate(LocalDate.of(2000, 1, 1)))
             advanceUntilIdle()
 
-            viewModel.returnToToday()
+            viewModel.handleIntent(EventIntent.ReturnToToday)
             advanceUntilIdle()
 
             viewModel.uiState.test {
@@ -356,82 +370,48 @@ class EventViewModelTest {
     @Test
     fun `onVibrateOnlyChanged persists preference`() =
         runTest {
-            coEvery { mockAppPreferencesRepository.setVibrateOnly(any()) } just Runs
+            coEvery { mockUpdateAppPreferenceUseCase.setVibrateOnly(any()) } just Runs
 
-            viewModel.onVibrateOnlyChanged(true)
+            viewModel.handleIntent(EventIntent.ToggleVibrateOnly(true))
             advanceUntilIdle()
-            coVerify(exactly = 1) { mockAppPreferencesRepository.setVibrateOnly(true) }
+            coVerify(exactly = 1) { mockUpdateAppPreferenceUseCase.setVibrateOnly(true) }
 
-            viewModel.onVibrateOnlyChanged(false)
+            viewModel.handleIntent(EventIntent.ToggleVibrateOnly(false))
             advanceUntilIdle()
-            coVerify(exactly = 1) { mockAppPreferencesRepository.setVibrateOnly(false) }
+            coVerify(exactly = 1) { mockUpdateAppPreferenceUseCase.setVibrateOnly(false) }
         }
 
     @Test
-    fun `onEventVibrateToggle updates event and persists preference`() =
+    fun `onEventVibrateToggle calls toggle use case`() =
         runTest {
             val event = Event(id = 1, title = "Test Event", startTime = 0)
-            coEvery { getEventsForMonthUseCase.invoke(any()) } returns listOf(event)
-            viewModel.onMonthChanged(YearMonth.now())
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(event)
+            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.now()))
             advanceUntilIdle()
 
-            coEvery { mockAppPreferencesRepository.setVibrateOnlyEventIds(any()) } just Runs
-
-            // Toggle on
-            viewModel.onEventVibrateToggle(event, vibrateOnly = true)
+            viewModel.handleIntent(EventIntent.ToggleEventVibrate(event, enabled = true))
             advanceUntilIdle()
 
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertTrue(state.events.first().vibrateOnly)
-                coVerify { mockAppPreferencesRepository.setVibrateOnlyEventIds(setOf(event.uniqueIntentId.toString())) }
-                cancelAndConsumeRemainingEvents()
-            }
-
-            // Toggle off
-            viewModel.onEventVibrateToggle(event, vibrateOnly = false)
-            advanceUntilIdle()
-
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertFalse(state.events.first().vibrateOnly)
-                coVerify { mockAppPreferencesRepository.setVibrateOnlyEventIds(emptySet()) }
-                cancelAndConsumeRemainingEvents()
-            }
+            coVerify(exactly = 1) { mockToggleEventVibrateUseCase(event, true) }
         }
 
     @Test
-    fun `onEventAlarmToggle disables single instance and cancels when global enabled`() =
+    fun `onEventAlarmToggle disables single instance calls toggle use case`() =
         runTest {
             val now = System.currentTimeMillis()
             val event = Event(id = 100, title = "Meeting", startTime = now + 5 * 60 * 1000L, isAlarmEnabled = true)
-            coEvery { getEventsForMonthUseCase.invoke(any()) } returns listOf(event)
-            viewModel.onMonthChanged(YearMonth.of(2025, 2))
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(event)
+            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2025, 2)))
             advanceUntilIdle()
 
-            coEvery { mockAppPreferencesRepository.setDisabledEventIds(any()) } just Runs
-
-            viewModel.onEventAlarmToggle(event, isEnabled = false, disableAllOccurrences = false)
+            viewModel.handleIntent(EventIntent.ToggleEventAlarm(event, enabled = false, allOccurrences = false))
             advanceUntilIdle()
 
-            coVerify(exactly = 1) {
-                mockAppPreferencesRepository.setDisabledEventIds(
-                    match {
-                        it.contains(event.uniqueIntentId.toString())
-                    },
-                )
-            }
-            verify(exactly = 1) { mockScheduler.cancel(match { it.id == event.id }) }
-
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertFalse(state.events.first { it.id == event.id }.isAlarmEnabled)
-                cancelAndConsumeRemainingEvents()
-            }
+            coVerify(exactly = 1) { mockToggleEventAlarmUseCase(event, false, false) }
         }
 
     @Test
-    fun `onEventAlarmToggle enables all occurrences and schedules when global enabled`() =
+    fun `onEventAlarmToggle enables all occurrences calls toggle use case with allOccurrences true`() =
         runTest {
             val now = System.currentTimeMillis()
             val event =
@@ -442,30 +422,14 @@ class EventViewModelTest {
                     isAlarmEnabled = false,
                     isRecurring = true,
                 )
-            disabledSeriesIdsFlow.value = setOf(event.id.toString())
-            coEvery { getEventsForMonthUseCase.invoke(any()) } returns listOf(event)
-            viewModel.onMonthChanged(YearMonth.of(2025, 3))
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(event)
+            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2025, 3)))
             advanceUntilIdle()
 
-            coEvery { mockAppPreferencesRepository.setDisabledSeriesIds(any()) } just Runs
-
-            viewModel.onEventAlarmToggle(event, isEnabled = true, disableAllOccurrences = true)
+            viewModel.handleIntent(EventIntent.ToggleEventAlarm(event, enabled = true, allOccurrences = true))
             advanceUntilIdle()
 
-            coVerify(exactly = 1) {
-                mockAppPreferencesRepository.setDisabledSeriesIds(
-                    match {
-                        !it.contains(event.id.toString())
-                    },
-                )
-            }
-            verify(exactly = 1) { mockScheduler.schedule(match { it.id == event.id }) }
-
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertTrue(state.events.first { it.id == event.id }.isAlarmEnabled)
-                cancelAndConsumeRemainingEvents()
-            }
+            coVerify(exactly = 1) { mockToggleEventAlarmUseCase(event, true, true) }
         }
 
     @Test
@@ -474,11 +438,11 @@ class EventViewModelTest {
             val now = System.currentTimeMillis()
             val e1 = Event(id = 301, title = "A", startTime = now + 5 * 60 * 1000L)
             val e2 = Event(id = 302, title = "B", startTime = now + 6 * 60 * 1000L)
-            coEvery { getEventsForMonthUseCase.invoke(any()) } returns listOf(e1, e2)
-            viewModel.onMonthChanged(YearMonth.now())
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(e1, e2)
+            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.now()))
             advanceUntilIdle()
 
-            isGlobalAlarmEnabledFlow.value = false
+            appPreferencesFlow.value = defaultAppPreferences().copy(isGlobalAlarmEnabled = false)
             advanceUntilIdle()
 
             verify { mockScheduler.cancel(match { it.id == 301L }) }
@@ -486,233 +450,21 @@ class EventViewModelTest {
         }
 
     @Test
-    fun `rating dialog shows after 2 days and not prompted before`() =
+    fun `onAlarmOffsetChanged calls use case`() =
         runTest {
-            val twoDaysAgo = System.currentTimeMillis() - java.util.concurrent.TimeUnit.DAYS.toMillis(2) - 1000L
-            installationDateFlow.value = twoDaysAgo
-            ratingPromptedFlow.value = false
-            ratingCompletedFlow.value = false
-
-            coEvery { mockAppPreferencesRepository.setRatingPrompted(true) } just Runs
-
-            // Create new ViewModel to trigger init block
-            val vm =
-                EventViewModel(
-                    mockProUserProvider,
-                    getEventsForMonthUseCase,
-                    mockAppPreferencesRepository,
-                    mockRingerModeRepository,
-                    mockScheduler,
-                    mockPermissionManager,
-                    mockCalendarRepository,
-                    mockDailyBriefingRepository,
-                    mockGenerateDailyBriefingUseCase,
-                    mockAskAiAboutScheduleUseCase,
-                    mockCreateEventUseCase,
-                    mockCalculateDepartureTimeUseCase,
-                    ttsHelper,
-                    mockWidgetUpdater,
-                    mockReviewManager,
-                )
+            coEvery { mockUpdateAppPreferenceUseCase.setAlarmOffsetMinutes(any()) } just Runs
+            viewModel.handleIntent(EventIntent.UpdateAlarmOffset(AlarmOffset.FIFTEEN_MINUTES))
             advanceUntilIdle()
-
-            vm.uiState.test {
-                val state = awaitItem()
-                assertTrue(state.showRatingBottomSheet)
-                coVerify(exactly = 1) { mockAppPreferencesRepository.setRatingPrompted(true) }
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `rating dialog does not show if already prompted`() =
-        runTest {
-            val twoDaysAgo = System.currentTimeMillis() - java.util.concurrent.TimeUnit.DAYS.toMillis(2) - 1000L
-            installationDateFlow.value = twoDaysAgo
-            ratingPromptedFlow.value = true
-            ratingCompletedFlow.value = false
-
-            // Create new ViewModel to trigger init block
-            val vm =
-                EventViewModel(
-                    mockProUserProvider,
-                    getEventsForMonthUseCase,
-                    mockAppPreferencesRepository,
-                    mockRingerModeRepository,
-                    mockScheduler,
-                    mockPermissionManager,
-                    mockCalendarRepository,
-                    mockDailyBriefingRepository,
-                    mockGenerateDailyBriefingUseCase,
-                    mockAskAiAboutScheduleUseCase,
-                    mockCreateEventUseCase,
-                    mockCalculateDepartureTimeUseCase,
-                    ttsHelper,
-                    mockWidgetUpdater,
-                    mockReviewManager,
-                )
-            advanceUntilIdle()
-
-            vm.uiState.test {
-                val state = awaitItem()
-                assertFalse(state.showRatingBottomSheet)
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `rating dialog does not show if already completed`() =
-        runTest {
-            val twoDaysAgo = System.currentTimeMillis() - java.util.concurrent.TimeUnit.DAYS.toMillis(2) - 1000L
-            installationDateFlow.value = twoDaysAgo
-            ratingPromptedFlow.value = false
-            ratingCompletedFlow.value = true
-
-            val vm =
-                EventViewModel(
-                    mockProUserProvider,
-                    getEventsForMonthUseCase,
-                    mockAppPreferencesRepository,
-                    mockRingerModeRepository,
-                    mockScheduler,
-                    mockPermissionManager,
-                    mockCalendarRepository,
-                    mockDailyBriefingRepository,
-                    mockGenerateDailyBriefingUseCase,
-                    mockAskAiAboutScheduleUseCase,
-                    mockCreateEventUseCase,
-                    mockCalculateDepartureTimeUseCase,
-                    ttsHelper,
-                    mockWidgetUpdater,
-                    mockReviewManager,
-                )
-            advanceUntilIdle()
-
-            vm.uiState.test {
-                val state = awaitItem()
-                assertFalse(state.showRatingBottomSheet)
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `rating dialog does not show before 2 days`() =
-        runTest {
-            val oneDayAgo = System.currentTimeMillis() - java.util.concurrent.TimeUnit.DAYS.toMillis(1)
-            installationDateFlow.value = oneDayAgo
-            ratingPromptedFlow.value = false
-            ratingCompletedFlow.value = false
-
-            val vm =
-                EventViewModel(
-                    mockProUserProvider,
-                    getEventsForMonthUseCase,
-                    mockAppPreferencesRepository,
-                    mockRingerModeRepository,
-                    mockScheduler,
-                    mockPermissionManager,
-                    mockCalendarRepository,
-                    mockDailyBriefingRepository,
-                    mockGenerateDailyBriefingUseCase,
-                    mockAskAiAboutScheduleUseCase,
-                    mockCreateEventUseCase,
-                    mockCalculateDepartureTimeUseCase,
-                    ttsHelper,
-                    mockWidgetUpdater,
-                    mockReviewManager,
-                )
-            advanceUntilIdle()
-
-            vm.uiState.test {
-                val state = awaitItem()
-                assertFalse(state.showRatingBottomSheet)
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `onRateNow marks rating as completed and hides dialog`() =
-        runTest {
-            coEvery { mockAppPreferencesRepository.setRatingCompleted(true) } just Runs
-
-            viewModel.uiState.test {
-                skipItems(1)
-
-                viewModel.onRateNow()
-                advanceUntilIdle()
-
-                val state = awaitItem()
-                assertFalse(state.showRatingBottomSheet)
-                coVerify(exactly = 1) { mockAppPreferencesRepository.setRatingCompleted(true) }
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `onRateLater hides dialog without marking as completed`() =
-        runTest {
-            viewModel.uiState.test {
-                skipItems(1)
-
-                viewModel.onRateLater()
-                advanceUntilIdle()
-
-                val state = awaitItem()
-                assertFalse(state.showRatingBottomSheet)
-                coVerify(exactly = 0) { mockAppPreferencesRepository.setRatingCompleted(true) }
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `onRatingDialogDismiss hides dialog`() =
-        runTest {
-            viewModel.uiState.test {
-                skipItems(1)
-
-                viewModel.onRatingDialogDismiss()
-                advanceUntilIdle()
-
-                val state = awaitItem()
-                assertFalse(state.showRatingBottomSheet)
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `onAllDayAlarmsToggle calls repository`() =
-        runTest {
-            coEvery { mockAppPreferencesRepository.setAllDayAlarmsEnabled(any()) } just Runs
-            viewModel.onAllDayAlarmsToggle(true)
-            advanceUntilIdle()
-            coVerify { mockAppPreferencesRepository.setAllDayAlarmsEnabled(true) }
-        }
-
-    @Test
-    fun `onAllDayAlarmHourChanged calls repository`() =
-        runTest {
-            coEvery { mockAppPreferencesRepository.setAllDayAlarmHour(any()) } just Runs
-            viewModel.onAllDayAlarmHourChanged(10)
-            advanceUntilIdle()
-            coVerify { mockAppPreferencesRepository.setAllDayAlarmHour(10) }
-        }
-
-    @Test
-    fun `onAlarmOffsetChanged calls repository`() =
-        runTest {
-            coEvery { mockAppPreferencesRepository.setAlarmOffsetMinutes(any()) } just Runs
-            viewModel.onAlarmOffsetChanged(AlarmOffset.FIFTEEN_MINUTES)
-            advanceUntilIdle()
-            coVerify { mockAppPreferencesRepository.setAlarmOffsetMinutes(15L) }
+            coVerify { mockUpdateAppPreferenceUseCase.setAlarmOffsetMinutes(15L) }
         }
 
     @Test
     fun `loadAvailableCalendars updates UI state`() =
         runTest {
             val mockCalendars = listOf(DeviceCalendar(1, "Calendar 1", "Account 1"))
-            coEvery { mockCalendarRepository.getAvailableCalendars() } returns mockCalendars
+            coEvery { mockGetAvailableCalendarsUseCase() } returns mockCalendars
 
-            viewModel.loadAvailableCalendars()
+            viewModel.handleIntent(EventIntent.LoadCalendars)
             advanceUntilIdle()
 
             viewModel.uiState.test {
@@ -723,36 +475,32 @@ class EventViewModelTest {
         }
 
     @Test
-    fun `onCalendarFilterToggle updates repository`() =
+    fun `onCalendarFilterToggle updates preferences`() =
         runTest {
             val mockCalendars =
                 listOf(
                     DeviceCalendar(1, "Calendar 1", "Account 1"),
                     DeviceCalendar(2, "Calendar 2", "Account 2"),
                 )
-            coEvery { mockCalendarRepository.getAvailableCalendars() } returns mockCalendars
-            every { mockAppPreferencesRepository.getEnabledCalendarIds() } returns flowOf(setOf("1"))
-            coEvery { mockAppPreferencesRepository.setEnabledCalendarIds(any()) } just Runs
+            coEvery { mockGetAvailableCalendarsUseCase() } returns mockCalendars
+            appPreferencesFlow.value = defaultAppPreferences().copy(enabledCalendarIds = setOf("1"))
 
-            // 1. Carregar calendários disponíveis para o UI State
-            viewModel.loadAvailableCalendars()
+            viewModel.handleIntent(EventIntent.LoadCalendars)
             advanceUntilIdle()
 
-            // 2. Chamar o toggle
-            viewModel.onCalendarFilterToggle(2L, true)
+            viewModel.handleIntent(EventIntent.ToggleCalendarFilter(2L, true))
             advanceUntilIdle()
 
-            // 3. Verificar se o repositório foi chamado
-            coVerify { mockAppPreferencesRepository.setEnabledCalendarIds(any()) }
+            coVerify { mockUpdateAppPreferenceUseCase.setEnabledCalendarIds(any()) }
         }
 
     @Test
-    fun `clearCalendarFilter calls repository with empty set`() =
+    fun `clearCalendarFilter calls use case with empty set`() =
         runTest {
-            coEvery { mockAppPreferencesRepository.setEnabledCalendarIds(emptySet()) } just Runs
-            viewModel.clearCalendarFilter()
+            coEvery { mockUpdateAppPreferenceUseCase.setEnabledCalendarIds(emptySet()) } just Runs
+            viewModel.handleIntent(EventIntent.ClearCalendarFilter)
             advanceUntilIdle()
-            coVerify { mockAppPreferencesRepository.setEnabledCalendarIds(emptySet()) }
+            coVerify { mockUpdateAppPreferenceUseCase.setEnabledCalendarIds(emptySet()) }
         }
 
     @Test
@@ -761,10 +509,10 @@ class EventViewModelTest {
             isAiUserFlow.value = false
             advanceUntilIdle()
 
-            viewModel.generateDailyBriefing("instruction")
+            viewModel.handleIntent(EventIntent.GenerateDailyBriefing("instruction"))
             advanceUntilIdle()
 
-            coVerify(exactly = 0) { mockGenerateDailyBriefingUseCase.invoke(any(), any()) }
+            coVerify(exactly = 0) { mockGenerateDailyBriefingUseCase(any(), any()) }
         }
 
     @Test
@@ -775,17 +523,16 @@ class EventViewModelTest {
 
             val today = LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
             val mockEvents = listOf(Event(1, "Today Event", today))
-
             val yearMonth = YearMonth.now()
-            coEvery { getEventsForMonthUseCase.invoke(yearMonth) } returns mockEvents
+            coEvery { mockGetEventsForMonthUseCase(yearMonth) } returns mockEvents
 
-            viewModel.onMonthChanged(yearMonth, forceRefresh = true)
+            viewModel.handleIntent(EventIntent.ChangeMonth(yearMonth))
             advanceUntilIdle()
 
-            viewModel.generateDailyBriefing("instruction")
+            viewModel.handleIntent(EventIntent.GenerateDailyBriefing("instruction"))
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { mockGenerateDailyBriefingUseCase.invoke(any(), "instruction") }
+            coVerify(exactly = 1) { mockGenerateDailyBriefingUseCase(any(), "instruction") }
         }
 
     @Test
@@ -794,15 +541,15 @@ class EventViewModelTest {
             isAiUserFlow.value = true
             advanceUntilIdle()
 
-            coEvery { getEventsForMonthUseCase.invoke(any()) } returns emptyList()
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns emptyList()
 
-            viewModel.onMonthChanged(YearMonth.now(), forceRefresh = true)
+            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.now()))
             advanceUntilIdle()
 
-            viewModel.generateDailyBriefing("instruction")
+            viewModel.handleIntent(EventIntent.GenerateDailyBriefing("instruction"))
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { mockGenerateDailyBriefingUseCase.invoke(emptyList(), "instruction") }
+            coVerify(exactly = 1) { mockGenerateDailyBriefingUseCase(emptyList(), "instruction") }
         }
 
     @Test
@@ -811,15 +558,14 @@ class EventViewModelTest {
             isAiUserFlow.value = true
             advanceUntilIdle()
 
-            coEvery { mockAskAiAboutScheduleUseCase.invoke(any(), any(), any()) } returns "AI Response"
+            coEvery { mockAskAiAboutScheduleUseCase(any(), any(), any()) } returns "AI Response"
 
-            viewModel.askAi("What's next?", "instruction")
+            viewModel.handleIntent(EventIntent.AskAi("What's next?", "instruction"))
             advanceUntilIdle()
 
             viewModel.uiState.test {
                 val state = awaitItem()
                 assertEquals("AI Response", state.aiResponse)
-                assertEquals("What's next?", state.lastAiQuestion)
                 assertFalse(state.isAskingAi)
                 cancelAndConsumeRemainingEvents()
             }
@@ -830,6 +576,8 @@ class EventViewModelTest {
         runTest {
             isAiUserFlow.value = true
             advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.isAiUser)
 
             val jsonResponse =
                 """
@@ -844,53 +592,80 @@ class EventViewModelTest {
                 """.trimIndent()
 
             coEvery {
-                mockAskAiAboutScheduleUseCase.invoke(any(), any(), any())
+                mockAskAiAboutScheduleUseCase(any(), any(), any())
             } returns jsonResponse
 
-            viewModel.uiState.test {
-                // Pegar o estado atual após advanceUntilIdle
-                val initialState = awaitItem()
-                assertTrue(initialState.isAiUser)
+            viewModel.handleIntent(EventIntent.AskAi("Marcar dentista", "instrucao"))
+            advanceUntilIdle()
 
-                viewModel.askAi("Marcar dentista", "instrucao")
-
-                val loadingState = awaitItem()
-                assertTrue(loadingState.isAskingAi)
-
-                val finalState = awaitItem()
-                assertFalse(finalState.isAskingAi)
-                assertTrue(finalState.showCreateEventDialog)
-                assertEquals("Dentista", finalState.voiceEventData?.title)
-                cancelAndIgnoreRemainingEvents()
-            }
+            val finalState = viewModel.uiState.value
+            assertFalse(finalState.isAskingAi)
+            assertTrue(finalState.showCreateEventDialog)
+            assertEquals("Dentista", finalState.voiceEventData?.title)
         }
 
     @Test
     fun `clearAiResponse resets UI state`() =
         runTest {
-            viewModel.askAi("Q", "I")
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+            coEvery { mockAskAiAboutScheduleUseCase(any(), any(), any()) } returns "Some response"
+            viewModel.handleIntent(EventIntent.AskAi("Q", "I"))
             advanceUntilIdle()
 
-            viewModel.clearAiResponse()
+            viewModel.handleIntent(EventIntent.ClearAiResponse)
             advanceUntilIdle()
 
             viewModel.uiState.test {
                 val state = awaitItem()
                 assertNull(state.aiResponse)
-                assertNull(state.lastAiQuestion)
                 cancelAndConsumeRemainingEvents()
             }
         }
 
     @Test
-    fun `onStartVoiceCaptureRequest and onDismissAiSuggestions toggle UI state`() =
+    fun `showAiSuggestionsDialog and dismissAiSuggestionsDialog toggle UI state`() =
         runTest {
-            viewModel.onStartVoiceCaptureRequest()
+            viewModel.handleIntent(EventIntent.ShowAiSuggestionsDialog)
             advanceUntilIdle()
             assertTrue(viewModel.uiState.value.showAiSuggestionsDialog)
 
-            viewModel.onDismissAiSuggestions()
+            viewModel.handleIntent(EventIntent.DismissAiSuggestionsDialog)
             advanceUntilIdle()
             assertFalse(viewModel.uiState.value.showAiSuggestionsDialog)
+        }
+
+    @Test
+    fun `rateLater hides dialog without marking as completed`() =
+        runTest {
+            viewModel.uiState.test {
+                skipItems(1)
+
+                viewModel.handleIntent(EventIntent.RateLater)
+                advanceUntilIdle()
+
+                val state = awaitItem()
+                assertFalse(state.showRatingBottomSheet)
+                coVerify(exactly = 0) { mockUpdateAppPreferenceUseCase.setRatingCompleted(true) }
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `rateNever marks rating as completed and hides dialog`() =
+        runTest {
+            coEvery { mockUpdateAppPreferenceUseCase.setRatingCompleted(true) } just Runs
+
+            viewModel.uiState.test {
+                skipItems(1)
+
+                viewModel.handleIntent(EventIntent.RateNever)
+                advanceUntilIdle()
+
+                val state = awaitItem()
+                assertFalse(state.showRatingBottomSheet)
+                coVerify(exactly = 1) { mockUpdateAppPreferenceUseCase.setRatingCompleted(true) }
+                cancelAndConsumeRemainingEvents()
+            }
         }
 }

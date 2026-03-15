@@ -15,7 +15,7 @@ class GetEventsForMonthUseCaseImpl
         private val eventsRepository: CalendarRepository,
         private val appPreferencesRepository: AppPreferencesRepository,
     ) : GetEventsForMonthUseCase {
-        override suspend fun invoke(yearMonth: YearMonth): List<Event> {
+        override suspend operator fun invoke(yearMonth: YearMonth): List<Event> {
             val enabledCalendarIdStrings = appPreferencesRepository.getEnabledCalendarIds().firstOrNull() ?: emptySet()
             val allowedCalendarIds = enabledCalendarIdStrings.mapNotNull { it.toLongOrNull() }
             return eventsRepository.getEventsForMonth(yearMonth, allowedCalendarIds)

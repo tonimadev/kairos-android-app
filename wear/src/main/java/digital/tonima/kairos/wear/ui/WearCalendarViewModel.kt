@@ -15,8 +15,9 @@ import com.google.android.gms.wearable.Wearable.getNodeClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.model.Event
-import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.sync.WearSyncSchema.PATH_REQUEST_SYNC
+import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
+import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.kairos.wear.WorkNames
 import digital.tonima.kairos.wear.sync.CachedEventSchedulingWorker
 import digital.tonima.kairos.wear.sync.SyncActions
@@ -25,8 +26,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import logcat.LogPriority
@@ -38,7 +39,8 @@ class WearCalendarViewModel
     @Inject
     constructor(
         @ApplicationContext private val appContext: Context,
-        private val appPreferencesRepository: AppPreferencesRepository,
+        private val observeAppPreferencesUseCase: ObserveAppPreferencesUseCase,
+        private val updateAppPreferenceUseCase: UpdateAppPreferenceUseCase,
     ) : ViewModel() {
         private val _next24hEvents = MutableStateFlow<List<Event>>(emptyList())
         val next24hEvents: StateFlow<List<Event>> = _next24hEvents.asStateFlow()
@@ -47,8 +49,8 @@ class WearCalendarViewModel
         val lastUpdated: StateFlow<Long> = _lastUpdated.asStateFlow()
 
         val isGlobalAlarmEnabled: StateFlow<Boolean> =
-            appPreferencesRepository
-                .isGlobalAlarmEnabled()
+            observeAppPreferencesUseCase()
+                .map { it.isGlobalAlarmEnabled }
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5000),
@@ -84,18 +86,29 @@ class WearCalendarViewModel
             }
 
             viewModelScope.launch {
-                combine(
-                    appPreferencesRepository.isGlobalAlarmEnabled(),
-                    appPreferencesRepository.getDisabledEventIds(),
-                    appPreferencesRepository.getDisabledSeriesIds(),
-                ) { _, _, _ -> }
-                    .collect {
-                        reloadFromCache()
-                    }
+                observeAppPreferencesUseCase().collect {
+                    reloadFromCache()
+                }
             }
         }
 
         fun requestRescan() {
+            handleIntent(WearCalendarIntent.RequestRescan)
+        }
+
+        fun toggleGlobalAlarm(enabled: Boolean) {
+            handleIntent(WearCalendarIntent.ToggleGlobalAlarm(enabled))
+        }
+
+        fun handleIntent(intent: WearCalendarIntent) {
+            when (intent) {
+                WearCalendarIntent.RequestRescan -> performRescan()
+                is WearCalendarIntent.ToggleGlobalAlarm -> performToggleGlobalAlarm(intent.enabled)
+                WearCalendarIntent.ReloadFromCache -> reloadFromCache()
+            }
+        }
+
+        private fun performRescan() {
             viewModelScope.launch {
                 try {
                     val nodeClient = getNodeClient(appContext)
@@ -110,8 +123,8 @@ class WearCalendarViewModel
                                         ByteArray(0),
                                     ).addOnSuccessListener {
                                         logcat {
-                                            "WearCalendarViewModel: Requested sync fro" +
-                                                "m phone (node=${node.displayName})."
+                                            "WearCalendarViewModel: Requested sync " +
+                                                "from phone (node=${node.displayName})."
                                         }
                                     }.addOnFailureListener { t ->
                                         logcat(
@@ -147,9 +160,9 @@ class WearCalendarViewModel
             }
         }
 
-        fun toggleGlobalAlarm(enabled: Boolean) {
+        private fun performToggleGlobalAlarm(enabled: Boolean) {
             viewModelScope.launch {
-                appPreferencesRepository.setGlobalAlarmEnabled(enabled)
+                updateAppPreferenceUseCase.setGlobalAlarmEnabled(enabled)
             }
         }
 
@@ -161,15 +174,13 @@ class WearCalendarViewModel
                         .load(appContext)
                         .filter { it.startTime >= now }
                         .sortedBy { it.startTime }
-                val isGlobal = appPreferencesRepository.isGlobalAlarmEnabled().firstOrNull() ?: true
-                val disabledInstanceIds = appPreferencesRepository.getDisabledEventIds().firstOrNull() ?: emptySet()
-                val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
+                val prefs = observeAppPreferencesUseCase().first()
 
                 val mapped =
                     events.map { e ->
-                        val instanceDisabled = disabledInstanceIds.contains(e.uniqueIntentId.toString())
-                        val seriesDisabled = disabledSeriesIds.contains(e.id.toString())
-                        e.copy(isAlarmEnabled = isGlobal && !(instanceDisabled || seriesDisabled))
+                        val instanceDisabled = prefs.disabledEventIds.contains(e.uniqueIntentId.toString())
+                        val seriesDisabled = prefs.disabledSeriesIds.contains(e.id.toString())
+                        e.copy(isAlarmEnabled = prefs.isGlobalAlarmEnabled && !(instanceDisabled || seriesDisabled))
                     }
                 _next24hEvents.value = mapped
                 _lastUpdated.value = System.currentTimeMillis()
