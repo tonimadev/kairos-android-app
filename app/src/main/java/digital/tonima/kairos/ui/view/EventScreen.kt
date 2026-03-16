@@ -240,7 +240,6 @@ fun EventScreen(
                     onClearAiResponse = { viewModel.handleIntent(EventIntent.ClearAiResponse) },
                     onSpeakAiResponse = { viewModel.handleIntent(EventIntent.SpeakAiResponse) },
                     onStopSpeaking = { viewModel.handleIntent(EventIntent.StopSpeaking) },
-                    onStartVoiceCapture = { /* Handled in Content via suggestions dialog click */ },
                     onOpenCalendar = {
                         val intent =
                             context.packageManager
@@ -251,7 +250,6 @@ fun EventScreen(
                             Toast.makeText(context, googleCalendarNotFound, Toast.LENGTH_SHORT).show()
                         }
                     },
-                    onCreateEvent = { /* Open via dialog state in UI */ },
                     handleIntent = viewModel::handleIntent,
                 )
             },
@@ -330,7 +328,7 @@ private fun EventScreenContent(
 
     if (uiState.showCreateEventDialog) {
         CreateEventDialog(
-            onDismiss = { /* Handled via local state usually, but following ViewModel approach */ },
+            onDismiss = { viewModel.handleIntent(EventIntent.DismissCreateEventDialog) },
             onCreate = { calendarId, title, desc, loc, start, end, allDay ->
                 viewModel.handleIntent(
                     EventIntent
@@ -352,7 +350,7 @@ private fun EventScreenContent(
     }
     if (uiState.showAiSuggestionsDialog) {
         AiSuggestionsDialog(
-            onDismiss = { /* Toggle locally or via intent */ },
+            onDismiss = { viewModel.handleIntent(EventIntent.DismissAiSuggestionsDialog) },
             onSuggestionClick = { suggestion ->
                 viewModel.handleIntent(
                     EventIntent
@@ -360,7 +358,7 @@ private fun EventScreenContent(
                 )
             },
             onVoiceClick = {
-                // Dismiss and launch capture
+                viewModel.handleIntent(EventIntent.DismissAiSuggestionsDialog)
                 launchVoiceCapture()
             },
         )
@@ -386,7 +384,7 @@ private fun EventScreenContent(
                     ExactAlarmPermissionScreen(
                         onAlreadyAuthorizedClick = { viewModel.handleIntent(EventIntent.CheckPermissions) },
                         onProvidePermissionClick = openExactAlarmSettings,
-                        onSkipClick = { /* Handle skip via intent */ },
+                        onSkipClick = { viewModel.handleIntent(EventIntent.SkipExactAlarmPermission) },
                     )
                 }
 
@@ -394,7 +392,7 @@ private fun EventScreenContent(
                     FullScreenIntentPermissionScreen(
                         onAlreadyAuthorizedClick = { viewModel.handleIntent(EventIntent.CheckPermissions) },
                         onOpenSettingsClick = openFullScreenIntentSettings,
-                        onSkipClick = { /* Handle skip via intent */ },
+                        onSkipClick = { viewModel.handleIntent(EventIntent.SkipFullScreenIntentPermission) },
                     )
                 }
 
@@ -446,8 +444,12 @@ private fun EventScreenContent(
                                 onToggle = { viewModel.handleIntent(EventIntent.ToggleGlobalAlarms(it)) },
                                 onDismissAutostart = { viewModel.handleIntent(EventIntent.DismissAutostartSuggestion) },
                                 onVibrateToggle = { viewModel.handleIntent(EventIntent.ToggleVibrateOnly(it)) },
-                                onAllDayAlarmsToggle = { /* Map to intent */ },
-                                onAllDayAlarmHourChanged = { /* Map to intent */ },
+                                onAllDayAlarmsToggle = { viewModel.handleIntent(EventIntent.ToggleAllDayAlarms(it)) },
+                                onAllDayAlarmHourChanged = {
+                                    viewModel.handleIntent(
+                                        EventIntent.UpdateAllDayAlarmHour(it),
+                                    )
+                                },
                                 onAlarmOffsetChanged = { viewModel.handleIntent(EventIntent.UpdateAlarmOffset(it)) },
                                 onSnoozeTimeChanged = {
                                     viewModel.handleIntent(EventIntent.UpdateSnoozeTime(it))
@@ -477,7 +479,7 @@ private fun EventScreenContent(
                                 },
                                 onUpgradeToPro = { viewModel.handleIntent(EventIntent.UpgradeToProRequest) },
                                 onSubscriptionRequest = onSubscriptionRequest,
-                                onVoiceCaptureClick = { /* Set intent to open suggestions dialog */ },
+                                onVoiceCaptureClick = { viewModel.handleIntent(EventIntent.ShowAiSuggestionsDialog) },
                                 onClearAiResponse = { viewModel.handleIntent(EventIntent.ClearAiResponse) },
                                 onSpeakAiResponse = { viewModel.handleIntent(EventIntent.SpeakAiResponse) },
                                 onStopSpeaking = { viewModel.handleIntent(EventIntent.StopSpeaking) },
@@ -522,9 +524,7 @@ private fun EventFloatingActionButtons(
     onClearAiResponse: () -> Unit,
     onSpeakAiResponse: () -> Unit,
     onStopSpeaking: () -> Unit,
-    onStartVoiceCapture: () -> Unit,
     onOpenCalendar: () -> Unit,
-    onCreateEvent: () -> Unit,
     handleIntent: (EventIntent) -> Unit,
 ) {
     val speedDialItems =
@@ -536,7 +536,7 @@ private fun EventFloatingActionButtons(
                         label = stringResource(R.string.cd_voice_capture),
                         containerColor = MaterialTheme.colorScheme.secondary,
                         contentColor = MaterialTheme.colorScheme.onSecondary,
-                        onClick = { /* Set state to show suggestions */ },
+                        onClick = { handleIntent(EventIntent.ShowAiSuggestionsDialog) },
                     ),
                 )
             }
@@ -547,7 +547,7 @@ private fun EventFloatingActionButtons(
                         label = stringResource(R.string.create_event),
                         containerColor = MaterialTheme.colorScheme.tertiary,
                         contentColor = MaterialTheme.colorScheme.onTertiary,
-                        onClick = { /* Set state to show create dialog */ },
+                        onClick = { handleIntent(EventIntent.ShowCreateEventDialog()) },
                     ),
                 )
             }

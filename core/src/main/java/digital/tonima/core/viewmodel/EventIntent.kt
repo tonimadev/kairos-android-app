@@ -18,6 +18,10 @@ sealed class EventIntent {
 
     data class ToggleVibrateOnly(val enabled: Boolean) : EventIntent()
 
+    data class ToggleAllDayAlarms(val enabled: Boolean) : EventIntent()
+
+    data class UpdateAllDayAlarmHour(val hour: Int) : EventIntent()
+
     data class ToggleEventAlarm(
         val event: Event,
         val enabled: Boolean,

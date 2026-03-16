@@ -107,6 +107,8 @@ class EventViewModel
                     EventIntent.ReturnToToday -> returnToToday()
                     is EventIntent.ToggleGlobalAlarms -> prefs.update.setGlobalAlarmEnabled(intent.enabled)
                     is EventIntent.ToggleVibrateOnly -> prefs.update.setVibrateOnly(intent.enabled)
+                    is EventIntent.ToggleAllDayAlarms -> prefs.update.setAllDayAlarmsEnabled(intent.enabled)
+                    is EventIntent.UpdateAllDayAlarmHour -> prefs.update.setAllDayAlarmHour(intent.hour)
                     is EventIntent.ToggleEventAlarm ->
                         alarm.toggleEventAlarm(intent.event, intent.enabled, intent.allOccurrences)
                     is EventIntent.ToggleEventVibrate ->
