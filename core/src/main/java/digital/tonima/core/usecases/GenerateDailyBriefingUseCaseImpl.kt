@@ -6,6 +6,7 @@ import com.google.firebase.ai.type.GenerativeBackend
 import com.paulrybitskyi.hiltbinder.BindType
 import digital.tonima.core.model.Event
 import digital.tonima.core.model.Weather
+import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.WeatherRepository
 import logcat.logcat
 import java.time.Instant
@@ -18,6 +19,7 @@ class GenerateDailyBriefingUseCaseImpl
     @Inject
     constructor(
         private val weatherRepository: WeatherRepository,
+        private val dailyBriefingRepository: DailyBriefingRepository,
     ) : GenerateDailyBriefingUseCase {
         private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -36,7 +38,9 @@ class GenerateDailyBriefingUseCaseImpl
 
             return try {
                 val response = model.generateContent(prompt)
-                response.text
+                val text = response.text
+                if (text != null) dailyBriefingRepository.saveDailyBriefing(text)
+                text
             } catch (e: Exception) {
                 logcat { "GenerateDailyBriefingUseCase error: ${e.message}" }
                 null

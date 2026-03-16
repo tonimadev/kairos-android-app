@@ -367,20 +367,28 @@ class EventViewModel
             }
         }
 
-        private fun onCalendarFilterToggle(
+        private suspend fun onCalendarFilterToggle(
             calendarId: Long,
             enabled: Boolean,
         ) {
-            viewModelScope.launch {
-                val allIds = _uiState.value.availableCalendars.map { it.id.toString() }.toSet()
-                val current = prefs.observe().first().enabledCalendarIds.toMutableSet()
+            val allIds = _uiState.value.availableCalendars.map { it.id }.toSet()
+            val current = _uiState.value.enabledCalendarIds.toMutableSet()
 
-                if (current.isEmpty()) current.addAll(allIds)
-                if (enabled) current.add(calendarId.toString()) else current.remove(calendarId.toString())
+            logcat { "CalendarFilter: toggling id=$calendarId enabled=$enabled | allIds=$allIds | current=$current" }
 
-                val newSet = if (current.containsAll(allIds)) emptySet() else current
-                prefs.update.setEnabledCalendarIds(newSet)
-            }
+            if (current.isEmpty()) current.addAll(allIds)
+            if (enabled) current.add(calendarId) else current.remove(calendarId)
+
+            val newLongSet: Set<Long> = if (current.containsAll(allIds)) emptySet() else current
+
+            logcat { "CalendarFilter: newLongSet=$newLongSet" }
+
+            _uiState.update { it.copy(enabledCalendarIds = newLongSet) }
+
+            val newStringSet = newLongSet.map { it.toString() }.toSet()
+            prefs.update.setEnabledCalendarIds(newStringSet)
+
+            refreshEvents()
         }
 
         private fun generateDailyBriefing(language: String) {
@@ -409,7 +417,7 @@ class EventViewModel
             if (question.isBlank() || _uiState.value.isAskingAi || !_uiState.value.isAiUser) return
 
             viewModelScope.launch {
-                _uiState.update { it.copy(isAskingAi = true, aiResponse = null) }
+                _uiState.update { it.copy(isAskingAi = true, aiResponse = null, lastAiQuestion = question) }
                 val eventsRecent = calendar.getEventsForMonth(_uiState.value.currentMonth)
                 val response = ai.askAiAboutSchedule(eventsRecent, question, language)
                 if (response != null) processAiResponse(response)
@@ -470,7 +478,7 @@ class EventViewModel
 
         private fun clearAiResponse() {
             stopSpeaking()
-            _uiState.update { it.copy(aiResponse = null) }
+            _uiState.update { it.copy(aiResponse = null, lastAiQuestion = null) }
         }
 
         private fun createEvent(intent: EventIntent.CreateEvent) {

@@ -7,6 +7,7 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
 import digital.tonima.core.model.Event
+import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.WeatherRepository
 import io.mockk.coEvery
 import io.mockk.every
@@ -27,7 +28,8 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE)
 class GenerateDailyBriefingUseCaseTest {
     private val weatherRepository = mockk<WeatherRepository>()
-    private val useCase = GenerateDailyBriefingUseCaseImpl(weatherRepository)
+    private val dailyBriefingRepository = mockk<DailyBriefingRepository>(relaxed = true)
+    private val useCase = GenerateDailyBriefingUseCaseImpl(weatherRepository, dailyBriefingRepository)
 
     @Before
     fun setup() {
