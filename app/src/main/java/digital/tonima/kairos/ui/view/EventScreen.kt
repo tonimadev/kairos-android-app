@@ -14,26 +14,34 @@ import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -65,6 +73,7 @@ import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_HOME
 import digital.tonima.kairos.R.drawable
@@ -81,8 +90,6 @@ import digital.tonima.kairos.ui.components.ExactAlarmPermissionScreen
 import digital.tonima.kairos.ui.components.FullScreenIntentPermissionScreen
 import digital.tonima.kairos.ui.components.MainContent
 import digital.tonima.kairos.ui.components.SettingsActions
-import digital.tonima.kairos.ui.components.SpeedDialFab
-import digital.tonima.kairos.ui.components.SpeedDialItem
 import digital.tonima.kairos.ui.components.StandardPermissionsScreen
 import digital.tonima.kairos.ui.theme.Dimensions
 import kotlinx.coroutines.launch
@@ -233,13 +240,10 @@ fun EventScreen(
     ) {
         Scaffold(
             topBar = { EventTopBar(onOpenMenu = { scope.launch { drawerState.open() } }) },
-            floatingActionButton = {
-                EventFloatingActionButtons(
+            bottomBar = {
+                EventBottomBar(
                     uiState = uiState,
                     isAiUser = isAiUser,
-                    onClearAiResponse = { viewModel.handleIntent(EventIntent.ClearAiResponse) },
-                    onSpeakAiResponse = { viewModel.handleIntent(EventIntent.SpeakAiResponse) },
-                    onStopSpeaking = { viewModel.handleIntent(EventIntent.StopSpeaking) },
                     onOpenCalendar = {
                         val intent =
                             context.packageManager
@@ -255,19 +259,38 @@ fun EventScreen(
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
-            EventScreenContent(
-                paddingValues = paddingValues,
-                uiState = uiState,
-                viewModel = viewModel,
-                isProUser = isProUser,
-                standardPermissionState = standardPermissionState,
-                openAppSettings = openAppSettings,
-                openExactAlarmSettings = openExactAlarmSettings,
-                openFullScreenIntentSettings = openFullScreenIntentSettings,
-                launchVoiceCapture = launchVoiceCapture,
-                onSubscriptionRequest = onSubscriptionRequest,
-                windowSizeClass = windowSizeClass,
-            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                EventScreenContent(
+                    paddingValues = paddingValues,
+                    uiState = uiState,
+                    viewModel = viewModel,
+                    isProUser = isProUser,
+                    standardPermissionState = standardPermissionState,
+                    openAppSettings = openAppSettings,
+                    openExactAlarmSettings = openExactAlarmSettings,
+                    openFullScreenIntentSettings = openFullScreenIntentSettings,
+                    launchVoiceCapture = launchVoiceCapture,
+                    onSubscriptionRequest = onSubscriptionRequest,
+                    windowSizeClass = windowSizeClass,
+                )
+                AiVoiceInteractionCard(
+                    question = uiState.lastAiQuestion,
+                    response = uiState.aiResponse,
+                    isAsking = uiState.isAskingAi,
+                    isSpeaking = uiState.isSpeaking,
+                    onSpeak = { viewModel.handleIntent(EventIntent.SpeakAiResponse) },
+                    onStopSpeaking = { viewModel.handleIntent(EventIntent.StopSpeaking) },
+                    onDismiss = { viewModel.handleIntent(EventIntent.ClearAiResponse) },
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(
+                                start = Dimensions.PaddingNormal,
+                                end = Dimensions.PaddingNormal,
+                                bottom = paddingValues.calculateBottomPadding() + Dimensions.SpacingSmall,
+                            ),
+                )
+            }
         }
 
         if (uiState.showSubscriptionConfirmation) {
@@ -311,7 +334,7 @@ fun EventScreen(
 @Composable
 private fun EventScreenContent(
     paddingValues: PaddingValues,
-    uiState: digital.tonima.core.viewmodel.EventScreenUiState,
+    uiState: EventScreenUiState,
     viewModel: EventViewModel,
     isProUser: Boolean,
     standardPermissionState: MultiplePermissionsState,
@@ -518,75 +541,79 @@ private fun EventTopBar(onOpenMenu: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EventFloatingActionButtons(
-    uiState: digital.tonima.core.viewmodel.EventScreenUiState,
+private fun EventBottomBar(
+    uiState: EventScreenUiState,
     isAiUser: Boolean,
-    onClearAiResponse: () -> Unit,
-    onSpeakAiResponse: () -> Unit,
-    onStopSpeaking: () -> Unit,
     onOpenCalendar: () -> Unit,
     handleIntent: (EventIntent) -> Unit,
 ) {
-    val speedDialItems =
-        buildList {
-            if (isAiUser) {
-                add(
-                    SpeedDialItem(
-                        icon = painterResource(R.drawable.ic_mic),
-                        label = stringResource(R.string.cd_voice_capture),
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary,
-                        onClick = { handleIntent(EventIntent.ShowAiSuggestionsDialog) },
-                    ),
-                )
-            }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = BottomAppBarDefaults.containerColor,
+        tonalElevation = BottomAppBarDefaults.ContainerElevation,
+    ) {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .navigationBarsPadding()
+                    .padding(horizontal = Dimensions.PaddingSmall),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            // Left: Create Event
             if (uiState.hasCalendarPermission) {
-                add(
-                    SpeedDialItem(
-                        icon = painterResource(digital.tonima.kairos.R.drawable.ic_add),
-                        label = stringResource(R.string.create_event),
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                        contentColor = MaterialTheme.colorScheme.onTertiary,
-                        onClick = { handleIntent(EventIntent.ShowCreateEventDialog()) },
-                    ),
-                )
+                IconButton(onClick = { handleIntent(EventIntent.ShowCreateEventDialog()) }) {
+                    Icon(
+                        painter = painterResource(drawable.ic_add),
+                        contentDescription = stringResource(R.string.create_event),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(Dimensions.IconSizeNormal),
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.size(48.dp))
             }
+
+            // Center: AI mic button
+            if (isAiUser) {
+                FilledIconButton(
+                    onClick = { handleIntent(EventIntent.ShowAiSuggestionsDialog) },
+                    modifier = Modifier.size(48.dp),
+                    colors =
+                        IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_mic),
+                        contentDescription = stringResource(R.string.cd_voice_capture),
+                        modifier = Modifier.size(Dimensions.IconSizeMedium),
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.size(48.dp))
+            }
+
+            // Right: Open Calendar
             if (uiState.hasCalendarPermission &&
                 uiState.hasExactAlarmPermission &&
                 uiState.hasFullScreenIntentPermission
             ) {
-                add(
-                    SpeedDialItem(
-                        icon = painterResource(date_range),
-                        label = stringResource(R.string.open_calendar),
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        onClick = onOpenCalendar,
-                    ),
-                )
+                IconButton(onClick = onOpenCalendar) {
+                    Icon(
+                        painter = painterResource(date_range),
+                        contentDescription = stringResource(R.string.open_calendar),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(Dimensions.IconSizeNormal),
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.size(48.dp))
             }
         }
-
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = Dimensions.PaddingNormal,
-                ),
-        horizontalAlignment = Alignment.End,
-    ) {
-        AiVoiceInteractionCard(
-            question = uiState.lastAiQuestion,
-            response = uiState.aiResponse,
-            isAsking = uiState.isAskingAi,
-            isSpeaking = uiState.isSpeaking,
-            onSpeak = onSpeakAiResponse,
-            onStopSpeaking = onStopSpeaking,
-            onDismiss = onClearAiResponse,
-            modifier = Modifier.padding(bottom = Dimensions.SpacingSmall),
-        )
-        SpeedDialFab(items = speedDialItems)
     }
 }
 
