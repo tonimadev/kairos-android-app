@@ -149,4 +149,13 @@
     <string name="geo_alarm_upgrade_trial_title">试用智能闹钟！</string>
     <string name="geo_alarm_upgrade_trial_desc">避免迟到！通过专业版 + AI 计划启用基于实时路况的闹钟。</string>
     <string name="try_pro_plan">试用专业版计划</string>
+
+    <!-- AI Agent -->
+    <string name="ai_agent_snackbar_executed">AI 已执行：%1$s</string>
+    <string name="ai_agent_tool_not_found">未找到工具 \'%1$s\'。</string>
+    <string name="ai_agent_invalid_args">\'%1$s\' 的参数无效。</string>
+    <string name="ai_agent_confirmation_title">需要确认</string>
+    <string name="ai_agent_create_event_confirmation">AI 想要创建事件「%1$s」。确认吗？</string>
+    <string name="ai_agent_create_event_with_location_confirmation">AI 想要在 %2$s 创建事件「%1$s」。确认吗？</string>
+    <string name="ai_agent_generic_confirmation">AI 想要执行操作 \'%1$s\'。确认吗？</string>
 </resources>

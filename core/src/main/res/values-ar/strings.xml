@@ -152,4 +152,13 @@
     <string name="geo_alarm_upgrade_trial_title">جرب المنبه الذكي!</string>
     <string name="geo_alarm_upgrade_trial_desc">تجنب التأخير! قم بتفعيل المنبهات القائمة على حركة المرور في الوقت الفعلي مع خطة Pro + الذكاء الاصطناعي.</string>
     <string name="try_pro_plan">جرب خطة Pro</string>
+
+    <!-- AI Agent -->
+    <string name="ai_agent_snackbar_executed">نفّذ الذكاء الاصطناعي: %1$s</string>
+    <string name="ai_agent_tool_not_found">الأداة \'%1$s\' غير موجودة.</string>
+    <string name="ai_agent_invalid_args">وسائط غير صالحة للأداة \'%1$s\'.</string>
+    <string name="ai_agent_confirmation_title">مطلوب تأكيد</string>
+    <string name="ai_agent_create_event_confirmation">يريد الذكاء الاصطناعي إنشاء الحدث \"%1$s\". هل تريد التأكيد؟</string>
+    <string name="ai_agent_create_event_with_location_confirmation">يريد الذكاء الاصطناعي إنشاء الحدث \"%1$s\" في %2$s. هل تريد التأكيد؟</string>
+    <string name="ai_agent_generic_confirmation">يريد الذكاء الاصطناعي تنفيذ الإجراء \'%1$s\'. هل تريد التأكيد؟</string>
 </resources>

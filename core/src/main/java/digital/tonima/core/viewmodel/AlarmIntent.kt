@@ -9,9 +9,9 @@ sealed class AlarmIntent {
         val meetingUrl: String?,
     ) : AlarmIntent()
 
-    object Snooze : AlarmIntent()
+    data object Snooze : AlarmIntent()
 
-    object Stop : AlarmIntent()
+    data object Stop : AlarmIntent()
 
-    object JoinMeeting : AlarmIntent()
+    data object JoinMeeting : AlarmIntent()
 }

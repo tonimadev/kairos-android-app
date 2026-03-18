@@ -93,4 +93,12 @@ sealed class EventIntent {
     object SkipExactAlarmPermission : EventIntent()
 
     object SkipFullScreenIntentPermission : EventIntent()
+
+    // ── AI Agent intents ────────────────────────────────────────────────
+
+    /** User approved the pending CRITICAL action queued by the AI agent. */
+    object ApprovePendingAction : EventIntent()
+
+    /** User rejected the pending CRITICAL action queued by the AI agent. */
+    object RejectPendingAction : EventIntent()
 }

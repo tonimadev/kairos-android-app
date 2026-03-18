@@ -154,4 +154,13 @@
     <string name="geo_alarm_upgrade_trial_title">¡Prueba la Alarma Inteligente!</string>
     <string name="geo_alarm_upgrade_trial_desc">¡Evita retrasos! Activa alarmas basadas en el tráfico en tiempo real con el plan Pro + IA.</string>
     <string name="try_pro_plan">Probar Plan Pro</string>
+
+    <!-- AI Agent -->
+    <string name="ai_agent_snackbar_executed">IA ejecutó: %1$s</string>
+    <string name="ai_agent_tool_not_found">Herramienta \'%1$s\' no encontrada.</string>
+    <string name="ai_agent_invalid_args">Argumentos inválidos para \'%1$s\'.</string>
+    <string name="ai_agent_confirmation_title">Confirmación necesaria</string>
+    <string name="ai_agent_create_event_confirmation">La IA quiere crear el evento \"%1$s\". ¿Confirmar?</string>
+    <string name="ai_agent_create_event_with_location_confirmation">La IA quiere crear el evento \"%1$s\" en %2$s. ¿Confirmar?</string>
+    <string name="ai_agent_generic_confirmation">La IA quiere ejecutar la acción \'%1$s\'. ¿Confirmar?</string>
 </resources>

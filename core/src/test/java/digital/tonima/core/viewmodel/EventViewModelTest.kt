@@ -2,6 +2,11 @@ package digital.tonima.core.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
+import digital.tonima.core.ai.AITool
+import digital.tonima.core.ai.AIToolResult
+import digital.tonima.core.ai.ActionRegistry
+import digital.tonima.core.ai.RiskLevel
+import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.AlarmOffset
@@ -11,7 +16,7 @@ import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.review.ReviewManager
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AppPreferences
-import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
+import digital.tonima.core.usecases.AskAiAgentUseCase
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.usecases.CheckPermissionsUseCase
 import digital.tonima.core.usecases.CreateEventUseCase
@@ -46,6 +51,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -75,7 +81,8 @@ class EventViewModelTest {
     private val mockGetAvailableCalendarsUseCase: GetAvailableCalendarsUseCase = mockk(relaxed = true)
     private val mockObserveDailyBriefingUseCase: ObserveDailyBriefingUseCase = mockk(relaxed = true)
     private val mockGenerateDailyBriefingUseCase: GenerateDailyBriefingUseCase = mockk(relaxed = true)
-    private val mockAskAiAboutScheduleUseCase: AskAiAboutScheduleUseCase = mockk(relaxed = true)
+    private val mockAskAiAgentUseCase: AskAiAgentUseCase = mockk(relaxed = true)
+    private val mockActionRegistry: ActionRegistry = mockk(relaxed = true)
     private val mockCreateEventUseCase: CreateEventUseCase = mockk(relaxed = true)
     private val mockCalculateDepartureTimeUseCase: CalculateDepartureTimeUseCase = mockk(relaxed = true)
     private val mockCheckPermissionsUseCase: CheckPermissionsUseCase = mockk(relaxed = true)
@@ -162,11 +169,12 @@ class EventViewModelTest {
             ai =
                 EventViewModel.AiDeps(
                     generateDailyBriefing = mockGenerateDailyBriefingUseCase,
-                    askAiAboutSchedule = mockAskAiAboutScheduleUseCase,
+                    askAiAgent = mockAskAiAgentUseCase,
                     calculateDepartureTime = mockCalculateDepartureTimeUseCase,
                     observeDailyBriefing = mockObserveDailyBriefingUseCase,
                     tts = mockTtsHelper,
                     widgetUpdater = mockWidgetUpdater,
+                    actionRegistry = mockActionRegistry,
                 ),
             analytics = mockAnalytics,
             observeRingerModeUseCase = mockObserveRingerModeUseCase,
@@ -561,7 +569,8 @@ class EventViewModelTest {
             isAiUserFlow.value = true
             advanceUntilIdle()
 
-            coEvery { mockAskAiAboutScheduleUseCase(any(), any(), any()) } returns "AI Response"
+            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any()) } returns
+                AIAgentResponse.Text("AI Response")
 
             viewModel.handleIntent(EventIntent.AskAi("What's next?", "instruction"))
             advanceUntilIdle()
@@ -595,8 +604,8 @@ class EventViewModelTest {
                 """.trimIndent()
 
             coEvery {
-                mockAskAiAboutScheduleUseCase(any(), any(), any())
-            } returns jsonResponse
+                mockAskAiAgentUseCase(any(), any(), any(), any())
+            } returns AIAgentResponse.Text(jsonResponse)
 
             viewModel.handleIntent(EventIntent.AskAi("Marcar dentista", "instrucao"))
             advanceUntilIdle()
@@ -612,7 +621,8 @@ class EventViewModelTest {
         runTest {
             isAiUserFlow.value = true
             advanceUntilIdle()
-            coEvery { mockAskAiAboutScheduleUseCase(any(), any(), any()) } returns "Some response"
+            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any()) } returns
+                AIAgentResponse.Text("Some response")
             viewModel.handleIntent(EventIntent.AskAi("Q", "I"))
             advanceUntilIdle()
 
@@ -670,5 +680,221 @@ class EventViewModelTest {
                 coVerify(exactly = 1) { mockUpdateAppPreferenceUseCase.setRatingCompleted(true) }
                 cancelAndConsumeRemainingEvents()
             }
+        }
+
+    // ── AI Agent tests ──────────────────────────────────────────────────
+
+    @Test
+    fun `onAIFunctionCalled with SAFE tool dispatches intent immediately`() =
+        runTest {
+            advanceUntilIdle()
+
+            val safeTool = mockk<AITool>(relaxed = true)
+            every { safeTool.riskLevel } returns RiskLevel.SAFE
+            every { safeTool.name } returns "search_events"
+
+            val searchIntent = EventIntent.SearchQueryChanged("meeting")
+            every {
+                mockActionRegistry.processAIToolCall("search_events", any())
+            } returns AIToolResult.Success(safeTool, searchIntent)
+
+            viewModel.onAIFunctionCalled("search_events", mapOf("query" to "meeting"))
+            advanceUntilIdle()
+
+            assertEquals("meeting", viewModel.uiState.value.searchQuery)
+        }
+
+    @Test
+    fun `onAIFunctionCalled with MODERATE tool dispatches intent and emits snackbar`() =
+        runTest {
+            advanceUntilIdle()
+
+            val moderateTool = mockk<AITool>(relaxed = true)
+            every { moderateTool.riskLevel } returns RiskLevel.MODERATE
+            every { moderateTool.name } returns "toggle_global_alarms"
+
+            every {
+                mockActionRegistry.processAIToolCall("toggle_global_alarms", any())
+            } returns
+                AIToolResult.Success(
+                    moderateTool,
+                    EventIntent.ToggleGlobalAlarms(false),
+                )
+
+            viewModel.sideEffect.test {
+                viewModel.onAIFunctionCalled("toggle_global_alarms", mapOf("enabled" to false))
+                advanceUntilIdle()
+
+                val effect = awaitItem()
+                assertTrue(effect is EventSideEffect.ShowSnackbar)
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `onAIFunctionCalled with CRITICAL tool saves pending action and emits confirmation`() =
+        runTest {
+            advanceUntilIdle()
+
+            val criticalTool = mockk<AITool>(relaxed = true)
+            every { criticalTool.riskLevel } returns RiskLevel.CRITICAL
+            every { criticalTool.name } returns "create_event"
+
+            val createIntent =
+                EventIntent.CreateEvent(
+                    calendarId = 1L,
+                    title = "Dentista",
+                    description = null,
+                    location = null,
+                    startTime = 1000L,
+                    endTime = 2000L,
+                    isAllDay = false,
+                )
+
+            every {
+                mockActionRegistry.processAIToolCall("create_event", any())
+            } returns AIToolResult.Success(criticalTool, createIntent)
+
+            viewModel.sideEffect.test {
+                viewModel.onAIFunctionCalled("create_event", emptyMap())
+                advanceUntilIdle()
+
+                val effect = awaitItem()
+                assertTrue(effect is EventSideEffect.RequireUserConfirmation)
+                cancelAndConsumeRemainingEvents()
+            }
+
+            assertEquals(createIntent, viewModel.uiState.value.pendingAIAction)
+        }
+
+    @Test
+    fun `ApprovePendingAction executes saved intent and clears pending`() =
+        runTest {
+            advanceUntilIdle()
+
+            val criticalTool = mockk<AITool>(relaxed = true)
+            every { criticalTool.riskLevel } returns RiskLevel.CRITICAL
+            every { criticalTool.name } returns "create_event"
+
+            val searchIntent = EventIntent.SearchQueryChanged("approved")
+            every {
+                mockActionRegistry.processAIToolCall("create_event", any())
+            } returns AIToolResult.Success(criticalTool, searchIntent)
+
+            viewModel.onAIFunctionCalled("create_event", emptyMap())
+            advanceUntilIdle()
+            assertNotNull(viewModel.uiState.value.pendingAIAction)
+
+            viewModel.handleIntent(EventIntent.ApprovePendingAction)
+            advanceUntilIdle()
+
+            assertNull(viewModel.uiState.value.pendingAIAction)
+            assertEquals("approved", viewModel.uiState.value.searchQuery)
+        }
+
+    @Test
+    fun `RejectPendingAction clears pending without executing`() =
+        runTest {
+            advanceUntilIdle()
+
+            val criticalTool = mockk<AITool>(relaxed = true)
+            every { criticalTool.riskLevel } returns RiskLevel.CRITICAL
+            every { criticalTool.name } returns "create_event"
+
+            every {
+                mockActionRegistry.processAIToolCall("create_event", any())
+            } returns
+                AIToolResult.Success(
+                    criticalTool,
+                    EventIntent.SearchQueryChanged("should_not_appear"),
+                )
+
+            viewModel.onAIFunctionCalled("create_event", emptyMap())
+            advanceUntilIdle()
+
+            viewModel.handleIntent(EventIntent.RejectPendingAction)
+            advanceUntilIdle()
+
+            assertNull(viewModel.uiState.value.pendingAIAction)
+            assertEquals("", viewModel.uiState.value.searchQuery)
+        }
+
+    @Test
+    fun `onAIFunctionCalled with unknown tool emits AIToolError`() =
+        runTest {
+            advanceUntilIdle()
+
+            every {
+                mockActionRegistry.processAIToolCall("unknown", any())
+            } returns AIToolResult.ToolNotFound("unknown")
+
+            viewModel.sideEffect.test {
+                viewModel.onAIFunctionCalled("unknown", emptyMap())
+                advanceUntilIdle()
+
+                val effect = awaitItem()
+                assertTrue(effect is EventSideEffect.AIToolError)
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `onAIFunctionCalled with invalid args emits AIToolError`() =
+        runTest {
+            advanceUntilIdle()
+
+            val args = mapOf<String, Any?>("bad" to "data")
+            every {
+                mockActionRegistry.processAIToolCall("create_event", args)
+            } returns AIToolResult.InvalidArguments("create_event", args)
+
+            viewModel.sideEffect.test {
+                viewModel.onAIFunctionCalled("create_event", args)
+                advanceUntilIdle()
+
+                val effect = awaitItem()
+                assertTrue(effect is EventSideEffect.AIToolError)
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `askAi with FunctionCall response calls onAIFunctionCalled`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+
+            coEvery {
+                mockAskAiAgentUseCase(any(), any(), any(), any())
+            } returns AIAgentResponse.FunctionCall("search_events", mapOf("query" to "gym"))
+
+            val safeTool = mockk<AITool>(relaxed = true)
+            every { safeTool.riskLevel } returns RiskLevel.SAFE
+            every { safeTool.name } returns "search_events"
+            every {
+                mockActionRegistry.processAIToolCall("search_events", any())
+            } returns AIToolResult.Success(safeTool, EventIntent.SearchQueryChanged("gym"))
+
+            viewModel.handleIntent(EventIntent.AskAi("find gym", "en"))
+            advanceUntilIdle()
+
+            assertEquals("gym", viewModel.uiState.value.searchQuery)
+        }
+
+    @Test
+    fun `askAi with Empty response does not change state`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+
+            coEvery {
+                mockAskAiAgentUseCase(any(), any(), any(), any())
+            } returns AIAgentResponse.Empty
+
+            viewModel.handleIntent(EventIntent.AskAi("hello", "en"))
+            advanceUntilIdle()
+
+            assertNull(viewModel.uiState.value.aiResponse)
+            assertFalse(viewModel.uiState.value.isAskingAi)
         }
 }

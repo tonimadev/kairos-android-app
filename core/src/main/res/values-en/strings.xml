@@ -153,4 +153,13 @@
     <string name="geo_alarm_upgrade_trial_title">Try the Smart Alarm!</string>
     <string name="geo_alarm_upgrade_trial_desc">Avoid delays! Enable real-time traffic-based alarms with the Pro + AI plan.</string>
     <string name="try_pro_plan">Try Pro Plan</string>
+
+    <!-- AI Agent -->
+    <string name="ai_agent_snackbar_executed">AI executed: %1$s</string>
+    <string name="ai_agent_tool_not_found">Tool \'%1$s\' not found.</string>
+    <string name="ai_agent_invalid_args">Invalid arguments for \'%1$s\'.</string>
+    <string name="ai_agent_confirmation_title">Confirmation required</string>
+    <string name="ai_agent_create_event_confirmation">AI wants to create the event \"%1$s\". Confirm?</string>
+    <string name="ai_agent_create_event_with_location_confirmation">AI wants to create the event \"%1$s\" at %2$s. Confirm?</string>
+    <string name="ai_agent_generic_confirmation">AI wants to execute the action \'%1$s\'. Confirm?</string>
 </resources>

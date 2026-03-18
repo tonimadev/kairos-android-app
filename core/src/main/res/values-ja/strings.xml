@@ -149,4 +149,13 @@
     <string name="geo_alarm_upgrade_trial_title">スマートアラームを試してみましょう！</string>
     <string name="geo_alarm_upgrade_trial_desc">遅刻を回避しましょう！Pro + AI プランでリアルタイムの交通状況に基づいたアラームを有効にしてください。</string>
     <string name="try_pro_plan">Proプランを試す</string>
+
+    <!-- AI Agent -->
+    <string name="ai_agent_snackbar_executed">AIが実行しました: %1$s</string>
+    <string name="ai_agent_tool_not_found">ツール \'%1$s\' が見つかりません。</string>
+    <string name="ai_agent_invalid_args">\'%1$s\' の引数が無効です。</string>
+    <string name="ai_agent_confirmation_title">確認が必要です</string>
+    <string name="ai_agent_create_event_confirmation">AIがイベント「%1$s」を作成しようとしています。確認しますか？</string>
+    <string name="ai_agent_create_event_with_location_confirmation">AIがイベント「%1$s」を%2$sで作成しようとしています。確認しますか？</string>
+    <string name="ai_agent_generic_confirmation">AIがアクション \'%1$s\' を実行しようとしています。確認しますか？</string>
 </resources>

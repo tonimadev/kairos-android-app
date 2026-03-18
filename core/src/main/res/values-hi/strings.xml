@@ -152,4 +152,13 @@
     <string name="geo_alarm_upgrade_trial_title">स्मार्ट अलार्म आज़माएँ!</string>
     <string name="geo_alarm_upgrade_trial_desc">देरी से बचें! प्रो + एआई प्लान के साथ रीयल-टाइम ट्रैफ़िक-आधारित अलार्म सक्षम करें।</string>
     <string name="try_pro_plan">प्रो प्लान आज़माएँ</string>
+
+    <!-- AI Agent -->
+    <string name="ai_agent_snackbar_executed">AI ने निष्पादित किया: %1$s</string>
+    <string name="ai_agent_tool_not_found">टूल \'%1$s\' नहीं मिला।</string>
+    <string name="ai_agent_invalid_args">\'%1$s\' के लिए अमान्य तर्क।</string>
+    <string name="ai_agent_confirmation_title">पुष्टि आवश्यक</string>
+    <string name="ai_agent_create_event_confirmation">AI इवेंट \"%1$s\" बनाना चाहता है। पुष्टि करें?</string>
+    <string name="ai_agent_create_event_with_location_confirmation">AI इवेंट \"%1$s\" %2$s पर बनाना चाहता है। पुष्टि करें?</string>
+    <string name="ai_agent_generic_confirmation">AI क्रिया \'%1$s\' निष्पादित करना चाहता है। पुष्टि करें?</string>
 </resources>

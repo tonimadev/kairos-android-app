@@ -3,12 +3,17 @@ package digital.tonima.core.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import digital.tonima.core.ai.AITool
+import digital.tonima.core.ai.AIToolResult
+import digital.tonima.core.ai.ActionRegistry
+import digital.tonima.core.ai.RiskLevel
+import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
 import digital.tonima.core.review.ReviewManager
 import digital.tonima.core.service.EventAlarmScheduler
-import digital.tonima.core.usecases.AskAiAboutScheduleUseCase
+import digital.tonima.core.usecases.AskAiAgentUseCase
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.usecases.CheckPermissionsUseCase
 import digital.tonima.core.usecases.CreateEventUseCase
@@ -23,11 +28,14 @@ import digital.tonima.core.usecases.ToggleEventVibrateUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
 import digital.tonima.core.utils.WidgetUpdater
+import digital.tonima.kairos.core.R
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import logcat.logcat
@@ -78,20 +86,24 @@ class EventViewModel
                 val scheduler: EventAlarmScheduler,
             )
 
-        /** Dependencies for AI-powered features (briefing, suggestions, TTS, widgets). */
+        /** Dependencies for AI-powered features (briefing, suggestions, TTS, widgets, agent). */
         class AiDeps
             @Inject
             constructor(
                 val generateDailyBriefing: GenerateDailyBriefingUseCase,
-                val askAiAboutSchedule: AskAiAboutScheduleUseCase,
+                val askAiAgent: AskAiAgentUseCase,
                 val calculateDepartureTime: CalculateDepartureTimeUseCase,
                 val observeDailyBriefing: ObserveDailyBriefingUseCase,
                 val tts: TextToSpeechHelper,
                 val widgetUpdater: WidgetUpdater,
+                val actionRegistry: ActionRegistry,
             )
 
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
+
+        private val _sideEffect = Channel<EventSideEffect>(Channel.BUFFERED)
+        val sideEffect = _sideEffect.receiveAsFlow()
 
         init {
             observePreferences()
@@ -182,6 +194,10 @@ class EventViewModel
                     EventIntent.SkipExactAlarmPermission,
                     EventIntent.SkipFullScreenIntentPermission,
                     -> handlePermissionIntent(intent)
+
+                    // Grouped: AI Agent intents (approve / reject pending action)
+                    EventIntent.ApprovePendingAction -> executePendingAction()
+                    EventIntent.RejectPendingAction -> rejectPendingAction()
 
                     // Grouped: UI / dialog / rating intents
                     EventIntent.DismissAutostartSuggestion,
@@ -485,8 +501,25 @@ class EventViewModel
             viewModelScope.launch {
                 _uiState.update { it.copy(isAskingAi = true, aiResponse = null, lastAiQuestion = question) }
                 val eventsRecent = calendar.getEventsForMonth(_uiState.value.currentMonth)
-                val response = ai.askAiAboutSchedule(eventsRecent, question, language)
-                if (response != null) processAiResponse(response)
+
+                val agentResponse =
+                    ai.askAiAgent(
+                        eventsRecent,
+                        question,
+                        language,
+                        ai.actionRegistry.registeredTools(),
+                    )
+
+                when (agentResponse) {
+                    is AIAgentResponse.Text -> processAiResponse(agentResponse.content)
+                    is AIAgentResponse.FunctionCall ->
+                        onAIFunctionCalled(
+                            agentResponse.name,
+                            agentResponse.args,
+                        )
+                    is AIAgentResponse.Empty -> Unit
+                }
+
                 _uiState.update { it.copy(isAskingAi = false) }
             }
         }
@@ -575,4 +608,129 @@ class EventViewModel
                 activity?.let { reviewManager.requestReview(it) {} }
             }
         }
+
+        // ── AI Agent: Function Calling entry-point ──────────────────────────
+
+        /**
+         * Entry-point called when the LLM response contains a function/tool call.
+         *
+         * Flow:
+         * 1. Delegates to [ActionRegistry] to resolve the tool and parse arguments.
+         * 2. Based on [RiskLevel]:
+         *    - **SAFE** → dispatches the intent immediately.
+         *    - **MODERATE** → dispatches immediately + emits a [EventSideEffect.ShowSnackbar].
+         *    - **CRITICAL** → saves the intent in [EventScreenUiState.pendingAIAction] and
+         *      emits [EventSideEffect.RequireUserConfirmation] so the UI can ask the user.
+         */
+        fun onAIFunctionCalled(
+            toolName: String,
+            args: Map<String, Any?>,
+        ) {
+            viewModelScope.launch {
+                when (val result = ai.actionRegistry.processAIToolCall(toolName, args)) {
+                    is AIToolResult.Success -> routeByRiskLevel(result)
+                    is AIToolResult.ToolNotFound -> {
+                        logcat { "AI Agent: tool '${result.toolName}' not found" }
+                        _sideEffect.trySend(
+                            EventSideEffect.AIToolError(
+                                UiText.StringResource(
+                                    R.string.ai_agent_tool_not_found,
+                                    listOf(result.toolName),
+                                ),
+                            ),
+                        )
+                    }
+                    is AIToolResult.InvalidArguments -> {
+                        logcat { "AI Agent: invalid args for '${result.toolName}': ${result.args}" }
+                        _sideEffect.trySend(
+                            EventSideEffect.AIToolError(
+                                UiText.StringResource(
+                                    R.string.ai_agent_invalid_args,
+                                    listOf(result.toolName),
+                                ),
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+
+        private fun routeByRiskLevel(result: AIToolResult.Success) {
+            val tool = result.tool
+            val intent = result.intent
+
+            when (tool.riskLevel) {
+                RiskLevel.SAFE -> {
+                    logcat { "AI Agent [SAFE]: dispatching ${intent::class.simpleName}" }
+                    handleIntent(intent)
+                }
+                RiskLevel.MODERATE -> {
+                    logcat { "AI Agent [MODERATE]: dispatching ${intent::class.simpleName} + snackbar" }
+                    handleIntent(intent)
+                    _sideEffect.trySend(
+                        EventSideEffect.ShowSnackbar(
+                            UiText.StringResource(
+                                R.string.ai_agent_snackbar_executed,
+                                listOf(tool.name),
+                            ),
+                        ),
+                    )
+                }
+                RiskLevel.CRITICAL -> {
+                    logcat { "AI Agent [CRITICAL]: pausing for confirmation — ${intent::class.simpleName}" }
+                    _uiState.update { it.copy(pendingAIAction = intent) }
+                    _sideEffect.trySend(
+                        EventSideEffect.RequireUserConfirmation(
+                            title = UiText.StringResource(R.string.ai_agent_confirmation_title),
+                            message = formatConfirmationMessage(tool, intent),
+                        ),
+                    )
+                }
+            }
+        }
+
+        // ── AI Agent: Approve / Reject pending CRITICAL action ──────────────
+
+        private fun executePendingAction() {
+            val pending = _uiState.value.pendingAIAction
+            if (pending == null) {
+                logcat { "AI Agent: ApprovePendingAction received but no pending action exists" }
+                return
+            }
+            logcat { "AI Agent: user APPROVED pending action — ${pending::class.simpleName}" }
+            _uiState.update { it.copy(pendingAIAction = null) }
+            handleIntent(pending)
+        }
+
+        private fun rejectPendingAction() {
+            logcat { "AI Agent: user REJECTED pending action" }
+            _uiState.update { it.copy(pendingAIAction = null) }
+        }
+
+        /**
+         * Builds a localized confirmation message for a CRITICAL action.
+         */
+        private fun formatConfirmationMessage(
+            tool: AITool,
+            intent: EventIntent,
+        ): UiText =
+            when (intent) {
+                is EventIntent.CreateEvent ->
+                    if (intent.location != null) {
+                        UiText.StringResource(
+                            R.string.ai_agent_create_event_with_location_confirmation,
+                            listOf(intent.title, intent.location),
+                        )
+                    } else {
+                        UiText.StringResource(
+                            R.string.ai_agent_create_event_confirmation,
+                            listOf(intent.title),
+                        )
+                    }
+                else ->
+                    UiText.StringResource(
+                        R.string.ai_agent_generic_confirmation,
+                        listOf(tool.name),
+                    )
+            }
     }

@@ -154,4 +154,13 @@
     <string name="geo_alarm_upgrade_trial_title">Probieren Sie den intelligenten Alarm aus!</string>
     <string name="geo_alarm_upgrade_trial_desc">Vermeiden Sie Verspätungen! Aktivieren Sie mit dem Pro + KI-Plan Alarme basierend auf dem Echtzeit-Verkehr.</string>
     <string name="try_pro_plan">Pro-Plan ausprobieren</string>
+
+    <!-- AI Agent -->
+    <string name="ai_agent_snackbar_executed">KI hat ausgeführt: %1$s</string>
+    <string name="ai_agent_tool_not_found">Werkzeug \'%1$s\' nicht gefunden.</string>
+    <string name="ai_agent_invalid_args">Ungültige Argumente für \'%1$s\'.</string>
+    <string name="ai_agent_confirmation_title">Bestätigung erforderlich</string>
+    <string name="ai_agent_create_event_confirmation">Die KI möchte den Termin \"%1$s\" erstellen. Bestätigen?</string>
+    <string name="ai_agent_create_event_with_location_confirmation">Die KI möchte den Termin \"%1$s\" in %2$s erstellen. Bestätigen?</string>
+    <string name="ai_agent_generic_confirmation">Die KI möchte die Aktion \'%1$s\' ausführen. Bestätigen?</string>
 </resources>

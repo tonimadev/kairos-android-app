@@ -153,4 +153,13 @@
     <string name="geo_alarm_upgrade_trial_title">Попробуйте умный будильник!</string>
     <string name="geo_alarm_upgrade_trial_desc">Избегайте опозданий! Включите будильники на основе дорожной обстановки с планом Pro + ИИ.</string>
     <string name="try_pro_plan">Попробовать план Pro</string>
+
+    <!-- AI Agent -->
+    <string name="ai_agent_snackbar_executed">ИИ выполнил: %1$s</string>
+    <string name="ai_agent_tool_not_found">Инструмент \'%1$s\' не найден.</string>
+    <string name="ai_agent_invalid_args">Недопустимые аргументы для \'%1$s\'.</string>
+    <string name="ai_agent_confirmation_title">Требуется подтверждение</string>
+    <string name="ai_agent_create_event_confirmation">ИИ хочет создать событие \"%1$s\". Подтвердить?</string>
+    <string name="ai_agent_create_event_with_location_confirmation">ИИ хочет создать событие \"%1$s\" в %2$s. Подтвердить?</string>
+    <string name="ai_agent_generic_confirmation">ИИ хочет выполнить действие \'%1$s\'. Подтвердить?</string>
 </resources>
