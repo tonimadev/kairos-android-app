@@ -3,6 +3,7 @@ package digital.tonima.core.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
 import digital.tonima.core.review.ReviewManager
@@ -46,6 +47,7 @@ class EventViewModel
         private val prefs: PreferencesDeps,
         private val alarm: AlarmDeps,
         private val ai: AiDeps,
+        private val analytics: Analytics,
         private val observeRingerModeUseCase: ObserveRingerModeUseCase,
         private val checkPermissionsUseCase: CheckPermissionsUseCase,
         private val reviewManager: ReviewManager,
@@ -105,20 +107,63 @@ class EventViewModel
                     is EventIntent.ChangeMonth -> onMonthChanged(intent.yearMonth)
                     is EventIntent.SelectDate -> _uiState.update { it.copy(selectedDate = intent.date) }
                     EventIntent.ReturnToToday -> returnToToday()
-                    is EventIntent.ToggleGlobalAlarms -> prefs.update.setGlobalAlarmEnabled(intent.enabled)
-                    is EventIntent.ToggleVibrateOnly -> prefs.update.setVibrateOnly(intent.enabled)
-                    is EventIntent.ToggleAllDayAlarms -> prefs.update.setAllDayAlarmsEnabled(intent.enabled)
+                    is EventIntent.ToggleGlobalAlarms -> {
+                        analytics.logEvent(
+                            Analytics.EVENT_GLOBAL_ALARM_TOGGLE,
+                            mapOf(Analytics.PARAM_ENABLED to intent.enabled),
+                        )
+                        prefs.update.setGlobalAlarmEnabled(intent.enabled)
+                    }
+                    is EventIntent.ToggleVibrateOnly -> {
+                        analytics.logEvent(
+                            Analytics.EVENT_VIBRATE_TOGGLE,
+                            mapOf(Analytics.PARAM_ENABLED to intent.enabled),
+                        )
+                        prefs.update.setVibrateOnly(intent.enabled)
+                    }
+                    is EventIntent.ToggleAllDayAlarms -> {
+                        analytics.logEvent(
+                            Analytics.EVENT_ALL_DAY_ALARM_TOGGLE,
+                            mapOf(Analytics.PARAM_ENABLED to intent.enabled),
+                        )
+                        prefs.update.setAllDayAlarmsEnabled(intent.enabled)
+                    }
                     is EventIntent.UpdateAllDayAlarmHour -> prefs.update.setAllDayAlarmHour(intent.hour)
-                    is EventIntent.ToggleEventAlarm ->
+                    is EventIntent.ToggleEventAlarm -> {
+                        analytics.logEvent(
+                            Analytics.EVENT_ALARM_TOGGLE,
+                            mapOf(
+                                Analytics.PARAM_EVENT_TITLE to intent.event.title.take(100),
+                                Analytics.PARAM_ENABLED to intent.enabled,
+                                Analytics.PARAM_ALL_OCCURRENCES to intent.allOccurrences,
+                            ),
+                        )
                         alarm.toggleEventAlarm(intent.event, intent.enabled, intent.allOccurrences)
+                    }
                     is EventIntent.ToggleEventVibrate ->
                         alarm.toggleEventVibrate(intent.event, intent.enabled)
-                    is EventIntent.UpdateAlarmOffset ->
+                    is EventIntent.UpdateAlarmOffset -> {
+                        analytics.logEvent(
+                            Analytics.EVENT_ALARM_OFFSET_CHANGED,
+                            mapOf(Analytics.PARAM_VALUE to intent.offset.minutes),
+                        )
                         prefs.update.setAlarmOffsetMinutes(intent.offset.minutes)
-                    is EventIntent.UpdateSnoozeTime -> prefs.update.setSnoozeTimeMinutes(intent.minutes)
+                    }
+                    is EventIntent.UpdateSnoozeTime -> {
+                        analytics.logEvent(
+                            Analytics.EVENT_SNOOZE_TIME_CHANGED,
+                            mapOf(Analytics.PARAM_VALUE to intent.minutes),
+                        )
+                        prefs.update.setSnoozeTimeMinutes(intent.minutes)
+                    }
                     is EventIntent.ToggleLocationAlarm -> onLocationAlarmToggle(intent.enabled)
-                    is EventIntent.ChangeTransportMode ->
+                    is EventIntent.ChangeTransportMode -> {
+                        analytics.logEvent(
+                            Analytics.EVENT_TRANSPORT_MODE_CHANGED,
+                            mapOf(Analytics.PARAM_VALUE to intent.mode),
+                        )
                         prefs.update.setPreferredTransportMode(intent.mode)
+                    }
                     is EventIntent.CreateEvent -> createEvent(intent)
                     EventIntent.LoadCalendars -> loadAvailableCalendars()
                     is EventIntent.ToggleCalendarFilter ->
@@ -188,8 +233,10 @@ class EventViewModel
             when (intent) {
                 EventIntent.DismissAutostartSuggestion ->
                     prefs.update.setAutostartSuggestionDismissed(true)
-                EventIntent.UpgradeToProRequest ->
+                EventIntent.UpgradeToProRequest -> {
+                    analytics.logEvent(Analytics.EVENT_UPGRADE_REQUEST)
                     _uiState.update { it.copy(showSubscriptionConfirmation = true) }
+                }
                 EventIntent.DismissUpgradeConfirmation ->
                     _uiState.update {
                         it.copy(showSubscriptionConfirmation = false, showPurchaseConfirmation = false)
@@ -207,8 +254,12 @@ class EventViewModel
                 EventIntent.DismissAiSuggestionsDialog ->
                     _uiState.update { it.copy(showAiSuggestionsDialog = false) }
                 is EventIntent.RateNow -> onRateNow(intent.activity)
-                EventIntent.RateLater -> _uiState.update { it.copy(showRatingBottomSheet = false) }
+                EventIntent.RateLater -> {
+                    analytics.logEvent(Analytics.EVENT_RATE_LATER)
+                    _uiState.update { it.copy(showRatingBottomSheet = false) }
+                }
                 EventIntent.RateNever -> {
+                    analytics.logEvent(Analytics.EVENT_RATE_NEVER)
                     prefs.update.setRatingCompleted(true)
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
                 }
@@ -357,6 +408,10 @@ class EventViewModel
                 _uiState.update { it.copy(showSubscriptionConfirmation = true) }
                 return
             }
+            analytics.logEvent(
+                Analytics.EVENT_LOCATION_ALARM_TOGGLE,
+                mapOf(Analytics.PARAM_ENABLED to enabled),
+            )
             viewModelScope.launch { prefs.update.setLocationAlarmEnabled(enabled) }
         }
 
@@ -371,6 +426,13 @@ class EventViewModel
             calendarId: Long,
             enabled: Boolean,
         ) {
+            analytics.logEvent(
+                Analytics.EVENT_CALENDAR_FILTER_TOGGLE,
+                mapOf(
+                    Analytics.PARAM_CALENDAR_ID to calendarId,
+                    Analytics.PARAM_ENABLED to enabled,
+                ),
+            )
             val allIds = _uiState.value.availableCalendars.map { it.id }.toSet()
             val current = _uiState.value.enabledCalendarIds.toMutableSet()
 
@@ -405,7 +467,10 @@ class EventViewModel
             viewModelScope.launch {
                 _uiState.update { it.copy(isGeneratingBriefing = true) }
                 val briefing = ai.generateDailyBriefing(eventsToday, language)
-                if (briefing != null) ai.widgetUpdater.updateDailyBriefingWidget()
+                if (briefing != null) {
+                    analytics.logEvent(Analytics.EVENT_AI_BRIEFING)
+                    ai.widgetUpdater.updateDailyBriefingWidget()
+                }
                 _uiState.update { it.copy(isGeneratingBriefing = false) }
             }
         }
@@ -415,6 +480,8 @@ class EventViewModel
             language: String,
         ) {
             if (question.isBlank() || _uiState.value.isAskingAi || !_uiState.value.isAiUser) return
+
+            analytics.logEvent(Analytics.EVENT_AI_ASK)
 
             viewModelScope.launch {
                 _uiState.update { it.copy(isAskingAi = true, aiResponse = null, lastAiQuestion = question) }
@@ -468,7 +535,10 @@ class EventViewModel
         }
 
         private fun speakAiResponse() {
-            _uiState.value.aiResponse?.let { speak(it) }
+            _uiState.value.aiResponse?.let {
+                analytics.logEvent(Analytics.EVENT_AI_SPEAK)
+                speak(it)
+            }
         }
 
         private fun stopSpeaking() {
@@ -492,6 +562,10 @@ class EventViewModel
                     intent.endTime,
                     intent.isAllDay,
                 )
+                analytics.logEvent(
+                    Analytics.EVENT_EVENT_CREATED,
+                    mapOf(Analytics.PARAM_EVENT_TITLE to intent.title.take(100)),
+                )
                 handleIntent(EventIntent.DismissCreateEventDialog)
                 refreshEvents()
             }
@@ -499,6 +573,7 @@ class EventViewModel
 
         private fun onRateNow(activity: android.app.Activity?) {
             viewModelScope.launch {
+                analytics.logEvent(Analytics.EVENT_RATE_NOW)
                 prefs.update.setRatingCompleted(true)
                 _uiState.update { it.copy(showRatingBottomSheet = false) }
                 activity?.let { reviewManager.requestReview(it) {} }

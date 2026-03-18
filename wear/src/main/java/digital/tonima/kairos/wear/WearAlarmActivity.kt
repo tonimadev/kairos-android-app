@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,10 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.PositionIndicator
@@ -37,15 +41,18 @@ import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_MEETING_URL
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_SOURCE
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.core.service.AlarmSoundAndVibrateService
+import digital.tonima.core.viewmodel.AlarmIntent
+import digital.tonima.core.viewmodel.AlarmSideEffect
+import digital.tonima.core.viewmodel.AlarmViewModel
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.wear.ui.theme.Dimensions
 import digital.tonima.kairos.wear.ui.theme.KairosTheme
-import javax.inject.Inject
+import kotlinx.coroutines.launch
+import logcat.logcat
 
 @AndroidEntryPoint
 class WearAlarmActivity : ComponentActivity() {
-    @Inject
-    lateinit var analytics: Analytics
+    private val viewModel: AlarmViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,60 +66,73 @@ class WearAlarmActivity : ComponentActivity() {
         val startTime = intent?.getLongExtra(EXTRA_EVENT_START_TIME, -1L) ?: -1L
         val meetingUrl = intent?.getStringExtra(EXTRA_MEETING_URL)
 
-        // Iniciamos o serviço de som e vibração
+        viewModel.handleIntent(
+            AlarmIntent.Init(
+                eventTitle = title,
+                uniqueId = uniqueId,
+                eventId = eventId,
+                startTime = startTime,
+                meetingUrl = meetingUrl,
+            ),
+        )
+
         AlarmSoundAndVibrateService.startAlarm(this, title, uniqueId, eventId, startTime, meetingUrl)
 
+        collectSideEffects()
+
         setContent {
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
             KairosTheme {
                 WearAlarmScreen(
-                    title = title,
-                    meetingUrl = meetingUrl,
-                    onJoinMeeting = {
-                        analytics.logEvent(
-                            Analytics.EVENT_ALARM_STOP,
-                            mapOf(
-                                Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY,
-                                "action" to "join_meeting",
-                            ),
+                    title = uiState.eventTitle,
+                    meetingUrl = uiState.meetingUrl,
+                    onJoinMeeting = { viewModel.handleIntent(AlarmIntent.JoinMeeting) },
+                    onSnooze = { viewModel.handleIntent(AlarmIntent.Snooze) },
+                    onStop = { viewModel.handleIntent(AlarmIntent.Stop) },
+                )
+            }
+        }
+    }
+
+    private fun collectSideEffects() {
+        lifecycleScope.launch {
+            viewModel.sideEffect.collect { effect ->
+                when (effect) {
+                    AlarmSideEffect.FinishScreen -> {
+                        AlarmSoundAndVibrateService.stopAlarm(
+                            this@WearAlarmActivity,
+                            Analytics.SOURCE_ACTIVITY,
                         )
-                        AlarmSoundAndVibrateService.stopAlarm(this, Analytics.SOURCE_ACTIVITY)
+                        finish()
+                    }
+                    is AlarmSideEffect.OpenMeetingUrl -> {
                         try {
-                            val meetingIntent = Intent(Intent.ACTION_VIEW, Uri.parse(meetingUrl))
+                            val meetingIntent = Intent(Intent.ACTION_VIEW, Uri.parse(effect.url))
                             meetingIntent.addCategory(Intent.CATEGORY_BROWSABLE)
                             meetingIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             startActivity(meetingIntent)
                         } catch (e: Exception) {
-                            // No Wear OS, pode falhar se não houver navegador/app.
+                            logcat { "Failed to open meeting URL: ${e.message}" }
                         }
-                        finish()
-                    },
-                    onSnooze = {
-                        analytics.logEvent(
-                            Analytics.EVENT_ALARM_SNOOZE,
-                            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
-                        )
+                    }
+                    is AlarmSideEffect.SendSnoozeBroadcast -> {
                         val snoozeIntent =
-                            Intent(this, AlarmReceiver::class.java).apply {
+                            Intent(
+                                this@WearAlarmActivity,
+                                AlarmReceiver::class.java,
+                            ).apply {
                                 action = AlarmReceiver.ACTION_SNOOZE
                                 putExtra(EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
-                                putExtra(EXTRA_EVENT_TITLE, title)
-                                putExtra(EXTRA_UNIQUE_ID, uniqueId)
-                                putExtra(EXTRA_EVENT_ID, eventId)
-                                putExtra(EXTRA_EVENT_START_TIME, startTime)
-                                putExtra(EXTRA_MEETING_URL, meetingUrl)
+                                putExtra(EXTRA_EVENT_TITLE, effect.eventTitle)
+                                putExtra(EXTRA_UNIQUE_ID, effect.uniqueId)
+                                putExtra(EXTRA_EVENT_ID, effect.eventId)
+                                putExtra(EXTRA_EVENT_START_TIME, effect.startTime)
+                                putExtra(EXTRA_MEETING_URL, effect.meetingUrl)
                             }
                         sendBroadcast(snoozeIntent)
-                        finish()
-                    },
-                    onStop = {
-                        analytics.logEvent(
-                            Analytics.EVENT_ALARM_STOP,
-                            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
-                        )
-                        AlarmSoundAndVibrateService.stopAlarm(this, Analytics.SOURCE_ACTIVITY)
-                        finish()
-                    },
-                )
+                    }
+                }
             }
         }
     }

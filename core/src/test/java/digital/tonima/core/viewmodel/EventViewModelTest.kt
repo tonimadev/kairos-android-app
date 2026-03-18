@@ -2,6 +2,7 @@ package digital.tonima.core.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
+import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.DeviceCalendar
@@ -82,6 +83,7 @@ class EventViewModelTest {
     private val mockWidgetUpdater: WidgetUpdater = mockk(relaxed = true)
     private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val mockReviewManager: ReviewManager = mockk(relaxed = true)
+    private val mockAnalytics: Analytics = mockk(relaxed = true)
 
     private val appPreferencesFlow = MutableStateFlow(defaultAppPreferences())
     private val ringerModeFlow = MutableStateFlow(AudioWarningState.NORMAL)
@@ -166,6 +168,7 @@ class EventViewModelTest {
                     tts = mockTtsHelper,
                     widgetUpdater = mockWidgetUpdater,
                 ),
+            analytics = mockAnalytics,
             observeRingerModeUseCase = mockObserveRingerModeUseCase,
             checkPermissionsUseCase = mockCheckPermissionsUseCase,
             reviewManager = mockReviewManager,

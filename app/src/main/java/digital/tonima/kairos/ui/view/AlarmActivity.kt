@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,15 +33,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.service.AlarmSoundAndVibrateService
+import digital.tonima.core.viewmodel.AlarmIntent
+import digital.tonima.core.viewmodel.AlarmSideEffect
+import digital.tonima.core.viewmodel.AlarmViewModel
 import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.components.AdBannerView
 import digital.tonima.kairos.ui.theme.KairosTheme
+import kotlinx.coroutines.launch
 import logcat.logcat
 import javax.inject.Inject
 
@@ -49,10 +55,7 @@ class AlarmActivity : ComponentActivity() {
     @Inject
     lateinit var proUserProvider: ProUserProvider
 
-    @Inject
-    lateinit var analytics: Analytics
-
-    private var userStoppedAlarm = false
+    private val viewModel: AlarmViewModel by viewModels()
 
     private val finishReceiver =
         object : BroadcastReceiver() {
@@ -61,7 +64,6 @@ class AlarmActivity : ComponentActivity() {
                 intent: Intent,
             ) {
                 if (intent.action == AlarmSoundAndVibrateService.ACTION_FINISH_ALARM_ACTIVITY) {
-                    userStoppedAlarm = true
                     finish()
                 }
             }
@@ -82,15 +84,24 @@ class AlarmActivity : ComponentActivity() {
         }
 
         super.onCreate(savedInstanceState)
-        val eventTitle =
-            intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_TITLE) ?: getString(R.string.upcoming_event)
-        val uniqueId = intent.getIntExtra(AlarmReceiver.EXTRA_UNIQUE_ID, -1)
-        val eventId = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_ID, -1L)
-        val startTime = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, -1L)
-        val meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL)
+
+        viewModel.handleIntent(
+            AlarmIntent.Init(
+                eventTitle =
+                    intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_TITLE)
+                        ?: getString(R.string.upcoming_event),
+                uniqueId = intent.getIntExtra(AlarmReceiver.EXTRA_UNIQUE_ID, -1),
+                eventId = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_ID, -1L),
+                startTime = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, -1L),
+                meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL),
+            ),
+        )
+
+        collectSideEffects()
 
         setContent {
             val isProUser by proUserProvider.isProUser.collectAsStateWithLifecycle()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
             KairosTheme {
                 Surface(
@@ -98,9 +109,7 @@ class AlarmActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background,
                 ) {
                     Column(
-                        modifier =
-                            Modifier
-                                .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         AdBannerView(
@@ -123,35 +132,17 @@ class AlarmActivity : ComponentActivity() {
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = eventTitle,
+                                text = uiState.eventTitle,
                                 fontSize = 32.sp,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.headlineLarge,
                             )
                             Spacer(modifier = Modifier.height(48.dp))
 
-                            if (!meetingUrl.isNullOrEmpty()) {
+                            if (uiState.hasMeetingUrl) {
                                 Button(
                                     onClick = {
-                                        userStoppedAlarm = true
-                                        analytics.logEvent(
-                                            Analytics.EVENT_ALARM_STOP,
-                                            mapOf(
-                                                Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY,
-                                                "action" to "join_meeting",
-                                            ),
-                                        )
-                                        AlarmSoundAndVibrateService.stopAlarm(
-                                            this@AlarmActivity,
-                                            Analytics.SOURCE_ACTIVITY,
-                                        )
-                                        try {
-                                            val meetingIntent = Intent(Intent.ACTION_VIEW, Uri.parse(meetingUrl))
-                                            startActivity(meetingIntent)
-                                        } catch (e: Exception) {
-                                            logcat { "Failed to open meeting URL: ${e.message}" }
-                                        }
-                                        finish()
+                                        viewModel.handleIntent(AlarmIntent.JoinMeeting)
                                     },
                                     modifier =
                                         Modifier
@@ -178,21 +169,7 @@ class AlarmActivity : ComponentActivity() {
                             ) {
                                 Button(
                                     onClick = {
-                                        analytics.logEvent(
-                                            Analytics.EVENT_ALARM_SNOOZE,
-                                            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
-                                        )
-                                        val snoozeIntent =
-                                            Intent(this@AlarmActivity, AlarmReceiver::class.java).apply {
-                                                action = AlarmReceiver.ACTION_SNOOZE
-                                                putExtra(AlarmReceiver.EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
-                                                putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, eventTitle)
-                                                putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
-                                                putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
-                                                putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
-                                            }
-                                        sendBroadcast(snoozeIntent)
-                                        finish()
+                                        viewModel.handleIntent(AlarmIntent.Snooze)
                                     },
                                     modifier =
                                         Modifier
@@ -203,31 +180,65 @@ class AlarmActivity : ComponentActivity() {
                                             containerColor = MaterialTheme.colorScheme.secondary,
                                         ),
                                 ) {
-                                    Text(text = getString(R.string.snooze), fontSize = 18.sp)
+                                    Text(
+                                        text = getString(R.string.snooze),
+                                        fontSize = 18.sp,
+                                    )
                                 }
 
                                 Button(
                                     onClick = {
-                                        userStoppedAlarm = true
-                                        analytics.logEvent(
-                                            Analytics.EVENT_ALARM_STOP,
-                                            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
-                                        )
-                                        AlarmSoundAndVibrateService.stopAlarm(
-                                            this@AlarmActivity,
-                                            Analytics.SOURCE_ACTIVITY,
-                                        )
-                                        finish()
+                                        viewModel.handleIntent(AlarmIntent.Stop)
                                     },
                                     modifier =
                                         Modifier
                                             .weight(1f)
                                             .heightIn(min = 60.dp),
                                 ) {
-                                    Text(text = getString(R.string.stop), fontSize = 18.sp)
+                                    Text(
+                                        text = getString(R.string.stop),
+                                        fontSize = 18.sp,
+                                    )
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun collectSideEffects() {
+        lifecycleScope.launch {
+            viewModel.sideEffect.collect { effect ->
+                when (effect) {
+                    AlarmSideEffect.FinishScreen -> {
+                        AlarmSoundAndVibrateService.stopAlarm(
+                            this@AlarmActivity,
+                            Analytics.SOURCE_ACTIVITY,
+                        )
+                        finish()
+                    }
+                    is AlarmSideEffect.OpenMeetingUrl -> {
+                        try {
+                            startActivity(
+                                Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)),
+                            )
+                        } catch (e: Exception) {
+                            logcat { "Failed to open meeting URL: ${e.message}" }
+                        }
+                    }
+                    is AlarmSideEffect.SendSnoozeBroadcast -> {
+                        val snoozeIntent =
+                            Intent(this@AlarmActivity, AlarmReceiver::class.java).apply {
+                                action = AlarmReceiver.ACTION_SNOOZE
+                                putExtra(AlarmReceiver.EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
+                                putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, effect.eventTitle)
+                                putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, effect.uniqueId)
+                                putExtra(AlarmReceiver.EXTRA_EVENT_ID, effect.eventId)
+                                putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, effect.startTime)
+                            }
+                        sendBroadcast(snoozeIntent)
                     }
                 }
             }
@@ -255,7 +266,7 @@ class AlarmActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (userStoppedAlarm) {
+        if (viewModel.didUserStopAlarm) {
             AlarmSoundAndVibrateService.stopAlarm(this)
         }
     }
