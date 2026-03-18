@@ -133,7 +133,6 @@ class EventViewModel
                         analytics.logEvent(
                             Analytics.EVENT_ALARM_TOGGLE,
                             mapOf(
-                                Analytics.PARAM_EVENT_TITLE to intent.event.title.take(100),
                                 Analytics.PARAM_ENABLED to intent.enabled,
                                 Analytics.PARAM_ALL_OCCURRENCES to intent.allOccurrences,
                             ),
@@ -562,10 +561,7 @@ class EventViewModel
                     intent.endTime,
                     intent.isAllDay,
                 )
-                analytics.logEvent(
-                    Analytics.EVENT_EVENT_CREATED,
-                    mapOf(Analytics.PARAM_EVENT_TITLE to intent.title.take(100)),
-                )
+                analytics.logEvent(Analytics.EVENT_EVENT_CREATED)
                 handleIntent(EventIntent.DismissCreateEventDialog)
                 refreshEvents()
             }

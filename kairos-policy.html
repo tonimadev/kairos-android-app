@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - Kairós</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #1a1a1a;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        h1 { font-size: 2em; }
+        h2 { font-size: 1.5em; margin-top: 40px; }
+        h3 { font-size: 1.2em; margin-top: 25px; border-bottom: none; }
+        p { margin-bottom: 15px; }
+        ul { list-style-type: disc; padding-left: 20px; }
+        li { margin-bottom: 10px; }
+        code {
+            background-color: #eee;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+        }
+        strong { color: #111; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        th { background-color: #f8f8f8; font-weight: 600; }
+        tr:nth-child(even) { background-color: #fafafa; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>Política de Privacidade para o Kairós</h1>
+    <p><strong>Data de vigência:</strong> 17 de março de 2026</p>
+    <p>Esta Política de Privacidade descreve como as suas informações são tratadas pelo aplicativo Kairós ("nós", "nosso" ou "o aplicativo"). A sua privacidade é de extrema importância para nós.</p>
+
+    <!-- ───────────────────────────────────── 1 ─ -->
+    <h2>1. Informações que Acedemos</h2>
+    <p>O Kairós foi projetado para funcionar primariamente no seu dispositivo. As informações que a aplicação acede são utilizadas para o seu funcionamento local, salvo quando explicitamente indicado nesta política (como nos casos das funcionalidades de IA e de localização descritas nas secções seguintes).</p>
+    <ul>
+        <li><strong>Dados da Agenda (Calendário):</strong> Para cumprir a sua função principal, a aplicação precisa de permissão para ler e escrever eventos na sua agenda. Acedemos a informações como título, hora de início, hora de fim, localização e URL de reunião dos eventos. <strong>Estes dados permanecem no seu dispositivo</strong>, exceto quando utiliza funcionalidades de IA (ver Secção 4).</li>
+        <li><strong>Dados de Configuração:</strong> As suas preferências (ativação de alarmes, filtros de calendário, etc.) são guardadas localmente no seu dispositivo.</li>
+        <li><strong>Dados de Localização:</strong> Quando a funcionalidade de "alarme por localização" está ativada, a aplicação acede à sua localização atual para calcular o tempo de deslocação até o local do próximo evento. A localização é enviada à API Google Directions para obter o tempo de trajeto e <strong>não é armazenada</strong> pela aplicação.</li>
+        <li><strong>Dados de Áudio:</strong> Quando utiliza a funcionalidade de comando por voz para criar eventos, a aplicação acede ao microfone. O áudio é processado pelo serviço de reconhecimento de fala do dispositivo e <strong>não é gravado nem enviado para os nossos servidores</strong>.</li>
+    </ul>
+
+    <!-- ───────────────────────────────────── 2 ─ -->
+    <h2>2. Como Utilizamos as Suas Informações</h2>
+    <p>As informações acedidas são utilizadas estritamente para os seguintes fins:</p>
+    <ul>
+        <li><strong>Ler e criar eventos:</strong> Para identificar compromissos futuros e permitir a criação de eventos via voz ou IA.</li>
+        <li><strong>Agendar alarmes locais:</strong> Utilizar o <code>AlarmManager</code> do seu dispositivo para agendar as notificações de alarme.</li>
+        <li><strong>Exibir notificações:</strong> Apresentar o alarme no ecrã (incluindo sobre o ecrã de bloqueio) na hora do evento.</li>
+        <li><strong>Calcular tempo de deslocação:</strong> Utilizar a sua localização atual e o endereço do evento para calcular quando deve sair (funcionalidade premium).</li>
+        <li><strong>Gerar resumos e responder perguntas com IA:</strong> Enviar dados de eventos à API Google Gemini para gerar resumos diários e responder a perguntas sobre a sua agenda (funcionalidade premium).</li>
+    </ul>
+
+    <!-- ───────────────────────────────────── 3 ─ -->
+    <h2>3. Dados de Análise (Analytics)</h2>
+    <p>A aplicação utiliza o <strong>Google Firebase Analytics</strong> para recolher dados <strong>anónimos e agregados</strong> sobre a utilização das funcionalidades. Estes dados ajudam-nos a compreender quais funcionalidades são mais utilizadas e a melhorar a experiência do utilizador.</p>
+
+    <h3>3.1. O que recolhemos</h3>
+    <p>Registamos <strong>apenas eventos de interação</strong> acompanhados de parâmetros técnicos genéricos. <strong>Nenhum dado pessoal, título de evento, nome, e-mail, localização ou conteúdo da agenda é enviado.</strong></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Evento</th>
+                <th>Parâmetros Enviados</th>
+                <th>Finalidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Alarme disparado</td><td>Possui URL de reunião (sim/não)</td><td>Saber a proporção de alarmes com ligação a reuniões online</td></tr>
+            <tr><td>Alarme adiado (snooze)</td><td>Origem (ecrã / notificação)</td><td>Perceber como os utilizadores interagem com o alarme</td></tr>
+            <tr><td>Alarme desativado (stop)</td><td>Origem (ecrã / notificação)</td><td>Perceber como os utilizadores interagem com o alarme</td></tr>
+            <tr><td>Entrar na reunião</td><td>Nenhum</td><td>Medir a utilização da funcionalidade de acesso rápido a reuniões</td></tr>
+            <tr><td>Alarme individual ativado/desativado</td><td>Ativado (sim/não), todas as ocorrências (sim/não)</td><td>Perceber se os utilizadores personalizam alarmes por evento</td></tr>
+            <tr><td>Alarme global ativado/desativado</td><td>Ativado (sim/não)</td><td>Perceber a utilização do interruptor principal</td></tr>
+            <tr><td>Modo vibração ativado/desativado</td><td>Ativado (sim/não)</td><td>Conhecer a preferência de notificação</td></tr>
+            <tr><td>Alarme dia inteiro ativado/desativado</td><td>Ativado (sim/não)</td><td>Saber se a funcionalidade é utilizada</td></tr>
+            <tr><td>Alarme por localização ativado/desativado</td><td>Ativado (sim/não)</td><td>Medir a adoção da funcionalidade</td></tr>
+            <tr><td>Filtro de calendário alterado</td><td>ID do calendário (numérico, do sistema), ativado (sim/não)</td><td>Perceber se os utilizadores filtram calendários</td></tr>
+            <tr><td>Antecedência do alarme alterada</td><td>Valor (minutos)</td><td>Conhecer as preferências de antecedência mais comuns</td></tr>
+            <tr><td>Tempo de snooze alterado</td><td>Valor (minutos)</td><td>Conhecer as preferências de snooze mais comuns</td></tr>
+            <tr><td>Modo de transporte alterado</td><td>Valor (ex: "driving", "walking")</td><td>Perceber qual modo de transporte é mais utilizado</td></tr>
+            <tr><td>Evento criado</td><td>Nenhum</td><td>Medir a utilização da criação de eventos</td></tr>
+            <tr><td>Pergunta à IA</td><td>Nenhum</td><td>Medir a utilização do assistente de IA</td></tr>
+            <tr><td>Resumo diário gerado</td><td>Nenhum</td><td>Medir a utilização do resumo diário</td></tr>
+            <tr><td>Fala da IA reproduzida</td><td>Nenhum</td><td>Medir a utilização da leitura por voz</td></tr>
+            <tr><td>Pedido de upgrade</td><td>Nenhum</td><td>Medir o interesse nas funcionalidades premium</td></tr>
+            <tr><td>Avaliação (agora/depois/nunca)</td><td>Nenhum</td><td>Perceber a resposta ao pedido de avaliação</td></tr>
+        </tbody>
+    </table>
+
+    <h3>3.2. O que NÃO recolhemos via Analytics</h3>
+    <ul>
+        <li>Títulos, descrições ou conteúdo dos seus eventos de calendário</li>
+        <li>Nomes, endereços de e-mail ou informações de contacto</li>
+        <li>Localização geográfica ou endereços de reuniões</li>
+        <li>URLs de reuniões (apenas registamos se existe ou não um link)</li>
+        <li>Perguntas feitas ao assistente de IA ou respostas geradas</li>
+        <li>Qualquer informação que permita identificar o utilizador pessoalmente</li>
+    </ul>
+
+    <h3>3.3. Como pode desativar</h3>
+    <p>Os dados de análise são processados pelo Google Firebase Analytics de acordo com a <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Política de Privacidade do Firebase</a>. Pode optar por não participar da recolha desativando a opção nas definições do seu dispositivo Android (Definições &rarr; Google &rarr; Anúncios), ou desinstalando a aplicação.</p>
+
+    <!-- ───────────────────────────────────── 4 ─ -->
+    <h2>4. Funcionalidades de Inteligência Artificial</h2>
+    <p>O Kairós oferece funcionalidades opcionais de IA (disponíveis apenas para assinantes) que utilizam o serviço <strong>Google Gemini</strong> (via Firebase AI).</p>
+
+    <h3>4.1. Dados enviados à IA</h3>
+    <p>Quando utiliza as funcionalidades de IA, os seguintes dados dos seus eventos são enviados à API Google Gemini para processamento:</p>
+    <ul>
+        <li>Título e horário dos eventos do período consultado</li>
+        <li>A pergunta digitada ou falada pelo utilizador (no caso do assistente)</li>
+        <li>Dados meteorológicos da cidade configurada (no caso do resumo diário)</li>
+    </ul>
+    <p>Estes dados são enviados diretamente do seu dispositivo para os servidores da Google e processados de acordo com os <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">Termos de Serviço da API Gemini</a>. <strong>Nós não armazenamos, retransmitimos ou temos acesso a esses dados nos nossos próprios servidores.</strong></p>
+
+    <h3>4.2. Quando os dados são enviados</h3>
+    <p>Os dados <strong>só são enviados</strong> quando o utilizador:</p>
+    <ul>
+        <li>Solicita explicitamente a geração de um resumo diário</li>
+        <li>Faz uma pergunta ao assistente de IA</li>
+    </ul>
+    <p>As funcionalidades de IA são <strong>opcionais</strong>. Se não as utilizar, nenhum dado de calendário será enviado a serviços externos.</p>
+
+    <!-- ───────────────────────────────────── 5 ─ -->
+    <h2>5. Publicidade</h2>
+    <p>A aplicação exibe anúncios através do <strong>Google AdMob</strong> para utilizadores da versão gratuita. O AdMob pode recolher e utilizar dados para personalização de anúncios, incluindo o identificador de publicidade do dispositivo (AD_ID).</p>
+    <p>Os utilizadores da versão premium (assinantes) <strong>não veem anúncios</strong> e o AD_ID não é utilizado para fins publicitários.</p>
+    <p>Para mais informações sobre como a Google utiliza dados de publicidade, consulte: <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Como a Google utiliza dados de publicidade</a>.</p>
+
+    <!-- ───────────────────────────────────── 6 ─ -->
+    <h2>6. Relatórios de Erros (Crashlytics)</h2>
+    <p>A aplicação utiliza o <strong>Firebase Crashlytics</strong> para recolher automaticamente relatórios de falhas (crashes) e erros. Estes relatórios incluem informações técnicas como:</p>
+    <ul>
+        <li>Modelo do dispositivo e versão do sistema operativo</li>
+        <li>Estado da aplicação no momento da falha (stack traces)</li>
+        <li>Identificador de instalação (anónimo)</li>
+    </ul>
+    <p><strong>Os relatórios de erros não contêm dados pessoais</strong>, dados de calendário, localização ou qualquer conteúdo do utilizador. São utilizados exclusivamente para identificar e corrigir problemas técnicos.</p>
+
+    <!-- ───────────────────────────────────── 7 ─ -->
+    <h2>7. Compras e Assinaturas</h2>
+    <p>As compras e assinaturas são processadas inteiramente pelo <strong>Google Play Billing</strong>. Nós <strong>não recolhemos, armazenamos ou temos acesso</strong> a quaisquer dados de pagamento (cartão de crédito, dados bancários, etc.). Apenas verificamos localmente o estado da assinatura (ativa ou inativa) para desbloquear funcionalidades premium.</p>
+    <p>Para mais informações, consulte os <a href="https://play.google.com/intl/pt-PT/about/play-terms/" target="_blank" rel="noopener">Termos de Serviço do Google Play</a>.</p>
+
+    <!-- ───────────────────────────────────── 8 ─ -->
+    <h2>8. Serviços de Terceiros</h2>
+    <p>A aplicação integra os seguintes serviços de terceiros, cada um com a sua própria política de privacidade:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Serviço</th>
+                <th>Utilização</th>
+                <th>Política de Privacidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Google Firebase Analytics</td>
+                <td>Análise de utilização (anónima)</td>
+                <td><a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Link</a></td>
+            </tr>
+            <tr>
+                <td>Google Firebase Crashlytics</td>
+                <td>Relatórios de falhas</td>
+                <td><a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Link</a></td>
+            </tr>
+            <tr>
+                <td>Google AdMob</td>
+                <td>Publicidade (versão gratuita)</td>
+                <td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Link</a></td>
+            </tr>
+            <tr>
+                <td>Google Gemini (Firebase AI)</td>
+                <td>Funcionalidades de IA</td>
+                <td><a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">Link</a></td>
+            </tr>
+            <tr>
+                <td>Google Directions API</td>
+                <td>Cálculo de tempo de deslocação</td>
+                <td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Link</a></td>
+            </tr>
+            <tr>
+                <td>OpenWeatherMap</td>
+                <td>Dados meteorológicos para resumo diário</td>
+                <td><a href="https://openweather.co.uk/privacy-policy" target="_blank" rel="noopener">Link</a></td>
+            </tr>
+            <tr>
+                <td>Google Play Billing</td>
+                <td>Processamento de compras e assinaturas</td>
+                <td><a href="https://play.google.com/intl/pt-PT/about/play-terms/" target="_blank" rel="noopener">Link</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ───────────────────────────────────── 9 ─ -->
+    <h2>9. Permissões Necessárias</h2>
+    <p>O Kairós solicita as seguintes permissões para garantir a sua funcionalidade:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Permissão</th>
+                <th>Finalidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code>READ_CALENDAR</code></td><td>Ler os eventos da agenda para agendar alarmes</td></tr>
+            <tr><td><code>WRITE_CALENDAR</code></td><td>Criar novos eventos através do assistente de IA ou da interface do app</td></tr>
+            <tr><td><code>POST_NOTIFICATIONS</code></td><td>Exibir notificações de alarme</td></tr>
+            <tr><td><code>SCHEDULE_EXACT_ALARM</code></td><td>Garantir que os alarmes disparem no horário exato</td></tr>
+            <tr><td><code>USE_FULL_SCREEN_INTENT</code></td><td>Exibir o alarme sobre o ecrã de bloqueio</td></tr>
+            <tr><td><code>RECEIVE_BOOT_COMPLETED</code></td><td>Reagendar alarmes após o reinício do dispositivo</td></tr>
+            <tr><td><code>RECORD_AUDIO</code></td><td>Captar voz para comandos por voz e perguntas ao assistente de IA</td></tr>
+            <tr><td><code>ACCESS_FINE_LOCATION</code></td><td>Obter a localização atual para calcular tempo de deslocação</td></tr>
+            <tr><td><code>ACCESS_COARSE_LOCATION</code></td><td>Localização aproximada (fallback)</td></tr>
+            <tr><td><code>AD_ID</code></td><td>Identificador de publicidade utilizado pelo Google AdMob</td></tr>
+            <tr><td><code>INTERNET</code></td><td>Comunicação com serviços de IA, clima, direções e publicidade</td></tr>
+            <tr><td><code>VIBRATE</code></td><td>Vibração durante o alarme</td></tr>
+            <tr><td><code>FOREGROUND_SERVICE</code></td><td>Manter o som e a vibração do alarme ativos em primeiro plano</td></tr>
+            <tr><td><code>WAKE_LOCK</code></td><td>Manter o dispositivo ativo durante o alarme</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ───────────────────────────────────── 10 ─ -->
+    <h2>10. Retenção de Dados</h2>
+    <p>Os dados armazenados localmente (preferências, cache de eventos) são retidos enquanto a aplicação estiver instalada. Ao desinstalar a aplicação, todos os dados locais são apagados automaticamente pelo sistema operativo.</p>
+    <p>Os dados de análise (Firebase Analytics) e de relatórios de erros (Crashlytics) são retidos pela Google de acordo com as suas políticas de retenção padrão (normalmente 14 meses para Analytics e 90 dias para Crashlytics).</p>
+
+    <!-- ───────────────────────────────────── 11 ─ -->
+    <h2>11. Segurança dos Dados</h2>
+    <p>Todas as informações pessoais acedidas pela aplicação (como dados da agenda) são processadas e armazenadas exclusivamente no seu dispositivo. As comunicações com serviços de terceiros (Google Gemini, Google Directions, OpenWeatherMap) são realizadas através de ligações encriptadas (HTTPS). Os dados de análise enviados ao Firebase são anónimos e não contêm informações pessoais identificáveis.</p>
+
+    <!-- ───────────────────────────────────── 12 ─ -->
+    <h2>12. Os Seus Direitos</h2>
+    <p>Como utilizador, pode a qualquer momento:</p>
+    <ul>
+        <li><strong>Revogar permissões:</strong> Nas definições do Android, desativar qualquer permissão concedida (Calendário, Localização, Microfone, etc.).</li>
+        <li><strong>Desativar funcionalidades de IA:</strong> Simplesmente não utilizar as funcionalidades de resumo diário e assistente de IA.</li>
+        <li><strong>Apagar dados locais:</strong> Limpar os dados da aplicação nas definições do Android ou desinstalá-la.</li>
+        <li><strong>Desativar anúncios personalizados:</strong> Nas definições do dispositivo (Definições &rarr; Google &rarr; Anúncios).</li>
+    </ul>
+
+    <!-- ───────────────────────────────────── 13 ─ -->
+    <h2>13. Privacidade das Crianças</h2>
+    <p>A nossa aplicação não se destina a crianças com menos de 13 anos e não recolhemos intencionalmente informações pessoais de crianças.</p>
+
+    <!-- ───────────────────────────────────── 14 ─ -->
+    <h2>14. Alterações a Esta Política de Privacidade</h2>
+    <p>Podemos atualizar a nossa Política de Privacidade de tempos em tempos. Iremos notificá-lo de quaisquer alterações, publicando a nova Política de Privacidade nesta página. Recomenda-se que reveja esta Política de Privacidade periodicamente.</p>
+
+    <!-- ───────────────────────────────────── 15 ─ -->
+    <h2>15. Contacte-nos</h2>
+    <p>Se tiver alguma dúvida sobre esta Política de Privacidade, pode contactar-nos através do e-mail: <a href="mailto:anthoni.ipiranga@gmail.com">anthoni.ipiranga@gmail.com</a></p>
+
+</div>
+</body>
+</html>

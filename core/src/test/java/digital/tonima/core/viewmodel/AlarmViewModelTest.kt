@@ -158,10 +158,7 @@ class AlarmViewModelTest {
                 )
             }
             verify {
-                mockAnalytics.logEvent(
-                    Analytics.EVENT_JOIN_MEETING,
-                    match { it[Analytics.PARAM_EVENT_TITLE] == "Sprint Review" },
-                )
+                mockAnalytics.logEvent(Analytics.EVENT_JOIN_MEETING, any())
             }
             assertTrue(viewModel.didUserStopAlarm)
         }

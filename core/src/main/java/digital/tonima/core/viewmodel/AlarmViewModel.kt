@@ -52,10 +52,7 @@ class AlarmViewModel
 
             analytics.logEvent(
                 Analytics.EVENT_ALARM_SNOOZE,
-                mapOf(
-                    Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY,
-                    Analytics.PARAM_EVENT_TITLE to state.eventTitle.take(100),
-                ),
+                mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
             )
 
             _sideEffect.trySend(
@@ -71,15 +68,11 @@ class AlarmViewModel
         }
 
         private fun onStop() {
-            val state = _uiState.value
             userStoppedAlarm = true
 
             analytics.logEvent(
                 Analytics.EVENT_ALARM_STOP,
-                mapOf(
-                    Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY,
-                    Analytics.PARAM_EVENT_TITLE to state.eventTitle.take(100),
-                ),
+                mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY),
             )
 
             _sideEffect.trySend(AlarmSideEffect.FinishScreen)
@@ -96,12 +89,7 @@ class AlarmViewModel
                     "action" to "join_meeting",
                 ),
             )
-            analytics.logEvent(
-                Analytics.EVENT_JOIN_MEETING,
-                mapOf(
-                    Analytics.PARAM_EVENT_TITLE to state.eventTitle.take(100),
-                ),
-            )
+            analytics.logEvent(Analytics.EVENT_JOIN_MEETING)
 
             state.meetingUrl?.let { url ->
                 _sideEffect.trySend(AlarmSideEffect.OpenMeetingUrl(url))

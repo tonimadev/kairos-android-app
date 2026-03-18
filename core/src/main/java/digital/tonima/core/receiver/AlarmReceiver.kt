@@ -85,10 +85,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
         analytics.logEvent(
             Analytics.EVENT_ALARM_FIRED,
-            mapOf(
-                Analytics.PARAM_EVENT_TITLE to eventTitle.take(100),
-                Analytics.PARAM_MEETING_URL_PRESENT to !meetingUrl.isNullOrEmpty(),
-            ),
+            mapOf(Analytics.PARAM_HAS_MEETING_URL to !meetingUrl.isNullOrEmpty()),
         )
 
         // No Wear OS (ou se o contexto indicar hardware.type.watch), iniciamos a Activity diretamente

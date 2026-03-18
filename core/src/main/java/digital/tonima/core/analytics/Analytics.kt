@@ -31,11 +31,10 @@ interface Analytics {
 
         const val PARAM_SOURCE = "source"
         const val PARAM_ENABLED = "enabled"
-        const val PARAM_EVENT_TITLE = "event_title"
         const val PARAM_CALENDAR_ID = "calendar_id"
         const val PARAM_ALL_OCCURRENCES = "all_occurrences"
         const val PARAM_VALUE = "value"
-        const val PARAM_MEETING_URL_PRESENT = "meeting_url_present"
+        const val PARAM_HAS_MEETING_URL = "has_meeting_url"
 
         const val SOURCE_ACTIVITY = "activity"
         const val SOURCE_NOTIFICATION = "notification"
