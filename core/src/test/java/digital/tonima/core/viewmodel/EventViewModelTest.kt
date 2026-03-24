@@ -974,4 +974,42 @@ class EventViewModelTest {
             assertEquals("Office", state.voiceEventData?.location)
             assertEquals(1000L, state.voiceEventData?.startTime)
         }
+
+    @Test
+    fun `CreateEvent intent calls use case and shows success snackbar`() =
+        runTest {
+            advanceUntilIdle()
+
+            coEvery {
+                mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any())
+            } returns 123L
+
+            viewModel.sideEffect.test {
+                viewModel.handleIntent(
+                    EventIntent.CreateEvent(
+                        calendarId = 1,
+                        title = "New Event",
+                        description = "Desc",
+                        location = "Loc",
+                        startTime = 1000L,
+                        endTime = 2000L,
+                        isAllDay = false,
+                    ),
+                )
+                advanceUntilIdle()
+
+                val effect = awaitItem()
+                assertTrue(effect is EventSideEffect.ShowSnackbar)
+                val snackbarEffect = effect as EventSideEffect.ShowSnackbar
+                // We check the message is not null, the specific text depends on translation
+                assertNotNull(snackbarEffect.message)
+
+                cancelAndConsumeRemainingEvents()
+            }
+
+            coVerify {
+                mockCreateEventUseCase(1, "New Event", "Desc", "Loc", 1000L, 2000L, false)
+            }
+            assertFalse(viewModel.uiState.value.showCreateEventDialog)
+        }
 }

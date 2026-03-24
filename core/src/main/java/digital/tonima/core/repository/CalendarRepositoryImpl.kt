@@ -68,14 +68,18 @@ class CalendarRepositoryImpl
                         CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
                         CalendarContract.Calendars.ACCOUNT_NAME,
                         CalendarContract.Calendars.CALENDAR_COLOR,
+                        CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL,
                     )
+
+                val selection = "${CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL} >= ?"
+                val selectionArgs = arrayOf(CalendarContract.Calendars.CAL_ACCESS_CONTRIBUTOR.toString())
 
                 val cursor =
                     context.contentResolver.query(
                         CalendarContract.Calendars.CONTENT_URI,
                         projection,
-                        null,
-                        null,
+                        selection,
+                        selectionArgs,
                         null,
                     )
 
@@ -294,13 +298,20 @@ class CalendarRepositoryImpl
 
                 val values =
                     android.content.ContentValues().apply {
-                        put(CalendarContract.Events.DTSTART, startTime)
-                        put(CalendarContract.Events.DTEND, endTime)
+                        if (isAllDay) {
+                            put(CalendarContract.Events.DTSTART, startTime)
+                            put(CalendarContract.Events.DTEND, endTime)
+                            put(CalendarContract.Events.EVENT_TIMEZONE, "UTC")
+                        } else {
+                            put(CalendarContract.Events.DTSTART, startTime)
+                            put(CalendarContract.Events.DTEND, endTime)
+                            put(CalendarContract.Events.EVENT_TIMEZONE, ZoneId.systemDefault().id)
+                        }
                         put(CalendarContract.Events.TITLE, title)
                         put(CalendarContract.Events.DESCRIPTION, description)
                         put(CalendarContract.Events.CALENDAR_ID, calendarId)
-                        put(CalendarContract.Events.EVENT_TIMEZONE, ZoneId.systemDefault().id)
                         put(CalendarContract.Events.ALL_DAY, if (isAllDay) 1 else 0)
+                        put(CalendarContract.Events.STATUS, CalendarContract.Events.STATUS_CONFIRMED)
                         if (location != null) {
                             put(CalendarContract.Events.EVENT_LOCATION, location)
                         }

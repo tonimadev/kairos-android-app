@@ -607,6 +607,7 @@ class EventViewModel
         }
 
         private fun createEvent(intent: EventIntent.CreateEvent) {
+            logcat { "Criando evento: ${intent.title} no calendário ${intent.calendarId}" }
             viewModelScope.launch {
                 val result =
                     calendar.createEvent(
@@ -619,15 +620,38 @@ class EventViewModel
                         intent.isAllDay,
                     )
                 if (result != null) {
+                    logcat { "Evento criado com sucesso, ID: $result" }
                     analytics.logEvent(Analytics.EVENT_EVENT_CREATED)
                     handleIntent(EventIntent.DismissCreateEventDialog)
+
+                    // Navigate to the event date so the user can see it
+                    val eventDate =
+                        java.time.Instant.ofEpochMilli(intent.startTime)
+                            .atZone(java.time.ZoneId.systemDefault())
+                            .toLocalDate()
+                    val eventMonth = java.time.YearMonth.from(eventDate)
+
+                    _uiState.update { it.copy(selectedDate = eventDate) }
+                    if (eventMonth != _uiState.value.currentMonth) {
+                        onMonthChanged(eventMonth)
+                    }
+
+                    // Ensure the calendar is enabled so the user can see the new event
+                    if (!_uiState.value.enabledCalendarIds.contains(intent.calendarId)) {
+                        onCalendarFilterToggle(intent.calendarId, true)
+                    }
+
+                    // Small delay to allow ContentProvider/Instances table to sync
+                    kotlinx.coroutines.delay(500)
                     refreshEvents()
+
                     _sideEffect.send(
                         EventSideEffect.ShowSnackbar(
                             UiText.StringResource(R.string.ai_agent_event_created),
                         ),
                     )
                 } else {
+                    logcat { "Falha ao criar evento: calendar.createEvent retornou null" }
                     _sideEffect.send(
                         EventSideEffect.AIToolError(
                             UiText.StringResource(R.string.ai_agent_event_creation_error),

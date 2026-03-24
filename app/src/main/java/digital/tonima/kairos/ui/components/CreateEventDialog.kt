@@ -149,27 +149,14 @@ fun CreateEventDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OutlinedTextField(
-                        value = startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                        onValueChange = {},
-                        label = { Text(stringResource(CoreR.string.start_date)) },
-                        readOnly = true,
-                        modifier = Modifier.weight(1f).clickable { showStartDatePicker = true },
-                        enabled = false,
-                        colors =
-                            OutlinedTextFieldDefaults.colors(
-                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                disabledBorderColor = MaterialTheme.colorScheme.outline,
-                                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            ),
-                    )
-                    if (!isAllDay) {
+                    val modifier = Modifier.weight(1f).clickable { showStartDatePicker = true }
+                    Box(modifier = modifier) {
                         OutlinedTextField(
-                            value = startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                            value = startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                             onValueChange = {},
-                            label = { Text(stringResource(CoreR.string.start_time)) },
+                            label = { Text(stringResource(CoreR.string.start_date)) },
                             readOnly = true,
-                            modifier = Modifier.weight(1f).clickable { showStartTimePicker = true },
+                            modifier = Modifier.fillMaxWidth(),
                             enabled = false,
                             colors =
                                 OutlinedTextFieldDefaults.colors(
@@ -179,6 +166,25 @@ fun CreateEventDialog(
                                 ),
                         )
                     }
+                    if (!isAllDay) {
+                        val timeModifier = Modifier.weight(1f).clickable { showStartTimePicker = true }
+                        Box(modifier = timeModifier) {
+                            OutlinedTextField(
+                                value = startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                                onValueChange = {},
+                                label = { Text(stringResource(CoreR.string.start_time)) },
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = false,
+                                colors =
+                                    OutlinedTextFieldDefaults.colors(
+                                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ),
+                            )
+                        }
+                    }
                 }
 
                 // End Date & Time
@@ -186,27 +192,14 @@ fun CreateEventDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OutlinedTextField(
-                        value = endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                        onValueChange = {},
-                        label = { Text(stringResource(CoreR.string.end_date)) },
-                        readOnly = true,
-                        modifier = Modifier.weight(1f).clickable { showEndDatePicker = true },
-                        enabled = false,
-                        colors =
-                            OutlinedTextFieldDefaults.colors(
-                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                disabledBorderColor = MaterialTheme.colorScheme.outline,
-                                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            ),
-                    )
-                    if (!isAllDay) {
+                    val dateModifier = Modifier.weight(1f).clickable { showEndDatePicker = true }
+                    Box(modifier = dateModifier) {
                         OutlinedTextField(
-                            value = endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                            value = endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                             onValueChange = {},
-                            label = { Text(stringResource(CoreR.string.end_time)) },
+                            label = { Text(stringResource(CoreR.string.end_date)) },
                             readOnly = true,
-                            modifier = Modifier.weight(1f).clickable { showEndTimePicker = true },
+                            modifier = Modifier.fillMaxWidth(),
                             enabled = false,
                             colors =
                                 OutlinedTextFieldDefaults.colors(
@@ -215,6 +208,25 @@ fun CreateEventDialog(
                                     disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 ),
                         )
+                    }
+                    if (!isAllDay) {
+                        val timeModifier = Modifier.weight(1f).clickable { showEndTimePicker = true }
+                        Box(modifier = timeModifier) {
+                            OutlinedTextField(
+                                value = endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                                onValueChange = {},
+                                label = { Text(stringResource(CoreR.string.end_time)) },
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = false,
+                                colors =
+                                    OutlinedTextFieldDefaults.colors(
+                                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ),
+                            )
+                        }
                     }
                 }
 
@@ -236,16 +248,31 @@ fun CreateEventDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val startZoned = LocalDateTime.of(startDate, startTime).atZone(ZoneId.systemDefault())
-                    val endZoned = LocalDateTime.of(endDate, endTime).atZone(ZoneId.systemDefault())
+                    val startMillis: Long
+                    val endMillis: Long
+                    if (isAllDay) {
+                        startMillis = startDate.atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli()
+                        endMillis = endDate.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli()
+                    } else {
+                        startMillis =
+                            LocalDateTime.of(
+                                startDate,
+                                startTime,
+                            ).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        endMillis =
+                            LocalDateTime.of(
+                                endDate,
+                                endTime,
+                            ).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    }
                     selectedCalendar?.let {
                         onCreate(
                             it.id,
                             title,
                             description.ifBlank { null },
                             location.ifBlank { null },
-                            startZoned.toInstant().toEpochMilli(),
-                            endZoned.toInstant().toEpochMilli(),
+                            startMillis,
+                            endMillis,
                             isAllDay,
                         )
                     }
