@@ -569,18 +569,57 @@ class EventViewModelTest {
             isAiUserFlow.value = true
             advanceUntilIdle()
 
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any()) } returns
+            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
                 AIAgentResponse.Text("AI Response")
 
             viewModel.handleIntent(EventIntent.AskAi("What's next?", "instruction"))
             advanceUntilIdle()
 
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertEquals("AI Response", state.aiResponse)
-                assertFalse(state.isAskingAi)
-                cancelAndConsumeRemainingEvents()
-            }
+            val state = viewModel.uiState.value
+            assertEquals("AI Response", state.aiResponse)
+            assertFalse(state.isAskingAi)
+        }
+
+    @Test
+    fun `askAi maintains chat history`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+
+            val response1 = AIAgentResponse.Text("Response 1")
+            val response2 = AIAgentResponse.Text("Response 2")
+
+            coEvery { mockAskAiAgentUseCase(any(), "Q1", any(), any(), emptyList()) } returns response1
+            coEvery {
+                mockAskAiAgentUseCase(
+                    any(),
+                    "Q2",
+                    any(),
+                    any(),
+                    match { it.size == 2 && it[0].content == "Q1" && it[1].content == "Response 1" },
+                )
+            } returns response2
+
+            // First interaction
+            viewModel.handleIntent(EventIntent.AskAi("Q1", "I"))
+            advanceUntilIdle()
+
+            assertEquals("Response 1", viewModel.uiState.value.aiResponse)
+            assertEquals(2, viewModel.uiState.value.chatHistory.size)
+
+            // Second interaction (continuation)
+            viewModel.handleIntent(EventIntent.AskAi("Q2", "I"))
+            advanceUntilIdle()
+
+            assertEquals("Response 2", viewModel.uiState.value.aiResponse)
+            assertEquals(4, viewModel.uiState.value.chatHistory.size)
+            assertEquals("Q2", viewModel.uiState.value.chatHistory[2].content)
+            assertEquals("Response 2", viewModel.uiState.value.chatHistory[3].content)
+
+            // Clear response should clear history
+            viewModel.handleIntent(EventIntent.ClearAiResponse)
+            advanceUntilIdle()
+            assertTrue(viewModel.uiState.value.chatHistory.isEmpty())
         }
 
     @Test
@@ -604,7 +643,7 @@ class EventViewModelTest {
                 """.trimIndent()
 
             coEvery {
-                mockAskAiAgentUseCase(any(), any(), any(), any())
+                mockAskAiAgentUseCase(any(), any(), any(), any(), any())
             } returns AIAgentResponse.Text(jsonResponse)
 
             viewModel.handleIntent(EventIntent.AskAi("Marcar dentista", "instrucao"))
@@ -621,7 +660,7 @@ class EventViewModelTest {
         runTest {
             isAiUserFlow.value = true
             advanceUntilIdle()
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any()) } returns
+            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
                 AIAgentResponse.Text("Some response")
             viewModel.handleIntent(EventIntent.AskAi("Q", "I"))
             advanceUntilIdle()
@@ -896,5 +935,43 @@ class EventViewModelTest {
 
             assertNull(viewModel.uiState.value.aiResponse)
             assertFalse(viewModel.uiState.value.isAskingAi)
+        }
+
+    @Test
+    fun `ApprovePendingAction for CreateEvent opens create event dialog`() =
+        runTest {
+            advanceUntilIdle()
+
+            val criticalTool = mockk<AITool>(relaxed = true)
+            every { criticalTool.riskLevel } returns RiskLevel.CRITICAL
+            every { criticalTool.name } returns "create_event"
+
+            val createIntent =
+                EventIntent.CreateEvent(
+                    calendarId = 1,
+                    title = "Meeting",
+                    description = "Desc",
+                    location = "Office",
+                    startTime = 1000L,
+                    endTime = 2000L,
+                    isAllDay = false,
+                )
+
+            every {
+                mockActionRegistry.processAIToolCall("create_event", any())
+            } returns AIToolResult.Success(criticalTool, createIntent)
+
+            viewModel.onAIFunctionCalled("create_event", emptyMap())
+            advanceUntilIdle()
+
+            viewModel.handleIntent(EventIntent.ApprovePendingAction)
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertNull(state.pendingAIAction)
+            assertTrue(state.showCreateEventDialog)
+            assertEquals("Meeting", state.voiceEventData?.title)
+            assertEquals("Office", state.voiceEventData?.location)
+            assertEquals(1000L, state.voiceEventData?.startTime)
         }
 }

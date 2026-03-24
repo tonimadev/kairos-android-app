@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
@@ -53,8 +54,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -74,6 +77,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventIntent
 import digital.tonima.core.viewmodel.EventScreenUiState
+import digital.tonima.core.viewmodel.EventSideEffect
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_HOME
 import digital.tonima.kairos.R.drawable
@@ -82,7 +86,6 @@ import digital.tonima.kairos.core.R.drawable.date_range
 import digital.tonima.kairos.ui.components.AdBannerView
 import digital.tonima.kairos.ui.components.AiActions
 import digital.tonima.kairos.ui.components.AiSuggestionsDialog
-import digital.tonima.kairos.ui.components.AiVoiceInteractionCard
 import digital.tonima.kairos.ui.components.CreateEventDialog
 import digital.tonima.kairos.ui.components.DrawerContent
 import digital.tonima.kairos.ui.components.EventActions
@@ -116,6 +119,7 @@ fun EventScreen(
     val isProUser by viewModel.isProUser.collectAsStateWithLifecycle()
     val isAiUser by viewModel.isAiUser.collectAsStateWithLifecycle()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    var aiConfirmationData by remember { mutableStateOf<EventSideEffect.RequireUserConfirmation?>(null) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -174,6 +178,22 @@ fun EventScreen(
             standardPermissionState.launchMultiplePermissionRequest()
         }
         viewModel.handleIntent(EventIntent.CheckPermissions)
+    }
+
+    LaunchedEffect(viewModel.sideEffect) {
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                is EventSideEffect.RequireUserConfirmation -> {
+                    aiConfirmationData = effect
+                }
+                is EventSideEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
+                is EventSideEffect.AIToolError -> {
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
+            }
+        }
     }
 
     val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
@@ -273,23 +293,6 @@ fun EventScreen(
                     onSubscriptionRequest = onSubscriptionRequest,
                     windowSizeClass = windowSizeClass,
                 )
-                AiVoiceInteractionCard(
-                    question = uiState.lastAiQuestion,
-                    response = uiState.aiResponse,
-                    isAsking = uiState.isAskingAi,
-                    isSpeaking = uiState.isSpeaking,
-                    onSpeak = { viewModel.handleIntent(EventIntent.SpeakAiResponse) },
-                    onStopSpeaking = { viewModel.handleIntent(EventIntent.StopSpeaking) },
-                    onDismiss = { viewModel.handleIntent(EventIntent.ClearAiResponse) },
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(
-                                start = Dimensions.PaddingNormal,
-                                end = Dimensions.PaddingNormal,
-                                bottom = paddingValues.calculateBottomPadding() + Dimensions.SpacingSmall,
-                            ),
-                )
             }
         }
 
@@ -325,6 +328,33 @@ fun EventScreen(
                 },
                 onRateLater = { viewModel.handleIntent(EventIntent.RateLater) },
                 onRateNeverShow = { viewModel.handleIntent(EventIntent.RateNever) },
+            )
+        }
+
+        aiConfirmationData?.let { data ->
+            AlertDialog(
+                onDismissRequest = {
+                    aiConfirmationData = null
+                    viewModel.handleIntent(EventIntent.RejectPendingAction)
+                },
+                title = { Text(text = data.title.asString(context)) },
+                text = { Text(text = data.message.asString(context)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        aiConfirmationData = null
+                        viewModel.handleIntent(EventIntent.ApprovePendingAction)
+                    }) {
+                        Text(text = stringResource(R.string.confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        aiConfirmationData = null
+                        viewModel.handleIntent(EventIntent.RejectPendingAction)
+                    }) {
+                        Text(text = stringResource(R.string.cancel))
+                    }
+                },
             )
         }
     }
@@ -506,6 +536,7 @@ private fun EventScreenContent(
                                 onClearAiResponse = { viewModel.handleIntent(EventIntent.ClearAiResponse) },
                                 onSpeakAiResponse = { viewModel.handleIntent(EventIntent.SpeakAiResponse) },
                                 onStopSpeaking = { viewModel.handleIntent(EventIntent.StopSpeaking) },
+                                onReply = launchVoiceCapture,
                             ),
                         windowSizeClass = windowSizeClass,
                     )

@@ -37,4 +37,5 @@ data class AiActions(
     val onClearAiResponse: () -> Unit = {},
     val onSpeakAiResponse: () -> Unit = {},
     val onStopSpeaking: () -> Unit = {},
+    val onReply: () -> Unit = {},
 )

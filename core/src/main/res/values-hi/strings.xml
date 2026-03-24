@@ -160,5 +160,8 @@
     <string name="ai_agent_confirmation_title">पुष्टि आवश्यक</string>
     <string name="ai_agent_create_event_confirmation">AI इवेंट \"%1$s\" बनाना चाहता है। पुष्टि करें?</string>
     <string name="ai_agent_create_event_with_location_confirmation">AI इवेंट \"%1$s\" %2$s पर बनाना चाहता है। पुष्टि करें?</string>
-    <string name="ai_agent_generic_confirmation">AI क्रिया \'%1$s\' निष्पादित करना चाहता है। पुष्टि करें?</string>
+    <string name="ai_agent_generic_confirmation">AI क्रिया \'%1$s\' निष्पादit करना चाहता है। पुष्टि करें?</string>
+    <string name="confirm">पुष्टि करें</string>
+    <string name="ai_agent_event_created">इवेंट सफलतापूर्वक बनाया गया!</string>
+    <string name="ai_agent_event_creation_error">कैलेंडर में इवेंट बनाने में त्रुटि।</string>
 </resources>

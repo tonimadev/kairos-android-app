@@ -4,6 +4,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
 import com.paulrybitskyi.hiltbinder.BindType
+import digital.tonima.core.ai.AIConfig
 import digital.tonima.core.model.Event
 import digital.tonima.core.model.Weather
 import digital.tonima.core.repository.DailyBriefingRepository
@@ -31,7 +32,7 @@ class GenerateDailyBriefingUseCaseImpl
         ): String? {
             val model =
                 Firebase.ai(backend = GenerativeBackend.googleAI())
-                    .generativeModel("gemini-2.5-flash-lite")
+                    .generativeModel(AIConfig.GEMINI_MODEL)
 
             val weather = if (city != null) weatherRepository.getWeather(city) else null
             val prompt = buildPrompt(events, languageInstruction, wakeUpTime, weather)

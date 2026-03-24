@@ -162,4 +162,7 @@
     <string name="ai_agent_create_event_confirmation">AI wants to create the event \"%1$s\". Confirm?</string>
     <string name="ai_agent_create_event_with_location_confirmation">AI wants to create the event \"%1$s\" at %2$s. Confirm?</string>
     <string name="ai_agent_generic_confirmation">AI wants to execute the action \'%1$s\'. Confirm?</string>
+    <string name="confirm">Confirm</string>
+    <string name="ai_agent_event_created">Event created successfully!</string>
+    <string name="ai_agent_event_creation_error">Error creating event in calendar.</string>
 </resources>

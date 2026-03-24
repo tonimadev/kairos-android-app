@@ -161,4 +161,7 @@
     <string name="ai_agent_create_event_confirmation">يريد الذكاء الاصطناعي إنشاء الحدث \"%1$s\". هل تريد التأكيد؟</string>
     <string name="ai_agent_create_event_with_location_confirmation">يريد الذكاء الاصطناعي إنشاء الحدث \"%1$s\" في %2$s. هل تريد التأكيد؟</string>
     <string name="ai_agent_generic_confirmation">يريد الذكاء الاصطناعي تنفيذ الإجراء \'%1$s\'. هل تريد التأكيد؟</string>
+    <string name="confirm">تأكيد</string>
+    <string name="ai_agent_event_created">تم إنشاء الحدث بنجاح!</string>
+    <string name="ai_agent_event_creation_error">خطأ في إنشاء الحدث في التقويم.</string>
 </resources>

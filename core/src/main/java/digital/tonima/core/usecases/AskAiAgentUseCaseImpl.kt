@@ -7,8 +7,10 @@ import com.google.firebase.ai.type.GenerativeBackend
 import com.google.firebase.ai.type.Schema
 import com.google.firebase.ai.type.Tool
 import com.paulrybitskyi.hiltbinder.BindType
+import digital.tonima.core.ai.AIConfig
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.model.AIAgentResponse
+import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.model.Event
 import kotlinx.serialization.json.JsonPrimitive
 import logcat.logcat
@@ -28,6 +30,7 @@ class AskAiAgentUseCaseImpl
             question: String,
             languageInstruction: String,
             availableTools: Set<AITool>,
+            history: List<ChatMessage>,
         ): AIAgentResponse {
             val functionDeclarations =
                 availableTools.map { tool ->
@@ -44,11 +47,11 @@ class AskAiAgentUseCaseImpl
             val model =
                 Firebase.ai(backend = GenerativeBackend.googleAI())
                     .generativeModel(
-                        modelName = "gemini-2.5-flash-lite",
+                        modelName = AIConfig.GEMINI_MODEL,
                         tools = tools,
                     )
 
-            val prompt = buildPrompt(events, question, languageInstruction)
+            val prompt = buildPrompt(events, question, languageInstruction, history)
 
             return try {
                 val response = model.generateContent(prompt)
@@ -126,6 +129,7 @@ class AskAiAgentUseCaseImpl
             events: List<Event>,
             question: String,
             languageInstruction: String,
+            history: List<ChatMessage>,
         ): String {
             val now = java.time.LocalDateTime.now()
             val nowStr = dateTimeFormatter.format(now)
@@ -154,6 +158,17 @@ class AskAiAgentUseCaseImpl
                         }
                 }
 
+            val historyStr =
+                if (history.isNotEmpty()) {
+                    "\nHistórico da conversa:\n" +
+                        history.joinToString("\n") { message ->
+                            val roleName = if (message.role == ChatMessage.Role.USER) "Usuário" else "Assistente"
+                            "$roleName: ${message.content}"
+                        } + "\n"
+                } else {
+                    ""
+                }
+
             return """
                 Você é um assistente pessoal inteligente integrado a um calendário.
                 Você tem acesso aos eventos do usuário e a ferramentas (tools/functions) que podem executar ações no app.
@@ -161,7 +176,7 @@ class AskAiAgentUseCaseImpl
                 Responda de forma direta, útil e amigável.
 
                 Data e Hora atual: $nowStr
-
+                $historyStr
                 Pergunta do usuário: "$question"
 
                 Contexto do Calendário:

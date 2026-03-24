@@ -2,6 +2,7 @@ package digital.tonima.core.usecases
 
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.model.AIAgentResponse
+import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.model.Event
 
 /**
@@ -16,5 +17,6 @@ interface AskAiAgentUseCase {
         question: String,
         languageInstruction: String,
         availableTools: Set<AITool>,
+        history: List<ChatMessage> = emptyList(),
     ): AIAgentResponse
 }

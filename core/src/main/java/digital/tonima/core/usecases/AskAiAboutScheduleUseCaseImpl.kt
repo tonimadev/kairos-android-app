@@ -4,6 +4,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
 import com.paulrybitskyi.hiltbinder.BindType
+import digital.tonima.core.ai.AIConfig
 import digital.tonima.core.model.Event
 import logcat.logcat
 import java.time.Instant
@@ -24,7 +25,7 @@ class AskAiAboutScheduleUseCaseImpl
         ): String? {
             val model =
                 Firebase.ai(backend = GenerativeBackend.googleAI())
-                    .generativeModel("gemini-2.5-flash-lite")
+                    .generativeModel(AIConfig.GEMINI_MODEL)
 
             val prompt = buildPrompt(events, question, languageInstruction)
 

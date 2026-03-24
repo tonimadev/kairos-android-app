@@ -164,4 +164,7 @@
     <string name="ai_agent_create_event_confirmation">L\'IA souhaite créer l\'événement \"%1$s\". Confirmer ?</string>
     <string name="ai_agent_create_event_with_location_confirmation">L\'IA souhaite créer l\'événement \"%1$s\" à %2$s. Confirmer ?</string>
     <string name="ai_agent_generic_confirmation">L\'IA souhaite exécuter l\'action \'%1$s\'. Confirmer ?</string>
+    <string name="confirm">Confirmer</string>
+    <string name="ai_agent_event_created">Événement créé avec succès !</string>
+    <string name="ai_agent_event_creation_error">Erreur lors de la création de l\'événement dans l\'agenda.</string>
 </resources>

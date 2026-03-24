@@ -8,6 +8,7 @@ import digital.tonima.core.ai.AIToolResult
 import digital.tonima.core.ai.ActionRegistry
 import digital.tonima.core.ai.RiskLevel
 import digital.tonima.core.ai.model.AIAgentResponse
+import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
@@ -499,7 +500,17 @@ class EventViewModel
             analytics.logEvent(Analytics.EVENT_AI_ASK)
 
             viewModelScope.launch {
-                _uiState.update { it.copy(isAskingAi = true, aiResponse = null, lastAiQuestion = question) }
+                val currentHistory = _uiState.value.chatHistory
+                val newHistory = currentHistory + ChatMessage(ChatMessage.Role.USER, question)
+
+                _uiState.update {
+                    it.copy(
+                        isAskingAi = true,
+                        aiResponse = null,
+                        lastAiQuestion = question,
+                        chatHistory = newHistory,
+                    )
+                }
                 val eventsRecent = calendar.getEventsForMonth(_uiState.value.currentMonth)
 
                 val agentResponse =
@@ -508,6 +519,7 @@ class EventViewModel
                         question,
                         language,
                         ai.actionRegistry.registeredTools(),
+                        currentHistory,
                     )
 
                 when (agentResponse) {
@@ -535,7 +547,12 @@ class EventViewModel
                     return
                 }
             }
-            _uiState.update { it.copy(aiResponse = response) }
+            _uiState.update {
+                it.copy(
+                    aiResponse = response,
+                    chatHistory = it.chatHistory + ChatMessage(ChatMessage.Role.ASSISTANT, response),
+                )
+            }
             speak(response)
         }
 
@@ -580,23 +597,43 @@ class EventViewModel
 
         private fun clearAiResponse() {
             stopSpeaking()
-            _uiState.update { it.copy(aiResponse = null, lastAiQuestion = null) }
+            _uiState.update {
+                it.copy(
+                    aiResponse = null,
+                    lastAiQuestion = null,
+                    chatHistory = emptyList(),
+                )
+            }
         }
 
         private fun createEvent(intent: EventIntent.CreateEvent) {
             viewModelScope.launch {
-                calendar.createEvent(
-                    intent.calendarId,
-                    intent.title,
-                    intent.description,
-                    intent.location,
-                    intent.startTime,
-                    intent.endTime,
-                    intent.isAllDay,
-                )
-                analytics.logEvent(Analytics.EVENT_EVENT_CREATED)
-                handleIntent(EventIntent.DismissCreateEventDialog)
-                refreshEvents()
+                val result =
+                    calendar.createEvent(
+                        intent.calendarId,
+                        intent.title,
+                        intent.description,
+                        intent.location,
+                        intent.startTime,
+                        intent.endTime,
+                        intent.isAllDay,
+                    )
+                if (result != null) {
+                    analytics.logEvent(Analytics.EVENT_EVENT_CREATED)
+                    handleIntent(EventIntent.DismissCreateEventDialog)
+                    refreshEvents()
+                    _sideEffect.send(
+                        EventSideEffect.ShowSnackbar(
+                            UiText.StringResource(R.string.ai_agent_event_created),
+                        ),
+                    )
+                } else {
+                    _sideEffect.send(
+                        EventSideEffect.AIToolError(
+                            UiText.StringResource(R.string.ai_agent_event_creation_error),
+                        ),
+                    )
+                }
             }
         }
 
@@ -692,18 +729,29 @@ class EventViewModel
         // ── AI Agent: Approve / Reject pending CRITICAL action ──────────────
 
         private fun executePendingAction() {
-            val pending = _uiState.value.pendingAIAction
-            if (pending == null) {
-                logcat { "AI Agent: ApprovePendingAction received but no pending action exists" }
-                return
-            }
-            logcat { "AI Agent: user APPROVED pending action — ${pending::class.simpleName}" }
+            val pending = _uiState.value.pendingAIAction ?: return
             _uiState.update { it.copy(pendingAIAction = null) }
-            handleIntent(pending)
+
+            if (pending is EventIntent.CreateEvent) {
+                handleIntent(
+                    EventIntent.ShowCreateEventDialog(
+                        voiceEventData =
+                            VoiceEventData(
+                                title = pending.title,
+                                description = pending.description,
+                                location = pending.location,
+                                startTime = pending.startTime,
+                                endTime = pending.endTime,
+                                isAllDay = pending.isAllDay,
+                            ),
+                    ),
+                )
+            } else {
+                handleIntent(pending)
+            }
         }
 
         private fun rejectPendingAction() {
-            logcat { "AI Agent: user REJECTED pending action" }
             _uiState.update { it.copy(pendingAIAction = null) }
         }
 

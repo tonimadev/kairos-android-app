@@ -154,6 +154,23 @@ fun EventList(
                     Spacer(modifier = Modifier.height(Dimensions.ListBottomSpacer))
                 }
             }
+
+            AiVoiceInteractionCard(
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(Dimensions.PaddingNormal)
+                        .padding(bottom = Dimensions.ListBottomSpacer),
+                question = uiState.lastAiQuestion,
+                response = uiState.aiResponse,
+                isAsking = uiState.isAskingAi,
+                isSpeaking = uiState.isSpeaking,
+                onSpeak = aiActions.onSpeakAiResponse,
+                onStopSpeaking = aiActions.onStopSpeaking,
+                onDismiss = aiActions.onClearAiResponse,
+                onReply = aiActions.onReply,
+            )
+
             PullRefreshIndicator(
                 refreshing = uiState.isRefreshing,
                 state = pullRefreshState,

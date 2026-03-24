@@ -163,4 +163,7 @@
     <string name="ai_agent_create_event_confirmation">Die KI möchte den Termin \"%1$s\" erstellen. Bestätigen?</string>
     <string name="ai_agent_create_event_with_location_confirmation">Die KI möchte den Termin \"%1$s\" in %2$s erstellen. Bestätigen?</string>
     <string name="ai_agent_generic_confirmation">Die KI möchte die Aktion \'%1$s\' ausführen. Bestätigen?</string>
+    <string name="confirm">Bestätigen</string>
+    <string name="ai_agent_event_created">Termin erfolgreich erstellt!</string>
+    <string name="ai_agent_event_creation_error">Fehler beim Erstellen des Termins im Kalender.</string>
 </resources>

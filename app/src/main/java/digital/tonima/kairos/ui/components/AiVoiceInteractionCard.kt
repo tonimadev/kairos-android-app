@@ -65,6 +65,7 @@ fun AiVoiceInteractionCard(
     onSpeak: () -> Unit,
     onStopSpeaking: () -> Unit,
     onDismiss: () -> Unit,
+    onReply: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
@@ -112,6 +113,20 @@ fun AiVoiceInteractionCard(
                             )
                         } else {
                             if (response != null) {
+                                onReply?.let {
+                                    IconButton(
+                                        onClick = it,
+                                        modifier = Modifier.size(24.dp),
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(digital.tonima.kairos.core.R.drawable.ic_mic),
+                                            contentDescription = stringResource(R.string.cd_voice_capture),
+                                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
+                                }
+
                                 IconButton(
                                     onClick = { if (isSpeaking) onStopSpeaking() else onSpeak() },
                                     modifier = Modifier.size(24.dp),
@@ -137,7 +152,7 @@ fun AiVoiceInteractionCard(
 
                             IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
                                 Icon(
-                                    painter = painterResource(digital.tonima.kairos.R.drawable.ic_expand_less),
+                                    painter = painterResource(digital.tonima.kairos.R.drawable.ic_expand_more),
                                     contentDescription = stringResource(R.string.cd_close),
                                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                 )

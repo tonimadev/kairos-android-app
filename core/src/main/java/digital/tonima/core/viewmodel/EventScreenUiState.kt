@@ -1,5 +1,6 @@
 package digital.tonima.core.viewmodel
 
+import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AudioWarningState
@@ -37,6 +38,7 @@ data class EventScreenUiState(
     val isAskingAi: Boolean = false,
     val lastAiQuestion: String? = null,
     val isSpeaking: Boolean = false,
+    val chatHistory: List<ChatMessage> = emptyList(),
     val showCreateEventDialog: Boolean = false,
     val voiceEventData: VoiceEventData? = null,
     val showAiSuggestionsDialog: Boolean = false,
