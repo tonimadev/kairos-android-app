@@ -46,6 +46,8 @@ class WearCalendarViewModelTest {
         private val enabledCalendarIds = MutableStateFlow<Set<String>>(emptySet())
         private val snoozeTimeMinutes = MutableStateFlow(10)
         private val wakeUpHistory = MutableStateFlow<List<Long>>(emptyList())
+        private val exactAlarmSkipped = MutableStateFlow(false)
+        private val fullScreenIntentSkipped = MutableStateFlow(false)
 
         override fun isGlobalAlarmEnabled() = global as Flow<Boolean>
 
@@ -153,6 +155,18 @@ class WearCalendarViewModelTest {
 
         override suspend fun setPreferredTransportMode(mode: String) {
             // No-op
+        }
+
+        override fun isExactAlarmPermissionSkipped(): Flow<Boolean> = exactAlarmSkipped
+
+        override suspend fun setExactAlarmPermissionSkipped(skipped: Boolean) {
+            exactAlarmSkipped.value = skipped
+        }
+
+        override fun isFullScreenIntentPermissionSkipped(): Flow<Boolean> = fullScreenIntentSkipped
+
+        override suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean) {
+            fullScreenIntentSkipped.value = skipped
         }
     }
 

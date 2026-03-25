@@ -40,6 +40,8 @@ class AppPreferencesRepositoryImpl
             val PREFERRED_CITY = stringPreferencesKey("preferred_city")
             val LOCATION_ALARM_ENABLED = booleanPreferencesKey("location_alarm_enabled")
             val PREFERRED_TRANSPORT_MODE = stringPreferencesKey("preferred_transport_mode")
+            val EXACT_ALARM_PERMISSION_SKIPPED = booleanPreferencesKey("exact_alarm_permission_skipped")
+            val FULL_SCREEN_INTENT_PERMISSION_SKIPPED = booleanPreferencesKey("full_screen_intent_permission_skipped")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -291,6 +293,32 @@ class AppPreferencesRepositoryImpl
         override suspend fun setPreferredTransportMode(mode: String) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.PREFERRED_TRANSPORT_MODE] = mode
+            }
+        }
+
+        override fun isExactAlarmPermissionSkipped(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.EXACT_ALARM_PERMISSION_SKIPPED] ?: false
+                }
+        }
+
+        override suspend fun setExactAlarmPermissionSkipped(skipped: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.EXACT_ALARM_PERMISSION_SKIPPED] = skipped
+            }
+        }
+
+        override fun isFullScreenIntentPermissionSkipped(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.FULL_SCREEN_INTENT_PERMISSION_SKIPPED] ?: false
+                }
+        }
+
+        override suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.FULL_SCREEN_INTENT_PERMISSION_SKIPPED] = skipped
             }
         }
     }

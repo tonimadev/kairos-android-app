@@ -9,6 +9,8 @@ import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
 import digital.tonima.core.model.Event
+import digital.tonima.core.service.AlarmSoundAndVibrateService
+import digital.tonima.core.sync.WearSyncSchema.EXTRA_UNIQUE_ID
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
 import digital.tonima.core.sync.WearSyncSchema.KEY_EVENTS
@@ -18,7 +20,9 @@ import digital.tonima.core.sync.WearSyncSchema.KEY_RECUR
 import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
 import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
+import digital.tonima.core.sync.WearSyncSchema.PATH_DISMISS_ALARM
 import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
+import digital.tonima.core.sync.WearSyncSchema.PATH_SNOOZE_ALARM
 import digital.tonima.kairos.wear.WorkNames
 import logcat.logcat
 
@@ -34,46 +38,68 @@ class WearEventListenerService : WearableListenerService() {
         dataEvents.use { buffer ->
             buffer.forEach { event ->
                 val path = event.dataItem.uri.path ?: ""
-                if (
-                    event.type == DataEvent.TYPE_CHANGED &&
-                    (path == PATH_EVENTS_24H || path.startsWith(PATH_EVENTS_24H))
-                ) {
-                    try {
-                        val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
-                        val list = dataMap.getDataMapArrayList(KEY_EVENTS)
-                        list?.forEach { dm ->
-                            val id = dm.getLong(KEY_ID)
-                            val title = dm.getString(KEY_TITLE) ?: "(sem título)"
-                            val start = dm.getLong(KEY_START)
-                            val rec = dm.getBoolean(KEY_RECUR)
-                            val allDay = dm.getBoolean(KEY_ALL_DAY)
-                            val location = dm.getString(KEY_LOCATION)
-                            val departureTime =
-                                if (dm.containsKey(
-                                        KEY_DEPARTURE_TIME,
-                                    )
-                                ) {
-                                    dm.getLong(KEY_DEPARTURE_TIME)
-                                } else {
-                                    null
-                                }
-                            val travelTime = if (dm.containsKey(KEY_TRAVEL_TIME)) dm.getInt(KEY_TRAVEL_TIME) else null
+                if (event.type == DataEvent.TYPE_CHANGED) {
+                    when {
+                        path == PATH_EVENTS_24H || path.startsWith(PATH_EVENTS_24H) -> {
+                            try {
+                                val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
+                                val list = dataMap.getDataMapArrayList(KEY_EVENTS)
+                                list?.forEach { dm ->
+                                    val id = dm.getLong(KEY_ID)
+                                    val title = dm.getString(KEY_TITLE) ?: "(sem título)"
+                                    val start = dm.getLong(KEY_START)
+                                    val rec = dm.getBoolean(KEY_RECUR)
+                                    val allDay = dm.getBoolean(KEY_ALL_DAY)
+                                    val location = dm.getString(KEY_LOCATION)
+                                    val departureTime =
+                                        if (dm.containsKey(
+                                                KEY_DEPARTURE_TIME,
+                                            )
+                                        ) {
+                                            dm.getLong(KEY_DEPARTURE_TIME)
+                                        } else {
+                                            null
+                                        }
+                                    val travelTime =
+                                        if (dm.containsKey(KEY_TRAVEL_TIME)) dm.getInt(KEY_TRAVEL_TIME) else null
 
-                            events.add(
-                                Event(
-                                    id = id,
-                                    title = title,
-                                    startTime = start,
-                                    isRecurring = rec,
-                                    isAllDay = allDay,
-                                    location = location,
-                                    departureTime = departureTime,
-                                    travelTimeMinutes = travelTime,
-                                ),
+                                    events.add(
+                                        Event(
+                                            id = id,
+                                            title = title,
+                                            startTime = start,
+                                            isRecurring = rec,
+                                            isAllDay = allDay,
+                                            location = location,
+                                            departureTime = departureTime,
+                                            travelTimeMinutes = travelTime,
+                                        ),
+                                    )
+                                }
+                            } catch (t: Throwable) {
+                                logcat { "Wear listener parse error: ${t.localizedMessage}" }
+                            }
+                        }
+                        path == PATH_DISMISS_ALARM -> {
+                            val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
+                            val uniqueId = dataMap.getInt(EXTRA_UNIQUE_ID, -1)
+                            logcat { "Wear: Received dismiss alarm sync for uniqueId: $uniqueId" }
+                            AlarmSoundAndVibrateService.stopAlarm(
+                                context = applicationContext,
+                                source = "PHONE_SYNC",
+                                uniqueId = uniqueId,
                             )
                         }
-                    } catch (t: Throwable) {
-                        logcat { "Wear listener parse error: ${t.localizedMessage}" }
+                        path == PATH_SNOOZE_ALARM -> {
+                            val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
+                            val uniqueId = dataMap.getInt(EXTRA_UNIQUE_ID, -1)
+                            logcat { "Wear: Received snooze alarm sync for uniqueId: $uniqueId. Stopping local alarm." }
+                            AlarmSoundAndVibrateService.stopAlarm(
+                                context = applicationContext,
+                                source = "PHONE_SYNC",
+                                uniqueId = uniqueId,
+                            )
+                        }
                     }
                 }
             }

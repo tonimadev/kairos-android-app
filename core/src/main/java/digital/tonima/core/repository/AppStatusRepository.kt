@@ -34,4 +34,12 @@ interface AppStatusRepository {
     fun getPreferredTransportMode(): Flow<String>
 
     suspend fun setPreferredTransportMode(mode: String)
+
+    fun isExactAlarmPermissionSkipped(): Flow<Boolean>
+
+    suspend fun setExactAlarmPermissionSkipped(skipped: Boolean)
+
+    fun isFullScreenIntentPermissionSkipped(): Flow<Boolean>
+
+    suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean)
 }

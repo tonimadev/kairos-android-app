@@ -40,4 +40,10 @@ class UpdateAppPreferenceUseCase
         suspend fun setRatingPrompted(prompted: Boolean) = repository.setRatingPrompted(prompted)
 
         suspend fun setRatingCompleted(completed: Boolean) = repository.setRatingCompleted(completed)
+
+        suspend fun setExactAlarmPermissionSkipped(skipped: Boolean) =
+            repository.setExactAlarmPermissionSkipped(skipped)
+
+        suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean) =
+            repository.setFullScreenIntentPermissionSkipped(skipped)
     }

@@ -20,6 +20,8 @@ data class AppPreferences(
     val disabledEventIds: Set<String>,
     val disabledSeriesIds: Set<String>,
     val vibrateOnlyEventIds: Set<String>,
+    val exactAlarmPermissionSkipped: Boolean,
+    val fullScreenIntentPermissionSkipped: Boolean,
 )
 
 @Singleton
@@ -43,6 +45,8 @@ class ObserveAppPreferencesUseCase
                 repository.getDisabledEventIds(),
                 repository.getDisabledSeriesIds(),
                 repository.getVibrateOnlyEventIds(),
+                repository.isExactAlarmPermissionSkipped(),
+                repository.isFullScreenIntentPermissionSkipped(),
             ) { args ->
                 AppPreferences(
                     isGlobalAlarmEnabled = args[0] as Boolean,
@@ -58,6 +62,8 @@ class ObserveAppPreferencesUseCase
                     disabledEventIds = args[10] as Set<String>,
                     disabledSeriesIds = args[11] as Set<String>,
                     vibrateOnlyEventIds = args[12] as Set<String>,
+                    exactAlarmPermissionSkipped = args[13] as Boolean,
+                    fullScreenIntentPermissionSkipped = args[14] as Boolean,
                 )
             }
         }

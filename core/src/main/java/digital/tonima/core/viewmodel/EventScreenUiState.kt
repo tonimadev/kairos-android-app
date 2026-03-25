@@ -46,6 +46,8 @@ data class EventScreenUiState(
     val preferredTransportMode: String = "driving",
     val hasLocationPermission: Boolean = false,
     val hasBackgroundLocationPermission: Boolean = false,
+    val skippedExactAlarmPermission: Boolean = false,
+    val skippedFullScreenIntentPermission: Boolean = false,
     /** Holds a CRITICAL AI-generated intent that is waiting for user confirmation. */
     val pendingAIAction: EventIntent? = null,
 )

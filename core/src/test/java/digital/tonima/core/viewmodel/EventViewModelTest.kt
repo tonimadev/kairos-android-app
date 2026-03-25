@@ -144,6 +144,8 @@ class EventViewModelTest {
             disabledEventIds = emptySet(),
             disabledSeriesIds = emptySet(),
             vibrateOnlyEventIds = emptySet(),
+            exactAlarmPermissionSkipped = false,
+            fullScreenIntentPermissionSkipped = false,
         )
 
     private fun createViewModel() =
@@ -1011,5 +1013,48 @@ class EventViewModelTest {
                 mockCreateEventUseCase(1, "New Event", "Desc", "Loc", 1000L, 2000L, false)
             }
             assertFalse(viewModel.uiState.value.showCreateEventDialog)
+        }
+
+    @Test
+    fun `SkipExactAlarmPermission sets skipped flag and updates UI state to hasExactAlarmPermission true`() =
+        runTest {
+            advanceUntilIdle()
+
+            // Assume initial state has no exact alarm permission
+            every { mockCheckPermissionsUseCase() } returns
+                PermissionState(
+                    hasCalendarPermission = true,
+                    hasPostNotificationsPermission = true,
+                    hasExactAlarmPermission = false,
+                    hasFullScreenIntentPermission = true,
+                    hasLocationPermission = false,
+                    hasBackgroundLocationPermission = false,
+                )
+
+            viewModel.handleIntent(EventIntent.CheckPermissions)
+            advanceUntilIdle()
+            assertFalse(viewModel.uiState.value.hasExactAlarmPermission)
+
+            // Skip permission
+            coEvery { mockUpdateAppPreferenceUseCase.setExactAlarmPermissionSkipped(true) } just Runs
+
+            viewModel.handleIntent(EventIntent.SkipExactAlarmPermission)
+            advanceUntilIdle()
+
+            coVerify { mockUpdateAppPreferenceUseCase.setExactAlarmPermissionSkipped(true) }
+        }
+
+    @Test
+    fun `SkipFullScreenIntentPermission calls update preference use case`() =
+        runTest {
+            advanceUntilIdle()
+
+            // Skip permission
+            coEvery { mockUpdateAppPreferenceUseCase.setFullScreenIntentPermissionSkipped(true) } just Runs
+
+            viewModel.handleIntent(EventIntent.SkipFullScreenIntentPermission)
+            advanceUntilIdle()
+
+            coVerify { mockUpdateAppPreferenceUseCase.setFullScreenIntentPermissionSkipped(true) }
         }
 }

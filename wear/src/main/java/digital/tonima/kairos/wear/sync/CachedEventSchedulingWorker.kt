@@ -45,7 +45,7 @@ class CachedEventSchedulingWorker
                 val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
 
                 val now = System.currentTimeMillis()
-                val scheduleWindowEnd = now + TimeUnit.MINUTES.toMillis(75) + TimeUnit.MINUTES.toMillis(offsetMinutes)
+                val scheduleWindowEnd = now + TimeUnit.HOURS.toMillis(24)
                 val sdf = SimpleDateFormat("dd/MM HH:mm:ss", Locale.getDefault())
 
                 logcat {
@@ -57,24 +57,23 @@ class CachedEventSchedulingWorker
                 val toSchedule =
                     events
                         .filter { event ->
-                            if (event.isAllDay) {
-                                if (!allDayAlarmsEnabled) return@filter false
-                                val eventDate =
-                                    Instant
-                                        .ofEpochMilli(event.startTime)
-                                        .atZone(ZoneId.of("UTC"))
-                                        .toLocalDate()
-                                val alarmFireTime =
+                            val alarmFireTime =
+                                if (event.isAllDay) {
+                                    if (!allDayAlarmsEnabled) return@filter false
+                                    val eventDate =
+                                        Instant
+                                            .ofEpochMilli(event.startTime)
+                                            .atZone(ZoneId.of("UTC"))
+                                            .toLocalDate()
                                     eventDate
                                         .atTime(LocalTime.of(allDayAlarmHour, 0))
                                         .atZone(ZoneId.systemDefault())
                                         .toInstant()
                                         .toEpochMilli()
-                                alarmFireTime in (now + 1)..scheduleWindowEnd
-                            } else {
-                                val alarmFireTime = event.startTime - TimeUnit.MINUTES.toMillis(offsetMinutes)
-                                alarmFireTime in (now + 1)..scheduleWindowEnd
-                            }
+                                } else {
+                                    event.startTime - TimeUnit.MINUTES.toMillis(offsetMinutes)
+                                }
+                            alarmFireTime in (now + 1)..scheduleWindowEnd
                         }.filter { e ->
                             val instanceDisabled = disabledInstanceIds.contains(e.uniqueIntentId.toString())
                             val seriesDisabled = disabledSeriesIds.contains(e.id.toString())

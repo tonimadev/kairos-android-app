@@ -22,8 +22,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.repository.AppPreferencesRepositoryImpl
+import digital.tonima.core.sync.WearMessagingHelper
 import digital.tonima.kairos.core.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import logcat.logcat
 import javax.inject.Inject
@@ -36,6 +42,7 @@ class AlarmSoundAndVibrateService : Service() {
         const val ACTION_START_ALARM = "digital.tonima.core.service.START_ALARM_SOUND"
         const val ACTION_STOP_ALARM = "digital.tonima.core.service.STOP_ALARM_SOUND"
         const val EXTRA_SOURCE = "EXTRA_SOURCE"
+        const val EXTRA_UNIQUE_ID = "EXTRA_UNIQUE_ID"
         const val ACTION_FINISH_ALARM_ACTIVITY = "digital.tonima.core.service.FINISH_ALARM_ACTIVITY"
         private const val NOTIFICATION_CHANNEL_ID = "calendar_alarm_channel"
         const val NOTIFICATION_ID = 0xA11A7
@@ -65,11 +72,13 @@ class AlarmSoundAndVibrateService : Service() {
         fun stopAlarm(
             context: Context,
             source: String = Analytics.SOURCE_NOTIFICATION,
+            uniqueId: Int = -1,
         ) {
             val stopIntent =
                 Intent(context, AlarmSoundAndVibrateService::class.java).apply {
                     action = ACTION_STOP_ALARM
                     putExtra(EXTRA_SOURCE, source)
+                    putExtra(EXTRA_UNIQUE_ID, uniqueId)
                 }
             ContextCompat.startForegroundService(context, stopIntent)
         }
@@ -77,6 +86,11 @@ class AlarmSoundAndVibrateService : Service() {
 
     @Inject
     lateinit var analytics: Analytics
+
+    @Inject
+    lateinit var wearMessagingHelper: WearMessagingHelper
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
@@ -193,12 +207,20 @@ class AlarmSoundAndVibrateService : Service() {
             ACTION_STOP_ALARM -> {
                 logcat { "AlarmSoundAndVibrateService: Recebida solicitação para parar alarme." }
                 val source = intent.getStringExtra(EXTRA_SOURCE) ?: Analytics.SOURCE_NOTIFICATION
+                val uniqueId = intent.getIntExtra(EXTRA_UNIQUE_ID, -1)
 
                 if (source == Analytics.SOURCE_NOTIFICATION) {
                     analytics.logEvent(
                         Analytics.EVENT_ALARM_STOP,
                         mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_NOTIFICATION),
                     )
+                }
+
+                // Sync with Wear/Phone if this was a local action
+                if (source != "WEAR_SYNC" && source != "PHONE_SYNC") {
+                    serviceScope.launch {
+                        wearMessagingHelper.sendDismissAlarm(uniqueId)
+                    }
                 }
 
                 ensureForeground(null)
@@ -347,6 +369,7 @@ class AlarmSoundAndVibrateService : Service() {
 
     override fun onDestroy() {
         logcat { "AlarmSoundAndVibrateService: onDestroy chamado. Garantindo que os recursos sejam liberados." }
+        serviceScope.cancel()
         stopAndReleaseResources()
         stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()

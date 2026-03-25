@@ -2,6 +2,7 @@ package digital.tonima.core.viewmodel
 
 import app.cash.turbine.test
 import digital.tonima.core.analytics.Analytics
+import digital.tonima.core.sync.WearMessagingHelper
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -24,13 +25,14 @@ import org.junit.runners.JUnit4
 class AlarmViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val mockAnalytics: Analytics = mockk(relaxed = true)
+    private val mockWearMessagingHelper: WearMessagingHelper = mockk(relaxed = true)
 
     private lateinit var viewModel: AlarmViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = AlarmViewModel(mockAnalytics)
+        viewModel = AlarmViewModel(mockAnalytics, mockWearMessagingHelper)
     }
 
     @After

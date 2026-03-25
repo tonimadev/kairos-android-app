@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.play.review)
     implementation(libs.play.review.ktx)
+    implementation(libs.play.services.wearable)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlin.serialization)
     implementation(platform(libs.google.firebase.bom))

@@ -233,13 +233,17 @@ class EventViewModel
                 EventIntent.CheckPermissions -> checkPermissions()
                 EventIntent.SkipExactAlarmPermission -> {
                     logcat { "User skipped exact alarm permission request - alarms will be inexact" }
-                    _uiState.update { it.copy(hasExactAlarmPermission = true) }
-                    checkPermissions()
+                    viewModelScope.launch {
+                        prefs.update.setExactAlarmPermissionSkipped(true)
+                        checkPermissions()
+                    }
                 }
                 EventIntent.SkipFullScreenIntentPermission -> {
                     logcat { "User skipped full-screen intent permission request" }
-                    _uiState.update { it.copy(hasFullScreenIntentPermission = true) }
-                    checkPermissions()
+                    viewModelScope.launch {
+                        prefs.update.setFullScreenIntentPermissionSkipped(true)
+                        checkPermissions()
+                    }
                 }
                 else -> Unit
             }
@@ -296,6 +300,8 @@ class EventViewModel
                         isLocationAlarmEnabled = appPrefs.isLocationAlarmEnabled,
                         preferredTransportMode = appPrefs.preferredTransportMode,
                         snoozeTimeMinutes = appPrefs.snoozeTimeMinutes,
+                        skippedExactAlarmPermission = appPrefs.exactAlarmPermissionSkipped,
+                        skippedFullScreenIntentPermission = appPrefs.fullScreenIntentPermissionSkipped,
                         showAutostartSuggestion = !appPrefs.autostartSuggestionDismissed,
                         enabledCalendarIds =
                             appPrefs.enabledCalendarIds.mapNotNull { it.toLongOrNull() }.toSet(),
@@ -333,8 +339,10 @@ class EventViewModel
                 it.copy(
                     hasCalendarPermission = p.hasCalendarPermission,
                     hasPostNotificationsPermission = p.hasPostNotificationsPermission,
-                    hasExactAlarmPermission = p.hasExactAlarmPermission,
-                    hasFullScreenIntentPermission = p.hasFullScreenIntentPermission,
+                    hasExactAlarmPermission = p.hasExactAlarmPermission || _uiState.value.skippedExactAlarmPermission,
+                    hasFullScreenIntentPermission =
+                        p.hasFullScreenIntentPermission ||
+                            _uiState.value.skippedFullScreenIntentPermission,
                     hasLocationPermission = p.hasLocationPermission,
                     hasBackgroundLocationPermission = p.hasBackgroundLocationPermission,
                 )
