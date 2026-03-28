@@ -97,7 +97,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 val activityClass = Class.forName("digital.tonima.kairos.wear.WearAlarmActivity")
                 val activityIntent =
                     Intent(context, activityClass).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         putExtra(EXTRA_EVENT_TITLE, eventTitle)
                         putExtra(EXTRA_UNIQUE_ID, uniqueId)
                         putExtra(EXTRA_EVENT_ID, eventId)

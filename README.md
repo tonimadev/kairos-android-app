@@ -1,6 +1,6 @@
 <img src="/images/kairos-banner.png" width="1024" height="500">
 
-[![Android CI - Kairos Multi-Module](https://github.com/ipirangad3v/kairos-android-app/actions/workflows/android-ci.yaml/badge.svg)](https://github.com/ipirangad3v/kairos-android-app/actions/workflows/android-ci.yaml) [![codecov](https://codecov.io/gh/ipirangad3v/kairos-android-app/graph/badge.svg?token=TKC92HM5VY)](https://codecov.io/gh/ipirangad3v/kairos-android-app)
+[![Android CI - Kairos Multi-Module](https://github.com/tonimadev/kairos-android-app/actions/workflows/android-ci.yaml/badge.svg)](https://github.com/tonimadev/kairos-android-app/actions/workflows/android-ci.yaml) [![codecov](https://codecov.io/gh/tonimadev/kairos-android-app/graph/badge.svg?token=TKC92HM5VY)](https://codecov.io/gh/ipirangad3v/kairos-android-app)
 
 # Kairós - Calendar Alarms for Android & Wear OS powered by Gemini AI
 
