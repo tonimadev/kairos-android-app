@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.EntryPointAccessors
-import digital.tonima.core.repository.AppStatusRepository
+import digital.tonima.core.repository.AppPreferencesRepository
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -21,7 +21,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SyncAlertDismissReceiverTest {
     private lateinit var context: Context
-    private val appStatusRepository: AppStatusRepository = mockk(relaxed = true)
+    private val appPreferencesRepository: AppPreferencesRepository = mockk(relaxed = true)
     private lateinit var receiver: SyncAlertDismissReceiver
 
     @Before
@@ -33,7 +33,7 @@ class SyncAlertDismissReceiverTest {
         mockkStatic(EntryPointAccessors::class)
 
         val entryPoint = mockk<SyncAlertDismissReceiver.SyncAlertEntryPoint>()
-        every { entryPoint.appStatusRepository() } returns appStatusRepository
+        every { entryPoint.appPreferencesRepository() } returns appPreferencesRepository
         every {
             EntryPointAccessors.fromApplication(
                 any(),
@@ -63,7 +63,7 @@ class SyncAlertDismissReceiverTest {
         receiver.onReceive(context, intent)
 
         // Assert
-        coVerify(timeout = 2000) { appStatusRepository.setSyncAlertMutedUntil(any()) }
+        coVerify(timeout = 2000) { appPreferencesRepository.setSyncAlertMutedUntil(any()) }
         verify { mockNotificationManager.cancel(notificationId) }
     }
 }

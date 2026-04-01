@@ -8,7 +8,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
-import digital.tonima.core.repository.AppStatusRepository
+import digital.tonima.core.repository.AppPreferencesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +18,7 @@ class SyncAlertDismissReceiver : BroadcastReceiver() {
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface SyncAlertEntryPoint {
-        fun appStatusRepository(): AppStatusRepository
+        fun appPreferencesRepository(): AppPreferencesRepository
     }
 
     companion object {
@@ -40,7 +40,7 @@ class SyncAlertDismissReceiver : BroadcastReceiver() {
                 EntryPointAccessors.fromApplication(
                     context.applicationContext,
                     SyncAlertEntryPoint::class.java,
-                ).appStatusRepository()
+                ).appPreferencesRepository()
 
             val mutedUntil = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)
 

@@ -16,7 +16,7 @@ import com.google.android.gms.wearable.Wearable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import digital.tonima.core.delegates.ProUserProvider
-import digital.tonima.core.repository.AppStatusRepository
+import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
@@ -46,7 +46,7 @@ class PhoneEventSyncWorker
         private val calendarRepository: CalendarRepository,
         private val proUserProvider: ProUserProvider,
         private val calculateDepartureTimeUseCase: CalculateDepartureTimeUseCase,
-        private val appStatusRepository: AppStatusRepository,
+        private val appPreferencesRepository: AppPreferencesRepository,
     ) : CoroutineWorker(appContext, workerParams) {
         override suspend fun doWork(): Result =
             try {
@@ -64,7 +64,7 @@ class PhoneEventSyncWorker
                 logcat { "Phone→Wear sync: sending ${events.size} events (Pro: $isAiUser)." }
 
                 if (events.isEmpty()) {
-                    val mutedUntil = appStatusRepository.getSyncAlertMutedUntil().first()
+                    val mutedUntil = appPreferencesRepository.getSyncAlertMutedUntil().first()
                     if (System.currentTimeMillis() > mutedUntil) {
                         NotificationHelper.showSyncAlertNotification(applicationContext)
                     }
