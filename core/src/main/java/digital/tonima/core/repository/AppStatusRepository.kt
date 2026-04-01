@@ -42,4 +42,8 @@ interface AppStatusRepository {
     fun isFullScreenIntentPermissionSkipped(): Flow<Boolean>
 
     suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean)
+
+    fun getSyncAlertMutedUntil(): Flow<Long>
+
+    suspend fun setSyncAlertMutedUntil(timestamp: Long)
 }

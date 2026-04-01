@@ -2,10 +2,13 @@ package digital.tonima.core.utils
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import digital.tonima.core.receiver.SyncAlertDismissReceiver
 import digital.tonima.kairos.core.R
 
 object NotificationHelper {
@@ -62,6 +65,21 @@ object NotificationHelper {
     fun showSyncAlertNotification(context: Context) {
         val title = context.getString(R.string.no_events_upcoming_24h_title)
         val content = context.getString(R.string.no_events_upcoming_24h_content)
+        val dismissActionTitle = context.getString(R.string.no_events_upcoming_24h_dismiss_today)
+
+        val dismissIntent =
+            Intent(context, SyncAlertDismissReceiver::class.java).apply {
+                action = SyncAlertDismissReceiver.ACTION_DISMISS_SYNC_ALERT
+                putExtra(SyncAlertDismissReceiver.EXTRA_NOTIFICATION_ID, NOTIFICATION_ID_SYNC_ALERT)
+            }
+        val dismissPendingIntent =
+            PendingIntent.getBroadcast(
+                context,
+                NOTIFICATION_ID_SYNC_ALERT,
+                dismissIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+
         val builder =
             NotificationCompat.Builder(context, CHANNEL_SYNC_ALERT)
                 .setSmallIcon(R.drawable.ic_k_monochrome)
@@ -69,6 +87,11 @@ object NotificationHelper {
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
+                .addAction(
+                    0, // No icon for the action
+                    dismissActionTitle,
+                    dismissPendingIntent,
+                )
 
         with(NotificationManagerCompat.from(context)) {
             try {

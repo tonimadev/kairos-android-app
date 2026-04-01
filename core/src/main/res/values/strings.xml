@@ -169,4 +169,5 @@
     <string name="ai_agent_event_creation_error">Erro ao criar o evento no calendário.</string>
     <string name="no_events_upcoming_24h_title">Sincronize sua agenda</string>
     <string name="no_events_upcoming_24h_content">Nenhum evento para as próximas 24h. Abra o app para sincronizar.</string>
+    <string name="no_events_upcoming_24h_dismiss_today">Não me avise mais hoje</string>
 </resources>

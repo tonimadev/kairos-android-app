@@ -168,4 +168,5 @@
     <string name="ai_agent_event_creation_error">Error ao crear el evento en el calendario.</string>
     <string name="no_events_upcoming_24h_title">Sincroniza tu calendario</string>
     <string name="no_events_upcoming_24h_content">No hay eventos para las próximas 24h. Abre la aplicación para sincronizar.</string>
+    <string name="no_events_upcoming_24h_dismiss_today">No me avises más hoy</string>
 </resources>

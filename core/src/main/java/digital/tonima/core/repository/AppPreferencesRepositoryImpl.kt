@@ -42,6 +42,7 @@ class AppPreferencesRepositoryImpl
             val PREFERRED_TRANSPORT_MODE = stringPreferencesKey("preferred_transport_mode")
             val EXACT_ALARM_PERMISSION_SKIPPED = booleanPreferencesKey("exact_alarm_permission_skipped")
             val FULL_SCREEN_INTENT_PERMISSION_SKIPPED = booleanPreferencesKey("full_screen_intent_permission_skipped")
+            val SYNC_ALERT_MUTED_UNTIL = longPreferencesKey("sync_alert_muted_until")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -319,6 +320,19 @@ class AppPreferencesRepositoryImpl
         override suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.FULL_SCREEN_INTENT_PERMISSION_SKIPPED] = skipped
+            }
+        }
+
+        override fun getSyncAlertMutedUntil(): Flow<Long> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.SYNC_ALERT_MUTED_UNTIL] ?: 0L
+                }
+        }
+
+        override suspend fun setSyncAlertMutedUntil(timestamp: Long) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.SYNC_ALERT_MUTED_UNTIL] = timestamp
             }
         }
     }

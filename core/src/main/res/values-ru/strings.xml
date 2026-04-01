@@ -167,4 +167,5 @@
     <string name="ai_agent_event_creation_error">Ошибка при создании события в календаре.</string>
     <string name="no_events_upcoming_24h_title">Синхронизируйте календарь</string>
     <string name="no_events_upcoming_24h_content">Нет событий на ближайшие 24 часа. Откройте приложение для синхронизации.</string>
+    <string name="no_events_upcoming_24h_dismiss_today">Больше не уведомлять сегодня</string>
 </resources>

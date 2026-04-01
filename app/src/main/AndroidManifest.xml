@@ -54,6 +54,7 @@
             android:turnScreenOn="true" />
 
         <receiver android:name="digital.tonima.core.receiver.AlarmReceiver" android:exported="false" />
+        <receiver android:name="digital.tonima.core.receiver.SyncAlertDismissReceiver" android:exported="false" />
         <receiver android:name=".receivers.WakeUpReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.USER_PRESENT" />

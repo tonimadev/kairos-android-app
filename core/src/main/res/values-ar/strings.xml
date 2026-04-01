@@ -166,4 +166,5 @@
     <string name="ai_agent_event_creation_error">خطأ في إنشاء الحدث في التقويم.</string>
     <string name="no_events_upcoming_24h_title">مزامنة التقويم الخاص بك</string>
     <string name="no_events_upcoming_24h_content">لا توجد أحداث خلال الـ 24 ساعة القادمة. افتح التطبيق للمزامنة.</string>
+    <string name="no_events_upcoming_24h_dismiss_today">لا تخطرني مرة أخرى اليوم</string>
 </resources>

@@ -163,4 +163,5 @@
     <string name="ai_agent_event_creation_error">在日历中创建事件时出错。</string>
     <string name="no_events_upcoming_24h_title">同步您的日历</string>
     <string name="no_events_upcoming_24h_content">未来 24 小时内没有事件。请打开应用进行同步。</string>
+    <string name="no_events_upcoming_24h_dismiss_today">今天不再提醒</string>
 </resources>

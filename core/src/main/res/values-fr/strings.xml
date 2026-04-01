@@ -169,4 +169,5 @@
     <string name="ai_agent_event_creation_error">Erreur lors de la création de l\'événement dans l\'agenda.</string>
     <string name="no_events_upcoming_24h_title">Synchronisez votre agenda</string>
     <string name="no_events_upcoming_24h_content">Aucun événement pour les prochaines 24h. Ouvrez l\'application pour synchroniser.</string>
+    <string name="no_events_upcoming_24h_dismiss_today">Ne m\'avertissez plus aujourd\'hui</string>
 </resources>
