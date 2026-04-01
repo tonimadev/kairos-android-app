@@ -164,4 +164,6 @@
     <string name="confirm">पुष्टि करें</string>
     <string name="ai_agent_event_created">इवेंट सफलतापूर्वक बनाया गया!</string>
     <string name="ai_agent_event_creation_error">कैलेंडर में इवेंट बनाने में त्रुटि।</string>
+    <string name="no_events_upcoming_24h_title">अपना कैलेंडर सिंक करें</string>
+    <string name="no_events_upcoming_24h_content">अगले 24 घंटों के लिए कोई इवेंट नहीं है। सिंक करने के लिए ऐप खोलें।</string>
 </resources>

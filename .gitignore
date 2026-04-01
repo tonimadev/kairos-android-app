@@ -18,3 +18,5 @@ local.properties
 /app/google-services.json
 /wear/google-services.json
 /app/X#
+/dependencies.txt
+/.kotlin/errors/errors-1773359981188.log

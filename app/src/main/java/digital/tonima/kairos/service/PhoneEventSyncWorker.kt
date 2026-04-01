@@ -29,6 +29,7 @@ import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
 import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
 import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
+import digital.tonima.core.utils.NotificationHelper
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import logcat.LogPriority
@@ -59,6 +60,10 @@ class PhoneEventSyncWorker
                         .sortedBy { it.startTime }
                 val events = monthEvents
                 logcat { "Phone→Wear sync: sending ${events.size} events (Pro: $isAiUser)." }
+
+                if (events.isEmpty()) {
+                    NotificationHelper.showSyncAlertNotification(applicationContext)
+                }
 
                 val dataClient: DataClient = Wearable.getDataClient(applicationContext)
                 val putReq = PutDataMapRequest.create(PATH_EVENTS_24H)

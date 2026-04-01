@@ -161,4 +161,6 @@
     <string name="confirm">確認</string>
     <string name="ai_agent_event_created">イベントが正常に作成されました！</string>
     <string name="ai_agent_event_creation_error">カレンダーにイベントを作成中にエラーが発生しました。</string>
+    <string name="no_events_upcoming_24h_title">カレンダーを同期する</string>
+    <string name="no_events_upcoming_24h_content">今後24時間以内にイベントはありません。同期するにはアプリを開いてください。</string>
 </resources>
