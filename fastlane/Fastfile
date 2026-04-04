@@ -22,6 +22,9 @@ platform :android do
       properties: {
         "android.injected.version.code" => version_code,
         "android.injected.version.name" => version_name,
+        "ADMOB_APP_ID" => ENV["ADMOB_APP_ID"],
+        "ADMOB_BANNER_AD_UNIT_HOME" => ENV["ADMOB_BANNER_AD_UNIT_HOME"],
+        "ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY" => ENV["ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY"],
         "android.injected.signing.store.file" => app_signing_store_file,
         "android.injected.signing.store.password" => ENV["ANDROID_SIGNING_KEY_PASSWORD"],
         "android.injected.signing.key.alias" => ENV["ANDROID_SIGNING_KEY_ALIAS"],

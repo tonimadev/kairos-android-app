@@ -108,6 +108,8 @@ jobs:
     name: Build, Sign and Deploy Phone App
     needs: version_bumper
     runs-on: ubuntu-latest
+    environment:
+      name: play-store-release
     steps:
       - uses: actions/checkout@v4
         with:
@@ -136,6 +138,9 @@ jobs:
       - run: echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 --decode > app/release-key.jks
 
       - env:
+          ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+          ADMOB_BANNER_AD_UNIT_HOME: ${{ secrets.ADMOB_BANNER_AD_UNIT_HOME }}
+          ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY: ${{ secrets.ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY }}
           PLAY_STORE_SERVICE_ACCOUNT_JSON_PLAINTEXT: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
           ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
@@ -150,6 +155,8 @@ jobs:
     name: Build, Sign and Deploy Wear OS App
     needs: version_bumper
     runs-on: ubuntu-latest
+    environment:
+      name: play-store-release
     steps:
       - uses: actions/checkout@v4
         with:

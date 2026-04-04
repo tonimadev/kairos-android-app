@@ -71,16 +71,20 @@ android {
                 }
 
                 admobAppId =
-                    System.getenv("ADMOB_APP_ID")
+                    findProperty("ADMOB_APP_ID")?.toString()
+                        ?: System.getenv("ADMOB_APP_ID")
                         ?: localProperties.getProperty("admob.app.id")
                         ?: admobAppIdTest
 
                 admobBannerAdUnitIdHome =
-                    System.getenv("ADMOB_BANNER_AD_UNIT_HOME")
+                    findProperty("ADMOB_BANNER_AD_UNIT_HOME")?.toString()
+                        ?: System.getenv("ADMOB_BANNER_AD_UNIT_HOME")
                         ?: localProperties.getProperty("admob.banner.ad.unit.home")
                         ?: admobBannerAdUnitIdTest
                 admobBannerAdUnitIdAlarm =
-                    System.getenv("ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY")
+                    findProperty("ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY")?.toString()
+                        ?: System.getenv("ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY")
+                        ?: localProperties.getProperty("admob.banner.ad.unit.alarm_activity")
                         ?: localProperties.getProperty("admob.banner.ad.unit.alarm_acitivity")
                         ?: admobBannerAdUnitIdTest
             } else {
