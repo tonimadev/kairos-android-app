@@ -144,7 +144,7 @@ fun DrawerContent(
             if (isAiUser) {
                 NavigationDrawerItem(
                     icon = { Icon(painterResource(star), contentDescription = null) },
-                    label = { Text(stringResource(digital.tonima.kairos.core.R.string.manage_subscription)) },
+                    label = { Text(stringResource(R.string.manage_subscription)) },
                     selected = false,
                     onClick = {
                         val browserIntent =

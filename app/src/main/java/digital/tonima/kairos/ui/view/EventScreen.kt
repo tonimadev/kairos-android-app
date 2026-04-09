@@ -530,7 +530,7 @@ private fun EventScreenContent(
                                             .GenerateDailyBriefing(aiInstruction),
                                     )
                                 },
-                                onUpgradeToPro = { viewModel.handleIntent(EventIntent.UpgradeToProRequest) },
+                                onUpgradeToPro = { viewModel.handleIntent(EventIntent.UpgradeToProIARequest) },
                                 onSubscriptionRequest = onSubscriptionRequest,
                                 onVoiceCaptureClick = { viewModel.handleIntent(EventIntent.ShowAiSuggestionsDialog) },
                                 onClearAiResponse = { viewModel.handleIntent(EventIntent.ClearAiResponse) },

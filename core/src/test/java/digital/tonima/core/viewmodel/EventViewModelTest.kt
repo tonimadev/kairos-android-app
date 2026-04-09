@@ -259,7 +259,7 @@ class EventViewModelTest {
         }
 
     @Test
-    fun `onUpgradeToProRequest updates showSubscriptionConfirmation to true`() =
+    fun `onUpgradeToProRequest updates showPurchaseConfirmation to true`() =
         runTest {
             advanceUntilIdle()
 
@@ -270,7 +270,7 @@ class EventViewModelTest {
                 advanceUntilIdle()
 
                 val updatedState = awaitItem()
-                assertTrue(updatedState.showSubscriptionConfirmation)
+                assertTrue(updatedState.showPurchaseConfirmation)
                 cancelAndConsumeRemainingEvents()
             }
         }

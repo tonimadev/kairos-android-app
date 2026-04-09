@@ -78,6 +78,8 @@ sealed class EventIntent {
 
     object UpgradeToProRequest : EventIntent()
 
+    object UpgradeToProIARequest : EventIntent()
+
     data class SearchQueryChanged(val query: String) : EventIntent()
 
     // UI Dialog state intents

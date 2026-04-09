@@ -203,6 +203,7 @@ class EventViewModel
                     // Grouped: UI / dialog / rating intents
                     EventIntent.DismissAutostartSuggestion,
                     EventIntent.UpgradeToProRequest,
+                    EventIntent.UpgradeToProIARequest,
                     EventIntent.DismissUpgradeConfirmation,
                     is EventIntent.SearchQueryChanged,
                     is EventIntent.ShowCreateEventDialog,
@@ -255,6 +256,10 @@ class EventViewModel
                     prefs.update.setAutostartSuggestionDismissed(true)
                 EventIntent.UpgradeToProRequest -> {
                     analytics.logEvent(Analytics.EVENT_UPGRADE_REQUEST)
+                    _uiState.update { it.copy(showPurchaseConfirmation = true) }
+                }
+                EventIntent.UpgradeToProIARequest -> {
+                    analytics.logEvent(Analytics.EVENT_UPGRADE_IA_REQUEST)
                     _uiState.update { it.copy(showSubscriptionConfirmation = true) }
                 }
                 EventIntent.DismissUpgradeConfirmation ->

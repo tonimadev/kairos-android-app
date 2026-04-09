@@ -22,6 +22,7 @@ interface Analytics {
         const val EVENT_AI_BRIEFING = "ai_briefing_generated"
         const val EVENT_AI_SPEAK = "ai_speak"
         const val EVENT_UPGRADE_REQUEST = "upgrade_request"
+        const val EVENT_UPGRADE_IA_REQUEST = "upgrade_ia_request"
         const val EVENT_RATE_NOW = "rate_now"
         const val EVENT_RATE_LATER = "rate_later"
         const val EVENT_RATE_NEVER = "rate_never"
