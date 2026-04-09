@@ -111,6 +111,18 @@ class EventViewModel
             observeRingerMode()
             observeDailyBriefing()
             handleIntent(EventIntent.CheckPermissions)
+
+            viewModelScope.launch {
+                isAiUser.collect { isAi ->
+                    _uiState.update { it.copy(isAiUser = isAi) }
+                }
+            }
+
+            viewModelScope.launch {
+                isProUser.collect { isPro ->
+                    _uiState.update { it.copy(isProUser = isPro) }
+                }
+            }
         }
 
         fun handleIntent(intent: EventIntent) {
