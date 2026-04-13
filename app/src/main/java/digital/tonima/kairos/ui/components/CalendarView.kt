@@ -1,6 +1,7 @@
 package digital.tonima.kairos.ui.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,9 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Today
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,7 +42,6 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import digital.tonima.core.model.Event
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.ui.theme.Dimensions
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -107,7 +112,10 @@ private fun MonthHeader(
 ) {
     val currentMonth = YearMonth.now()
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -115,12 +123,20 @@ private fun MonthHeader(
         val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
         Text(
             text = month.format(formatter).replaceFirstChar { it.titlecase(locale) },
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(vertical = 8.dp),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(vertical = 12.dp),
         )
         if (month != currentMonth) {
-            TextButton(onClick = onReturnToTodayClicked) {
-                Text(stringResource(R.string.back_to_today))
+            IconButton(
+                onClick = onReturnToTodayClicked,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Today,
+                    contentDescription = stringResource(R.string.back_to_today),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
         }
     }
@@ -159,46 +175,67 @@ private fun Day(
     onClick: (CalendarDay) -> Unit,
 ) {
     val isToday = day.date == LocalDate.now()
+    val isMonthDate = day.position == DayPosition.MonthDate
+
     val targetBg =
         when {
             isSelected -> MaterialTheme.colorScheme.primary
-            isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+            isToday -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
             else -> Color.Transparent
         }
     val bgColor by animateColorAsState(targetValue = targetBg, label = "dayBg")
+
+    val targetContentColor =
+        when {
+            isSelected -> MaterialTheme.colorScheme.onPrimary
+            isToday -> MaterialTheme.colorScheme.primary
+            !isMonthDate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+            else -> MaterialTheme.colorScheme.onSurface
+        }
+    val contentColor by animateColorAsState(targetValue = targetContentColor, label = "contentColor")
+
+    val borderSize by animateDpAsState(
+        targetValue = if (isToday && !isSelected) 2.dp else 0.dp,
+        label = "borderSize",
+    )
 
     Box(
         modifier =
             Modifier
                 .aspectRatio(1f)
-                .padding(Dimensions.PaddingTiny)
+                .padding(4.dp)
                 .background(
                     color = bgColor,
-                    shape = CircleShape,
-                ).border(
-                    width = if (isToday && !isSelected) Dimensions.ElevationExtraSmall else Dimensions.PaddingNone,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = if (isSelected) 0f else 1f),
-                    shape = CircleShape,
-                ).clickable(enabled = day.position == DayPosition.MonthDate) { onClick(day) },
+                    shape = RoundedCornerShape(12.dp),
+                )
+                .then(
+                    if (borderSize > 0.dp) {
+                        Modifier.border(
+                            borderSize,
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                            RoundedCornerShape(12.dp),
+                        )
+                    } else {
+                        Modifier
+                    },
+                )
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(enabled = isMonthDate) { onClick(day) },
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                color =
-                    when {
-                        isSelected -> MaterialTheme.colorScheme.onPrimary
-                        day.position != DayPosition.MonthDate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
-                        else -> MaterialTheme.colorScheme.onSurface
-                    },
+                color = contentColor,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
             )
-            if (hasEvents && day.position == DayPosition.MonthDate) {
+            if (hasEvents && isMonthDate) {
                 Box(
                     modifier =
                         Modifier
-                            .padding(top = Dimensions.EventTagVerticalPadding)
-                            .size(Dimensions.EventCardSpacing)
+                            .padding(top = 2.dp)
+                            .size(4.dp)
                             .background(
                                 color =
                                     if (isSelected) {

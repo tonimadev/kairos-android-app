@@ -19,6 +19,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -42,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -52,12 +57,7 @@ import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.util.openAutostartSettings
 import digital.tonima.core.viewmodel.EventScreenUiState
-import digital.tonima.kairos.R.drawable.alarm
-import digital.tonima.kairos.R.drawable.ic_expand_less
-import digital.tonima.kairos.R.drawable.ic_expand_more
-import digital.tonima.kairos.R.drawable.vibration
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.core.R.drawable.date_range
 import digital.tonima.kairos.ui.theme.Dimensions
 import kotlin.math.roundToInt
 
@@ -142,7 +142,7 @@ private fun SettingsCard(
                 horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
             ) {
                 Icon(
-                    painter = painterResource(alarm),
+                    imageVector = Icons.Rounded.Notifications,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(Dimensions.IconSizeTiny),
@@ -162,10 +162,8 @@ private fun SettingsCard(
                 }
             }
             Icon(
-                painter =
-                    painterResource(
-                        if (settingsExpanded) ic_expand_less else ic_expand_more,
-                    ),
+                imageVector =
+                    if (settingsExpanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown,
                 contentDescription =
                     stringResource(
                         if (settingsExpanded) R.string.cd_collapse_settings else R.string.cd_expand_settings,
@@ -218,7 +216,7 @@ private fun SettingsContent(
                 horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
             ) {
                 Icon(
-                    painter = painterResource(vibration),
+                    imageVector = Icons.Rounded.Vibration,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(Dimensions.IconSizeSmall),
@@ -303,7 +301,7 @@ private fun AllDayAlarmsSection(
             horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
         ) {
             Icon(
-                painter = painterResource(date_range),
+                imageVector = Icons.Rounded.CalendarMonth,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(Dimensions.IconSizeSmall),

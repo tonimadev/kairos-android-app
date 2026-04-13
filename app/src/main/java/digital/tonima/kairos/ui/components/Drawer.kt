@@ -17,6 +17,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Subscriptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,9 +39,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.core.net.toUri
-import digital.tonima.kairos.R.drawable.favorite
-import digital.tonima.kairos.R.drawable.ic_share
-import digital.tonima.kairos.R.drawable.star
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.ic_k_monochrome
 import digital.tonima.kairos.ui.theme.Dimensions
@@ -130,8 +132,14 @@ fun DrawerContent(
 
             if (!isProUser) {
                 NavigationDrawerItem(
-                    icon = { Icon(painterResource(star), contentDescription = null) },
-                    label = { Text(stringResource(R.string.remove_ads)) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    label = { Text(stringResource(R.string.remove_ads), fontWeight = FontWeight.Medium) },
                     selected = false,
                     onClick = {
                         onUpgradeToProClick()
@@ -143,8 +151,14 @@ fun DrawerContent(
 
             if (isAiUser) {
                 NavigationDrawerItem(
-                    icon = { Icon(painterResource(star), contentDescription = null) },
-                    label = { Text(stringResource(R.string.manage_subscription)) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Subscriptions,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    label = { Text(stringResource(R.string.manage_subscription), fontWeight = FontWeight.Medium) },
                     selected = false,
                     onClick = {
                         val browserIntent =
@@ -168,8 +182,14 @@ fun DrawerContent(
             )
 
             NavigationDrawerItem(
-                icon = { Icon(painterResource(favorite), contentDescription = null) },
-                label = { Text(stringResource(R.string.our_other_apps)) },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Favorite,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                    )
+                },
+                label = { Text(stringResource(R.string.our_other_apps), fontWeight = FontWeight.Medium) },
                 selected = false,
                 onClick = {
                     onOurOtherAppsClick()
@@ -180,8 +200,14 @@ fun DrawerContent(
 
             val shareText = stringResource(R.string.share_text)
             NavigationDrawerItem(
-                icon = { Icon(painterResource(ic_share), contentDescription = null) },
-                label = { Text(stringResource(R.string.share_app)) },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Share,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                    )
+                },
+                label = { Text(stringResource(R.string.share_app), fontWeight = FontWeight.Medium) },
                 selected = false,
                 onClick = {
                     val sendIntent: Intent =

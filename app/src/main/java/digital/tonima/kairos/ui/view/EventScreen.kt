@@ -14,38 +14,40 @@ import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -61,8 +63,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -80,9 +82,7 @@ import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.EventSideEffect
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_HOME
-import digital.tonima.kairos.R.drawable
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.core.R.drawable.date_range
 import digital.tonima.kairos.ui.components.AdBannerView
 import digital.tonima.kairos.ui.components.AiActions
 import digital.tonima.kairos.ui.components.AiSuggestionsDialog
@@ -549,19 +549,25 @@ private fun EventScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EventTopBar(onOpenMenu: () -> Unit) {
-    TopAppBar(
-        title = { Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.titleLarge) },
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
         colors =
-            TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onBackground,
+                navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                actionIconContentColor = MaterialTheme.colorScheme.onBackground,
             ),
         navigationIcon = {
             IconButton(onClick = onOpenMenu) {
                 Icon(
-                    painterResource(drawable.menu),
+                    imageVector = Icons.Rounded.Menu,
                     contentDescription = stringResource(R.string.cd_open_menu),
                 )
             }
@@ -570,7 +576,6 @@ private fun EventTopBar(onOpenMenu: () -> Unit) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EventBottomBar(
     uiState: EventScreenUiState,
@@ -578,74 +583,50 @@ private fun EventBottomBar(
     onOpenCalendar: () -> Unit,
     handleIntent: (EventIntent) -> Unit,
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = BottomAppBarDefaults.containerColor,
-        tonalElevation = BottomAppBarDefaults.ContainerElevation,
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .navigationBarsPadding()
-                    .padding(horizontal = Dimensions.PaddingSmall),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            // Left: Create Event
+    BottomAppBar(
+        actions = {
             if (uiState.hasCalendarPermission) {
                 IconButton(onClick = { handleIntent(EventIntent.ShowCreateEventDialog()) }) {
                     Icon(
-                        painter = painterResource(drawable.ic_add),
+                        imageVector = Icons.Rounded.Add,
                         contentDescription = stringResource(R.string.create_event),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(Dimensions.IconSizeNormal),
                     )
                 }
-            } else {
-                Spacer(modifier = Modifier.size(48.dp))
             }
-
-            // Center: AI mic button
-            if (isAiUser) {
-                FilledIconButton(
-                    onClick = { handleIntent(EventIntent.ShowAiSuggestionsDialog) },
-                    modifier = Modifier.size(48.dp),
-                    colors =
-                        IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_mic),
-                        contentDescription = stringResource(R.string.cd_voice_capture),
-                        modifier = Modifier.size(Dimensions.IconSizeMedium),
-                    )
-                }
-            } else {
-                Spacer(modifier = Modifier.size(48.dp))
-            }
-
-            // Right: Open Calendar
+            Spacer(Modifier.weight(1f))
             if (uiState.hasCalendarPermission &&
                 uiState.hasExactAlarmPermission &&
                 uiState.hasFullScreenIntentPermission
             ) {
                 IconButton(onClick = onOpenCalendar) {
                     Icon(
-                        painter = painterResource(date_range),
+                        imageVector = Icons.Rounded.CalendarMonth,
                         contentDescription = stringResource(R.string.open_calendar),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(Dimensions.IconSizeNormal),
                     )
                 }
-            } else {
-                Spacer(modifier = Modifier.size(48.dp))
             }
-        }
-    }
+        },
+        floatingActionButton = {
+            if (isAiUser) {
+                FloatingActionButton(
+                    onClick = { handleIntent(EventIntent.ShowAiSuggestionsDialog) },
+                    containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                    elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Mic,
+                        contentDescription = stringResource(R.string.cd_voice_capture),
+                        modifier = Modifier.size(Dimensions.IconSizeMedium),
+                    )
+                }
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        tonalElevation = 0.dp,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

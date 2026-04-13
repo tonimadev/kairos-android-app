@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.rounded.AlarmOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -24,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -32,7 +34,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import digital.tonima.kairos.R.drawable.alarm
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.Dimensions
 
@@ -106,7 +107,7 @@ fun AlarmsToggleRow(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        painter = painterResource(alarm),
+                        imageVector = if (alarmsEnabled) Icons.Rounded.Alarm else Icons.Rounded.AlarmOff,
                         contentDescription = stringResource(R.string.cd_alarm_icon),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(Dimensions.IconSizeMedium),

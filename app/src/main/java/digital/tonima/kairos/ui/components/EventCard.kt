@@ -18,10 +18,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.rounded.AlarmOff
+import androidx.compose.material.icons.rounded.DirectionsCar
+import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -147,8 +154,14 @@ fun EventCard(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(top = 2.dp),
                     ) {
+                        Icon(
+                            imageVector = Icons.Rounded.LocationOn,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                         Text(
-                            text = "📍 " + event.location,
+                            text = event.location!!,
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -167,7 +180,7 @@ fun EventCard(
                                 .clip(RoundedCornerShape(Dimensions.RadiusFull))
                                 .background(
                                     if (event.isAlarmEnabled) {
-                                        MaterialTheme.colorScheme.primaryContainer
+                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
                                     } else {
                                         MaterialTheme.colorScheme.surfaceVariant
                                     },
@@ -180,23 +193,39 @@ fun EventCard(
                                     contentDescription = "$alarmStateDescription $formattedTime"
                                 },
                     ) {
-                        Text(
-                            text = (if (event.isAlarmEnabled) "🔔 " else "🔕 ") + formatMillisToTime(event.startTime),
-                            style = MaterialTheme.typography.labelMedium,
-                            color =
-                                if (event.isAlarmEnabled) {
-                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                },
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Icon(
+                                imageVector = if (event.isAlarmEnabled) Icons.Rounded.Alarm else Icons.Rounded.AlarmOff,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint =
+                                    if (event.isAlarmEnabled) {
+                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                            )
+                            Text(
+                                text = formatMillisToTime(event.startTime),
+                                style = MaterialTheme.typography.labelMedium,
+                                color =
+                                    if (event.isAlarmEnabled) {
+                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                            )
+                        }
                     }
                     if (event.isRecurring) {
                         Box(
                             modifier =
                                 Modifier
                                     .clip(RoundedCornerShape(Dimensions.RadiusFull))
-                                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f))
                                     .padding(
                                         horizontal = Dimensions.EventTagHorizontalPadding,
                                         vertical = Dimensions.EventTagVerticalPadding,
@@ -205,30 +234,51 @@ fun EventCard(
                                         contentDescription = recurringDescription
                                     },
                         ) {
-                            Text(
-                                text = "🔁 " + stringResource(R.string.recurring_label),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Repeat,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                                Text(
+                                    text = stringResource(R.string.recurring_label),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
                         }
                     }
                     if (event.isAlarmEnabled && event.travelTimeMinutes != null) {
                         Box(
                             modifier =
                                 Modifier
-                                    .padding(top = Dimensions.EventCardSpacing)
                                     .clip(RoundedCornerShape(Dimensions.RadiusFull))
-                                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f))
                                     .padding(
                                         horizontal = Dimensions.EventTagHorizontalPadding,
                                         vertical = Dimensions.EventTagVerticalPadding,
                                     ),
                         ) {
-                            Text(
-                                text = "🚗 " + stringResource(R.string.travel_time_label, event.travelTimeMinutes!!),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.DirectionsCar,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                )
+                                Text(
+                                    text = stringResource(R.string.travel_time_label, event.travelTimeMinutes!!),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                )
+                            }
                         }
                     }
                     if (event.isAlarmEnabled) {
