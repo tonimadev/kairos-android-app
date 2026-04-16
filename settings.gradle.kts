@@ -23,4 +23,6 @@ includeBuild("build-logic")
 rootProject.name = "Kairos"
 include(":app")
 include(":core")
+include(":core:billing:bridge")
+include(":core:billing:impl")
 include(":wear")

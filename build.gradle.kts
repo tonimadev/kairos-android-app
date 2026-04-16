@@ -40,9 +40,11 @@ val sortDependencies by tasks.registering {
     group = "Verification"
     description = "Checks and sorts dependencies and plugins in build.gradle.kts files with spacing between groups."
 
+    val buildFilesFromConfig = project.allprojects.map { it.file("build.gradle.kts") }.filter { it.exists() }
+    inputs.files(buildFilesFromConfig)
+
     doLast {
-        val buildFiles = project.allprojects.map { it.file("build.gradle.kts") }.filter { it.exists() }
-        buildFiles.forEach { file ->
+        inputs.files.forEach { file ->
             val lines = file.readLines()
             val newLines = mutableListOf<String>()
             var i = 0
@@ -149,7 +151,7 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
 
     classDirectories.setFrom(files(subprojects.flatMap { sp ->
         listOf(
-            fileTree("${sp.buildDir}/tmp/kotlin-classes/debug") {
+            fileTree(sp.layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
                 exclude(
                     "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
                     "**/*Test*.*", "android/**/*.*", "**/*_Hilt*.class", "**/Dagger*Component.class",
@@ -157,7 +159,7 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
                     "**/*_Provide*Factory*.*", "**/*_Factory*.*"
                 )
             },
-            fileTree("${sp.buildDir}/intermediates/javac/debug/classes") {
+            fileTree(sp.layout.buildDirectory.dir("intermediates/javac/debug/classes")) {
                 exclude(
                     "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
                     "**/*Test*.*", "android/**/*.*", "**/*_Hilt*.class", "**/Dagger*Component.class",
@@ -170,8 +172,8 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
 
     executionData.setFrom(files(subprojects.flatMap { sp ->
         listOf(
-            fileTree(sp.buildDir) { include("jacoco/testDebugUnitTest.exec") },
-            fileTree(sp.buildDir) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") }
+            fileTree(sp.layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") },
+            fileTree(sp.layout.buildDirectory) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") }
         )
     }))
 

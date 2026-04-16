@@ -19,14 +19,11 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - uses: actions/cache@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          gradle-version: wrapper
+          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
 
       - run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
       - run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > wear/google-services.json
@@ -34,14 +31,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run Spotless Check and Sort Dependencies
-        run: ./gradlew spotlessCheck sortDependencies
-
-      - name: Run Detekt
-        run: ./gradlew detekt
-
-      - name: Run tests and generate merged coverage report
-        run: ./gradlew createJacocoMergedCoverageReport
+      - name: Run Checks and Tests
+        run: ./gradlew spotlessCheck sortDependencies detekt createJacocoMergedCoverageReport --parallel
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4

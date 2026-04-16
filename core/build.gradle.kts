@@ -65,12 +65,13 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 
+    api(project(":core:billing:bridge"))
+
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.wear)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.billing.ktx)
     implementation(libs.datastore.preferences.core)
     implementation(libs.google.firebase.analytics)
     implementation(libs.google.firebase.crashlytics)
@@ -91,6 +92,7 @@ dependencies {
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlin.serialization)
     implementation(platform(libs.google.firebase.bom))
+    implementation(project(":core:billing:impl"))
 
     ksp(libs.androidx.hilt.compiler)
     ksp(libs.hilt.binder.compiler)
