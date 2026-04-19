@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Build
 import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
-import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
@@ -17,6 +17,7 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import java.time.Clock
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
@@ -36,19 +37,33 @@ class EventAlarmSchedulerImplTest {
         alarmManager = context.getSystemService(AlarmManager::class.java)
         mockPrefsRepo = mockk<AppPreferencesRepository>()
 
-        coEvery { mockPrefsRepo.isAllDayAlarmsEnabled() } returns flowOf(true)
-        coEvery { mockPrefsRepo.getAllDayAlarmHour() } returns flowOf(9)
-        coEvery { mockPrefsRepo.getAlarmOffsetMinutes() } returns flowOf(0L)
+        stubSchedulerPreferences()
     }
+
+    private fun stubSchedulerPreferences(
+        allDayAlarmsEnabled: Boolean = true,
+        allDayAlarmHour: Int = 9,
+        alarmOffsetMinutes: Long = 0L,
+        skipWeekends: Boolean = false,
+        snoozeTimeMinutes: Int = 10,
+    ) {
+        every { mockPrefsRepo.isAllDayAlarmsEnabled() } returns flowOf(allDayAlarmsEnabled)
+        every { mockPrefsRepo.getAllDayAlarmHour() } returns flowOf(allDayAlarmHour)
+        every { mockPrefsRepo.getAlarmOffsetMinutes() } returns flowOf(alarmOffsetMinutes)
+        every { mockPrefsRepo.isSkipWeekendsEnabled() } returns flowOf(skipWeekends)
+        every { mockPrefsRepo.getSnoozeTimeMinutes() } returns flowOf(snoozeTimeMinutes)
+    }
+
+    private fun createScheduler() =
+        EventAlarmSchedulerImpl(context, mockPrefsRepo).apply {
+            clock = fixedClock
+        }
 
     @Test
     fun `schedule should set exact alarm with correct trigger time`() {
         val event = Event(id = 10L, title = "T", startTime = 123456789L)
 
-        val scheduler =
-            EventAlarmSchedulerImpl(context, mockPrefsRepo).apply {
-                clock = fixedClock
-            }
+        val scheduler = createScheduler()
         scheduler.schedule(event)
 
         val shadowAlarmManager = Shadows.shadowOf(alarmManager)
@@ -62,10 +77,7 @@ class EventAlarmSchedulerImplTest {
     @Test
     fun `cancel should cancel the existing alarm`() {
         val event = Event(id = 10L, title = "T", startTime = 123456789L)
-        val scheduler =
-            EventAlarmSchedulerImpl(context, mockPrefsRepo).apply {
-                clock = fixedClock
-            }
+        val scheduler = createScheduler()
 
         scheduler.schedule(event)
         scheduler.cancel(event)
@@ -76,15 +88,12 @@ class EventAlarmSchedulerImplTest {
 
     @Test
     fun `schedule should not set alarm for all-day events when disabled`() {
-        coEvery { mockPrefsRepo.isAllDayAlarmsEnabled() } returns flowOf(false)
+        stubSchedulerPreferences(allDayAlarmsEnabled = false)
 
         val utcMidnight = Instant.parse("2100-06-15T00:00:00Z").toEpochMilli()
         val allDayEvent = Event(id = 10L, title = "All Day Event", startTime = utcMidnight, isAllDay = true)
 
-        val scheduler =
-            EventAlarmSchedulerImpl(context, mockPrefsRepo).apply {
-                clock = fixedClock
-            }
+        val scheduler = createScheduler()
         scheduler.schedule(allDayEvent)
 
         val shadowAlarmManager = Shadows.shadowOf(alarmManager)
@@ -95,16 +104,12 @@ class EventAlarmSchedulerImplTest {
 
     @Test
     fun `schedule should set alarm for all-day events at configured hour when enabled`() {
-        coEvery { mockPrefsRepo.isAllDayAlarmsEnabled() } returns flowOf(true)
-        coEvery { mockPrefsRepo.getAllDayAlarmHour() } returns flowOf(9)
+        stubSchedulerPreferences(allDayAlarmsEnabled = true, allDayAlarmHour = 9)
 
         val utcMidnight = Instant.parse("2100-06-15T00:00:00Z").toEpochMilli()
         val allDayEvent = Event(id = 10L, title = "All Day Event", startTime = utcMidnight, isAllDay = true)
 
-        val scheduler =
-            EventAlarmSchedulerImpl(context, mockPrefsRepo).apply {
-                clock = fixedClock
-            }
+        val scheduler = createScheduler()
         scheduler.schedule(allDayEvent)
 
         val shadowAlarmManager = Shadows.shadowOf(alarmManager)
@@ -125,5 +130,45 @@ class EventAlarmSchedulerImplTest {
         assert(alarm.triggerAtTime == expectedAlarmTime) {
             "Expected alarm at $expectedAlarmTime but got ${alarm.triggerAtTime}"
         }
+    }
+
+    @Test
+    fun `schedule should not set alarm for weekend events when skip weekends is enabled`() {
+        stubSchedulerPreferences(skipWeekends = true)
+
+        val saturdayStartTime =
+            LocalDate.of(2100, 6, 19)
+                .atTime(10, 0)
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
+        val weekendEvent = Event(id = 11L, title = "Weekend Event", startTime = saturdayStartTime)
+
+        createScheduler().schedule(weekendEvent)
+
+        val shadowAlarmManager = Shadows.shadowOf(alarmManager)
+        assert(shadowAlarmManager.scheduledAlarms.isEmpty()) {
+            "No alarm should be scheduled for weekend events when skip weekends is enabled"
+        }
+    }
+
+    @Test
+    fun `schedule should still set alarm for weekday events when skip weekends is enabled`() {
+        stubSchedulerPreferences(skipWeekends = true)
+
+        val mondayStartTime =
+            LocalDate.of(2100, 6, 21)
+                .atTime(10, 0)
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
+        val weekdayEvent = Event(id = 12L, title = "Weekday Event", startTime = mondayStartTime)
+
+        createScheduler().schedule(weekdayEvent)
+
+        val shadowAlarmManager = Shadows.shadowOf(alarmManager)
+        val alarms = shadowAlarmManager.scheduledAlarms
+        assert(alarms.size == 1) { "Alarm should be scheduled for weekday events" }
+        assert(alarms.first().triggerAtTime == mondayStartTime)
     }
 }

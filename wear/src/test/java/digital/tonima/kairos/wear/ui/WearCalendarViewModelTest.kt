@@ -35,7 +35,7 @@ class WearCalendarViewModelTest {
         private val disabledInstances = MutableStateFlow<Set<String>>(emptySet())
         private val disabledSeries = MutableStateFlow<Set<String>>(emptySet())
         private val vibrateOnly = MutableStateFlow(false)
-        private val autoDismiss = MutableStateFlow(false)
+        private val autostartSuggestionDismissed = MutableStateFlow(false)
         private val vibrateOnlyEventIds = MutableStateFlow<Set<String>>(emptySet())
         private val installationDate = MutableStateFlow(0L)
         private val ratingPrompted = MutableStateFlow(false)
@@ -45,6 +45,8 @@ class WearCalendarViewModelTest {
         private val alarmOffsetMinutes = MutableStateFlow(0L)
         private val enabledCalendarIds = MutableStateFlow<Set<String>>(emptySet())
         private val snoozeTimeMinutes = MutableStateFlow(10)
+        private val skipWeekendsEnabled = MutableStateFlow(false)
+        private val autoDismissMinutes = MutableStateFlow(10)
         private val wakeUpHistory = MutableStateFlow<List<Long>>(emptyList())
         private val exactAlarmSkipped = MutableStateFlow(false)
         private val fullScreenIntentSkipped = MutableStateFlow(false)
@@ -80,10 +82,10 @@ class WearCalendarViewModelTest {
             vibrateOnly.value = enabled
         }
 
-        override fun getAutostartSuggestionDismissed() = autoDismiss as Flow<Boolean>
+        override fun getAutostartSuggestionDismissed() = autostartSuggestionDismissed as Flow<Boolean>
 
         override suspend fun setAutostartSuggestionDismissed(dismissed: Boolean) {
-            autoDismiss.value = dismissed
+            autostartSuggestionDismissed.value = dismissed
         }
 
         override fun getInstallationDate() = installationDate as Flow<Long>
@@ -132,6 +134,18 @@ class WearCalendarViewModelTest {
 
         override suspend fun setSnoozeTimeMinutes(minutes: Int) {
             snoozeTimeMinutes.value = minutes
+        }
+
+        override fun isSkipWeekendsEnabled(): Flow<Boolean> = skipWeekendsEnabled
+
+        override suspend fun setSkipWeekendsEnabled(enabled: Boolean) {
+            skipWeekendsEnabled.value = enabled
+        }
+
+        override fun getAutoDismissMinutes(): Flow<Int> = autoDismissMinutes
+
+        override suspend fun setAutoDismissMinutes(minutes: Int) {
+            autoDismissMinutes.value = minutes
         }
 
         override fun getWakeUpHistory(): Flow<List<Long>> = wakeUpHistory

@@ -146,6 +146,8 @@ class EventViewModelTest {
             vibrateOnlyEventIds = emptySet(),
             exactAlarmPermissionSkipped = false,
             fullScreenIntentPermissionSkipped = false,
+            skipWeekendsEnabled = false,
+            autoDismissMinutes = 5,
         )
 
     private fun createViewModel() =
