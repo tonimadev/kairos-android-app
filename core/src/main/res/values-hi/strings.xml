@@ -84,6 +84,11 @@
     <string name="calendar_filter_all_enabled">सभी कैलेंडर सक्रिय</string>
     <string name="snooze">स्नूज़</string>
     <string name="snooze_time_label">स्नूज़ समय (मिनट)</string>
+    <string name="skip_weekends_label">सप्ताहांत छोड़ें</string>
+    <string name="auto_dismiss_label">स्वतः बंद करें (मिनट बाद)</string>
+    <string name="join_meeting_label">मीटिंग में शामिल हों</string>
+    <string name="copy_meeting_link">लिंक कॉपी करें</string>
+    <string name="link_copied">लिंक क्लिपबोर्ड पर कॉपी हो गया</string>
     <string name="search">ईवेंट खोजें</string>
     <string name="cd_alarm_icon">अलार्म आइकन</string>
     <string name="cd_app_logo">ऐप लोगो</string>

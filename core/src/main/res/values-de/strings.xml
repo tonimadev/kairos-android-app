@@ -86,6 +86,11 @@
     <string name="calendar_filter_all_enabled">Alle Kalender aktiviert</string>
     <string name="snooze">SCHLUMMERN</string>
     <string name="snooze_time_label">Schlummerzeit (Minuten)</string>
+    <string name="skip_weekends_label">Wochenenden überspringen</string>
+    <string name="auto_dismiss_label">Automatisch schließen nach (Minuten)</string>
+    <string name="join_meeting_label">Am Meeting teilnehmen</string>
+    <string name="copy_meeting_link">Link kopieren</string>
+    <string name="link_copied">Link in die Zwischenablage kopiert</string>
     <string name="search">Ereignisse suchen</string>
     <string name="cd_alarm_icon">Alarmsymbol</string>
     <string name="cd_app_logo">App-Logo</string>

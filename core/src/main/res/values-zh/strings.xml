@@ -81,6 +81,11 @@
     <string name="calendar_filter_all_enabled">所有日历已启用</string>
     <string name="snooze">稍后提醒</string>
     <string name="snooze_time_label">稍后提醒时间（分钟）</string>
+    <string name="skip_weekends_label">跳过周末</string>
+    <string name="auto_dismiss_label">自动关闭（分钟后）</string>
+    <string name="join_meeting_label">加入会议</string>
+    <string name="copy_meeting_link">复制链接</string>
+    <string name="link_copied">链接已复制到剪贴板</string>
     <string name="search">搜索事件</string>
     <string name="cd_alarm_icon">闹钟图标</string>
     <string name="cd_app_logo">应用徽标</string>

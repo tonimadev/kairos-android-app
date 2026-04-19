@@ -230,6 +230,31 @@ private fun SettingsContent(
             Switch(checked = uiState.vibrateOnly, onCheckedChange = settingsActions.onVibrateToggle)
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.CalendarMonth,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(Dimensions.IconSizeSmall),
+                )
+                Text(
+                    stringResource(R.string.skip_weekends_label),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+            Switch(checked = uiState.skipWeekends, onCheckedChange = settingsActions.onSkipWeekendsToggle)
+        }
+
         AllDayAlarmsSection(
             enabled = uiState.allDayAlarmsEnabled,
             onToggle = settingsActions.onAllDayAlarmsToggle,
@@ -269,6 +294,25 @@ private fun SettingsContent(
                 onValueChange = { settingsActions.onSnoozeTimeChanged(it.roundToInt()) },
                 valueRange = 5f..60f,
                 steps = 10,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+        Column {
+            Text(
+                text =
+                    stringResource(R.string.auto_dismiss_label) +
+                        ": ${uiState.autoDismissMinutes} min",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Slider(
+                value = uiState.autoDismissMinutes.toFloat(),
+                onValueChange = { settingsActions.onAutoDismissMinutesChanged(it.roundToInt()) },
+                valueRange = 1f..30f,
+                steps = 28,
                 modifier = Modifier.fillMaxWidth(),
             )
         }

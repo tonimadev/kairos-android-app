@@ -3,7 +3,9 @@ package digital.tonima.kairos.ui.components
 import android.text.format.DateFormat
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.rounded.AlarmOff
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Repeat
+import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -55,14 +58,17 @@ import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.Dimensions
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
+@Suppress("LongMethod")
 fun EventCard(
     event: Event,
     isGloballyEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
     onVibrateToggle: (Boolean) -> Unit,
     onEventClick: () -> Unit,
+    onJoinMeeting: ((String) -> Unit)? = null,
+    onCopyMeetingUrl: ((String) -> Unit)? = null,
 ) {
     val targetCardColor by animateColorAsState(
         targetValue =
@@ -248,6 +254,40 @@ fun EventCard(
                                     text = stringResource(R.string.recurring_label),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
+                        }
+                    }
+                    val meetingUrl = event.meetingUrl
+                    if (meetingUrl != null && onJoinMeeting != null) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
+                                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f))
+                                    .combinedClickable(
+                                        onClick = { onJoinMeeting(meetingUrl) },
+                                        onLongClick = { onCopyMeetingUrl?.invoke(meetingUrl) },
+                                    )
+                                    .padding(
+                                        horizontal = Dimensions.EventTagHorizontalPadding,
+                                        vertical = Dimensions.EventTagVerticalPadding,
+                                    ),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Videocam,
+                                    contentDescription = stringResource(R.string.join_meeting_label),
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                )
+                                Text(
+                                    text = stringResource(R.string.join_meeting_label),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
                                 )
                             }
                         }

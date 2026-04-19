@@ -85,6 +85,11 @@
     <string name="calendar_filter_all_enabled">Все календари включены</string>
     <string name="snooze">ОТЛОЖИТЬ</string>
     <string name="snooze_time_label">Время откладывания (минуты)</string>
+    <string name="skip_weekends_label">Пропускать выходные</string>
+    <string name="auto_dismiss_label">Автоматически закрывать через (минут)</string>
+    <string name="join_meeting_label">Присоединиться к встрече</string>
+    <string name="copy_meeting_link">Копировать ссылку</string>
+    <string name="link_copied">Ссылка скопирована в буфер обмена</string>
     <string name="search">Поиск событий</string>
     <string name="cd_alarm_icon">Иконка будильника</string>
     <string name="cd_app_logo">Логотип приложения</string>

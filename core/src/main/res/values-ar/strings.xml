@@ -84,6 +84,11 @@
     <string name="calendar_filter_all_enabled">جميع التقاويم مفعّلة</string>
     <string name="snooze">غفوة</string>
     <string name="snooze_time_label">وقت الغفوة (دقائق)</string>
+    <string name="skip_weekends_label">تخطي عطلات نهاية الأسبوع</string>
+    <string name="auto_dismiss_label">إغلاق تلقائي بعد (دقائق)</string>
+    <string name="join_meeting_label">الانضمام إلى الاجتماع</string>
+    <string name="copy_meeting_link">نسخ الرابط</string>
+    <string name="link_copied">تم نسخ الرابط إلى الحافظة</string>
     <string name="search">بحث عن الأحداث</string>
     <string name="cd_alarm_icon">أيقونة المنبه</string>
     <string name="cd_app_logo">شعار التطبيق</string>

@@ -86,6 +86,11 @@
     <string name="calendar_filter_all_enabled">Todos los calendarios activos</string>
     <string name="snooze">POSPONER</string>
     <string name="snooze_time_label">Tiempo de posponer (minutos)</string>
+    <string name="skip_weekends_label">Omitir fines de semana</string>
+    <string name="auto_dismiss_label">Autodescartar después de (minutos)</string>
+    <string name="join_meeting_label">Unirse a la reunión</string>
+    <string name="copy_meeting_link">Copiar enlace</string>
+    <string name="link_copied">Enlace copiado al portapapeles</string>
     <string name="search">Buscar eventos</string>
     <string name="cd_alarm_icon">Icono de alarma</string>
     <string name="cd_app_logo">Logo de la aplicación</string>

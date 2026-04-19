@@ -146,6 +146,8 @@ fun EventList(
                             },
                             onVibrateToggle = { eventActions.onEventVibrateToggle(event, it) },
                             onEventClick = { eventActions.onEventClick(event) },
+                            onJoinMeeting = eventActions.onJoinMeeting,
+                            onCopyMeetingUrl = eventActions.onCopyMeetingUrl,
                         )
                     }
                 }

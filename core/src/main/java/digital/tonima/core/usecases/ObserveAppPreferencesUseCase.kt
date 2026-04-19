@@ -22,6 +22,8 @@ data class AppPreferences(
     val vibrateOnlyEventIds: Set<String>,
     val exactAlarmPermissionSkipped: Boolean,
     val fullScreenIntentPermissionSkipped: Boolean,
+    val skipWeekendsEnabled: Boolean,
+    val autoDismissMinutes: Int,
 )
 
 @Singleton
@@ -47,6 +49,8 @@ class ObserveAppPreferencesUseCase
                 repository.getVibrateOnlyEventIds(),
                 repository.isExactAlarmPermissionSkipped(),
                 repository.isFullScreenIntentPermissionSkipped(),
+                repository.isSkipWeekendsEnabled(),
+                repository.getAutoDismissMinutes(),
             ) { args ->
                 AppPreferences(
                     isGlobalAlarmEnabled = args[0] as Boolean,
@@ -64,6 +68,8 @@ class ObserveAppPreferencesUseCase
                     vibrateOnlyEventIds = args[12] as Set<String>,
                     exactAlarmPermissionSkipped = args[13] as Boolean,
                     fullScreenIntentPermissionSkipped = args[14] as Boolean,
+                    skipWeekendsEnabled = args[15] as Boolean,
+                    autoDismissMinutes = args[16] as Int,
                 )
             }
         }

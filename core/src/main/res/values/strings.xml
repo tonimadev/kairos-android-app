@@ -87,6 +87,11 @@
     <string name="calendar_filter_all_enabled">Todos os calendários ativos</string>
     <string name="snooze">ADIAR</string>
     <string name="snooze_time_label">Tempo de adiar (minutos)</string>
+    <string name="skip_weekends_label">Pular finais de semana</string>
+    <string name="auto_dismiss_label">Auto-dispensar após (minutos)</string>
+    <string name="join_meeting_label">Entrar na reunião</string>
+    <string name="copy_meeting_link">Copiar link</string>
+    <string name="link_copied">Link copiado para a área de transferência</string>
     <string name="search">Buscar eventos</string>
     <string name="cd_alarm_icon">Ícone de alarme</string>
     <string name="cd_app_logo">Logo do aplicativo</string>

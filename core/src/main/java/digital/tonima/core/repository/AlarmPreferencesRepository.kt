@@ -26,4 +26,12 @@ interface AlarmPreferencesRepository {
     fun getSnoozeTimeMinutes(): Flow<Int>
 
     suspend fun setSnoozeTimeMinutes(minutes: Int)
+
+    fun isSkipWeekendsEnabled(): Flow<Boolean>
+
+    suspend fun setSkipWeekendsEnabled(enabled: Boolean)
+
+    fun getAutoDismissMinutes(): Flow<Int>
+
+    suspend fun setAutoDismissMinutes(minutes: Int)
 }

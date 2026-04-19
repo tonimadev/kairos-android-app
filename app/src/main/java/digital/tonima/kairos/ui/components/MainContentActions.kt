@@ -14,6 +14,8 @@ data class EventActions(
     val onEventClick: (Event) -> Unit,
     val onReturnToToday: () -> Unit,
     val onSearchQueryChanged: (String) -> Unit = {},
+    val onJoinMeeting: (String) -> Unit = {},
+    val onCopyMeetingUrl: (String) -> Unit = {},
 )
 
 data class SettingsActions(
@@ -24,6 +26,8 @@ data class SettingsActions(
     val onAllDayAlarmHourChanged: (Int) -> Unit,
     val onAlarmOffsetChanged: (AlarmOffset) -> Unit,
     val onSnoozeTimeChanged: (Int) -> Unit = {},
+    val onSkipWeekendsToggle: (Boolean) -> Unit = {},
+    val onAutoDismissMinutesChanged: (Int) -> Unit = {},
     val onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
     val onLocationAlarmToggle: (Boolean) -> Unit = {},
     val onTransportModeChanged: (String) -> Unit = {},

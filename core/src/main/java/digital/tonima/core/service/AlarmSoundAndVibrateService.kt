@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -94,6 +95,7 @@ class AlarmSoundAndVibrateService : Service() {
 
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
+    private var autoDismissJob: kotlinx.coroutines.Job? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -134,6 +136,34 @@ class AlarmSoundAndVibrateService : Service() {
                         false
                     }
 
+                val autoDismissMinutes =
+                    try {
+                        runBlocking {
+                            AppPreferencesRepositoryImpl(applicationContext)
+                                .getAutoDismissMinutes().first()
+                        }
+                    } catch (e: Exception) {
+                        10
+                    }
+
+                autoDismissJob?.cancel()
+                autoDismissJob =
+                    serviceScope.launch {
+                        delay(autoDismissMinutes * 60 * 1000L)
+                        logcat {
+                            "AlarmSoundAndVibrateService: " +
+                                "Auto-dismissing alarm after $autoDismissMinutes minutes."
+                        }
+                        sendBroadcast(
+                            Intent(ACTION_FINISH_ALARM_ACTIVITY),
+                        )
+                        stopAlarm(
+                            applicationContext,
+                            source = "AUTO_DISMISS",
+                            uniqueId = uniqueId,
+                        )
+                    }
+
                 vibrator =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -142,7 +172,10 @@ class AlarmSoundAndVibrateService : Service() {
                         @Suppress("DEPRECATION")
                         getSystemService(VIBRATOR_SERVICE) as Vibrator
                     }
-                vibrator?.vibrate(VibrationEffect.createWaveform(VIBRATION_PATTERN, VIBRATION_REPEAT_INDEX))
+                vibrator?.vibrate(
+                    VibrationEffect
+                        .createWaveform(VIBRATION_PATTERN, VIBRATION_REPEAT_INDEX),
+                )
 
                 if (!vibrateOnly) {
                     val candidateUris =
@@ -204,6 +237,7 @@ class AlarmSoundAndVibrateService : Service() {
                     logcat { "AlarmSoundAndVibrateService: Modo somente vibrar ativado. Som não será reproduzido." }
                 }
             }
+
             ACTION_STOP_ALARM -> {
                 logcat { "AlarmSoundAndVibrateService: Recebida solicitação para parar alarme." }
                 val source = intent.getStringExtra(EXTRA_SOURCE) ?: Analytics.SOURCE_NOTIFICATION
@@ -228,6 +262,7 @@ class AlarmSoundAndVibrateService : Service() {
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
+
             else -> {
                 logcat { "AlarmSoundAndVibrateService: Ação desconhecida ou nula." }
             }
@@ -310,7 +345,9 @@ class AlarmSoundAndVibrateService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val stopIntent = Intent(this, AlarmSoundAndVibrateService::class.java).apply { action = ACTION_STOP_ALARM }
+        val stopIntent =
+            Intent(this, AlarmSoundAndVibrateService::class.java)
+                .apply { action = ACTION_STOP_ALARM }
         val stopPendingIntent =
             PendingIntent.getService(
                 this,
@@ -351,7 +388,10 @@ class AlarmSoundAndVibrateService : Service() {
                 startForeground(NOTIFICATION_ID, notification)
             }
         } catch (e: Exception) {
-            logcat(logcat.LogPriority.ERROR) { "AlarmSoundAndVibrateService: Error starting foreground: ${e.message}" }
+            logcat(logcat.LogPriority.ERROR) {
+                "AlarmSoundAndVibrateService: " +
+                    "Error starting foreground: ${e.message}"
+            }
         }
     }
 
@@ -365,6 +405,9 @@ class AlarmSoundAndVibrateService : Service() {
         vibrator?.cancel()
         vibrator = null
         logcat { "AlarmSoundAndVibrateService: Vibração cancelada." }
+
+        autoDismissJob?.cancel()
+        autoDismissJob = null
     }
 
     override fun onDestroy() {

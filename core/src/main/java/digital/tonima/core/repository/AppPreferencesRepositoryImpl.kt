@@ -36,6 +36,8 @@ class AppPreferencesRepositoryImpl
             val ALARM_OFFSET_MINUTES = longPreferencesKey("alarm_offset_minutes")
             val ENABLED_CALENDAR_IDS = stringSetPreferencesKey("enabled_calendar_ids")
             val SNOOZE_TIME_MINUTES = intPreferencesKey("snooze_time_minutes")
+            val SKIP_WEEKENDS_ENABLED = booleanPreferencesKey("skip_weekends_enabled")
+            val AUTO_DISMISS_MINUTES = intPreferencesKey("auto_dismiss_minutes")
             val WAKE_UP_HISTORY = stringSetPreferencesKey("wake_up_history")
             val PREFERRED_CITY = stringPreferencesKey("preferred_city")
             val LOCATION_ALARM_ENABLED = booleanPreferencesKey("location_alarm_enabled")
@@ -224,6 +226,32 @@ class AppPreferencesRepositoryImpl
         override suspend fun setSnoozeTimeMinutes(minutes: Int) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.SNOOZE_TIME_MINUTES] = minutes
+            }
+        }
+
+        override fun isSkipWeekendsEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.SKIP_WEEKENDS_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setSkipWeekendsEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.SKIP_WEEKENDS_ENABLED] = enabled
+            }
+        }
+
+        override fun getAutoDismissMinutes(): Flow<Int> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.AUTO_DISMISS_MINUTES] ?: 10
+                }
+        }
+
+        override suspend fun setAutoDismissMinutes(minutes: Int) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.AUTO_DISMISS_MINUTES] = minutes
             }
         }
 

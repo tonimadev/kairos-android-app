@@ -132,6 +132,18 @@ class EventViewModel
                     is EventIntent.ChangeMonth -> onMonthChanged(intent.yearMonth)
                     is EventIntent.SelectDate -> _uiState.update { it.copy(selectedDate = intent.date) }
                     EventIntent.ReturnToToday -> returnToToday()
+                    is EventIntent.JoinMeeting -> {
+                        analytics.logEvent(Analytics.EVENT_JOIN_MEETING)
+                        _sideEffect.send(EventSideEffect.OpenMeetingUrl(intent.meetingUrl))
+                    }
+                    is EventIntent.CopyMeetingUrl -> {
+                        _sideEffect.send(
+                            EventSideEffect.CopyToClipboard(
+                                intent.meetingUrl,
+                                UiText.StringResource(R.string.link_copied),
+                            ),
+                        )
+                    }
                     is EventIntent.ToggleGlobalAlarms -> {
                         analytics.logEvent(
                             Analytics.EVENT_GLOBAL_ALARM_TOGGLE,
@@ -179,6 +191,17 @@ class EventViewModel
                             mapOf(Analytics.PARAM_VALUE to intent.minutes),
                         )
                         prefs.update.setSnoozeTimeMinutes(intent.minutes)
+                    }
+                    is EventIntent.ToggleSkipWeekends -> {
+                        analytics.logEvent("skip_weekends_toggle", mapOf(Analytics.PARAM_ENABLED to intent.enabled))
+                        prefs.update.setSkipWeekendsEnabled(intent.enabled)
+                    }
+                    is EventIntent.UpdateAutoDismissMinutes -> {
+                        analytics.logEvent(
+                            "auto_dismiss_minutes_changed",
+                            mapOf(Analytics.PARAM_VALUE to intent.minutes),
+                        )
+                        prefs.update.setAutoDismissMinutes(intent.minutes)
                     }
                     is EventIntent.ToggleLocationAlarm -> onLocationAlarmToggle(intent.enabled)
                     is EventIntent.ChangeTransportMode -> {
@@ -320,6 +343,8 @@ class EventViewModel
                         skippedExactAlarmPermission = appPrefs.exactAlarmPermissionSkipped,
                         skippedFullScreenIntentPermission = appPrefs.fullScreenIntentPermissionSkipped,
                         showAutostartSuggestion = !appPrefs.autostartSuggestionDismissed,
+                        skipWeekends = appPrefs.skipWeekendsEnabled,
+                        autoDismissMinutes = appPrefs.autoDismissMinutes,
                         enabledCalendarIds =
                             appPrefs.enabledCalendarIds.mapNotNull { it.toLongOrNull() }.toSet(),
                     )

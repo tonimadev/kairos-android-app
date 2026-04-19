@@ -327,7 +327,12 @@ class CalendarRepositoryImpl
         ): String? {
             if (description == null && location == null) return null
             val combinedText = "${description ?: ""} ${location ?: ""}"
-            val meetRegex = "https://meet\\.google\\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}".toRegex()
-            return meetRegex.find(combinedText)?.value
+            val pattern =
+                """https?://(?:[a-zA-Z0-9-]+\.)*(?:meet\.google\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}
+                ||zoom\.us/(?:j|my)/[^\s"'<>]+|teams\.microsoft\.com/l/meetup-join/[^\s"'<>]+
+|webex\.com/(?:meet|join)/[^\s"'<>]+|join\.skype\.com/[a-zA-Z0-9]+|meet\.jit\.si/[^\s"'<>]+)
+                """.trimMargin()
+            val regex = pattern.toRegex(RegexOption.IGNORE_CASE)
+            return regex.find(combinedText)?.value
         }
     }

@@ -81,6 +81,11 @@
     <string name="calendar_filter_all_enabled">すべてのカレンダーが有効</string>
     <string name="snooze">スヌーズ</string>
     <string name="snooze_time_label">スヌーズ時間 (分)</string>
+    <string name="skip_weekends_label">週末をスキップ</string>
+    <string name="auto_dismiss_label">自動終了（分後）</string>
+    <string name="join_meeting_label">ミーティングに参加</string>
+    <string name="copy_meeting_link">リンクをコピー</string>
+    <string name="link_copied">リンクをクリップボードにコピーしました</string>
     <string name="search">イベントを検索</string>
     <string name="cd_alarm_icon">アラームアイコン</string>
     <string name="cd_app_logo">アプリのロゴ</string>

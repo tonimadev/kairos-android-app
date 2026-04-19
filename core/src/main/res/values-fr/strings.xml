@@ -87,6 +87,11 @@
     <string name="calendar_filter_all_enabled">Tous les calendriers activés</string>
     <string name="snooze">RAPPEL</string>
     <string name="snooze_time_label">Temps de rappel (minutes)</string>
+    <string name="skip_weekends_label">Ignorer les week-ends</string>
+    <string name="auto_dismiss_label">Fermeture automatique après (minutes)</string>
+    <string name="join_meeting_label">Rejoindre la réunion</string>
+    <string name="copy_meeting_link">Copier le lien</string>
+    <string name="link_copied">Lien copié dans le presse-papiers</string>
     <string name="search">Rechercher des événements</string>
     <string name="cd_alarm_icon">Icône d\'alarme</string>
     <string name="cd_app_logo">Logo de l\'application</string>

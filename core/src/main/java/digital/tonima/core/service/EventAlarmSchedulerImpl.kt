@@ -44,6 +44,19 @@ class EventAlarmSchedulerImpl
             event: Event,
             triggerTime: Long?,
         ) {
+            val skipWeekends =
+                runBlocking {
+                    preferencesRepository.isSkipWeekendsEnabled().firstOrNull() ?: false
+                }
+
+            if (skipWeekends) {
+                val eventDayOfWeek = Instant.ofEpochMilli(event.startTime).atZone(ZoneId.systemDefault()).dayOfWeek
+                if (eventDayOfWeek == java.time.DayOfWeek.SATURDAY || eventDayOfWeek == java.time.DayOfWeek.SUNDAY) {
+                    logcat { "Skipping alarm for event on weekend: ${event.title}" }
+                    return
+                }
+            }
+
             val alarmTime =
                 if (triggerTime != null) {
                     triggerTime

@@ -160,6 +160,34 @@ class AlarmActivity : ComponentActivity() {
                                         textAlign = TextAlign.Center,
                                     )
                                 }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = {
+                                        uiState.meetingUrl?.let { url ->
+                                            val clipboard =
+                                                getSystemService(
+                                                    Context.CLIPBOARD_SERVICE,
+                                                ) as android.content.ClipboardManager
+                                            val clip = android.content.ClipData.newPlainText("Meeting Link", url)
+                                            clipboard.setPrimaryClip(clip)
+                                            android.widget.Toast.makeText(
+                                                this@AlarmActivity,
+                                                getString(R.string.link_copied),
+                                                android.widget.Toast.LENGTH_SHORT,
+                                            ).show()
+                                        }
+                                    },
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 60.dp),
+                                ) {
+                                    Text(
+                                        text = getString(R.string.copy_meeting_link),
+                                        fontSize = 18.sp,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
                                 Spacer(modifier = Modifier.height(16.dp))
                             }
 

@@ -30,6 +30,8 @@ data class EventScreenUiState(
     val enabledCalendarIds: Set<Long> = emptySet(),
     val searchQuery: String = "",
     val snoozeTimeMinutes: Int = 10,
+    val skipWeekends: Boolean = false,
+    val autoDismissMinutes: Int = 10,
     val dailyBriefing: String? = null,
     val isGeneratingBriefing: Boolean = false,
     val isProUser: Boolean = false,

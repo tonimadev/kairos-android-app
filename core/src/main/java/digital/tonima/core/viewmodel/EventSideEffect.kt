@@ -32,4 +32,8 @@ sealed class EventSideEffect {
      * The UI should display an error message.
      */
     data class AIToolError(val message: UiText) : EventSideEffect()
+
+    data class OpenMeetingUrl(val url: String) : EventSideEffect()
+
+    data class CopyToClipboard(val text: String, val message: UiText) : EventSideEffect()
 }

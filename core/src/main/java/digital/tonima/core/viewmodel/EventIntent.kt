@@ -12,7 +12,11 @@ sealed class EventIntent {
 
     data class SelectDate(val date: LocalDate) : EventIntent()
 
-    object ReturnToToday : EventIntent()
+    data class JoinMeeting(val meetingUrl: String) : EventIntent()
+
+    data class CopyMeetingUrl(val meetingUrl: String) : EventIntent()
+
+    data object ReturnToToday : EventIntent()
 
     data class ToggleGlobalAlarms(val enabled: Boolean) : EventIntent()
 
@@ -33,6 +37,10 @@ sealed class EventIntent {
     data class UpdateAlarmOffset(val offset: AlarmOffset) : EventIntent()
 
     data class UpdateSnoozeTime(val minutes: Int) : EventIntent()
+
+    data class ToggleSkipWeekends(val enabled: Boolean) : EventIntent()
+
+    data class UpdateAutoDismissMinutes(val minutes: Int) : EventIntent()
 
     data class ToggleLocationAlarm(val enabled: Boolean) : EventIntent()
 

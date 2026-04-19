@@ -22,6 +22,10 @@ class UpdateAppPreferenceUseCase
 
         suspend fun setSnoozeTimeMinutes(minutes: Int) = repository.setSnoozeTimeMinutes(minutes)
 
+        suspend fun setSkipWeekendsEnabled(enabled: Boolean) = repository.setSkipWeekendsEnabled(enabled)
+
+        suspend fun setAutoDismissMinutes(minutes: Int) = repository.setAutoDismissMinutes(minutes)
+
         suspend fun setAutostartSuggestionDismissed(dismissed: Boolean) =
             repository.setAutostartSuggestionDismissed(dismissed)
 

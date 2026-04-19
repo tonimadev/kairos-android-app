@@ -96,6 +96,7 @@ import digital.tonima.kairos.ui.components.SettingsActions
 import digital.tonima.kairos.ui.components.StandardPermissionsScreen
 import digital.tonima.kairos.ui.theme.Dimensions
 import kotlinx.coroutines.launch
+import logcat.logcat
 
 fun Context.findActivity(): Activity? {
     var context = this
@@ -190,6 +191,22 @@ fun EventScreen(
                     snackbarHostState.showSnackbar(effect.message.asString(context))
                 }
                 is EventSideEffect.AIToolError -> {
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
+                is EventSideEffect.OpenMeetingUrl -> {
+                    try {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)))
+                    } catch (e: Exception) {
+                        logcat { "Failed to open meeting URL: ${e.message}" }
+                    }
+                }
+                is EventSideEffect.CopyToClipboard -> {
+                    val clipboard =
+                        context.getSystemService(
+                            Context.CLIPBOARD_SERVICE,
+                        ) as android.content.ClipboardManager
+                    val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
+                    clipboard.setPrimaryClip(clip)
                     snackbarHostState.showSnackbar(effect.message.asString(context))
                 }
             }
@@ -491,6 +508,12 @@ private fun EventScreenContent(
                                         EventIntent.SearchQueryChanged(it),
                                     )
                                 },
+                                onJoinMeeting = { url ->
+                                    viewModel.handleIntent(EventIntent.JoinMeeting(url))
+                                },
+                                onCopyMeetingUrl = { url ->
+                                    viewModel.handleIntent(EventIntent.CopyMeetingUrl(url))
+                                },
                             ),
                         settingsActions =
                             SettingsActions(
@@ -506,6 +529,12 @@ private fun EventScreenContent(
                                 onAlarmOffsetChanged = { viewModel.handleIntent(EventIntent.UpdateAlarmOffset(it)) },
                                 onSnoozeTimeChanged = {
                                     viewModel.handleIntent(EventIntent.UpdateSnoozeTime(it))
+                                },
+                                onSkipWeekendsToggle = {
+                                    viewModel.handleIntent(EventIntent.ToggleSkipWeekends(it))
+                                },
+                                onAutoDismissMinutesChanged = {
+                                    viewModel.handleIntent(EventIntent.UpdateAutoDismissMinutes(it))
                                 },
                                 onCalendarFilterToggle = { id, enabled ->
                                     viewModel.handleIntent(

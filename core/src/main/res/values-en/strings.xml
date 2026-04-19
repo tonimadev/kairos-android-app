@@ -85,6 +85,11 @@
     <string name="calendar_filter_all_enabled">All calendars enabled</string>
     <string name="snooze">SNOOZE</string>
     <string name="snooze_time_label">Snooze time (minutes)</string>
+    <string name="skip_weekends_label">Skip weekends</string>
+    <string name="auto_dismiss_label">Auto-dismiss after (minutes)</string>
+    <string name="join_meeting_label">Join meeting</string>
+    <string name="copy_meeting_link">Copy link</string>
+    <string name="link_copied">Link copied to clipboard</string>
     <string name="search">Search events</string>
     <string name="cd_alarm_icon">Alarm icon</string>
     <string name="cd_app_logo">App logo</string>
