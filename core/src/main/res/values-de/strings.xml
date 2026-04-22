@@ -174,4 +174,13 @@
     <string name="no_events_upcoming_24h_title">Kalender synchronisieren</string>
     <string name="no_events_upcoming_24h_content">Keine Ereignisse für die nächsten 24 Std. App zum Synchronisieren öffnen.</string>
     <string name="no_events_upcoming_24h_dismiss_today">Heute nicht mehr benachrichtigen</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">KI-Vorschlag: %1$s</string>
+    <string name="ai_prepping_meeting">KI bereitet die Besprechungszusammenfassung vor …</string>
+    <string name="pro_ia_upgrade_title">Entfesseln Sie die Kraft der KI</string>
+    <string name="pro_ia_upgrade_desc">Dynamische Alarme, Besprechungszusammenfassungen und ein interaktiver Sprachassistent. Machen Sie Ihren Tag wirklich intelligent.</string>
+    <string name="battery_low_warning">Niedriger Akkustand (%1$d%%). Laden Sie Ihr Telefon auf, damit Sie Ihre Besprechung (%2$s) nicht verpassen.</string>
+    <string name="silent_mode_warning">Lautlosmodus aktiv. Ihr Wecker (%1$s) klingelt möglicherweise nicht.</string>
+    <string name="ask_ai_label">Mit KI sprechen</string>
 </resources>

@@ -172,4 +172,13 @@
     <string name="no_events_upcoming_24h_title">مزامنة التقويم الخاص بك</string>
     <string name="no_events_upcoming_24h_content">لا توجد أحداث خلال الـ 24 ساعة القادمة. افتح التطبيق للمزامنة.</string>
     <string name="no_events_upcoming_24h_dismiss_today">لا تخطرني مرة أخرى اليوم</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">اقترح الذكاء الاصطناعي: %1$s</string>
+    <string name="ai_prepping_meeting">يعمل الذكاء الاصطناعي على تحضير ملخص الاجتماع…</string>
+    <string name="pro_ia_upgrade_title">أطلق العنان لقوة الذكاء الاصطناعي</string>
+    <string name="pro_ia_upgrade_desc">منبهات ديناميكية، وملخصات للاجتماعات، ومساعد صوتي تفاعلي. اجعل يومك ذكيًا بحق.</string>
+    <string name="battery_low_warning">البطارية منخفضة (%1$d%%). اشحن هاتفك لكي لا يفوتك اجتماع %2$s.</string>
+    <string name="silent_mode_warning">وضع الصامت نشط. قد لا يصدر صوت منبه %1$s الخاص بك.</string>
+    <string name="ask_ai_label">تحدث مع الذكاء الاصطناعي</string>
 </resources>

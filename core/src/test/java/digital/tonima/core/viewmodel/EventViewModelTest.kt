@@ -7,7 +7,7 @@ import digital.tonima.core.ai.AIToolResult
 import digital.tonima.core.ai.ActionRegistry
 import digital.tonima.core.ai.RiskLevel
 import digital.tonima.core.ai.model.AIAgentResponse
-import digital.tonima.core.analytics.Analytics
+import digital.tonima.core.analytics.EventAnalytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.DeviceCalendar
@@ -29,6 +29,7 @@ import digital.tonima.core.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.usecases.PermissionState
 import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
+import digital.tonima.core.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
 import digital.tonima.core.utils.WidgetUpdater
@@ -86,11 +87,12 @@ class EventViewModelTest {
     private val mockCreateEventUseCase: CreateEventUseCase = mockk(relaxed = true)
     private val mockCalculateDepartureTimeUseCase: CalculateDepartureTimeUseCase = mockk(relaxed = true)
     private val mockCheckPermissionsUseCase: CheckPermissionsUseCase = mockk(relaxed = true)
+    private val mockToggleFocusModeUseCase: ToggleFocusModeUseCase = mockk(relaxed = true)
     private val mockTtsHelper: TextToSpeechHelper = mockk(relaxed = true)
     private val mockWidgetUpdater: WidgetUpdater = mockk(relaxed = true)
     private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val mockReviewManager: ReviewManager = mockk(relaxed = true)
-    private val mockAnalytics: Analytics = mockk(relaxed = true)
+    private val mockEventAnalytics: EventAnalytics = mockk(relaxed = true)
 
     private val appPreferencesFlow = MutableStateFlow(defaultAppPreferences())
     private val ringerModeFlow = MutableStateFlow(AudioWarningState.NORMAL)
@@ -180,9 +182,10 @@ class EventViewModelTest {
                     widgetUpdater = mockWidgetUpdater,
                     actionRegistry = mockActionRegistry,
                 ),
-            analytics = mockAnalytics,
+            eventAnalytics = mockEventAnalytics,
             observeRingerModeUseCase = mockObserveRingerModeUseCase,
             checkPermissionsUseCase = mockCheckPermissionsUseCase,
+            toggleFocusModeUseCase = mockToggleFocusModeUseCase,
             reviewManager = mockReviewManager,
         )
 
@@ -1015,6 +1018,45 @@ class EventViewModelTest {
                 mockCreateEventUseCase(1, "New Event", "Desc", "Loc", 1000L, 2000L, false)
             }
             assertFalse(viewModel.uiState.value.showCreateEventDialog)
+        }
+
+    @Test
+    fun `ToggleFocusMode intent enables DND when permission granted`() =
+        runTest {
+            every { mockToggleFocusModeUseCase(true) } returns Result.success(Unit)
+
+            viewModel.handleIntent(EventIntent.ToggleFocusMode(true))
+            advanceUntilIdle()
+
+            verify { mockToggleFocusModeUseCase(true) }
+        }
+
+    @Test
+    fun `ToggleFocusMode intent emits error when permission not granted`() =
+        runTest {
+            every { mockToggleFocusModeUseCase(true) } returns Result.failure(Exception("No access"))
+
+            viewModel.sideEffect.test {
+                viewModel.handleIntent(EventIntent.ToggleFocusMode(true))
+                advanceUntilIdle()
+
+                val effect = awaitItem()
+                assertTrue(effect is EventSideEffect.AIToolError)
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `NotifyRunningLate intent emits snackbar with message`() =
+        runTest {
+            viewModel.sideEffect.test {
+                viewModel.handleIntent(EventIntent.NotifyRunningLate("event1", "I'm late"))
+                advanceUntilIdle()
+
+                val effect = awaitItem()
+                assertTrue(effect is EventSideEffect.ShowSnackbar)
+                cancelAndConsumeRemainingEvents()
+            }
         }
 
     @Test

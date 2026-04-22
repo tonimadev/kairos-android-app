@@ -169,4 +169,13 @@
     <string name="no_events_upcoming_24h_title">カレンダーを同期する</string>
     <string name="no_events_upcoming_24h_content">今後24時間以内にイベントはありません。同期するにはアプリを開いてください。</string>
     <string name="no_events_upcoming_24h_dismiss_today">今日はもう通知しないでください</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">AIの提案: %1$s</string>
+    <string name="ai_prepping_meeting">AIが会議の要約を作成中…</string>
+    <string name="pro_ia_upgrade_title">AIの力を解き放つ</string>
+    <string name="pro_ia_upgrade_desc">ダイナミックなアラーム、会議の要約、対話型音声アシスタント。一日を真にスマートに。</string>
+    <string name="battery_low_warning">バッテリー残量が少なくなっています (%1$d%%)。%2$sの会議に遅れないよう、スマートフォンを充電してください。</string>
+    <string name="silent_mode_warning">マナーモードがオンになっています。%1$sのアラームが鳴らない可能性があります。</string>
+    <string name="ask_ai_label">AIと話す</string>
 </resources>

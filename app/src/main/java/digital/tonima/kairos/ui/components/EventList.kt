@@ -109,6 +109,7 @@ fun EventList(
                             isGenerating = uiState.isGeneratingBriefing,
                             isAiUser = uiState.isAiUser,
                             onGenerateClick = aiActions.onGenerateBriefing,
+                            onInteractClick = aiActions.onReply,
                             onUpgradeClick = aiActions.onSubscriptionRequest,
                             modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
                         )

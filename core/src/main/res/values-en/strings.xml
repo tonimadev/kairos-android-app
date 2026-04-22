@@ -158,6 +158,8 @@
     <string name="geo_alarm_upgrade_trial_title">Try the Smart Alarm!</string>
     <string name="geo_alarm_upgrade_trial_desc">Avoid delays! Enable real-time traffic-based alarms with the Pro + AI plan.</string>
     <string name="try_pro_plan">Try Pro Plan</string>
+    <string name="pro_ia_upgrade_title">Unlock the Power of AI</string>
+    <string name="pro_ia_upgrade_desc">Dynamic alarms, meeting summaries, and interactive voice assistant. Make your day truly intelligent.</string>
 
     <!-- AI Agent -->
     <string name="ai_agent_snackbar_executed">AI executed: %1$s</string>
@@ -173,4 +175,11 @@
     <string name="no_events_upcoming_24h_title">Sync your calendar</string>
     <string name="no_events_upcoming_24h_content">No events for the next 24h. Open the app to sync.</string>
     <string name="no_events_upcoming_24h_dismiss_today">Don\'t notify me again today</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">AI suggested: %1$s</string>
+    <string name="ai_prepping_meeting">AI is preparing meeting summary…</string>
+    <string name="ask_ai_label">Talk to AI</string>
+    <string name="battery_low_warning">Low battery (%1$d%%). Charge your phone so you don\'t miss your %2$s meeting.</string>
+    <string name="silent_mode_warning">Silent mode active. Your %1$s alarm might not sound.</string>
 </resources>

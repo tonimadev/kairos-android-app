@@ -111,4 +111,13 @@ sealed class EventIntent {
 
     /** User rejected the pending CRITICAL action queued by the AI agent. */
     object RejectPendingAction : EventIntent()
+
+    /**
+     * AI Agent intent to notify the user that they are running late.
+     * This is used by the AI to suggest sending a message to participants.
+     */
+    data class NotifyRunningLate(val eventId: String, val message: String) : EventIntent()
+
+    /** AI Agent intent to toggle Do Not Disturb mode. */
+    data class ToggleFocusMode(val enabled: Boolean) : EventIntent()
 }

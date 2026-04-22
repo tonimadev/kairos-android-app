@@ -30,6 +30,7 @@ fun DailyBriefingCard(
     isGenerating: Boolean,
     isAiUser: Boolean,
     onGenerateClick: () -> Unit,
+    onInteractClick: () -> Unit,
     onUpgradeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -76,6 +77,12 @@ fun DailyBriefingCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
+                TextButton(
+                    onClick = onInteractClick,
+                    modifier = Modifier.align(Alignment.End),
+                ) {
+                    Text(stringResource(R.string.ask_ai_label))
+                }
             } else if (isAiUser) {
                 if (!isGenerating) {
                     Text(

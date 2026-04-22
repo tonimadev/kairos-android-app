@@ -35,3 +35,6 @@ local.properties
 **/hilt_aggregated_deps/
 **/dagger.hilt.internal.aggregatedroot/
 **/dagger.hilt.internal.processedroots/
+/build-logic/bin/*
+/.vscode/settings.json
+/.idea/copilotDiffState.xml

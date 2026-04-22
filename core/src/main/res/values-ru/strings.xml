@@ -173,4 +173,13 @@
     <string name="no_events_upcoming_24h_title">Синхронизируйте календарь</string>
     <string name="no_events_upcoming_24h_content">Нет событий на ближайшие 24 часа. Откройте приложение для синхронизации.</string>
     <string name="no_events_upcoming_24h_dismiss_today">Больше не уведомлять сегодня</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">Предложение ИИ: %1$s</string>
+    <string name="ai_prepping_meeting">ИИ готовит краткий отчет о встрече…</string>
+    <string name="pro_ia_upgrade_title">Раскройте потенциал ИИ</string>
+    <string name="pro_ia_upgrade_desc">Динамические будильники, отчеты о встречах и интерактивный голосовой помощник. Сделайте свой день по-настоящему умным.</string>
+    <string name="battery_low_warning">Низкий заряд батареи (%1$d%%). Зарядите телефон, чтобы не пропустить встречу в %2$s.</string>
+    <string name="silent_mode_warning">Включен беззвучный режим. Ваш будильник на %1$s может не прозвучать.</string>
+    <string name="ask_ai_label">Говорить с ИИ</string>
 </resources>

@@ -1,6 +1,7 @@
 package digital.tonima.kairos.ui.components
 
 import android.text.format.DateFormat
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.rounded.AlarmOff
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Repeat
+import androidx.compose.material.icons.rounded.TipsAndUpdates
 import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -337,6 +339,39 @@ fun EventCard(
                         modifier = Modifier.padding(top = Dimensions.SpacingTiny),
                         fontWeight = FontWeight.Bold,
                     )
+                }
+
+                // Pro+AI Meeting Prep Summary
+                AnimatedVisibility(visible = event.isAlarmEnabled && event.meetingUrl != null) {
+                    Card(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = Dimensions.PaddingSmall),
+                        colors =
+                            CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                            ),
+                        shape = RoundedCornerShape(Dimensions.RadiusSmall),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(Dimensions.PaddingSmall),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.TipsAndUpdates,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(R.string.ai_prepping_meeting),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))

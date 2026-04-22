@@ -52,4 +52,6 @@ data class EventScreenUiState(
     val skippedFullScreenIntentPermission: Boolean = false,
     /** Holds a CRITICAL AI-generated intent that is waiting for user confirmation. */
     val pendingAIAction: EventIntent? = null,
+    val meetingPrepSummary: String? = null,
+    val isPreparingMeeting: Boolean = false,
 )

@@ -175,4 +175,13 @@
     <string name="no_events_upcoming_24h_title">Synchronisez votre agenda</string>
     <string name="no_events_upcoming_24h_content">Aucun événement pour les prochaines 24h. Ouvrez l\'application pour synchroniser.</string>
     <string name="no_events_upcoming_24h_dismiss_today">Ne m\'avertissez plus aujourd\'hui</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">Suggéré par l\'IA : %1$s</string>
+    <string name="ai_prepping_meeting">L\'IA prépare le résumé de la réunion…</string>
+    <string name="pro_ia_upgrade_title">Libérez la puissance de l\'IA</string>
+    <string name="pro_ia_upgrade_desc">Alarmes dynamiques, résumés de réunions et assistant vocal interactif. Rendez votre journée vraiment intelligente.</string>
+    <string name="battery_low_warning">Batterie faible (%1$d%%). Chargez votre téléphone pour ne pas manquer votre réunion de %2$s.</string>
+    <string name="silent_mode_warning">Mode silencieux activé. Votre alarme de %1$s pourrait ne pas sonner.</string>
+    <string name="ask_ai_label">Parler à l\'IA</string>
 </resources>

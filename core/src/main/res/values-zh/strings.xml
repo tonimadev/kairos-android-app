@@ -169,4 +169,13 @@
     <string name="no_events_upcoming_24h_title">同步您的日历</string>
     <string name="no_events_upcoming_24h_content">未来 24 小时内没有事件。请打开应用进行同步。</string>
     <string name="no_events_upcoming_24h_dismiss_today">今天不再提醒</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">AI 建议：%1$s</string>
+    <string name="ai_prepping_meeting">AI 正在准备会议摘要…</string>
+    <string name="pro_ia_upgrade_title">释放 AI 的力量</string>
+    <string name="pro_ia_upgrade_desc">动态闹钟、会议摘要和交互式语音助手。让您的每一天都真正智能。</string>
+    <string name="battery_low_warning">电池电量低 (%1$d%%)。请为手机充电，以免错过 %2$s 会议。</string>
+    <string name="silent_mode_warning">静音模式已开启。您的 %1$s 闹钟可能不会响。</string>
+    <string name="ask_ai_label">与 AI 对话</string>
 </resources>

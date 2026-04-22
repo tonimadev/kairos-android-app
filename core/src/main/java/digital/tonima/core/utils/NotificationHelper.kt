@@ -62,9 +62,12 @@ object NotificationHelper {
         }
     }
 
-    fun showSyncAlertNotification(context: Context) {
+    fun showSyncAlertNotification(
+        context: Context,
+        customContent: String? = null,
+    ) {
         val title = context.getString(R.string.no_events_upcoming_24h_title)
-        val content = context.getString(R.string.no_events_upcoming_24h_content)
+        val content = customContent ?: context.getString(R.string.no_events_upcoming_24h_content)
         val dismissActionTitle = context.getString(R.string.no_events_upcoming_24h_dismiss_today)
 
         val dismissIntent =

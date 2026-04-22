@@ -160,6 +160,8 @@
     <string name="geo_alarm_upgrade_trial_title">Experimente o Alarme Inteligente!</string>
     <string name="geo_alarm_upgrade_trial_desc">Evite atrasos! Ative alarmes baseados no trânsito em tempo real com o plano Pro + IA.</string>
     <string name="try_pro_plan">Testar Plano Pro</string>
+    <string name="pro_ia_upgrade_title">Desbloqueie o Poder da IA</string>
+    <string name="pro_ia_upgrade_desc">Alarmes dinâmicos, resumos de reuniões e assistente de voz interativo. Torne seu dia verdadeiramente inteligente.</string>
 
     <!-- AI Agent -->
     <string name="ai_agent_snackbar_executed">IA executou: %1$s</string>
@@ -175,4 +177,11 @@
     <string name="no_events_upcoming_24h_title">Sincronize sua agenda</string>
     <string name="no_events_upcoming_24h_content">Nenhum evento para as próximas 24h. Abra o app para sincronizar.</string>
     <string name="no_events_upcoming_24h_dismiss_today">Não me avise mais hoje</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">A IA sugeriu: %1$s</string>
+    <string name="ai_prepping_meeting">IA está preparando o resumo da reunião…</string>
+    <string name="ask_ai_label">Conversar com IA</string>
+    <string name="battery_low_warning">Bateria fraca (%1$d%%). Carregue seu celular para não perder o compromisso das %2$s.</string>
+    <string name="silent_mode_warning">Modo silencioso ativo. Seu alarme das %1$s pode não tocar som.</string>
 </resources>

@@ -172,4 +172,13 @@
     <string name="no_events_upcoming_24h_title">अपना कैलेंडर सिंक करें</string>
     <string name="no_events_upcoming_24h_content">अगले 24 घंटों के लिए कोई इवेंट नहीं है। सिंक करने के लिए ऐप खोलें।</string>
     <string name="no_events_upcoming_24h_dismiss_today">आज मुझे फिर से सूचित न करें</string>
+
+    <!-- Pro+AI Features -->
+    <string name="ai_suggested_late_notification">AI का सुझाव: %1$s</string>
+    <string name="ai_prepping_meeting">AI मीटिंग का सारांश तैयार कर रहा है…</string>
+    <string name="pro_ia_upgrade_title">AI की शक्ति का लाभ उठाएं</string>
+    <string name="pro_ia_upgrade_desc">डायनेमिक अलार्म, मीटिंग सारांश और इंटरैक्टिव वॉयस असिस्टेंट। अपने दिन को वास्तव में बुद्धिमान बनाएं।</string>
+    <string name="battery_low_warning">बैटरी कम है (%1$d%%)। अपना फ़ोन चार्ज करें ताकि आप अपनी %2$s मीटिंग मिस न करें।</string>
+    <string name="silent_mode_warning">साइलेंट मोड सक्रिय है। आपका %1$s अलार्म शायद न बजे।</string>
+    <string name="ask_ai_label">AI से बात करें</string>
 </resources>

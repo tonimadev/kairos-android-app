@@ -9,7 +9,7 @@ import digital.tonima.core.ai.ActionRegistry
 import digital.tonima.core.ai.RiskLevel
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
-import digital.tonima.core.analytics.Analytics
+import digital.tonima.core.analytics.EventAnalytics
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
 import digital.tonima.core.review.ReviewManager
@@ -26,6 +26,7 @@ import digital.tonima.core.usecases.ObserveDailyBriefingUseCase
 import digital.tonima.core.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
+import digital.tonima.core.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
 import digital.tonima.core.utils.WidgetUpdater
@@ -50,15 +51,17 @@ import javax.inject.Inject
 @HiltViewModel
 class EventViewModel
     @Inject
+    @Suppress("LongParameterList")
     constructor(
         proUserProvider: ProUserProvider,
         private val calendar: CalendarDeps,
         private val prefs: PreferencesDeps,
         private val alarm: AlarmDeps,
         private val ai: AiDeps,
-        private val analytics: Analytics,
+        private val eventAnalytics: EventAnalytics,
         private val observeRingerModeUseCase: ObserveRingerModeUseCase,
         private val checkPermissionsUseCase: CheckPermissionsUseCase,
+        private val toggleFocusModeUseCase: ToggleFocusModeUseCase,
         private val reviewManager: ReviewManager,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         /** Dependencies for calendar and event data operations. */
@@ -126,96 +129,39 @@ class EventViewModel
         }
 
         fun handleIntent(intent: EventIntent) {
+            eventAnalytics.logIntent(intent)
             viewModelScope.launch {
                 when (intent) {
-                    is EventIntent.RefreshEvents -> refreshEvents()
-                    is EventIntent.ChangeMonth -> onMonthChanged(intent.yearMonth)
-                    is EventIntent.SelectDate -> _uiState.update { it.copy(selectedDate = intent.date) }
-                    EventIntent.ReturnToToday -> returnToToday()
-                    is EventIntent.JoinMeeting -> {
-                        analytics.logEvent(Analytics.EVENT_JOIN_MEETING)
-                        _sideEffect.send(EventSideEffect.OpenMeetingUrl(intent.meetingUrl))
-                    }
-                    is EventIntent.CopyMeetingUrl -> {
-                        _sideEffect.send(
-                            EventSideEffect.CopyToClipboard(
-                                intent.meetingUrl,
-                                UiText.StringResource(R.string.link_copied),
-                            ),
-                        )
-                    }
-                    is EventIntent.ToggleGlobalAlarms -> {
-                        analytics.logEvent(
-                            Analytics.EVENT_GLOBAL_ALARM_TOGGLE,
-                            mapOf(Analytics.PARAM_ENABLED to intent.enabled),
-                        )
-                        prefs.update.setGlobalAlarmEnabled(intent.enabled)
-                    }
-                    is EventIntent.ToggleVibrateOnly -> {
-                        analytics.logEvent(
-                            Analytics.EVENT_VIBRATE_TOGGLE,
-                            mapOf(Analytics.PARAM_ENABLED to intent.enabled),
-                        )
-                        prefs.update.setVibrateOnly(intent.enabled)
-                    }
-                    is EventIntent.ToggleAllDayAlarms -> {
-                        analytics.logEvent(
-                            Analytics.EVENT_ALL_DAY_ALARM_TOGGLE,
-                            mapOf(Analytics.PARAM_ENABLED to intent.enabled),
-                        )
-                        prefs.update.setAllDayAlarmsEnabled(intent.enabled)
-                    }
-                    is EventIntent.UpdateAllDayAlarmHour -> prefs.update.setAllDayAlarmHour(intent.hour)
-                    is EventIntent.ToggleEventAlarm -> {
-                        analytics.logEvent(
-                            Analytics.EVENT_ALARM_TOGGLE,
-                            mapOf(
-                                Analytics.PARAM_ENABLED to intent.enabled,
-                                Analytics.PARAM_ALL_OCCURRENCES to intent.allOccurrences,
-                            ),
-                        )
-                        alarm.toggleEventAlarm(intent.event, intent.enabled, intent.allOccurrences)
-                    }
-                    is EventIntent.ToggleEventVibrate ->
-                        alarm.toggleEventVibrate(intent.event, intent.enabled)
-                    is EventIntent.UpdateAlarmOffset -> {
-                        analytics.logEvent(
-                            Analytics.EVENT_ALARM_OFFSET_CHANGED,
-                            mapOf(Analytics.PARAM_VALUE to intent.offset.minutes),
-                        )
-                        prefs.update.setAlarmOffsetMinutes(intent.offset.minutes)
-                    }
-                    is EventIntent.UpdateSnoozeTime -> {
-                        analytics.logEvent(
-                            Analytics.EVENT_SNOOZE_TIME_CHANGED,
-                            mapOf(Analytics.PARAM_VALUE to intent.minutes),
-                        )
-                        prefs.update.setSnoozeTimeMinutes(intent.minutes)
-                    }
-                    is EventIntent.ToggleSkipWeekends -> {
-                        analytics.logEvent("skip_weekends_toggle", mapOf(Analytics.PARAM_ENABLED to intent.enabled))
-                        prefs.update.setSkipWeekendsEnabled(intent.enabled)
-                    }
-                    is EventIntent.UpdateAutoDismissMinutes -> {
-                        analytics.logEvent(
-                            "auto_dismiss_minutes_changed",
-                            mapOf(Analytics.PARAM_VALUE to intent.minutes),
-                        )
-                        prefs.update.setAutoDismissMinutes(intent.minutes)
-                    }
-                    is EventIntent.ToggleLocationAlarm -> onLocationAlarmToggle(intent.enabled)
-                    is EventIntent.ChangeTransportMode -> {
-                        analytics.logEvent(
-                            Analytics.EVENT_TRANSPORT_MODE_CHANGED,
-                            mapOf(Analytics.PARAM_VALUE to intent.mode),
-                        )
-                        prefs.update.setPreferredTransportMode(intent.mode)
-                    }
-                    is EventIntent.CreateEvent -> createEvent(intent)
-                    EventIntent.LoadCalendars -> loadAvailableCalendars()
-                    is EventIntent.ToggleCalendarFilter ->
-                        onCalendarFilterToggle(intent.calendarId, intent.enabled)
-                    EventIntent.ClearCalendarFilter -> prefs.update.setEnabledCalendarIds(emptySet())
+                    // Grouped: Calendar intents
+                    is EventIntent.RefreshEvents,
+                    is EventIntent.ChangeMonth,
+                    is EventIntent.SelectDate,
+                    EventIntent.ReturnToToday,
+                    EventIntent.LoadCalendars,
+                    is EventIntent.ToggleCalendarFilter,
+                    EventIntent.ClearCalendarFilter,
+                    is EventIntent.CreateEvent,
+                    -> handleCalendarIntent(intent)
+
+                    // Grouped: Settings intents
+                    is EventIntent.ToggleGlobalAlarms,
+                    is EventIntent.ToggleVibrateOnly,
+                    is EventIntent.ToggleAllDayAlarms,
+                    is EventIntent.UpdateAllDayAlarmHour,
+                    is EventIntent.UpdateAlarmOffset,
+                    is EventIntent.UpdateSnoozeTime,
+                    is EventIntent.ToggleSkipWeekends,
+                    is EventIntent.UpdateAutoDismissMinutes,
+                    is EventIntent.ToggleLocationAlarm,
+                    is EventIntent.ChangeTransportMode,
+                    -> handleSettingsIntent(intent)
+
+                    // Grouped: Event action intents
+                    is EventIntent.JoinMeeting,
+                    is EventIntent.CopyMeetingUrl,
+                    is EventIntent.ToggleEventAlarm,
+                    is EventIntent.ToggleEventVibrate,
+                    -> handleEventActionIntent(intent)
 
                     // Grouped: AI intents
                     is EventIntent.AskAi,
@@ -231,25 +177,81 @@ class EventViewModel
                     EventIntent.SkipFullScreenIntentPermission,
                     -> handlePermissionIntent(intent)
 
-                    // Grouped: AI Agent intents (approve / reject pending action)
-                    EventIntent.ApprovePendingAction -> executePendingAction()
-                    EventIntent.RejectPendingAction -> rejectPendingAction()
+                    // Grouped: Special action intents
+                    EventIntent.ApprovePendingAction,
+                    EventIntent.RejectPendingAction,
+                    is EventIntent.NotifyRunningLate,
+                    is EventIntent.ToggleFocusMode,
+                    -> handleSpecialActionIntent(intent)
 
                     // Grouped: UI / dialog / rating intents
-                    EventIntent.DismissAutostartSuggestion,
-                    EventIntent.UpgradeToProRequest,
-                    EventIntent.UpgradeToProIARequest,
-                    EventIntent.DismissUpgradeConfirmation,
-                    is EventIntent.SearchQueryChanged,
-                    is EventIntent.ShowCreateEventDialog,
-                    EventIntent.DismissCreateEventDialog,
-                    EventIntent.ShowAiSuggestionsDialog,
-                    EventIntent.DismissAiSuggestionsDialog,
-                    is EventIntent.RateNow,
-                    EventIntent.RateLater,
-                    EventIntent.RateNever,
-                    -> handleUiIntent(intent)
+                    else -> handleUiIntent(intent)
                 }
+            }
+        }
+
+        private fun handleCalendarIntent(intent: EventIntent) {
+            when (intent) {
+                is EventIntent.RefreshEvents -> refreshEvents()
+                is EventIntent.ChangeMonth -> onMonthChanged(intent.yearMonth)
+                is EventIntent.SelectDate -> _uiState.update { it.copy(selectedDate = intent.date) }
+                EventIntent.ReturnToToday -> returnToToday()
+                EventIntent.LoadCalendars -> loadAvailableCalendars()
+                is EventIntent.ToggleCalendarFilter ->
+                    viewModelScope.launch { onCalendarFilterToggle(intent.calendarId, intent.enabled) }
+                EventIntent.ClearCalendarFilter ->
+                    viewModelScope.launch {
+                        prefs.update.setEnabledCalendarIds(emptySet())
+                    }
+                is EventIntent.CreateEvent -> createEvent(intent)
+                else -> Unit
+            }
+        }
+
+        private fun handleSettingsIntent(intent: EventIntent) {
+            viewModelScope.launch {
+                when (intent) {
+                    is EventIntent.ToggleGlobalAlarms -> prefs.update.setGlobalAlarmEnabled(intent.enabled)
+                    is EventIntent.ToggleVibrateOnly -> prefs.update.setVibrateOnly(intent.enabled)
+                    is EventIntent.ToggleAllDayAlarms -> prefs.update.setAllDayAlarmsEnabled(intent.enabled)
+                    is EventIntent.UpdateAllDayAlarmHour -> prefs.update.setAllDayAlarmHour(intent.hour)
+                    is EventIntent.UpdateAlarmOffset -> prefs.update.setAlarmOffsetMinutes(intent.offset.minutes)
+                    is EventIntent.UpdateSnoozeTime -> prefs.update.setSnoozeTimeMinutes(intent.minutes)
+                    is EventIntent.ToggleSkipWeekends -> prefs.update.setSkipWeekendsEnabled(intent.enabled)
+                    is EventIntent.UpdateAutoDismissMinutes -> prefs.update.setAutoDismissMinutes(intent.minutes)
+                    is EventIntent.ToggleLocationAlarm -> onLocationAlarmToggle(intent.enabled)
+                    is EventIntent.ChangeTransportMode -> prefs.update.setPreferredTransportMode(intent.mode)
+                    else -> Unit
+                }
+            }
+        }
+
+        private suspend fun handleEventActionIntent(intent: EventIntent) {
+            when (intent) {
+                is EventIntent.JoinMeeting -> _sideEffect.send(EventSideEffect.OpenMeetingUrl(intent.meetingUrl))
+                is EventIntent.CopyMeetingUrl -> {
+                    _sideEffect.send(
+                        EventSideEffect.CopyToClipboard(
+                            intent.meetingUrl,
+                            UiText.StringResource(R.string.link_copied),
+                        ),
+                    )
+                }
+                is EventIntent.ToggleEventAlarm ->
+                    alarm.toggleEventAlarm(intent.event, intent.enabled, intent.allOccurrences)
+                is EventIntent.ToggleEventVibrate ->
+                    alarm.toggleEventVibrate(intent.event, intent.enabled)
+                else -> Unit
+            }
+        }
+
+        private fun handleSpecialActionIntent(intent: EventIntent) {
+            when (intent) {
+                EventIntent.ApprovePendingAction -> executePendingAction()
+                EventIntent.RejectPendingAction -> rejectPendingAction()
+                is EventIntent.NotifyRunningLate -> handleNotifyRunningLate(intent)
+                is EventIntent.ToggleFocusMode -> handleToggleFocusMode(intent)
+                else -> Unit
             }
         }
 
@@ -289,14 +291,10 @@ class EventViewModel
             when (intent) {
                 EventIntent.DismissAutostartSuggestion ->
                     prefs.update.setAutostartSuggestionDismissed(true)
-                EventIntent.UpgradeToProRequest -> {
-                    analytics.logEvent(Analytics.EVENT_UPGRADE_REQUEST)
+                EventIntent.UpgradeToProRequest ->
                     _uiState.update { it.copy(showPurchaseConfirmation = true) }
-                }
-                EventIntent.UpgradeToProIARequest -> {
-                    analytics.logEvent(Analytics.EVENT_UPGRADE_IA_REQUEST)
+                EventIntent.UpgradeToProIARequest ->
                     _uiState.update { it.copy(showSubscriptionConfirmation = true) }
-                }
                 EventIntent.DismissUpgradeConfirmation ->
                     _uiState.update {
                         it.copy(showSubscriptionConfirmation = false, showPurchaseConfirmation = false)
@@ -314,12 +312,9 @@ class EventViewModel
                 EventIntent.DismissAiSuggestionsDialog ->
                     _uiState.update { it.copy(showAiSuggestionsDialog = false) }
                 is EventIntent.RateNow -> onRateNow(intent.activity)
-                EventIntent.RateLater -> {
-                    analytics.logEvent(Analytics.EVENT_RATE_LATER)
+                EventIntent.RateLater ->
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
-                }
                 EventIntent.RateNever -> {
-                    analytics.logEvent(Analytics.EVENT_RATE_NEVER)
                     prefs.update.setRatingCompleted(true)
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
                 }
@@ -474,10 +469,6 @@ class EventViewModel
                 _uiState.update { it.copy(showSubscriptionConfirmation = true) }
                 return
             }
-            analytics.logEvent(
-                Analytics.EVENT_LOCATION_ALARM_TOGGLE,
-                mapOf(Analytics.PARAM_ENABLED to enabled),
-            )
             viewModelScope.launch { prefs.update.setLocationAlarmEnabled(enabled) }
         }
 
@@ -492,13 +483,6 @@ class EventViewModel
             calendarId: Long,
             enabled: Boolean,
         ) {
-            analytics.logEvent(
-                Analytics.EVENT_CALENDAR_FILTER_TOGGLE,
-                mapOf(
-                    Analytics.PARAM_CALENDAR_ID to calendarId,
-                    Analytics.PARAM_ENABLED to enabled,
-                ),
-            )
             val allIds = _uiState.value.availableCalendars.map { it.id }.toSet()
             val current = _uiState.value.enabledCalendarIds.toMutableSet()
 
@@ -534,7 +518,6 @@ class EventViewModel
                 _uiState.update { it.copy(isGeneratingBriefing = true) }
                 val briefing = ai.generateDailyBriefing(eventsToday, language)
                 if (briefing != null) {
-                    analytics.logEvent(Analytics.EVENT_AI_BRIEFING)
                     ai.widgetUpdater.updateDailyBriefingWidget()
                 }
                 _uiState.update { it.copy(isGeneratingBriefing = false) }
@@ -547,11 +530,16 @@ class EventViewModel
         ) {
             if (question.isBlank() || _uiState.value.isAskingAi || !_uiState.value.isAiUser) return
 
-            analytics.logEvent(Analytics.EVENT_AI_ASK)
-
             viewModelScope.launch {
                 val currentHistory = _uiState.value.chatHistory
-                val newHistory = currentHistory + ChatMessage(ChatMessage.Role.USER, question)
+                val briefingContext =
+                    if (currentHistory.isEmpty() && _uiState.value.dailyBriefing != null) {
+                        listOf(ChatMessage(ChatMessage.Role.ASSISTANT, _uiState.value.dailyBriefing!!))
+                    } else {
+                        currentHistory
+                    }
+
+                val newHistory = briefingContext + ChatMessage(ChatMessage.Role.USER, question)
 
                 _uiState.update {
                     it.copy(
@@ -635,7 +623,6 @@ class EventViewModel
 
         private fun speakAiResponse() {
             _uiState.value.aiResponse?.let {
-                analytics.logEvent(Analytics.EVENT_AI_SPEAK)
                 speak(it)
             }
         }
@@ -671,7 +658,7 @@ class EventViewModel
                     )
                 if (result != null) {
                     logcat { "Evento criado com sucesso, ID: $result" }
-                    analytics.logEvent(Analytics.EVENT_EVENT_CREATED)
+                    eventAnalytics.logEventCreated()
                     handleIntent(EventIntent.DismissCreateEventDialog)
 
                     // Navigate to the event date so the user can see it
@@ -713,7 +700,6 @@ class EventViewModel
 
         private fun onRateNow(activity: android.app.Activity?) {
             viewModelScope.launch {
-                analytics.logEvent(Analytics.EVENT_RATE_NOW)
                 prefs.update.setRatingCompleted(true)
                 _uiState.update { it.copy(showRatingBottomSheet = false) }
                 activity?.let { reviewManager.requestReview(it) {} }
@@ -827,6 +813,39 @@ class EventViewModel
 
         private fun rejectPendingAction() {
             _uiState.update { it.copy(pendingAIAction = null) }
+        }
+
+        private fun handleNotifyRunningLate(intent: EventIntent.NotifyRunningLate) {
+            logcat { "AI Agent: Notifying running late for event ${intent.eventId}: ${intent.message}" }
+            // In a real implementation, this would trigger a message sending service.
+            // For now, we show a side effect to inform the user.
+            _sideEffect.trySend(
+                EventSideEffect.ShowSnackbar(
+                    UiText.StringResource(R.string.ai_suggested_late_notification, listOf(intent.message)),
+                ),
+            )
+        }
+
+        private fun handleToggleFocusMode(intent: EventIntent.ToggleFocusMode) {
+            toggleFocusModeUseCase(intent.enabled).onSuccess {
+                val msgRes = R.string.ai_agent_snackbar_executed
+                _sideEffect.trySend(
+                    EventSideEffect.ShowSnackbar(
+                        UiText.StringResource(
+                            msgRes,
+                            listOf("DND " + (if (intent.enabled) "enabled" else "disabled")),
+                        ),
+                    ),
+                )
+            }.onFailure {
+                _sideEffect.trySend(
+                    EventSideEffect.AIToolError(
+                        UiText.DynamicString(
+                            "Permission for DND access required. Please enable it in system settings.",
+                        ),
+                    ),
+                )
+            }
         }
 
         /**

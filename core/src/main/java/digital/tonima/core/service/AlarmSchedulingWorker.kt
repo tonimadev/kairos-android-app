@@ -1,15 +1,25 @@
 package digital.tonima.core.service
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.core.repository.AudioWarningState
+import digital.tonima.core.repository.RingerModeRepository
+import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.utils.NotificationHelper
+import digital.tonima.kairos.core.R.string
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import logcat.LogPriority
@@ -33,6 +43,9 @@ class AlarmSchedulingWorker
         private val scheduler: EventAlarmScheduler,
         private val permissionManager: PermissionManager,
         private val appPreferencesRepository: AppPreferencesRepository,
+        private val proUserProvider: ProUserProvider,
+        private val calculateDepartureTimeUseCase: CalculateDepartureTimeUseCase,
+        private val ringerModeRepository: RingerModeRepository,
     ) : CoroutineWorker(appContext, workerParams) {
         override suspend fun doWork(): Result =
             withContext(Dispatchers.IO) {
@@ -108,12 +121,32 @@ class AlarmSchedulingWorker
                         logcat(LogPriority.INFO) { "Nenhum evento encontrado para agendar nesta janela de tempo." }
                     } else {
                         logcat(LogPriority.INFO) { "Encontrados ${eventsToSchedule.size} evento(s) para agendar:" }
+                        val isAiUser = proUserProvider.isAiUser.first()
+
                         eventsToSchedule.forEach { event ->
+                            var triggerTime: Long? = null
+                            if (isAiUser && event.location != null) {
+                                logcat {
+                                    "Dynamic Traffic Watch: Calculando " +
+                                        "tempo de deslocamento para '${event.title}'"
+                                }
+                                triggerTime = calculateDepartureTimeUseCase(event)?.departureTime
+                            }
+
                             logcat {
                                 "Agendando alarme para o evento '${event.title}' em " +
-                                    sdf.format(Date(event.startTime))
+                                    sdf.format(Date(event.startTime)) +
+                                    if (triggerTime != null) {
+                                        " (Trigger " +
+                                            "dinâmico: ${sdf.format(Date(triggerTime))})"
+                                    } else {
+                                        ""
+                                    }
                             }
-                            scheduler.schedule(event)
+                            scheduler.schedule(event, triggerTime)
+                        }
+                        if (eventsToSchedule.isNotEmpty()) {
+                            checkDeviceHealth(isAiUser, eventsToSchedule.first())
                         }
                     }
                     logcat { "Worker concluído com sucesso." }
@@ -123,4 +156,53 @@ class AlarmSchedulingWorker
                     Result.failure()
                 }
             }
+
+        private fun checkDeviceHealth(
+            isAiUser: Boolean,
+            nextEvent: digital.tonima.core.model.Event,
+        ) {
+            if (!isAiUser) return
+
+            val batteryStatus: Intent? =
+                IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+                    applicationContext.registerReceiver(null, ifilter)
+                }
+
+            val batteryPct: Int =
+                batteryStatus?.let { intent ->
+                    val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                    val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                    (level * 100 / scale.toFloat()).toInt()
+                } ?: 100
+
+            val isCharging: Boolean =
+                batteryStatus?.let { intent ->
+                    val status: Int = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+                    status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                        status == BatteryManager.BATTERY_STATUS_FULL
+                } ?: true
+
+            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+            val eventTimeStr = sdf.format(Date(nextEvent.startTime))
+
+            if (batteryPct < 20 && !isCharging) {
+                NotificationHelper.showSyncAlertNotification(
+                    applicationContext,
+                    applicationContext
+                        .getString(
+                            string.battery_low_warning,
+                            batteryPct,
+                            eventTimeStr,
+                        ),
+                )
+            }
+
+            val ringerMode = ringerModeRepository.ringerMode.value
+            if (ringerMode == AudioWarningState.SILENT || ringerMode == AudioWarningState.ALARM_MUTED) {
+                NotificationHelper.showSyncAlertNotification(
+                    applicationContext,
+                    applicationContext.getString(string.silent_mode_warning, eventTimeStr),
+                )
+            }
+        }
     }

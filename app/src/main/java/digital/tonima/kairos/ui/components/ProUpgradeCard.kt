@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -18,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,7 +52,7 @@ fun ProUpgradeCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                painter = painterResource(id = digital.tonima.kairos.R.drawable.ic_location),
+                imageVector = Icons.Default.AutoAwesome,
                 contentDescription = null,
                 modifier = Modifier.size(40.dp),
                 tint = MaterialTheme.colorScheme.primary,
@@ -59,13 +60,13 @@ fun ProUpgradeCard(
             Spacer(modifier = Modifier.width(Dimensions.PaddingMedium))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.geo_alarm_upgrade_trial_title),
+                    text = stringResource(R.string.pro_ia_upgrade_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = stringResource(R.string.geo_alarm_upgrade_trial_desc),
+                    text = stringResource(R.string.pro_ia_upgrade_desc),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Spacer(modifier = Modifier.height(Dimensions.PaddingSmall))

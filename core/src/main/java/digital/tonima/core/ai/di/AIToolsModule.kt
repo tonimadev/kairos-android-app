@@ -7,6 +7,8 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.tools.CreateEventTool
+import digital.tonima.core.ai.tools.ManageFocusModeTool
+import digital.tonima.core.ai.tools.NotifyLateTool
 import digital.tonima.core.ai.tools.SearchTool
 import digital.tonima.core.ai.tools.ToggleGlobalAlarmsTool
 import javax.inject.Singleton
@@ -34,4 +36,14 @@ object AIToolsModule {
     @IntoSet
     @Singleton
     fun provideSearchTool(): AITool = SearchTool()
+
+    @Provides
+    @IntoSet
+    @Singleton
+    fun provideNotifyLateTool(): AITool = NotifyLateTool()
+
+    @Provides
+    @IntoSet
+    @Singleton
+    fun provideManageFocusModeTool(): AITool = ManageFocusModeTool()
 }
