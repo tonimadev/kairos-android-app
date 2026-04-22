@@ -9,6 +9,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -58,7 +60,7 @@ import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.Dimensions
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 @Suppress("LongMethod")
 fun EventCard(
@@ -176,9 +178,10 @@ fun EventCard(
                     }
                 }
                 Spacer(modifier = Modifier.height(Dimensions.EventCardSpacing))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(Dimensions.EventCardSpacing),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.EventCardSpacing),
                 ) {
                     Box(
                         modifier =
@@ -287,6 +290,8 @@ fun EventCard(
                                 Text(
                                     text = stringResource(R.string.join_meeting_label),
                                     style = MaterialTheme.typography.labelMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                                 )
                             }
@@ -321,17 +326,17 @@ fun EventCard(
                             }
                         }
                     }
-                    if (event.isAlarmEnabled) {
-                        val alarmTime = event.departureTime ?: (event.startTime)
-                        val timeRemaining = formatTimeRemaining(LocalContext.current, alarmTime)
-                        Text(
-                            text = stringResource(R.string.alarm_in_label, timeRemaining),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(top = 4.dp),
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
+                }
+                if (event.isAlarmEnabled) {
+                    val alarmTime = event.departureTime ?: (event.startTime)
+                    val timeRemaining = formatTimeRemaining(LocalContext.current, alarmTime)
+                    Text(
+                        text = stringResource(R.string.alarm_in_label, timeRemaining),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = Dimensions.SpacingTiny),
+                        fontWeight = FontWeight.Bold,
+                    )
                 }
             }
             Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))

@@ -2,9 +2,14 @@ spotless {
     kotlin {
         target '**/*.kt'
         targetExclude(
-            "$buildDir/**/*.kt",
+            "**/build/**/*.kt",
             "**/build/generated/**/*.kt",
-            "build-logic/build/**/*.kt"
+            "**/bin/**/*.kt",
+            "**/BuildConfig.kt",
+            "**/R.kt",
+            "**/*_Hilt*.kt",
+            "**/Dagger*Component.kt",
+            "**/Dagger*Module.kt"
         )
         ktlint("1.2.1").setEditorConfigPath("$rootDir/.editorconfig")
     }
