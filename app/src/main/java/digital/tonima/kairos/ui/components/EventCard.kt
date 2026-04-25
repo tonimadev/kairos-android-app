@@ -29,6 +29,7 @@ import androidx.compose.material.icons.rounded.AlarmOff
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Repeat
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.TipsAndUpdates
 import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.Card
@@ -79,7 +80,7 @@ fun EventCard(
             if (event.isAlarmEnabled) {
                 MaterialTheme.colorScheme.surface
             } else {
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
             },
         animationSpec = tween(300),
         label = "cardColor",
@@ -148,14 +149,14 @@ fun EventCard(
                 Text(
                     text = event.title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color =
                         if (event.isAlarmEnabled) {
                             MaterialTheme.colorScheme.onSurface
                         } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                         },
                 )
                 if (!event.location.isNullOrBlank()) {
@@ -191,9 +192,9 @@ fun EventCard(
                                 .clip(RoundedCornerShape(Dimensions.RadiusFull))
                                 .background(
                                     if (event.isAlarmEnabled) {
-                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
                                     } else {
-                                        MaterialTheme.colorScheme.surfaceVariant
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                                     },
                                 )
                                 .padding(
@@ -331,14 +332,25 @@ fun EventCard(
                 }
                 if (event.isAlarmEnabled) {
                     val alarmTime = event.departureTime ?: (event.startTime)
-                    val timeRemaining = formatTimeRemaining(LocalContext.current, alarmTime)
-                    Text(
-                        text = stringResource(R.string.alarm_in_label, timeRemaining),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = Dimensions.SpacingTiny),
-                        fontWeight = FontWeight.Bold,
-                    )
+                    val timeRemaining = formatTimeRemaining(alarmTime)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(top = Dimensions.SpacingSmall),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Timer,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            text = stringResource(R.string.alarm_in_label, timeRemaining),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
                 }
 
                 // Pro+AI Meeting Prep Summary
@@ -434,10 +446,7 @@ fun formatMillisToTime(millis: Long): String {
 }
 
 @Composable
-fun formatTimeRemaining(
-    context: android.content.Context,
-    targetTime: Long,
-): String {
+fun formatTimeRemaining(targetTime: Long): String {
     val now = System.currentTimeMillis()
     val diff = targetTime - now
     if (diff <= 0) return stringResource(R.string.alarm_now_label)

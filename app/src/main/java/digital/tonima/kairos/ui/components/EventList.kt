@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.TipsAndUpdates
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -27,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.kairos.core.R
@@ -71,6 +75,22 @@ fun EventList(
                 }
 
                 item {
+                    val hour = remember { java.time.LocalTime.now().hour }
+                    val greeting =
+                        when {
+                            hour < 12 -> "Good Morning! ☀️"
+                            hour < 18 -> "Good Afternoon! ☕"
+                            else -> "Good Evening! 🌙"
+                        }
+                    Text(
+                        text = greeting,
+                        style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = Dimensions.SpacingSmall, top = Dimensions.SpacingSmall),
+                    )
+                }
+
+                item {
                     OutlinedTextField(
                         value = uiState.searchQuery,
                         onValueChange = eventActions.onSearchQueryChanged,
@@ -84,7 +104,7 @@ fun EventList(
                             if (uiState.searchQuery.isNotEmpty()) {
                                 IconButton(onClick = { eventActions.onSearchQueryChanged("") }) {
                                     Icon(
-                                        painterResource(digital.tonima.kairos.core.R.drawable.ic_k_monochrome),
+                                        painterResource(R.drawable.ic_k_monochrome),
                                         contentDescription = null,
                                     )
                                 }
@@ -118,7 +138,7 @@ fun EventList(
 
                 if (eventsInDay.isEmpty() && !uiState.isRefreshing) {
                     item {
-                        Box(
+                        Column(
                             modifier =
                                 Modifier
                                     .then(
@@ -130,8 +150,28 @@ fun EventList(
                                             Modifier.fillParentMaxSize()
                                         },
                                     ),
-                            contentAlignment = Alignment.Center,
-                        ) { Text(stringResource(R.string.no_events_found_for_this_day)) }
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.TipsAndUpdates,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp).padding(bottom = 8.dp),
+                                tint = androidx.compose.material3.MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                            )
+                            Text(
+                                text = "Your day is clear! 🌟",
+                                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = stringResource(R.string.no_events_found_for_this_day),
+                                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
+                        }
                     }
                 } else {
                     items(eventsInDay, key = { it.uniqueIntentId }) { event ->
