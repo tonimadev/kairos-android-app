@@ -50,7 +50,12 @@ class EventAlarmSchedulerImpl
                 }
 
             if (skipWeekends) {
-                val eventDayOfWeek = Instant.ofEpochMilli(event.startTime).atZone(ZoneId.systemDefault()).dayOfWeek
+                val eventDayOfWeek =
+                    if (event.isAllDay) {
+                        Instant.ofEpochMilli(event.startTime).atZone(ZoneId.of("UTC")).dayOfWeek
+                    } else {
+                        Instant.ofEpochMilli(event.startTime).atZone(ZoneId.systemDefault()).dayOfWeek
+                    }
                 if (eventDayOfWeek == java.time.DayOfWeek.SATURDAY || eventDayOfWeek == java.time.DayOfWeek.SUNDAY) {
                     logcat { "Skipping alarm for event on weekend: ${event.title}" }
                     return
