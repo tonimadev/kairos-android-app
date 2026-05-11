@@ -63,6 +63,7 @@ class EventViewModel
         private val checkPermissionsUseCase: CheckPermissionsUseCase,
         private val toggleFocusModeUseCase: ToggleFocusModeUseCase,
         private val reviewManager: ReviewManager,
+        private val weather: WeatherDeps,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         /** Dependencies for calendar and event data operations. */
         class CalendarDeps
@@ -101,6 +102,14 @@ class EventViewModel
                 val tts: TextToSpeechHelper,
                 val widgetUpdater: WidgetUpdater,
                 val actionRegistry: ActionRegistry,
+            )
+
+        /** Dependencies for weather operations. */
+        class WeatherDeps
+            @Inject
+            constructor(
+                val locationRepository: digital.tonima.core.repository.LocationRepository,
+                val weatherRepository: digital.tonima.core.repository.WeatherRepository,
             )
 
         private val _uiState = MutableStateFlow(EventScreenUiState())
@@ -154,6 +163,8 @@ class EventViewModel
                     is EventIntent.UpdateAutoDismissMinutes,
                     is EventIntent.ToggleLocationAlarm,
                     is EventIntent.ChangeTransportMode,
+                    is EventIntent.ToggleTemperatureUnit,
+                    EventIntent.FetchWeather,
                     -> handleSettingsIntent(intent)
 
                     // Grouped: Event action intents
@@ -221,6 +232,11 @@ class EventViewModel
                     is EventIntent.UpdateAutoDismissMinutes -> prefs.update.setAutoDismissMinutes(intent.minutes)
                     is EventIntent.ToggleLocationAlarm -> onLocationAlarmToggle(intent.enabled)
                     is EventIntent.ChangeTransportMode -> prefs.update.setPreferredTransportMode(intent.mode)
+                    is EventIntent.ToggleTemperatureUnit -> {
+                        prefs.update.setTemperatureInCelsius(intent.isCelsius)
+                        handleIntent(EventIntent.FetchWeather)
+                    }
+                    EventIntent.FetchWeather -> fetchWeather()
                     else -> Unit
                 }
             }
@@ -340,6 +356,7 @@ class EventViewModel
                         showAutostartSuggestion = !appPrefs.autostartSuggestionDismissed,
                         skipWeekends = appPrefs.skipWeekendsEnabled,
                         autoDismissMinutes = appPrefs.autoDismissMinutes,
+                        isTemperatureInCelsius = appPrefs.isTemperatureInCelsius,
                         enabledCalendarIds =
                             appPrefs.enabledCalendarIds.mapNotNull { it.toLongOrNull() }.toSet(),
                     )
@@ -387,6 +404,9 @@ class EventViewModel
             if (p.hasCalendarPermission) {
                 refreshEvents()
                 handleIntent(EventIntent.LoadCalendars)
+            }
+            if (p.hasLocationPermission) {
+                handleIntent(EventIntent.FetchWeather)
             }
         }
 
@@ -703,6 +723,26 @@ class EventViewModel
                 prefs.update.setRatingCompleted(true)
                 _uiState.update { it.copy(showRatingBottomSheet = false) }
                 activity?.let { reviewManager.requestReview(it) {} }
+            }
+        }
+
+        private fun fetchWeather() {
+            viewModelScope.launch {
+                val isCelsius = _uiState.value.isTemperatureInCelsius
+                val locationStr = weather.locationRepository.getCurrentLocation()
+                if (locationStr != null) {
+                    val parts = locationStr.split(",")
+                    if (parts.size == 2) {
+                        val lat = parts[0].toDoubleOrNull()
+                        val lon = parts[1].toDoubleOrNull()
+                        if (lat != null && lon != null) {
+                            val weatherData = weather.weatherRepository.getWeather(lat, lon, isCelsius)
+                            if (weatherData != null) {
+                                _uiState.update { it.copy(weather = weatherData) }
+                            }
+                        }
+                    }
+                }
             }
         }
 

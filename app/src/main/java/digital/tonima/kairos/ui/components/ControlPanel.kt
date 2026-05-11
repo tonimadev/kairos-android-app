@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -323,6 +324,33 @@ private fun SettingsContent(
                 enabledCalendarIds = uiState.enabledCalendarIds,
                 onCalendarFilterToggle = settingsActions.onCalendarFilterToggle,
             )
+        }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Thermostat,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(Dimensions.IconSizeSmall),
+                )
+                Text(
+                    "Use Celsius for Weather",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+            Switch(checked = uiState.isTemperatureInCelsius, onCheckedChange = settingsActions.onTemperatureUnitToggle)
         }
     }
 }

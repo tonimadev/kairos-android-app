@@ -55,6 +55,12 @@ fun MainContent(
                         .verticalScroll(rememberScrollState())
                         .padding(end = Dimensions.PaddingSmall),
             ) {
+                WeatherCard(
+                    weather = uiState.weather,
+                    isTemperatureInCelsius = uiState.isTemperatureInCelsius,
+                    onFetchWeather = eventActions.onFetchWeather,
+                    modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
+                )
                 ControlPanel(
                     uiState = uiState,
                     settingsActions = settingsActions,
@@ -92,6 +98,12 @@ fun MainContent(
             aiActions = aiActions,
             headerContent = {
                 Column {
+                    WeatherCard(
+                        weather = uiState.weather,
+                        isTemperatureInCelsius = uiState.isTemperatureInCelsius,
+                        onFetchWeather = eventActions.onFetchWeather,
+                        modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
+                    )
                     ControlPanel(
                         uiState = uiState,
                         settingsActions = settingsActions,

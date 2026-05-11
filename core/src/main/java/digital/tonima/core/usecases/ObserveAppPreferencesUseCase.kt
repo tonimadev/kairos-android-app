@@ -24,6 +24,7 @@ data class AppPreferences(
     val fullScreenIntentPermissionSkipped: Boolean,
     val skipWeekendsEnabled: Boolean,
     val autoDismissMinutes: Int,
+    val isTemperatureInCelsius: Boolean,
 )
 
 @Singleton
@@ -51,6 +52,7 @@ class ObserveAppPreferencesUseCase
                 repository.isFullScreenIntentPermissionSkipped(),
                 repository.isSkipWeekendsEnabled(),
                 repository.getAutoDismissMinutes(),
+                repository.isTemperatureInCelsius(),
             ) { args ->
                 AppPreferences(
                     isGlobalAlarmEnabled = args[0] as Boolean,
@@ -70,6 +72,7 @@ class ObserveAppPreferencesUseCase
                     fullScreenIntentPermissionSkipped = args[14] as Boolean,
                     skipWeekendsEnabled = args[15] as Boolean,
                     autoDismissMinutes = args[16] as Int,
+                    isTemperatureInCelsius = args[17] as Boolean,
                 )
             }
         }

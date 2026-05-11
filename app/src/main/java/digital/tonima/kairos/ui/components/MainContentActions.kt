@@ -16,6 +16,7 @@ data class EventActions(
     val onSearchQueryChanged: (String) -> Unit = {},
     val onJoinMeeting: (String) -> Unit = {},
     val onCopyMeetingUrl: (String) -> Unit = {},
+    val onFetchWeather: () -> Unit = {},
 )
 
 data class SettingsActions(
@@ -31,6 +32,7 @@ data class SettingsActions(
     val onCalendarFilterToggle: (calendarId: Long, enabled: Boolean) -> Unit = { _, _ -> },
     val onLocationAlarmToggle: (Boolean) -> Unit = {},
     val onTransportModeChanged: (String) -> Unit = {},
+    val onTemperatureUnitToggle: (Boolean) -> Unit = {},
 )
 
 data class AiActions(

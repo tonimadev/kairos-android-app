@@ -54,4 +54,6 @@ data class EventScreenUiState(
     val pendingAIAction: EventIntent? = null,
     val meetingPrepSummary: String? = null,
     val isPreparingMeeting: Boolean = false,
+    val weather: digital.tonima.core.model.Weather? = null,
+    val isTemperatureInCelsius: Boolean = true,
 )

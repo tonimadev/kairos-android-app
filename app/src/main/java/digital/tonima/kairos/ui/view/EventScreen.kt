@@ -514,6 +514,7 @@ private fun EventScreenContent(
                                 onCopyMeetingUrl = { url ->
                                     viewModel.handleIntent(EventIntent.CopyMeetingUrl(url))
                                 },
+                                onFetchWeather = { viewModel.handleIntent(EventIntent.FetchWeather) },
                             ),
                         settingsActions =
                             SettingsActions(

@@ -6,11 +6,15 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface WeatherRepository {
-    suspend fun getWeather(city: String): Weather?
+    suspend fun getWeather(
+        city: String,
+        isCelsius: Boolean = true,
+    ): Weather?
 
     suspend fun getWeather(
         lat: Double,
         lon: Double,
+        isCelsius: Boolean = true,
     ): Weather?
 }
 

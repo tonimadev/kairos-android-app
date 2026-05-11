@@ -37,10 +37,14 @@ class WeatherRepositoryImpl
 
         private val service = retrofit.create(OpenWeatherService::class.java)
 
-        override suspend fun getWeather(city: String): Weather? {
+        override suspend fun getWeather(
+            city: String,
+            isCelsius: Boolean,
+        ): Weather? {
             if (BuildConfig.OPENWEATHER_API_KEY.isEmpty()) return null
+            val units = if (isCelsius) "metric" else "imperial"
             return try {
-                val response = service.getCurrentWeatherByCity(city, BuildConfig.OPENWEATHER_API_KEY)
+                val response = service.getCurrentWeatherByCity(city, BuildConfig.OPENWEATHER_API_KEY, units)
                 Weather(
                     temperature = response.main.temp,
                     description = response.weather.firstOrNull()?.description ?: "",
@@ -55,10 +59,12 @@ class WeatherRepositoryImpl
         override suspend fun getWeather(
             lat: Double,
             lon: Double,
+            isCelsius: Boolean,
         ): Weather? {
             if (BuildConfig.OPENWEATHER_API_KEY.isEmpty()) return null
+            val units = if (isCelsius) "metric" else "imperial"
             return try {
-                val response = service.getCurrentWeatherByCoords(lat, lon, BuildConfig.OPENWEATHER_API_KEY)
+                val response = service.getCurrentWeatherByCoords(lat, lon, BuildConfig.OPENWEATHER_API_KEY, units)
                 Weather(
                     temperature = response.main.temp,
                     description = response.weather.firstOrNull()?.description ?: "",

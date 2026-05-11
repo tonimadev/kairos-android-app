@@ -50,4 +50,6 @@ class UpdateAppPreferenceUseCase
 
         suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean) =
             repository.setFullScreenIntentPermissionSkipped(skipped)
+
+        suspend fun setTemperatureInCelsius(isCelsius: Boolean) = repository.setTemperatureInCelsius(isCelsius)
     }

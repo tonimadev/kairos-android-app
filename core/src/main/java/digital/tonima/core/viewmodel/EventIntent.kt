@@ -46,6 +46,10 @@ sealed class EventIntent {
 
     data class ChangeTransportMode(val mode: String) : EventIntent()
 
+    object FetchWeather : EventIntent()
+
+    data class ToggleTemperatureUnit(val isCelsius: Boolean) : EventIntent()
+
     data class AskAi(val question: String, val language: String) : EventIntent()
 
     data class GenerateDailyBriefing(val language: String) : EventIntent()

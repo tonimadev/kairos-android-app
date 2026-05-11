@@ -45,6 +45,7 @@ class AppPreferencesRepositoryImpl
             val EXACT_ALARM_PERMISSION_SKIPPED = booleanPreferencesKey("exact_alarm_permission_skipped")
             val FULL_SCREEN_INTENT_PERMISSION_SKIPPED = booleanPreferencesKey("full_screen_intent_permission_skipped")
             val SYNC_ALERT_MUTED_UNTIL = longPreferencesKey("sync_alert_muted_until")
+            val TEMPERATURE_IN_CELSIUS = booleanPreferencesKey("temperature_in_celsius")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -361,6 +362,19 @@ class AppPreferencesRepositoryImpl
         override suspend fun setSyncAlertMutedUntil(timestamp: Long) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.SYNC_ALERT_MUTED_UNTIL] = timestamp
+            }
+        }
+
+        override fun isTemperatureInCelsius(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.TEMPERATURE_IN_CELSIUS] ?: true
+                }
+        }
+
+        override suspend fun setTemperatureInCelsius(isCelsius: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.TEMPERATURE_IN_CELSIUS] = isCelsius
             }
         }
     }
