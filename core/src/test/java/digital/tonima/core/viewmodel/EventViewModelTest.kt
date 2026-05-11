@@ -100,6 +100,9 @@ class EventViewModelTest {
     private val isProUserFlow = MutableStateFlow(false)
     private val isAiUserFlow = MutableStateFlow(false)
 
+    private val mockLocationRepository: digital.tonima.core.repository.LocationRepository = mockk(relaxed = true)
+    private val mockWeatherRepository: digital.tonima.core.repository.WeatherRepository = mockk(relaxed = true)
+
     private lateinit var viewModel: EventViewModel
 
     @Before
@@ -150,6 +153,7 @@ class EventViewModelTest {
             fullScreenIntentPermissionSkipped = false,
             skipWeekendsEnabled = false,
             autoDismissMinutes = 5,
+            isTemperatureInCelsius = true,
         )
 
     private fun createViewModel() =
@@ -187,6 +191,11 @@ class EventViewModelTest {
             checkPermissionsUseCase = mockCheckPermissionsUseCase,
             toggleFocusModeUseCase = mockToggleFocusModeUseCase,
             reviewManager = mockReviewManager,
+            weather =
+                EventViewModel.WeatherDeps(
+                    locationRepository = mockLocationRepository,
+                    weatherRepository = mockWeatherRepository,
+                ),
         )
 
     @Test

@@ -51,6 +51,7 @@ class WearCalendarViewModelTest {
         private val exactAlarmSkipped = MutableStateFlow(false)
         private val fullScreenIntentSkipped = MutableStateFlow(false)
         private val syncAlertMutedUntil = MutableStateFlow(0L)
+        private val isTemperatureInCelsius = MutableStateFlow(true)
 
         override fun isGlobalAlarmEnabled() = global as Flow<Boolean>
 
@@ -188,6 +189,12 @@ class WearCalendarViewModelTest {
 
         override suspend fun setSyncAlertMutedUntil(timestamp: Long) {
             syncAlertMutedUntil.value = timestamp
+        }
+
+        override fun isTemperatureInCelsius(): Flow<Boolean> = isTemperatureInCelsius
+
+        override suspend fun setTemperatureInCelsius(isCelsius: Boolean) {
+            isTemperatureInCelsius.value = isCelsius
         }
     }
 
