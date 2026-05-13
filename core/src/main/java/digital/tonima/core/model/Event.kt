@@ -13,6 +13,7 @@ data class Event(
     val location: String? = null,
     val departureTime: Long? = null,
     val travelTimeMinutes: Int? = null,
+    val category: String? = null,
 ) {
     val uniqueIntentId: Int
         get() = (id.toString() + startTime.toString()).hashCode()

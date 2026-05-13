@@ -163,6 +163,13 @@
     <string name="ai_agent_create_event_confirmation">AI 想要创建事件「%1$s」。确认吗？</string>
     <string name="ai_agent_create_event_with_location_confirmation">AI 想要在 %2$s 创建事件「%1$s」。确认吗？</string>
     <string name="ai_agent_generic_confirmation">AI 想要执行操作 \'%1$s\'。确认吗？</string>
+    <string name="ai_agent_reschedule_confirmation">AI 想要将事件「%1$s」重新安排到 %2$s。确认吗？</string>
+    <string name="ai_agent_categorize_confirmation">AI 想要将事件「%1$s」归类为 %2$s。确认吗？</string>
+    <string name="ai_agent_focus_block_confirmation">AI 想要在 %1$s 到 %2$s 之间创建一个专注区块。确认吗？</string>
+    <string name="category_work">工作</string>
+    <string name="category_health">健康</string>
+    <string name="category_leisure">休闲</string>
+    <string name="category_personal">个人</string>
     <string name="confirm">确认</string>
     <string name="ai_agent_event_created">事件已成功创建！</string>
     <string name="ai_agent_event_creation_error">在日历中创建事件时出错。</string>

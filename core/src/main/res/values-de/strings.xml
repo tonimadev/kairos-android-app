@@ -168,6 +168,13 @@
     <string name="ai_agent_create_event_confirmation">Die KI möchte den Termin \"%1$s\" erstellen. Bestätigen?</string>
     <string name="ai_agent_create_event_with_location_confirmation">Die KI möchte den Termin \"%1$s\" in %2$s erstellen. Bestätigen?</string>
     <string name="ai_agent_generic_confirmation">Die KI möchte die Aktion \'%1$s\' ausführen. Bestätigen?</string>
+    <string name="ai_agent_reschedule_confirmation">Die KI möchte den Termin \"%1$s\" auf %2$s verschieben. Bestätigen?</string>
+    <string name="ai_agent_categorize_confirmation">Die KI möchte den Termin \"%1$s\" als %2$s kategorisieren. Bestätigen?</string>
+    <string name="ai_agent_focus_block_confirmation">Die KI möchte einen Fokus-Block von %1$s bis %2$s erstellen. Bestätigen?</string>
+    <string name="category_work">Arbeit</string>
+    <string name="category_health">Gesundheit</string>
+    <string name="category_leisure">Freizeit</string>
+    <string name="category_personal">Privat</string>
     <string name="confirm">Bestätigen</string>
     <string name="ai_agent_event_created">Termin erfolgreich erstellt!</string>
     <string name="ai_agent_event_creation_error">Fehler beim Erstellen des Termins im Kalender.</string>

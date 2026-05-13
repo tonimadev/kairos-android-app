@@ -166,6 +166,13 @@
     <string name="ai_agent_create_event_confirmation">AI इवेंट \"%1$s\" बनाना चाहता है। पुष्टि करें?</string>
     <string name="ai_agent_create_event_with_location_confirmation">AI इवेंट \"%1$s\" %2$s पर बनाना चाहता है। पुष्टि करें?</string>
     <string name="ai_agent_generic_confirmation">AI क्रिया \'%1$s\' निष्पादit करना चाहता है। पुष्टि करें?</string>
+    <string name="ai_agent_reschedule_confirmation">AI ईवेंट \"%1$s\" को %2$s पर रीशेड्यूल करना चाहता है। पुष्टि करें?</string>
+    <string name="ai_agent_categorize_confirmation">AI ईवेंट \"%1$s\" को %2$s के रूप में वर्गीकृत करना चाहता है। पुष्टि करें?</string>
+    <string name="ai_agent_focus_block_confirmation">AI %1$s से %2$s तक एक फोकस ब्लॉक बनाना चाहता है। पुष्टि करें?</string>
+    <string name="category_work">काम</string>
+    <string name="category_health">स्वास्थ्य</string>
+    <string name="category_leisure">फुर्सत</string>
+    <string name="category_personal">व्यक्तिगत</string>
     <string name="confirm">पुष्टि करें</string>
     <string name="ai_agent_event_created">इवेंट सफलतापूर्वक बनाया गया!</string>
     <string name="ai_agent_event_creation_error">कैलेंडर में इवेंट बनाने में त्रुटि।</string>

@@ -124,4 +124,21 @@ sealed class EventIntent {
 
     /** AI Agent intent to toggle Do Not Disturb mode. */
     data class ToggleFocusMode(val enabled: Boolean) : EventIntent()
+
+    data class RescheduleEvent(
+        val eventId: String,
+        val newStartTime: Long,
+        val newEndTime: Long,
+    ) : EventIntent()
+
+    data class CategorizeEvent(
+        val eventId: String,
+        val category: String,
+    ) : EventIntent()
+
+    data class CreateFocusBlock(
+        val startTime: Long,
+        val endTime: Long,
+        val title: String = "Foco (AI Sugestão)",
+    ) : EventIntent()
 }

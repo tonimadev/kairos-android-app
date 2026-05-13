@@ -167,6 +167,13 @@
     <string name="ai_agent_create_event_confirmation">ИИ хочет создать событие \"%1$s\". Подтвердить?</string>
     <string name="ai_agent_create_event_with_location_confirmation">ИИ хочет создать событие \"%1$s\" в %2$s. Подтвердить?</string>
     <string name="ai_agent_generic_confirmation">ИИ хочет выполнить действие \'%1$s\'. Подтвердить?</string>
+    <string name="ai_agent_reschedule_confirmation">ИИ хочет перенести событие \"%1$s\" на %2$s. Подтвердить?</string>
+    <string name="ai_agent_categorize_confirmation">ИИ хочет классифицировать событие \"%1$s\" как %2$s. Подтвердить?</string>
+    <string name="ai_agent_focus_block_confirmation">ИИ хочет создать блок фокусировки с %1$s до %2$s. Подтвердить?</string>
+    <string name="category_work">Работа</string>
+    <string name="category_health">Здоровье</string>
+    <string name="category_leisure">Досуг</string>
+    <string name="category_personal">Личное</string>
     <string name="confirm">Подтвердить</string>
     <string name="ai_agent_event_created">Событие успешно создано!</string>
     <string name="ai_agent_event_creation_error">Ошибка при создании события в календаре.</string>

@@ -5,6 +5,7 @@ import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.DirectionsRepository
 import digital.tonima.core.repository.LocationRepository
+import digital.tonima.core.repository.WeatherRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,6 +27,7 @@ class CalculateDepartureTimeUseCaseImpl
         private val locationRepository: LocationRepository,
         private val directionsRepository: DirectionsRepository,
         private val appPreferencesRepository: AppPreferencesRepository,
+        private val weatherRepository: WeatherRepository,
     ) : CalculateDepartureTimeUseCase {
         override suspend fun invoke(event: Event): DepartureInfo? {
             val destination = event.location ?: return null
@@ -37,8 +39,25 @@ class CalculateDepartureTimeUseCaseImpl
                 val mode = appPreferencesRepository.getPreferredTransportMode().first()
 
                 directionsRepository.getTravelTimeSeconds(origin, destination, mode)?.let { travelTimeSeconds ->
-                    // Buffer of 5 minutes (300 seconds)
-                    val bufferSeconds = 300
+                    // Base buffer of 5 minutes (300 seconds)
+                    var bufferSeconds = 300
+
+                    // AI Integration: Weather check
+                    try {
+                        val coords = origin.split(",")
+                        if (coords.size == 2) {
+                            val weather = weatherRepository.getWeather(coords[0].toDouble(), coords[1].toDouble())
+                            // If it's raining or snowing, double the buffer
+                            val condition = weather?.description?.lowercase() ?: ""
+                            val badWeatherKeywords = listOf("chuva", "rain", "neve", "snow", "tempestade", "storm")
+                            if (badWeatherKeywords.any { condition.contains(it) }) {
+                                bufferSeconds += 600 // Add extra 10 minutes
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // Ignore weather errors, use base buffer
+                    }
+
                     val totalSecondsToSubtract = travelTimeSeconds + bufferSeconds
 
                     val departureTime = event.startTime - (totalSecondsToSubtract * 1000L)

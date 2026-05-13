@@ -166,6 +166,13 @@
     <string name="ai_agent_create_event_confirmation">يريد الذكاء الاصطناعي إنشاء الحدث \"%1$s\". هل تريد التأكيد؟</string>
     <string name="ai_agent_create_event_with_location_confirmation">يريد الذكاء الاصطناعي إنشاء الحدث \"%1$s\" في %2$s. هل تريد التأكيد؟</string>
     <string name="ai_agent_generic_confirmation">يريد الذكاء الاصطناعي تنفيذ الإجراء \'%1$s\'. هل تريد التأكيد؟</string>
+    <string name="ai_agent_reschedule_confirmation">يريد الذكاء الاصطناعي إعادة جدولة الحدث \"%1$s\" إلى %2$s. هل تريد التأكيد؟</string>
+    <string name="ai_agent_categorize_confirmation">يريد الذكاء الاصطناعي تصنيف الحدث \"%1$s\" كـ %2$s. هل تريد التأكيد؟</string>
+    <string name="ai_agent_focus_block_confirmation">يريد الذكاء الاصطناعي إنشاء كتلة تركيز من %1$s إلى %2$s. هل تريد التأكيد؟</string>
+    <string name="category_work">عمل</string>
+    <string name="category_health">صحة</string>
+    <string name="category_leisure">ترفيه</string>
+    <string name="category_personal">شخصي</string>
     <string name="confirm">تأكيد</string>
     <string name="ai_agent_event_created">تم إنشاء الحدث بنجاح!</string>
     <string name="ai_agent_event_creation_error">خطأ في إنشاء الحدث في التقويم.</string>

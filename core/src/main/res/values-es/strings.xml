@@ -168,6 +168,13 @@
     <string name="ai_agent_create_event_confirmation">La IA quiere crear el evento \"%1$s\". ¿Confirmar?</string>
     <string name="ai_agent_create_event_with_location_confirmation">La IA quiere crear el evento \"%1$s\" en %2$s. ¿Confirmar?</string>
     <string name="ai_agent_generic_confirmation">La IA quiere ejecutar la acción \'%1$s\'. ¿Confirmar?</string>
+    <string name="ai_agent_reschedule_confirmation">La IA quiere reprogramar el evento \"%1$s\" para el %2$s. ¿Confirmar?</string>
+    <string name="ai_agent_categorize_confirmation">La IA quiere categorizar el evento \"%1$s\" como %2$s. ¿Confirmar?</string>
+    <string name="ai_agent_focus_block_confirmation">La IA quiere crear un bloque de enfoque de %1$s a %2$s. ¿Confirmar?</string>
+    <string name="category_work">Trabajo</string>
+    <string name="category_health">Salud</string>
+    <string name="category_leisure">Ocio</string>
+    <string name="category_personal">Personal</string>
     <string name="confirm">Confirmar</string>
     <string name="ai_agent_event_created">¡Evento creado con éxito!</string>
     <string name="ai_agent_event_creation_error">Error ao crear el evento en el calendario.</string>

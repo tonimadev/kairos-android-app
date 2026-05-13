@@ -169,6 +169,13 @@
     <string name="ai_agent_create_event_confirmation">AI wants to create the event \"%1$s\". Confirm?</string>
     <string name="ai_agent_create_event_with_location_confirmation">AI wants to create the event \"%1$s\" at %2$s. Confirm?</string>
     <string name="ai_agent_generic_confirmation">AI wants to execute the action \'%1$s\'. Confirm?</string>
+    <string name="ai_agent_reschedule_confirmation">AI wants to reschedule event \"%1$s\" to %2$s. Confirm?</string>
+    <string name="ai_agent_categorize_confirmation">AI wants to categorize event \"%1$s\" as %2$s. Confirm?</string>
+    <string name="ai_agent_focus_block_confirmation">AI wants to create a focus block from %1$s to %2$s. Confirm?</string>
+    <string name="category_work">Work</string>
+    <string name="category_health">Health</string>
+    <string name="category_leisure">Leisure</string>
+    <string name="category_personal">Personal</string>
     <string name="confirm">Confirm</string>
     <string name="ai_agent_event_created">Event created successfully!</string>
     <string name="ai_agent_event_creation_error">Error creating event in calendar.</string>
