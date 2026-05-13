@@ -58,6 +58,11 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    lint {
+        baseline = file("lint-baseline.xml")
+        abortOnError = true
+        checkDependencies = true
+    }
     kotlin { jvmToolchain(21) }
 }
 

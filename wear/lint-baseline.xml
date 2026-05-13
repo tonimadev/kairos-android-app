@@ -1,0 +1,1565 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.2.1" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.1)" variant="all" version="9.2.1">
+
+    <issue
+        id="Typos"
+        message="&quot;comando&quot; is a common misspelling; did you mean &quot;commando&quot;?"
+        errorLine1="    &lt;string name=&quot;cd_voice_capture&quot;>Iniciar comando de voz&lt;/string>"
+        errorLine2="                                            ~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="117"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 30"
+        errorLine1="        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/digital/tonima/core/utils/DeviceInfoUtils.kt"
+            line="9"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 30"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/digital/tonima/core/utils/NotificationHelper.kt"
+            line="21"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 30. Merge all the resources in this folder into `mipmap-anydpi`.">
+        <location
+            file="src/main/res/mipmap-anydpi-v26"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 30. Merge all the resources in this folder into `mipmap-anydpi`.">
+        <location
+            file="src/main/res/mipmap-anydpi-v26"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_200` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_200&quot;>#FFBB86FC&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/colors.xml"
+            line="3"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_500` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_500&quot;>#FF6200EE&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/colors.xml"
+            line="4"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_700` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_700&quot;>#FF3700B3&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/colors.xml"
+            line="5"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.teal_200` appears to be unused"
+        errorLine1="    &lt;color name=&quot;teal_200&quot;>#FF03DAC5&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/colors.xml"
+            line="6"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.teal_700` appears to be unused"
+        errorLine1="    &lt;color name=&quot;teal_700&quot;>#FF018786&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/colors.xml"
+            line="7"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.black` appears to be unused"
+        errorLine1="    &lt;color name=&quot;black&quot;>#FF000000&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/colors.xml"
+            line="8"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.white` appears to be unused"
+        errorLine1="    &lt;color name=&quot;white&quot;>#FFFFFFFF&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/colors.xml"
+            line="9"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.date_range` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:tint=&quot;#FBFBFB&quot;"
+        errorLine2="^">
+        <location
+            file="../core/src/main/res/drawable/date_range.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_launcher_background` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:width=&quot;108dp&quot; android:height=&quot;108dp&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/ic_launcher_background.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_launcher_foreground` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; xmlns:aapt=&quot;http://schemas.android.com/aapt&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/ic_launcher_foreground.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.mipmap.ic_launcher_round` appears to be unused">
+        <location
+            file="src/main/res/mipmap-hdpi/ic_launcher_round.webp"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_mic` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="../core/src/main/res/drawable/ic_mic.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.google_calendar_not_found` appears to be unused"
+        errorLine1="    &lt;string name=&quot;google_calendar_not_found&quot;>Google Calendar não encontrado&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="3"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cannot_open_event` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cannot_open_event&quot;>Não foi possível abrir o evento&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="5"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.try_again` appears to be unused"
+        errorLine1="    &lt;string name=&quot;try_again&quot;>Tentar Novamente&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="11"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.exact_alarm_permission` appears to be unused"
+        errorLine1="    &lt;string name=&quot;exact_alarm_permission&quot;>Permissão de Alarme Exato&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="12"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.exact_alarm_permission_disclaimer` appears to be unused"
+        errorLine1="    &lt;string name=&quot;exact_alarm_permission_disclaimer&quot;>Para garantir que os alarmes disparem na hora certa, o Android requer uma permissão especial."
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="13"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.already_authorized` appears to be unused"
+        errorLine1="    &lt;string name=&quot;already_authorized&quot;>Já autorizei, continuar&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="16"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.skip` appears to be unused"
+        errorLine1="    &lt;string name=&quot;skip&quot;>Pular&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="17"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.full_screen_permission` appears to be unused"
+        errorLine1="    &lt;string name=&quot;full_screen_permission&quot;>Permissão de Tela Cheia&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="18"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.full_screen_permission_disclaimer` appears to be unused"
+        errorLine1="    &lt;string name=&quot;full_screen_permission_disclaimer&quot;>Para mostrar o alarme sobre a tela de bloqueio, como um despertador, o app precisa de uma"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="19"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.at_time` appears to be unused"
+        errorLine1="    &lt;string name=&quot;at_time&quot;>Às %1$s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="22"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.commitment` appears to be unused"
+        errorLine1="    &lt;string name=&quot;commitment&quot;>Compromisso&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="23"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.autostart_suggestion_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;autostart_suggestion_title&quot;>Sugestão de Configuração&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.autostart_suggestion_disclaimer` appears to be unused"
+        errorLine1="    &lt;string name=&quot;autostart_suggestion_disclaimer&quot;>Para garantir que os alarmes funcionem de forma confiável após reiniciar o celular, recomendamos"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.dismiss` appears to be unused"
+        errorLine1="    &lt;string name=&quot;dismiss&quot;>Dispensar&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="31"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.remove_ads` appears to be unused"
+        errorLine1="    &lt;string name=&quot;remove_ads&quot;>Apoiar projeto&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="34"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.share_app` appears to be unused"
+        errorLine1="    &lt;string name=&quot;share_app&quot;>Compartilhar aplicativo&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="35"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.share_text` appears to be unused"
+        errorLine1="    &lt;string name=&quot;share_text&quot;>Confira o Kairos, um aplicativo incrível para gerenciar seus eventos e alarmes: https://play.google.com/store/apps/details?id=digital.tonima.kairos&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="36"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.menu` appears to be unused"
+        errorLine1="    &lt;string name=&quot;menu&quot;>Menu&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="37"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ringer_mode_vibrate_warning` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ringer_mode_vibrate_warning&quot;>O celular está no modo de vibração. Os alarmes não tocarão som.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="38"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ringer_mode_silent_warning` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ringer_mode_silent_warning&quot;>O celular está no modo silencioso. Os alarmes não tocarão som.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="39"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.version` appears to be unused"
+        errorLine1="    &lt;string name=&quot;version&quot; translatable=&quot;false&quot;>v%1$s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.thank_you_for_support` appears to be unused"
+        errorLine1="    &lt;string name=&quot;thank_you_for_support&quot;>Usando a versão PRO. Obrigado por apoiar nosso projeto&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="41"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.our_other_apps` appears to be unused"
+        errorLine1="    &lt;string name=&quot;our_other_apps&quot;>Conheça nossos outros apps&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="42"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.back_to_today` appears to be unused"
+        errorLine1="    &lt;string name=&quot;back_to_today&quot;>Voltar para hoje&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.not_applicable_on_this_android_version` appears to be unused"
+        errorLine1="    &lt;string name=&quot;not_applicable_on_this_android_version&quot;>Não aplicável a essa versão do sistema&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="45"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.global_alarms` appears to be unused"
+        errorLine1="    &lt;string name=&quot;global_alarms&quot;>Alarmes globais&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="50"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.update_downloaded_message` appears to be unused"
+        errorLine1="    &lt;string name=&quot;update_downloaded_message&quot;>Atualização baixada. Reinicie o app para aplicar.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="58"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.restart_app` appears to be unused"
+        errorLine1="    &lt;string name=&quot;restart_app&quot;>REINICIAR&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="59"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.checking_updates` appears to be unused"
+        errorLine1="    &lt;string name=&quot;checking_updates&quot;>Verificando atualizações!&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="60"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.update_fail_or_canceled` appears to be unused"
+        errorLine1="    &lt;string name=&quot;update_fail_or_canceled&quot;>Atualização do app falhou ou foi cancelada.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="61"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.tile_preview_description` appears to be unused"
+        errorLine1="    &lt;string name=&quot;tile_preview_description&quot;>Prévia do Tile de Próximo Evento&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="63"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.allow_fullscreen_intents` appears to be unused"
+        errorLine1="    &lt;string name=&quot;allow_fullscreen_intents&quot;>Permitir tela cheia para alarmes&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="71"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.rate_app_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;rate_app_title&quot;>Avalie o App&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="73"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.rate_app_message` appears to be unused"
+        errorLine1="    &lt;string name=&quot;rate_app_message&quot;>Se você está gostando do Kairos, por favor avalie-nos na Play Store. Sua opinião nos ajuda muito!&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="74"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.rate_now` appears to be unused"
+        errorLine1="    &lt;string name=&quot;rate_now&quot;>Avaliar Agora&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="75"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.rate_later` appears to be unused"
+        errorLine1="    &lt;string name=&quot;rate_later&quot;>Mais Tarde&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="76"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.rate_never` appears to be unused"
+        errorLine1="    &lt;string name=&quot;rate_never&quot;>Nunca mais exibir&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="77"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.all_day_alarms` appears to be unused"
+        errorLine1="    &lt;string name=&quot;all_day_alarms&quot;>Alarmes para eventos de dia inteiro&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="79"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.all_day_alarm_time` appears to be unused"
+        errorLine1="    &lt;string name=&quot;all_day_alarm_time&quot;>Horário do alarme (eventos de dia inteiro)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="80"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.alarm_offset_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;alarm_offset_label&quot;>Disparar alarme&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="81"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.alarm_offset_at_time` appears to be unused"
+        errorLine1="    &lt;string name=&quot;alarm_offset_at_time&quot;>Na hora do evento&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="82"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.alarm_offset_15_min` appears to be unused"
+        errorLine1="    &lt;string name=&quot;alarm_offset_15_min&quot;>15 minutos antes&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="83"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.alarm_offset_30_min` appears to be unused"
+        errorLine1="    &lt;string name=&quot;alarm_offset_30_min&quot;>30 minutos antes&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="84"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.alarm_offset_1_hour` appears to be unused"
+        errorLine1="    &lt;string name=&quot;alarm_offset_1_hour&quot;>1 hora antes&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="85"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.calendar_filter_all_enabled` appears to be unused"
+        errorLine1="    &lt;string name=&quot;calendar_filter_all_enabled&quot;>Todos os calendários ativos&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="87"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.snooze_time_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;snooze_time_label&quot;>Tempo de adiar (minutos)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="89"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.skip_weekends_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;skip_weekends_label&quot;>Pular finais de semana&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="90"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.auto_dismiss_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;auto_dismiss_label&quot;>Auto-dispensar após (minutos)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="91"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.join_meeting_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;join_meeting_label&quot;>Entrar na reunião&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="92"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.copy_meeting_link` appears to be unused"
+        errorLine1="    &lt;string name=&quot;copy_meeting_link&quot;>Copiar link&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="93"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.search` appears to be unused"
+        errorLine1="    &lt;string name=&quot;search&quot;>Buscar eventos&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="95"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_alarm_icon` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_alarm_icon&quot;>Ícone de alarme&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="96"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_app_logo` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_app_logo&quot;>Logo do aplicativo&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="97"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_open_menu` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_open_menu&quot;>Abrir menu de navegação&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="98"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_event_indicator` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_event_indicator&quot;>Indicador de cor do calendário&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="99"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_expand_settings` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_expand_settings&quot;>Expandir configurações&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="102"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_collapse_settings` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_collapse_settings&quot;>Recolher configurações&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="103"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.daily_briefing_placeholder` appears to be unused"
+        errorLine1="    &lt;string name=&quot;daily_briefing_placeholder&quot;>Deseja um resumo inteligente do seu dia?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="106"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.daily_briefing_pro_only` appears to be unused"
+        errorLine1="    &lt;string name=&quot;daily_briefing_pro_only&quot;>O Resumo Diário é exclusivo para usuários Pro. Experimente nosso novo Plano Mensal!&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="107"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.daily_briefing_trial_invite` appears to be unused"
+        errorLine1="    &lt;string name=&quot;daily_briefing_trial_invite&quot;>Descubra como a IA pode organizar seu dia. Teste o Plano Mensal agora!&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="108"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.subscribe_now` appears to be unused"
+        errorLine1="    &lt;string name=&quot;subscribe_now&quot;>Assinar Agora&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="109"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.generate_briefing` appears to be unused"
+        errorLine1="    &lt;string name=&quot;generate_briefing&quot;>Gerar Resumo&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="110"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pro_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;pro_label&quot;>Pro ✨&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="111"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pro_ia_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;pro_ia_label&quot;>Pro + IA ✨&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="112"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_voice_interaction_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_voice_interaction_title&quot;>Kairos Voice AI&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="113"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_answering` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_answering&quot;>Processando sua pergunta…&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="114"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_speak` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_speak&quot;>Ouvir resposta&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="115"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_stop_speaking` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_stop_speaking&quot;>Parar de falar&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="116"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_voice_capture` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_voice_capture&quot;>Iniciar comando de voz&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="117"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cd_close` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cd_close&quot;>Fechar resposta da IA&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="118"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.create_event` appears to be unused"
+        errorLine1="    &lt;string name=&quot;create_event&quot;>Criar Evento&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="119"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.event_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;event_title&quot;>Título do Evento&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="120"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.calendar` appears to be unused"
+        errorLine1="    &lt;string name=&quot;calendar&quot;>Calendário&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="121"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.all_day` appears to be unused"
+        errorLine1="    &lt;string name=&quot;all_day&quot;>Dia todo&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="122"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.start_date` appears to be unused"
+        errorLine1="    &lt;string name=&quot;start_date&quot;>Data de Início&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="123"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.start_time` appears to be unused"
+        errorLine1="    &lt;string name=&quot;start_time&quot;>Hora de Início&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="124"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.end_date` appears to be unused"
+        errorLine1="    &lt;string name=&quot;end_date&quot;>Data de Término&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="125"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.end_time` appears to be unused"
+        errorLine1="    &lt;string name=&quot;end_time&quot;>Hora de Término&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="126"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.description` appears to be unused"
+        errorLine1="    &lt;string name=&quot;description&quot;>Descrição&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="127"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.location` appears to be unused"
+        errorLine1="    &lt;string name=&quot;location&quot;>Localização&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="128"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.create` appears to be unused"
+        errorLine1="    &lt;string name=&quot;create&quot;>Criar&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="129"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cancel` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cancel&quot;>Cancelar&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="130"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_suggestions_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_suggestions_title&quot;>Como posso te ajudar?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="131"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_suggestion_sleep` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_suggestion_sleep&quot;>Que horas devo dormir hoje?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="132"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_suggestion_create_event` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_suggestion_create_event&quot;>Marcar dentista amanhã às 10h&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="133"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_suggestion_reminder` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_suggestion_reminder&quot;>Lembrar de comprar leite hoje&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="134"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_suggestion_agenda` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_suggestion_agenda&quot;>Como está minha agenda de hoje?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="135"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.manage_subscription` appears to be unused"
+        errorLine1="    &lt;string name=&quot;manage_subscription&quot;>Gerenciar assinatura&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="136"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.widget_daily_briefing_name` appears to be unused"
+        errorLine1="    &lt;string name=&quot;widget_daily_briefing_name&quot;>Resumo do Dia (IA)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="138"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.widget_daily_briefing_description` appears to be unused"
+        errorLine1="    &lt;string name=&quot;widget_daily_briefing_description&quot;>Exibe o resumo inteligente do seu dia gerado pela IA.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="139"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.widget_no_briefing` appears to be unused"
+        errorLine1="    &lt;string name=&quot;widget_no_briefing&quot;>Nenhum resumo disponível. Abra o app para gerar!&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="140"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.next_events_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;next_events_title&quot;>Próximos Eventos&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="141"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.no_more_events_today` appears to be unused"
+        errorLine1="    &lt;string name=&quot;no_more_events_today&quot;>Sem mais eventos hoje&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="142"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.location_alarm_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;location_alarm_title&quot;>Alarme Inteligente por Geolocalização&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="144"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.location_alarm_description` appears to be unused"
+        errorLine1="    &lt;string name=&quot;location_alarm_description&quot;>Disparar alarme baseado no tempo de deslocamento para eventos com endereço.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="145"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.location_permission_required` appears to be unused"
+        errorLine1="    &lt;string name=&quot;location_permission_required&quot;>Permissão de Localização Necessária&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="146"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.location_permission_disclaimer` appears to be unused"
+        errorLine1="    &lt;string name=&quot;location_permission_disclaimer&quot;>Para calcular o tempo de deslocamento, o app precisa saber onde você está.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="147"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.transport_mode_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;transport_mode_label&quot;>Modo de transporte preferido&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="148"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.transport_driving` appears to be unused"
+        errorLine1="    &lt;string name=&quot;transport_driving&quot;>Carro&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="149"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.transport_walking` appears to be unused"
+        errorLine1="    &lt;string name=&quot;transport_walking&quot;>Andando&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="150"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.transport_bicycling` appears to be unused"
+        errorLine1="    &lt;string name=&quot;transport_bicycling&quot;>Bicicleta&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="151"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.transport_transit` appears to be unused"
+        errorLine1="    &lt;string name=&quot;transport_transit&quot;>Transporte Público&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="152"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.travel_time_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;travel_time_label&quot;>Deslocamento: %1$d min&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="153"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.alarm_in_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;alarm_in_label&quot;>Alarme em %1$s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="154"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.alarm_now_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;alarm_now_label&quot;>Alarme agora&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="155"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.hours_short` appears to be unused"
+        errorLine1="    &lt;string name=&quot;hours_short&quot;>%1$d h&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="157"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pro_feature_restricted` appears to be unused"
+        errorLine1="    &lt;string name=&quot;pro_feature_restricted&quot;>Recurso Exclusivo Pro + IA&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="158"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.geo_alarm_pro_only` appears to be unused"
+        errorLine1="    &lt;string name=&quot;geo_alarm_pro_only&quot;>Geoalarmes são exclusivos para assinantes do plano Pro + IA.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="159"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.geo_alarm_upgrade_trial_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;geo_alarm_upgrade_trial_title&quot;>Experimente o Alarme Inteligente!&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="160"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.geo_alarm_upgrade_trial_desc` appears to be unused"
+        errorLine1="    &lt;string name=&quot;geo_alarm_upgrade_trial_desc&quot;>Evite atrasos! Ative alarmes baseados no trânsito em tempo real com o plano Pro + IA.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="161"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.try_pro_plan` appears to be unused"
+        errorLine1="    &lt;string name=&quot;try_pro_plan&quot;>Testar Plano Pro&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="162"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pro_ia_upgrade_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;pro_ia_upgrade_title&quot;>Desbloqueie o Poder da IA&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="163"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pro_ia_upgrade_desc` appears to be unused"
+        errorLine1="    &lt;string name=&quot;pro_ia_upgrade_desc&quot;>Alarmes dinâmicos, resumos de reuniões e assistente de voz interativo. Torne seu dia verdadeiramente inteligente.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="164"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_agent_reschedule_confirmation` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_agent_reschedule_confirmation&quot;>A IA quer reagendar o evento \&quot;%1$s\&quot; para %2$s. Deseja confirmar?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="174"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_agent_categorize_confirmation` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_agent_categorize_confirmation&quot;>A IA quer categorizar o evento \&quot;%1$s\&quot; como %2$s. Deseja confirmar?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="175"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_agent_focus_block_confirmation` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_agent_focus_block_confirmation&quot;>A IA quer criar um bloco de foco das %1$s às %2$s. Deseja confirmar?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="176"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.category_work` appears to be unused"
+        errorLine1="    &lt;string name=&quot;category_work&quot;>Trabalho&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="177"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.category_health` appears to be unused"
+        errorLine1="    &lt;string name=&quot;category_health&quot;>Saúde&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="178"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.category_leisure` appears to be unused"
+        errorLine1="    &lt;string name=&quot;category_leisure&quot;>Lazer&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="179"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.category_personal` appears to be unused"
+        errorLine1="    &lt;string name=&quot;category_personal&quot;>Pessoal&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="180"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.confirm` appears to be unused"
+        errorLine1="    &lt;string name=&quot;confirm&quot;>Confirmar&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="181"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ai_prepping_meeting` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ai_prepping_meeting&quot;>IA está preparando o resumo da reunião…&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="190"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ask_ai_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ask_ai_label&quot;>Conversar com IA&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../core/src/main/res/values/strings.xml"
+            line="191"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="WearRecents"
+        message="Avoid using `FLAG_ACTIVITY_NEW_TASK` and `FLAG_ACTIVITY_CLEAR_TOP`"
+        errorLine1="                            meetingIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/digital/tonima/kairos/wear/WearAlarmActivity.kt"
+            line="113"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="WearRecents"
+        message="Avoid using `FLAG_ACTIVITY_NEW_TASK` and `FLAG_ACTIVITY_CLEAR_TOP`"
+        errorLine1="                            meetingIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/digital/tonima/kairos/wear/WearAlarmActivity.kt"
+            line="113"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="                            val meetingIntent = Intent(Intent.ACTION_VIEW, Uri.parse(effect.url))"
+        errorLine2="                                                                           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/digital/tonima/kairos/wear/WearAlarmActivity.kt"
+            line="111"
+            column="76"/>
+    </issue>
+
+</issues>

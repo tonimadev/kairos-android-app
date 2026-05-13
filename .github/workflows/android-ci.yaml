@@ -6,33 +6,94 @@ on:
   pull_request:
     branches: [ "master" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-    name: Lint, Test and Coverage Report
+  check-style:
+    name: Check Style
     if: "!contains(github.event.head_commit.message, 'ci: Bump version')"
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+
+      - name: Run Style Checks
+        run: ./gradlew spotlessCheck sortDependencies
+
+      - name: Upload Spotless Reports
+        if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          gradle-version: wrapper
-          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
+          name: spotless-reports
+          path: "**/build/spotless-lints"
 
-      - run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
-      - run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > wear/google-services.json
+  static-analysis:
+    name: Static Analysis
+    if: "!contains(github.event.head_commit.message, 'ci: Bump version')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-      - name: Run Checks and Tests
-        run: ./gradlew spotlessCheck sortDependencies detekt createJacocoMergedCoverageReport --parallel
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Decode Google Services
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > wear/google-services.json
+
+      - name: Run Detekt and Lint
+        run: ./gradlew detekt lintDebug --parallel
+
+      - name: Upload Analysis Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-reports
+          path: |
+            **/build/reports/detekt
+            **/build/reports/lint-results*.xml
+            **/build/reports/lint-results*.html
+
+  unit-tests:
+    name: Unit Tests
+    if: "!contains(github.event.head_commit.message, 'ci: Bump version')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Decode Google Services
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > wear/google-services.json
+
+      - name: Run Tests and Coverage
+        run: ./gradlew createJacocoMergedCoverageReport --parallel
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
@@ -40,21 +101,22 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: |
             ./build/reports/jacoco/createJacocoMergedCoverageReport/createJacocoMergedCoverageReport.xml
-            ./app/build/reports/jacoco/createJacocoDebugCoverageReport/createJacocoDebugCoverageReport.xml
-            ./core/build/reports/jacoco/createJacocoDebugCoverageReport/createJacocoDebugCoverageReport.xml
-            ./wear/build/reports/jacoco/createJacocoDebugCoverageReport/createJacocoDebugCoverageReport.xml
-            ./**/build/reports/jacoco/**/*.xml
           fail_ci_if_error: false
-          verbose: true
 
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            **/build/reports/tests/testDebugUnitTest
+            **/build/reports/jacoco
 
   version_bumper:
     name: Bump Version
-    if: "!contains(github.event.head_commit.message, 'ci: Bump version')"
-    needs: build
+    if: "!contains(github.event.head_commit.message, 'ci: Bump version') && github.event_name == 'push' && github.ref == 'refs/heads/master'"
+    needs: [ check-style, static-analysis, unit-tests ]
     runs-on: ubuntu-latest
-    environment:
-      name: play-store-release
     outputs:
       phone_version_code: ${{ steps.version_bumper_script.outputs.phone_version_code }}
       wear_version_code: ${{ steps.version_bumper_script.outputs.wear_version_code }}
@@ -90,6 +152,7 @@ jobs:
           git add gradle.properties
           if ! git diff --staged --quiet; then
             git commit -m "ci: Bump version to $NEW_VERSION_NAME (Phone: $PHONE_VERSION_CODE, Wear: $WEAR_VERSION_CODE)"
+            git pull --rebase origin master
             git push
           else
             echo "No version changes to commit."
@@ -98,37 +161,32 @@ jobs:
   deploy_phone:
     name: Build, Sign and Deploy Phone App
     needs: version_bumper
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    environment:
-      name: play-store-release
     steps:
       - uses: actions/checkout@v4
         with:
           ref: 'master'
-      - uses: actions/setup-java@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.0'
           bundler-cache: true
 
-      - run: chmod +x gradlew
+      - name: Decode Secrets
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
+          echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 --decode > app/release-key.jks
 
-      - run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
-      - run: echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 --decode > app/release-key.jks
-
-      - env:
+      - name: Deploy to Play Store
+        env:
           ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
           ADMOB_BANNER_AD_UNIT_HOME: ${{ secrets.ADMOB_BANNER_AD_UNIT_HOME }}
           ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY: ${{ secrets.ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY }}
@@ -145,36 +203,32 @@ jobs:
   deploy_wear:
     name: Build, Sign and Deploy Wear OS App
     needs: version_bumper
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    environment:
-      name: play-store-release
     steps:
       - uses: actions/checkout@v4
         with:
           ref: 'master'
-      - uses: actions/setup-java@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.0'
           bundler-cache: true
 
-      - run: chmod +x gradlew
-      - run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > wear/google-services.json
-      - run: echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 --decode > wear/release-key.jks
+      - name: Decode Secrets
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > wear/google-services.json
+          echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 --decode > wear/release-key.jks
 
-      - env:
+      - name: Deploy to Play Store
+        env:
           PLAY_STORE_SERVICE_ACCOUNT_JSON_PLAINTEXT: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
           ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
@@ -188,6 +242,7 @@ jobs:
   create_release:
     name: Create GitHub Tag and Release
     needs: [ version_bumper, deploy_phone, deploy_wear ]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       contents: write

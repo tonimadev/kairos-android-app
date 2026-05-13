@@ -1,5 +1,6 @@
 package digital.tonima.kairos.wear.service
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.ColorBuilders
@@ -88,6 +89,7 @@ class NextEventTileService : SuspendingTileService() {
 
     private fun smallSpacer(): Spacer = Spacer.Builder().setHeight(DimensionBuilders.dp(4f)).build()
 
+    @SuppressLint("RestrictedApi")
     private fun layout(
         context: Context,
         deviceParameters: DeviceParametersBuilders.DeviceParameters,

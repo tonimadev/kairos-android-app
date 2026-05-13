@@ -107,7 +107,9 @@ class WearEventListenerService : WearableListenerService() {
         if (events.isNotEmpty()) {
             logcat { "Wear received ${events.size} events from phone." }
             WearEventCache.save(this, events)
-            sendBroadcast(android.content.Intent(SyncActions.ACTION_EVENTS_UPDATED))
+            sendBroadcast(
+                android.content.Intent(SyncActions.ACTION_EVENTS_UPDATED).setPackage(packageName),
+            )
             triggerScheduling(this)
         } else {
             logcat { "Wear received data change but no events found." }
