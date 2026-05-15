@@ -104,9 +104,7 @@ fun WeatherCard(
                                 ) {
                                     Icon(
                                         imageVector =
-                                            if (
-                                                weather.description.contains("clear", ignoreCase = true)
-                                            ) {
+                                            if (weather.conditionCode == 800) {
                                                 Icons.Rounded.WbSunny
                                             } else {
                                                 Icons.Rounded.Cloud

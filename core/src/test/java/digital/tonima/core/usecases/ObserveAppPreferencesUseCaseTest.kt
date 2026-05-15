@@ -40,6 +40,8 @@ class ObserveAppPreferencesUseCaseTest {
             coEvery { repository.isSkipWeekendsEnabled() } returns flowOf(true)
             coEvery { repository.getAutoDismissMinutes() } returns flowOf(5)
             coEvery { repository.isTemperatureInCelsius() } returns flowOf(true)
+            coEvery { repository.isAutoJoinEnabled() } returns flowOf(false)
+            coEvery { repository.isAutoFocusModeEnabled() } returns flowOf(false)
 
             useCase().test {
                 val prefs = awaitItem()
@@ -61,6 +63,8 @@ class ObserveAppPreferencesUseCaseTest {
                 assertEquals(true, prefs.skipWeekendsEnabled)
                 assertEquals(5, prefs.autoDismissMinutes)
                 assertEquals(true, prefs.isTemperatureInCelsius)
+                assertEquals(false, prefs.isAutoJoinEnabled)
+                assertEquals(false, prefs.isAutoFocusModeEnabled)
                 cancelAndIgnoreRemainingEvents()
             }
         }

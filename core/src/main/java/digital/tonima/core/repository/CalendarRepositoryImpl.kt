@@ -31,6 +31,7 @@ class CalendarRepositoryImpl
                 CalendarContract.Instances.EVENT_ID,
                 CalendarContract.Instances.TITLE,
                 CalendarContract.Instances.BEGIN,
+                CalendarContract.Instances.END,
                 CalendarContract.Instances.ALL_DAY,
                 CalendarContract.Instances.CALENDAR_ID,
                 CalendarContract.Instances.CALENDAR_COLOR,
@@ -41,10 +42,11 @@ class CalendarRepositoryImpl
         private val projectionIdIndex = 0
         private val projectionTitleIndex = 1
         private val projectionBeginIndex = 2
-        private val projectionAllDayIndex = 3
-        private val projectionCalendarColorIndex = 5
-        private val projectionDescriptionIndex = 6
-        private val projectionLocationIndex = 7
+        private val projectionEndIndex = 3
+        private val projectionAllDayIndex = 4
+        private val projectionCalendarColorIndex = 6
+        private val projectionDescriptionIndex = 7
+        private val projectionLocationIndex = 8
 
         private fun hasCalendarPermission() =
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
@@ -148,6 +150,7 @@ class CalendarRepositoryImpl
                         val eventId = it.getLong(projectionIdIndex)
                         val title = it.getString(projectionTitleIndex)
                         val begin = it.getLong(projectionBeginIndex)
+                        val end = it.getLong(projectionEndIndex)
                         val isAllDay = it.getInt(projectionAllDayIndex) == 1
                         val color = it.getInt(projectionCalendarColorIndex)
                         val description = it.getString(projectionDescriptionIndex)
@@ -158,6 +161,7 @@ class CalendarRepositoryImpl
                                 id = eventId,
                                 title = title,
                                 startTime = begin,
+                                endTime = end,
                                 isAllDay = isAllDay,
                                 calendarColor = color,
                                 meetingUrl = extractMeetLink(description, location),
@@ -227,6 +231,7 @@ class CalendarRepositoryImpl
                         val eventId = it.getLong(projectionIdIndex)
                         val title = it.getString(projectionTitleIndex)
                         val begin = it.getLong(projectionBeginIndex)
+                        val end = it.getLong(projectionEndIndex)
                         val isAllDay = it.getInt(projectionAllDayIndex) == 1
                         val color = it.getInt(projectionCalendarColorIndex)
                         val description = it.getString(projectionDescriptionIndex)
@@ -236,6 +241,7 @@ class CalendarRepositoryImpl
                                 id = eventId,
                                 title = title,
                                 startTime = begin,
+                                endTime = end,
                                 isAllDay = isAllDay,
                                 calendarColor = color,
                                 meetingUrl = extractMeetLink(description, location),

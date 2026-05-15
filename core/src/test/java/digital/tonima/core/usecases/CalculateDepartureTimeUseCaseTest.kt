@@ -51,12 +51,13 @@ class CalculateDepartureTimeUseCaseTest {
                     "driving",
                 )
             } returns 1800 // 30 min
-            coEvery { mockWeatherRepository.getWeather(-23.5505, -46.6333) } returns
+            coEvery { mockWeatherRepository.getWeather(-23.5505, -46.6333, any(), any()) } returns
                 Weather(
-                    25.0,
-                    "Clear",
-                    "01d",
-                    "SP",
+                    temperature = 25.0,
+                    description = "Clear",
+                    icon = "01d",
+                    city = "SP",
+                    conditionCode = 800,
                 )
 
             val result = useCase(event)
@@ -87,8 +88,17 @@ class CalculateDepartureTimeUseCaseTest {
                 mockWeatherRepository.getWeather(
                     -23.5505,
                     -46.6333,
+                    any(),
+                    any(),
                 )
-            } returns Weather(20.0, "chuva leve", "10d", "SP")
+            } returns
+                Weather(
+                    temperature = 20.0,
+                    description = "chuva leve",
+                    icon = "10d",
+                    city = "SP",
+                    conditionCode = 500,
+                )
 
             val result = useCase(event)
 

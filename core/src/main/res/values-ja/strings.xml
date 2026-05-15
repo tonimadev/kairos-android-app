@@ -185,4 +185,15 @@
     <string name="battery_low_warning">バッテリー残量が少なくなっています (%1$d%%)。%2$sの会議に遅れないよう、スマートフォンを充電してください。</string>
     <string name="silent_mode_warning">マナーモードがオンになっています。%1$sのアラームが鳴らない可能性があります。</string>
     <string name="ask_ai_label">AIと話す</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">ミーティングに自動参加</string>
+    <string name="auto_join_description">アラームが鳴ったときに、アラーム画面を表示せずにミーティングリンクを自動的に開きます。</string>
+    <string name="auto_focus_mode_title">自動集中モード</string>
+    <string name="auto_focus_mode_description">ミーティング中に自動でサイレントモードをオンにし、終了時にオフにします。</string>
+    <string name="meeting_conflict_warning">⚠️ 他の予定と重複しています</string>
+    <string name="meeting_back_to_back_warning">⚠️ 連続ミーティング</string>
+    <string name="focus_mode_permission_required">サイレントモードの権限が必要です</string>
+    <string name="focus_mode_permission_disclaimer">ミーティング中にサイレントモードを自動切替するには、通知ポリシーへのアクセスが必要です。</string>
 </resources>
+

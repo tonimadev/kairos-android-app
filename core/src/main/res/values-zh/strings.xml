@@ -185,4 +185,15 @@
     <string name="battery_low_warning">电池电量低 (%1$d%%)。请为手机充电，以免错过 %2$s 会议。</string>
     <string name="silent_mode_warning">静音模式已开启。您的 %1$s 闹钟可能不会响。</string>
     <string name="ask_ai_label">与 AI 对话</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">自动加入会议</string>
+    <string name="auto_join_description">当闹钟响起时自动打开会议链接，无需显示闹钟界面。</string>
+    <string name="auto_focus_mode_title">自动专注模式</string>
+    <string name="auto_focus_mode_description">会议期间自动开启勿扰模式，会议结束后自动关闭。</string>
+    <string name="meeting_conflict_warning">⚠️ 与其他日程冲突</string>
+    <string name="meeting_back_to_back_warning">⚠️ 连续会议</string>
+    <string name="focus_mode_permission_required">需要勿扰模式权限</string>
+    <string name="focus_mode_permission_disclaimer">要在会议期间自动切换勿扰模式，应用需要通知策略访问权限。</string>
 </resources>
+

@@ -85,6 +85,7 @@ class CalendarRepositoryImplTest {
                         CalendarContract.Instances.EVENT_ID,
                         CalendarContract.Instances.TITLE,
                         CalendarContract.Instances.BEGIN,
+                        CalendarContract.Instances.END,
                         CalendarContract.Instances.ALL_DAY,
                         CalendarContract.Instances.CALENDAR_ID,
                         CalendarContract.Instances.CALENDAR_COLOR,
@@ -92,7 +93,19 @@ class CalendarRepositoryImplTest {
                         CalendarContract.Instances.EVENT_LOCATION,
                     ),
                 )
-            cursor.addRow(arrayOf<Any?>(101L, "Meeting", 1715760000000L, 0, 1L, 0xFF0000, "Desc", "Loc"))
+            cursor.addRow(
+                arrayOf<Any?>(
+                    101L,
+                    "Meeting",
+                    1715760000000L,
+                    1715763600000L,
+                    0,
+                    1L,
+                    0xFF0000,
+                    "Desc",
+                    "Loc",
+                ),
+            )
 
             every {
                 mockContentResolver.query(

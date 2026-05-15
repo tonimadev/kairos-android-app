@@ -52,4 +52,8 @@ class UpdateAppPreferenceUseCase
             repository.setFullScreenIntentPermissionSkipped(skipped)
 
         suspend fun setTemperatureInCelsius(isCelsius: Boolean) = repository.setTemperatureInCelsius(isCelsius)
+
+        suspend fun setAutoJoinEnabled(enabled: Boolean) = repository.setAutoJoinEnabled(enabled)
+
+        suspend fun setAutoFocusModeEnabled(enabled: Boolean) = repository.setAutoFocusModeEnabled(enabled)
     }

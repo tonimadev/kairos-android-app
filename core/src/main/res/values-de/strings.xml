@@ -190,4 +190,15 @@
     <string name="battery_low_warning">Niedriger Akkustand (%1$d%%). Laden Sie Ihr Telefon auf, damit Sie Ihre Besprechung (%2$s) nicht verpassen.</string>
     <string name="silent_mode_warning">Lautlosmodus aktiv. Ihr Wecker (%1$s) klingelt möglicherweise nicht.</string>
     <string name="ask_ai_label">Mit KI sprechen</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">Automatisch Meetings beitreten</string>
+    <string name="auto_join_description">Öffnet automatisch den Meeting-Link, wenn der Alarm ausgelöst wird, ohne den Alarmbildschirm anzuzeigen.</string>
+    <string name="auto_focus_mode_title">Auto-Fokusmodus</string>
+    <string name="auto_focus_mode_description">Aktiviert automatisch „Nicht stören" während Meetings und deaktiviert es am Ende.</string>
+    <string name="meeting_conflict_warning">⚠️ Konflikt mit einem anderen Termin</string>
+    <string name="meeting_back_to_back_warning">⚠️ Aufeinanderfolgendes Meeting</string>
+    <string name="focus_mode_permission_required">Nicht-stören-Berechtigung erforderlich</string>
+    <string name="focus_mode_permission_disclaimer">Um „Nicht stören" während Meetings automatisch umzuschalten, benötigt die App Zugriff auf die Benachrichtigungsrichtlinien.</string>
 </resources>
+

@@ -30,6 +30,7 @@ import org.robolectric.annotation.Config
 class WearCalendarViewModelTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
+    @Suppress("TooManyFunctions")
     private class FakePrefsRepo : AppPreferencesRepository {
         private val global = MutableStateFlow(true)
         private val disabledInstances = MutableStateFlow<Set<String>>(emptySet())
@@ -52,6 +53,8 @@ class WearCalendarViewModelTest {
         private val fullScreenIntentSkipped = MutableStateFlow(false)
         private val syncAlertMutedUntil = MutableStateFlow(0L)
         private val isTemperatureInCelsius = MutableStateFlow(true)
+        private val autoJoinEnabled = MutableStateFlow(false)
+        private val autoFocusModeEnabled = MutableStateFlow(false)
 
         override fun isGlobalAlarmEnabled() = global as Flow<Boolean>
 
@@ -195,6 +198,18 @@ class WearCalendarViewModelTest {
 
         override suspend fun setTemperatureInCelsius(isCelsius: Boolean) {
             isTemperatureInCelsius.value = isCelsius
+        }
+
+        override fun isAutoJoinEnabled(): Flow<Boolean> = autoJoinEnabled
+
+        override suspend fun setAutoJoinEnabled(enabled: Boolean) {
+            autoJoinEnabled.value = enabled
+        }
+
+        override fun isAutoFocusModeEnabled(): Flow<Boolean> = autoFocusModeEnabled
+
+        override suspend fun setAutoFocusModeEnabled(enabled: Boolean) {
+            autoFocusModeEnabled.value = enabled
         }
     }
 

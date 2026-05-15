@@ -191,4 +191,15 @@
     <string name="battery_low_warning">Batterie faible (%1$d%%). Chargez votre téléphone pour ne pas manquer votre réunion de %2$s.</string>
     <string name="silent_mode_warning">Mode silencieux activé. Votre alarme de %1$s pourrait ne pas sonner.</string>
     <string name="ask_ai_label">Parler à l\'IA</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">Rejoindre automatiquement les réunions</string>
+    <string name="auto_join_description">Ouvrir automatiquement le lien de la réunion lorsque l\'alarme sonne, sans afficher l\'écran d\'alarme.</string>
+    <string name="auto_focus_mode_title">Mode concentration automatique</string>
+    <string name="auto_focus_mode_description">Activer automatiquement Ne pas déranger pendant les réunions et le désactiver à la fin.</string>
+    <string name="meeting_conflict_warning">⚠️ Conflit avec un autre événement</string>
+    <string name="meeting_back_to_back_warning">⚠️ Réunion consécutive</string>
+    <string name="focus_mode_permission_required">Autorisation Ne pas déranger requise</string>
+    <string name="focus_mode_permission_disclaimer">Pour activer automatiquement Ne pas déranger pendant les réunions, l\'application a besoin de l\'accès à la politique de notifications.</string>
 </resources>
+

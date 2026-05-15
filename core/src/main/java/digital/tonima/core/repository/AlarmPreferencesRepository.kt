@@ -34,4 +34,14 @@ interface AlarmPreferencesRepository {
     fun getAutoDismissMinutes(): Flow<Int>
 
     suspend fun setAutoDismissMinutes(minutes: Int)
+
+    /** When enabled, events with a meeting URL will auto-open the link instead of showing the alarm screen. */
+    fun isAutoJoinEnabled(): Flow<Boolean>
+
+    suspend fun setAutoJoinEnabled(enabled: Boolean)
+
+    /** When enabled, DND is automatically toggled on/off at meeting start/end. */
+    fun isAutoFocusModeEnabled(): Flow<Boolean>
+
+    suspend fun setAutoFocusModeEnabled(enabled: Boolean)
 }

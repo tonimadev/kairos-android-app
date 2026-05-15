@@ -54,7 +54,7 @@ class GenerateDailyBriefingUseCaseTest {
     @Test
     fun `when events list is empty should return null`() =
         runBlocking {
-            coEvery { weatherRepository.getWeather(any()) } returns null
+            coEvery { weatherRepository.getWeather(any<String>(), any<Boolean>(), any<String>()) } returns null
             val mockModel = mockk<GenerativeModel>()
             coEvery { mockModel.generateContent(any<String>()) } returns
                 mockk {

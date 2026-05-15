@@ -188,4 +188,15 @@
     <string name="battery_low_warning">البطارية منخفضة (%1$d%%). اشحن هاتفك لكي لا يفوتك اجتماع %2$s.</string>
     <string name="silent_mode_warning">وضع الصامت نشط. قد لا يصدر صوت منبه %1$s الخاص بك.</string>
     <string name="ask_ai_label">تحدث مع الذكاء الاصطناعي</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">الانضمام التلقائي للاجتماعات</string>
+    <string name="auto_join_description">فتح رابط الاجتماع تلقائيًا عند انطلاق المنبه، دون عرض شاشة المنبه.</string>
+    <string name="auto_focus_mode_title">وضع التركيز التلقائي</string>
+    <string name="auto_focus_mode_description">تفعيل وضع عدم الإزعاج تلقائيًا أثناء الاجتماعات وإيقافه عند انتهائها.</string>
+    <string name="meeting_conflict_warning">⚠️ يتعارض مع حدث آخر</string>
+    <string name="meeting_back_to_back_warning">⚠️ اجتماع متتالي</string>
+    <string name="focus_mode_permission_required">إذن عدم الإزعاج مطلوب</string>
+    <string name="focus_mode_permission_disclaimer">لتبديل وضع عدم الإزعاج تلقائيًا أثناء الاجتماعات، يحتاج التطبيق إلى إذن سياسة الإشعارات.</string>
 </resources>
+

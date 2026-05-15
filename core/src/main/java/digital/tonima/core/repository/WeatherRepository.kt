@@ -9,12 +9,14 @@ interface WeatherRepository {
     suspend fun getWeather(
         city: String,
         isCelsius: Boolean = true,
+        lang: String = "en",
     ): Weather?
 
     suspend fun getWeather(
         lat: Double,
         lon: Double,
         isCelsius: Boolean = true,
+        lang: String = "en",
     ): Weather?
 }
 
@@ -24,7 +26,7 @@ interface OpenWeatherService {
         @Query("q") city: String,
         @Query("appid") apiKey: String,
         @Query("units") units: String = "metric",
-        @Query("lang") lang: String = "pt_br",
+        @Query("lang") lang: String = "en",
     ): OpenWeatherResponse
 
     @GET("weather")
@@ -33,6 +35,6 @@ interface OpenWeatherService {
         @Query("lon") lon: Double,
         @Query("appid") apiKey: String,
         @Query("units") units: String = "metric",
-        @Query("lang") lang: String = "pt_br",
+        @Query("lang") lang: String = "en",
     ): OpenWeatherResponse
 }
