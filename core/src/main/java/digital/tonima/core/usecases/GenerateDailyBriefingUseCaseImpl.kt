@@ -9,6 +9,7 @@ import digital.tonima.core.model.Event
 import digital.tonima.core.model.Weather
 import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.WeatherRepository
+import digital.tonima.core.util.toOpenWeatherLang
 import logcat.logcat
 import java.time.Instant
 import java.time.ZoneId
@@ -34,7 +35,8 @@ class GenerateDailyBriefingUseCaseImpl
                 Firebase.ai(backend = GenerativeBackend.googleAI())
                     .generativeModel(AIConfig.GEMINI_MODEL)
 
-            val weather = if (city != null) weatherRepository.getWeather(city) else null
+            val lang = java.util.Locale.getDefault().toOpenWeatherLang()
+            val weather = if (city != null) weatherRepository.getWeather(city, lang = lang) else null
             val prompt = buildPrompt(events, languageInstruction, wakeUpTime, weather)
 
             return try {

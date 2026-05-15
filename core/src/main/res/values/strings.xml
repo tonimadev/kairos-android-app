@@ -191,4 +191,15 @@
     <string name="ask_ai_label">Conversar com IA</string>
     <string name="battery_low_warning">Bateria fraca (%1$d%%). Carregue seu celular para não perder o compromisso das %2$s.</string>
     <string name="silent_mode_warning">Modo silencioso ativo. Seu alarme das %1$s pode não tocar som.</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">Auto-Entrar em Reuniões</string>
+    <string name="auto_join_description">Abrir automaticamente o link da reunião quando o alarme disparar, sem mostrar a tela de alarme.</string>
+    <string name="auto_focus_mode_title">Modo Foco Automático</string>
+    <string name="auto_focus_mode_description">Ativar automaticamente o Não Perturbe durante reuniões e desativar ao final.</string>
+    <string name="meeting_conflict_warning">⚠️ Conflita com outro evento</string>
+    <string name="meeting_back_to_back_warning">⚠️ Reunião consecutiva</string>
+    <string name="focus_mode_permission_required">Permissão de Não Perturbe Necessária</string>
+    <string name="focus_mode_permission_disclaimer">Para alternar automaticamente o Não Perturbe durante reuniões, o app precisa de acesso à política de notificações.</string>
 </resources>
+

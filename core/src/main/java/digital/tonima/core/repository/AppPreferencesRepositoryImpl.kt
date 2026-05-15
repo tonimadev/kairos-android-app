@@ -16,6 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 @BindType(installIn = BindType.Component.SINGLETON, to = AppPreferencesRepository::class)
+@Suppress("TooManyFunctions")
 class AppPreferencesRepositoryImpl
     @Inject
     constructor(
@@ -46,6 +47,8 @@ class AppPreferencesRepositoryImpl
             val FULL_SCREEN_INTENT_PERMISSION_SKIPPED = booleanPreferencesKey("full_screen_intent_permission_skipped")
             val SYNC_ALERT_MUTED_UNTIL = longPreferencesKey("sync_alert_muted_until")
             val TEMPERATURE_IN_CELSIUS = booleanPreferencesKey("temperature_in_celsius")
+            val AUTO_JOIN_ENABLED = booleanPreferencesKey("auto_join_enabled")
+            val AUTO_FOCUS_MODE_ENABLED = booleanPreferencesKey("auto_focus_mode_enabled")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -375,6 +378,32 @@ class AppPreferencesRepositoryImpl
         override suspend fun setTemperatureInCelsius(isCelsius: Boolean) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.TEMPERATURE_IN_CELSIUS] = isCelsius
+            }
+        }
+
+        override fun isAutoJoinEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.AUTO_JOIN_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setAutoJoinEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.AUTO_JOIN_ENABLED] = enabled
+            }
+        }
+
+        override fun isAutoFocusModeEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.AUTO_FOCUS_MODE_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setAutoFocusModeEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.AUTO_FOCUS_MODE_ENABLED] = enabled
             }
         }
     }

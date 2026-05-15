@@ -25,6 +25,8 @@ data class AppPreferences(
     val skipWeekendsEnabled: Boolean,
     val autoDismissMinutes: Int,
     val isTemperatureInCelsius: Boolean,
+    val isAutoJoinEnabled: Boolean,
+    val isAutoFocusModeEnabled: Boolean,
 )
 
 @Singleton
@@ -53,6 +55,8 @@ class ObserveAppPreferencesUseCase
                 repository.isSkipWeekendsEnabled(),
                 repository.getAutoDismissMinutes(),
                 repository.isTemperatureInCelsius(),
+                repository.isAutoJoinEnabled(),
+                repository.isAutoFocusModeEnabled(),
             ) { args ->
                 AppPreferences(
                     isGlobalAlarmEnabled = args[0] as Boolean,
@@ -73,6 +77,8 @@ class ObserveAppPreferencesUseCase
                     skipWeekendsEnabled = args[15] as Boolean,
                     autoDismissMinutes = args[16] as Int,
                     isTemperatureInCelsius = args[17] as Boolean,
+                    isAutoJoinEnabled = args[18] as Boolean,
+                    isAutoFocusModeEnabled = args[19] as Boolean,
                 )
             }
         }

@@ -126,6 +126,7 @@ class EventAlarmSchedulerImpl
                     putExtra(EXTRA_EVENT_ID, event.id)
                     putExtra(EXTRA_EVENT_START_TIME, event.startTime)
                     putExtra(EXTRA_MEETING_URL, event.meetingUrl)
+                    putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, event.endTime)
                 }
             val pendingIntent =
                 PendingIntent.getBroadcast(

@@ -44,6 +44,10 @@ sealed class EventIntent {
 
     data class ToggleLocationAlarm(val enabled: Boolean) : EventIntent()
 
+    data class ToggleAutoJoin(val enabled: Boolean) : EventIntent()
+
+    data class ToggleAutoFocusMode(val enabled: Boolean) : EventIntent()
+
     data class ChangeTransportMode(val mode: String) : EventIntent()
 
     object FetchWeather : EventIntent()

@@ -189,4 +189,15 @@
     <string name="ask_ai_label">Talk to AI</string>
     <string name="battery_low_warning">Low battery (%1$d%%). Charge your phone so you don\'t miss your %2$s meeting.</string>
     <string name="silent_mode_warning">Silent mode active. Your %1$s alarm might not sound.</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">Auto-Join Meetings</string>
+    <string name="auto_join_description">Automatically open the meeting link when the alarm fires, skipping the alarm screen.</string>
+    <string name="auto_focus_mode_title">Auto Focus Mode</string>
+    <string name="auto_focus_mode_description">Automatically enable Do Not Disturb during meetings and disable it when they end.</string>
+    <string name="meeting_conflict_warning">⚠️ Conflicts with another event</string>
+    <string name="meeting_back_to_back_warning">⚠️ Back-to-back meeting</string>
+    <string name="focus_mode_permission_required">DND Permission Required</string>
+    <string name="focus_mode_permission_disclaimer">To automatically toggle Do Not Disturb during meetings, the app needs notification policy access.</string>
 </resources>
+

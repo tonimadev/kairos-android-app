@@ -8,6 +8,7 @@ data class Weather(
     val description: String,
     val icon: String,
     val city: String,
+    val conditionCode: Int,
 )
 
 @Serializable
@@ -24,6 +25,7 @@ data class Main(
 
 @Serializable
 data class WeatherDescription(
+    val id: Int,
     val description: String,
     val icon: String,
 )

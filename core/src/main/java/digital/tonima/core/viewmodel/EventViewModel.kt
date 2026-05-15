@@ -28,6 +28,7 @@ import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
 import digital.tonima.core.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
+import digital.tonima.core.util.toOpenWeatherLang
 import digital.tonima.core.utils.TextToSpeechHelper
 import digital.tonima.core.utils.WidgetUpdater
 import digital.tonima.kairos.core.R
@@ -162,6 +163,8 @@ class EventViewModel
                     is EventIntent.ToggleSkipWeekends,
                     is EventIntent.UpdateAutoDismissMinutes,
                     is EventIntent.ToggleLocationAlarm,
+                    is EventIntent.ToggleAutoJoin,
+                    is EventIntent.ToggleAutoFocusMode,
                     is EventIntent.ChangeTransportMode,
                     is EventIntent.ToggleTemperatureUnit,
                     EventIntent.FetchWeather,
@@ -231,6 +234,8 @@ class EventViewModel
                     is EventIntent.ToggleSkipWeekends -> prefs.update.setSkipWeekendsEnabled(intent.enabled)
                     is EventIntent.UpdateAutoDismissMinutes -> prefs.update.setAutoDismissMinutes(intent.minutes)
                     is EventIntent.ToggleLocationAlarm -> onLocationAlarmToggle(intent.enabled)
+                    is EventIntent.ToggleAutoJoin -> prefs.update.setAutoJoinEnabled(intent.enabled)
+                    is EventIntent.ToggleAutoFocusMode -> prefs.update.setAutoFocusModeEnabled(intent.enabled)
                     is EventIntent.ChangeTransportMode -> prefs.update.setPreferredTransportMode(intent.mode)
                     is EventIntent.ToggleTemperatureUnit -> {
                         prefs.update.setTemperatureInCelsius(intent.isCelsius)
@@ -357,6 +362,8 @@ class EventViewModel
                         skipWeekends = appPrefs.skipWeekendsEnabled,
                         autoDismissMinutes = appPrefs.autoDismissMinutes,
                         isTemperatureInCelsius = appPrefs.isTemperatureInCelsius,
+                        isAutoJoinEnabled = appPrefs.isAutoJoinEnabled,
+                        isAutoFocusModeEnabled = appPrefs.isAutoFocusModeEnabled,
                         enabledCalendarIds =
                             appPrefs.enabledCalendarIds.mapNotNull { it.toLongOrNull() }.toSet(),
                     )
@@ -449,12 +456,52 @@ class EventViewModel
                             travelTimeMinutes = travelTimeMinutes,
                         )
                     }
+                val enrichedEvents = detectConflictsAndBuffers(updatedEvents)
 
-                _uiState.update { it.copy(events = updatedEvents, isRefreshing = false) }
+                _uiState.update { it.copy(events = enrichedEvents, isRefreshing = false) }
 
                 if (_uiState.value.isGlobalAlarmEnabled) {
-                    scheduleImmediateEvents(updatedEvents)
+                    scheduleImmediateEvents(enrichedEvents)
                 }
+            }
+        }
+
+        /**
+         * Detects scheduling conflicts (overlapping events) and back-to-back meetings
+         * (gap < 5 minutes) and annotates events with `hasConflict` / `isBackToBack` flags.
+         */
+        private fun detectConflictsAndBuffers(events: List<Event>): List<Event> {
+            if (events.size < 2) return events
+
+            val nonAllDay = events.filter { !it.isAllDay && it.endTime > it.startTime }
+            val conflictIds = mutableSetOf<Long>()
+            val backToBackIds = mutableSetOf<Long>()
+
+            for (i in nonAllDay.indices) {
+                for (j in i + 1 until nonAllDay.size) {
+                    val a = nonAllDay[i]
+                    val b = nonAllDay[j]
+
+                    // Conflict: events overlap
+                    if (a.startTime < b.endTime && b.startTime < a.endTime) {
+                        conflictIds.add(a.id)
+                        conflictIds.add(b.id)
+                    }
+
+                    // Back-to-back: gap < 5 minutes (300_000 ms)
+                    val gap = b.startTime - a.endTime
+                    if (gap in 0..300_000) {
+                        backToBackIds.add(a.id)
+                        backToBackIds.add(b.id)
+                    }
+                }
+            }
+
+            return events.map { event ->
+                event.copy(
+                    hasConflict = event.id in conflictIds,
+                    isBackToBack = event.id in backToBackIds,
+                )
             }
         }
 
@@ -729,6 +776,7 @@ class EventViewModel
         private fun fetchWeather() {
             viewModelScope.launch {
                 val isCelsius = _uiState.value.isTemperatureInCelsius
+                val lang = java.util.Locale.getDefault().toOpenWeatherLang()
                 val locationStr = weather.locationRepository.getCurrentLocation()
                 if (locationStr != null) {
                     val parts = locationStr.split(",")
@@ -736,7 +784,7 @@ class EventViewModel
                         val lat = parts[0].toDoubleOrNull()
                         val lon = parts[1].toDoubleOrNull()
                         if (lat != null && lon != null) {
-                            val weatherData = weather.weatherRepository.getWeather(lat, lon, isCelsius)
+                            val weatherData = weather.weatherRepository.getWeather(lat, lon, isCelsius, lang)
                             if (weatherData != null) {
                                 _uiState.update { it.copy(weather = weatherData) }
                             }

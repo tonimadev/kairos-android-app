@@ -188,4 +188,15 @@
     <string name="battery_low_warning">बैटरी कम है (%1$d%%)। अपना फ़ोन चार्ज करें ताकि आप अपनी %2$s मीटिंग मिस न करें।</string>
     <string name="silent_mode_warning">साइलेंट मोड सक्रिय है। आपका %1$s अलार्म शायद न बजे।</string>
     <string name="ask_ai_label">AI से बात करें</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">मीटिंग में स्वतः शामिल हों</string>
+    <string name="auto_join_description">अलार्म बजने पर स्वचालित रूप से मीटिंग लिंक खोलें, अलार्म स्क्रीन दिखाए बिना।</string>
+    <string name="auto_focus_mode_title">ऑटो फोकस मोड</string>
+    <string name="auto_focus_mode_description">मीटिंग के दौरान स्वचालित रूप से परेशान न करें सक्रिय करें और समाप्त होने पर निष्क्रिय करें।</string>
+    <string name="meeting_conflict_warning">⚠️ दूसरे इवेंट से टकराव</string>
+    <string name="meeting_back_to_back_warning">⚠️ लगातार मीटिंग</string>
+    <string name="focus_mode_permission_required">DND अनुमति आवश्यक</string>
+    <string name="focus_mode_permission_disclaimer">मीटिंग के दौरान स्वचालित रूप से परेशान न करें टॉगल करने के लिए, ऐप को सूचना नीति एक्सेस की आवश्यकता है।</string>
 </resources>
+

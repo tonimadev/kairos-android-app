@@ -154,6 +154,8 @@ class EventViewModelTest {
             skipWeekendsEnabled = false,
             autoDismissMinutes = 5,
             isTemperatureInCelsius = true,
+            isAutoJoinEnabled = false,
+            isAutoFocusModeEnabled = false,
         )
 
     private fun createViewModel() =

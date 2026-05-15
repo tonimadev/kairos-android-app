@@ -6,6 +6,7 @@ import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.DirectionsRepository
 import digital.tonima.core.repository.LocationRepository
 import digital.tonima.core.repository.WeatherRepository
+import digital.tonima.core.util.toOpenWeatherLang
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,11 +47,17 @@ class CalculateDepartureTimeUseCaseImpl
                     try {
                         val coords = origin.split(",")
                         if (coords.size == 2) {
-                            val weather = weatherRepository.getWeather(coords[0].toDouble(), coords[1].toDouble())
+                            val lang = java.util.Locale.getDefault().toOpenWeatherLang()
+                            val weather =
+                                weatherRepository.getWeather(
+                                    coords[0].toDouble(),
+                                    coords[1].toDouble(),
+                                    lang = lang,
+                                )
                             // If it's raining or snowing, double the buffer
-                            val condition = weather?.description?.lowercase() ?: ""
-                            val badWeatherKeywords = listOf("chuva", "rain", "neve", "snow", "tempestade", "storm")
-                            if (badWeatherKeywords.any { condition.contains(it) }) {
+                            val conditionCode = weather?.conditionCode ?: 800
+                            // 2xx: Thunderstorm, 3xx: Drizzle, 5xx: Rain, 6xx: Snow
+                            if (conditionCode in 200..699) {
                                 bufferSeconds += 600 // Add extra 10 minutes
                             }
                         }

@@ -29,9 +29,11 @@ import androidx.compose.material.icons.rounded.AlarmOff
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Repeat
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.TipsAndUpdates
 import androidx.compose.material.icons.rounded.Videocam
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -324,6 +326,68 @@ fun EventCard(
                                 Text(
                                     text = stringResource(R.string.travel_time_label, event.travelTimeMinutes!!),
                                     style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                )
+                            }
+                        }
+                    }
+                    if (event.hasConflict) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
+                                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f))
+                                    .padding(
+                                        horizontal = Dimensions.EventTagHorizontalPadding,
+                                        vertical = Dimensions.EventTagVerticalPadding,
+                                    ),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Warning,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                                )
+                                Text(
+                                    text = stringResource(R.string.meeting_conflict_warning),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                )
+                            }
+                        }
+                    }
+                    if (event.isBackToBack && !event.hasConflict) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
+                                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.85f))
+                                    .padding(
+                                        horizontal = Dimensions.EventTagHorizontalPadding,
+                                        vertical = Dimensions.EventTagVerticalPadding,
+                                    ),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Schedule,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                )
+                                Text(
+                                    text = stringResource(R.string.meeting_back_to_back_warning),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                                 )
                             }

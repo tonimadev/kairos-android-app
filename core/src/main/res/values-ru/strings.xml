@@ -189,4 +189,15 @@
     <string name="battery_low_warning">Низкий заряд батареи (%1$d%%). Зарядите телефон, чтобы не пропустить встречу в %2$s.</string>
     <string name="silent_mode_warning">Включен беззвучный режим. Ваш будильник на %1$s может не прозвучать.</string>
     <string name="ask_ai_label">Говорить с ИИ</string>
+
+    <!-- Meeting Companion Features -->
+    <string name="auto_join_title">Автоподключение к встречам</string>
+    <string name="auto_join_description">Автоматически открывать ссылку на встречу при срабатывании будильника, без показа экрана будильника.</string>
+    <string name="auto_focus_mode_title">Автоматический режим фокуса</string>
+    <string name="auto_focus_mode_description">Автоматически включать режим «Не беспокоить» во время встреч и выключать по их окончании.</string>
+    <string name="meeting_conflict_warning">⚠️ Конфликт с другим событием</string>
+    <string name="meeting_back_to_back_warning">⚠️ Встреча подряд</string>
+    <string name="focus_mode_permission_required">Требуется разрешение «Не беспокоить»</string>
+    <string name="focus_mode_permission_disclaimer">Для автоматического переключения режима «Не беспокоить» во время встреч приложению необходим доступ к политике уведомлений.</string>
 </resources>
+
