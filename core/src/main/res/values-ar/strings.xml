@@ -176,9 +176,7 @@
     <string name="confirm">تأكيد</string>
     <string name="ai_agent_event_created">تم إنشاء الحدث بنجاح!</string>
     <string name="ai_agent_event_creation_error">خطأ في إنشاء الحدث في التقويم.</string>
-    <string name="no_events_upcoming_24h_title">مزامنة التقويم الخاص بك</string>
-    <string name="no_events_upcoming_24h_content">لا توجد أحداث خلال الـ 24 ساعة القادمة. افتح التطبيق للمزامنة.</string>
-    <string name="no_events_upcoming_24h_dismiss_today">لا تخطرني مرة أخرى اليوم</string>
+    <string name="device_health_alert_title">تنبيه الجهاز</string>
 
     <!-- Pro+AI Features -->
     <string name="ai_suggested_late_notification">اقترح الذكاء الاصطناعي: %1$s</string>

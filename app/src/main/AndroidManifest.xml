@@ -26,10 +26,10 @@
     <application android:name=".KairosApplication" android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules" android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher" android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.Kairos"
+        android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.App.Starting"
         tools:targetApi="31">
 
-        <activity android:name=".MainActivity" android:exported="true" android:theme="@style/Theme.Kairos">
+        <activity android:name=".MainActivity" android:exported="true" android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -50,11 +50,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.view.AlarmActivity" android:exported="false"
-            android:launchMode="singleTask" android:showOnLockScreen="true" android:theme="@style/Theme.Kairos"
+            android:launchMode="singleTask" android:showOnLockScreen="true" android:theme="@style/Theme.App.Starting"
             android:turnScreenOn="true" />
 
         <receiver android:name="digital.tonima.core.receiver.AlarmReceiver" android:exported="false" />
-        <receiver android:name="digital.tonima.core.receiver.SyncAlertDismissReceiver" android:exported="false" />
         <receiver android:name=".receivers.WakeUpReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.USER_PRESENT" />

@@ -1,535 +1,178 @@
 package digital.tonima.kairos.ui.components
 
-import android.text.format.DateFormat
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Alarm
-import androidx.compose.material.icons.rounded.AlarmOff
-import androidx.compose.material.icons.rounded.DirectionsCar
-import androidx.compose.material.icons.rounded.LocationOn
-import androidx.compose.material.icons.rounded.Repeat
-import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material.icons.rounded.Timer
-import androidx.compose.material.icons.rounded.TipsAndUpdates
-import androidx.compose.material.icons.rounded.Videocam
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import digital.tonima.core.model.Event
-import digital.tonima.kairos.core.R
-import digital.tonima.kairos.ui.theme.Dimensions
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("LongMethod")
 fun EventCard(
     event: Event,
     isGloballyEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
-    onVibrateToggle: (Boolean) -> Unit,
+    onVibrateToggle: (Boolean) -> Unit, // Kept for signature compatibility but unused in this design
     onEventClick: () -> Unit,
-    onJoinMeeting: ((String) -> Unit)? = null,
-    onCopyMeetingUrl: ((String) -> Unit)? = null,
+    onJoinMeeting: ((String) -> Unit)? = null, // Kept for signature compatibility
+    onCopyMeetingUrl: ((String) -> Unit)? = null, // Kept for signature compatibility
 ) {
     val targetCardColor by animateColorAsState(
-        targetValue =
-            if (event.isAlarmEnabled) {
-                MaterialTheme.colorScheme.surface
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-            },
+        targetValue = MaterialTheme.colorScheme.surfaceVariant,
         animationSpec = tween(300),
         label = "cardColor",
     )
-    val accentColor by animateColorAsState(
-        targetValue =
-            if (event.isAlarmEnabled) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.outline
-            },
-        animationSpec = tween(300),
-        label = "accentColor",
-    )
 
-    val calendarColor = if (event.calendarColor != 0) Color(event.calendarColor) else accentColor
-    val alarmStateDescription =
-        stringResource(
-            if (event.isAlarmEnabled) R.string.cd_alarms_enabled else R.string.cd_alarms_disabled,
-        )
-    val formattedTime = formatMillisToTime(event.startTime)
-    val recurringDescription = stringResource(R.string.cd_event_recurring)
-    val indicatorDescription = stringResource(R.string.cd_event_indicator)
+    val timeFormat = remember { SimpleDateFormat("h:mm", Locale.getDefault()) }
+    val amPmFormat = remember { SimpleDateFormat("a", Locale.getDefault()) }
+
+    val timeString = timeFormat.format(Date(event.startTime))
+    val amPmString = amPmFormat.format(Date(event.startTime)).uppercase()
+
+    val calendar = Calendar.getInstance()
+    calendar.timeInMillis = event.startTime
+    val eventDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation =
-            CardDefaults.cardElevation(
-                defaultElevation =
-                    if (event.isAlarmEnabled) {
-                        Dimensions.ElevationMedium
-                    } else {
-                        Dimensions.ElevationExtraSmall
-                    },
-            ),
+        modifier = Modifier.fillMaxWidth().height(160.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(containerColor = targetCardColor),
-        shape = RoundedCornerShape(Dimensions.RadiusLarge),
+        shape = RoundedCornerShape(24.dp),
         onClick = onEventClick,
     ) {
-        Row(
+        Column(
             modifier =
                 Modifier
-                    .padding(
-                        start = Dimensions.PaddingNone,
-                        top = Dimensions.PaddingDefault,
-                        end = Dimensions.PaddingNormal,
-                        bottom = Dimensions.PaddingDefault,
-                    )
-                    .height(IntrinsicSize.Min)
-                    .heightIn(min = Dimensions.EventCardMinHeight),
-            verticalAlignment = Alignment.CenterVertically,
+                    .fillMaxWidth()
+                    .padding(20.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .width(Dimensions.EventIndicatorWidth)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(topEnd = Dimensions.RadiusSmall, bottomEnd = Dimensions.RadiusSmall))
-                        .background(calendarColor)
-                        .clearAndSetSemantics {
-                            contentDescription = indicatorDescription
-                        },
+            // Label
+            Text(
+                text = event.title,
+                fontSize = 14.sp,
+                color = Color(0xFFE2E2E2), // Light grey text
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
-            Spacer(modifier = Modifier.width(Dimensions.EventCardHorizontalPadding))
-            Column(modifier = Modifier.weight(1f)) {
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Time
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = event.title,
-                    style = MaterialTheme.typography.titleMedium,
+                    text = timeString,
+                    fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color =
-                        if (event.isAlarmEnabled) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                        },
+                    color = Color.White,
                 )
-                if (!event.location.isNullOrBlank()) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(top = 2.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.LocationOn,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = event.location!!,
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(Dimensions.EventCardSpacing))
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(Dimensions.EventCardSpacing),
-                    verticalArrangement = Arrangement.spacedBy(Dimensions.EventCardSpacing),
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .clip(RoundedCornerShape(Dimensions.RadiusFull))
-                                .background(
-                                    if (event.isAlarmEnabled) {
-                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-                                    } else {
-                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                                    },
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = amPmString,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 6.dp),
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Bottom Row: Days and Switch
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (event.isRecurring) {
+                    Text(
+                        text = "Everyday",
+                        fontSize = 12.sp,
+                        color = Color(0xFFB0B0C0),
+                    )
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        val days = listOf("S", "M", "T", "W", "T", "F", "S")
+                        days.forEachIndexed { index, day ->
+                            // Calendar.SUNDAY is 1, so index 0 = Sunday
+                            val isSelected = (index + 1) == eventDayOfWeek && event.isAlarmEnabled
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = day,
+                                    fontSize = 12.sp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFFB0B0C0),
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                 )
-                                .padding(
-                                    horizontal = Dimensions.EventTagHorizontalPadding,
-                                    vertical = Dimensions.EventTagVerticalPadding,
-                                )
-                                .semantics(mergeDescendants = true) {
-                                    contentDescription = "$alarmStateDescription $formattedTime"
-                                },
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            Icon(
-                                imageVector = if (event.isAlarmEnabled) Icons.Rounded.Alarm else Icons.Rounded.AlarmOff,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                                tint =
-                                    if (event.isAlarmEnabled) {
-                                        MaterialTheme.colorScheme.onPrimaryContainer
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
-                            )
-                            Text(
-                                text = formatMillisToTime(event.startTime),
-                                style = MaterialTheme.typography.labelMedium,
-                                color =
-                                    if (event.isAlarmEnabled) {
-                                        MaterialTheme.colorScheme.onPrimaryContainer
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
-                            )
-                        }
-                    }
-                    if (event.isRecurring) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
-                                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f))
-                                    .padding(
-                                        horizontal = Dimensions.EventTagHorizontalPadding,
-                                        vertical = Dimensions.EventTagVerticalPadding,
+                                if (isSelected) {
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .padding(top = 2.dp)
+                                                .size(4.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.primary),
                                     )
-                                    .semantics(mergeDescendants = true) {
-                                        contentDescription = recurringDescription
-                                    },
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Repeat,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(14.dp),
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                )
-                                Text(
-                                    text = stringResource(R.string.recurring_label),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                )
+                                } else {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                }
                             }
                         }
-                    }
-                    val meetingUrl = event.meetingUrl
-                    if (meetingUrl != null && onJoinMeeting != null) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
-                                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f))
-                                    .combinedClickable(
-                                        onClick = { onJoinMeeting(meetingUrl) },
-                                        onLongClick = { onCopyMeetingUrl?.invoke(meetingUrl) },
-                                    )
-                                    .padding(
-                                        horizontal = Dimensions.EventTagHorizontalPadding,
-                                        vertical = Dimensions.EventTagVerticalPadding,
-                                    ),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Videocam,
-                                    contentDescription = stringResource(R.string.join_meeting_label),
-                                    modifier = Modifier.size(14.dp),
-                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                                )
-                                Text(
-                                    text = stringResource(R.string.join_meeting_label),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                )
-                            }
-                        }
-                    }
-                    if (event.isAlarmEnabled && event.travelTimeMinutes != null) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
-                                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f))
-                                    .padding(
-                                        horizontal = Dimensions.EventTagHorizontalPadding,
-                                        vertical = Dimensions.EventTagVerticalPadding,
-                                    ),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.DirectionsCar,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(14.dp),
-                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                                )
-                                Text(
-                                    text = stringResource(R.string.travel_time_label, event.travelTimeMinutes!!),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                )
-                            }
-                        }
-                    }
-                    if (event.hasConflict) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
-                                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f))
-                                    .padding(
-                                        horizontal = Dimensions.EventTagHorizontalPadding,
-                                        vertical = Dimensions.EventTagVerticalPadding,
-                                    ),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Warning,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(14.dp),
-                                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                                )
-                                Text(
-                                    text = stringResource(R.string.meeting_conflict_warning),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                )
-                            }
-                        }
-                    }
-                    if (event.isBackToBack && !event.hasConflict) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .clip(RoundedCornerShape(Dimensions.RadiusFull))
-                                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.85f))
-                                    .padding(
-                                        horizontal = Dimensions.EventTagHorizontalPadding,
-                                        vertical = Dimensions.EventTagVerticalPadding,
-                                    ),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Schedule,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(14.dp),
-                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                                )
-                                Text(
-                                    text = stringResource(R.string.meeting_back_to_back_warning),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                )
-                            }
-                        }
-                    }
-                }
-                if (event.isAlarmEnabled) {
-                    val alarmTime = event.departureTime ?: (event.startTime)
-                    val timeRemaining = formatTimeRemaining(alarmTime)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(top = Dimensions.SpacingSmall),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Timer,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            text = stringResource(R.string.alarm_in_label, timeRemaining),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                        )
                     }
                 }
 
-                // Pro+AI Meeting Prep Summary
-                AnimatedVisibility(visible = event.isAlarmEnabled && event.meetingUrl != null) {
-                    Card(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(top = Dimensions.PaddingSmall),
-                        colors =
-                            CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                            ),
-                        shape = RoundedCornerShape(Dimensions.RadiusSmall),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(Dimensions.PaddingSmall),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.TipsAndUpdates,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = stringResource(R.string.ai_prepping_meeting),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                val switchLabel =
-                    stringResource(
-                        if (event.isAlarmEnabled) R.string.cd_alarms_enabled else R.string.cd_alarms_disabled,
-                    )
+                // Custom Switch to match design
                 Switch(
                     checked = event.isAlarmEnabled,
                     onCheckedChange = onToggle,
                     enabled = isGloballyEnabled,
-                    modifier =
-                        Modifier.semantics {
-                            contentDescription = switchLabel
-                        },
                     colors =
                         SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.primary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                            uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary,
+                            uncheckedThumbColor = Color.White,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                            uncheckedBorderColor = Color.Transparent,
+                            checkedBorderColor = Color.Transparent,
                         ),
+                    modifier = Modifier.height(24.dp),
                 )
-                if (event.isAlarmEnabled) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier =
-                            Modifier
-                                .padding(top = 2.dp)
-                                .semantics(mergeDescendants = true) {
-                                    role = Role.Checkbox
-                                },
-                    ) {
-                        Text(
-                            text = stringResource(R.string.vibrate_only),
-                            modifier = Modifier.weight(1f, fill = false),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Checkbox(
-                            checked = event.vibrateOnly,
-                            onCheckedChange = onVibrateToggle,
-                            enabled = isGloballyEnabled,
-                            modifier = Modifier.size(32.dp),
-                        )
-                    }
-                }
             }
         }
-    }
-}
-
-@Composable
-fun formatMillisToTime(millis: Long): String {
-    val context = LocalContext.current
-    val timeFormat = DateFormat.getTimeFormat(context)
-    val formattedTime = timeFormat.format(Date(millis))
-    return stringResource(R.string.at_time, formattedTime)
-}
-
-@Composable
-fun formatTimeRemaining(targetTime: Long): String {
-    val now = System.currentTimeMillis()
-    val diff = targetTime - now
-    if (diff <= 0) return stringResource(R.string.alarm_now_label)
-
-    val diffSeconds = diff / 1000
-    val diffMinutes = diffSeconds / 60
-    val diffHours = diffMinutes / 60
-
-    return when {
-        diffHours > 0 -> {
-            val h = diffHours.toInt()
-            val m = (diffMinutes % 60).toInt()
-            if (m > 0) {
-                stringResource(R.string.hours_short, h) + " " + stringResource(R.string.minutes_short, m)
-            } else {
-                stringResource(R.string.hours_short, h)
-            }
-        }
-        else -> stringResource(R.string.minutes_short, diffMinutes.toInt())
     }
 }
 
@@ -539,12 +182,10 @@ fun EventCardPreview() {
     val sampleEvent =
         Event(
             id = 1L,
-            title = "Team Meeting",
+            title = "Wake up",
             startTime = System.currentTimeMillis() + 3600000,
             isAlarmEnabled = true,
             location = "Av. Paulista, 1000",
-            travelTimeMinutes = 25,
-            departureTime = System.currentTimeMillis() + 3600000 - (25 * 60 * 1000L) - (300 * 1000L),
         )
     EventCard(
         event = sampleEvent,

@@ -3,14 +3,17 @@ package digital.tonima.kairos.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.TipsAndUpdates
@@ -20,6 +23,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventScreenUiState
@@ -50,31 +55,33 @@ fun EventList(
     val pullRefreshState =
         rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = eventActions.onRefresh)
     val today = remember { LocalDate.now() }
-    val eventsInDay =
-        remember(uiState.selectedDate, eventsByDate, uiState.searchQuery) {
-            val allInDay = eventsByDate[uiState.selectedDate] ?: emptyList()
+
+    // Instead of filtering by day, let's just show all events as "alarms" for this mockup.
+    // The design shows multiple alarms.
+    val allEvents =
+        remember(uiState.events, uiState.searchQuery) {
+            val base = uiState.events
             if (uiState.searchQuery.isBlank()) {
-                allInDay
+                base
             } else {
-                allInDay.filter { it.title.contains(uiState.searchQuery, ignoreCase = true) }
+                base.filter { it.title.contains(uiState.searchQuery, ignoreCase = true) }
             }
         }
 
     val pendingToggle = remember { mutableStateOf<Pair<Event, Boolean>?>(null) }
 
-    Column(modifier = modifier) {
-        Box(Modifier.weight(1f).pullRefresh(pullRefreshState)) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
-            ) {
-                headerContent?.let {
-                    item {
-                        it()
-                    }
-                }
+    Box(modifier = modifier.pullRefresh(pullRefreshState)) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Column {
+                    headerContent?.invoke()
 
-                item {
                     val hour = remember { java.time.LocalTime.now().hour }
                     val greeting =
                         when {
@@ -84,13 +91,11 @@ fun EventList(
                         }
                     Text(
                         text = greeting,
-                        style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(bottom = Dimensions.SpacingSmall, top = Dimensions.SpacingSmall),
                     )
-                }
 
-                item {
                     OutlinedTextField(
                         value = uiState.searchQuery,
                         onValueChange = eventActions.onSearchQueryChanged,
@@ -112,18 +117,13 @@ fun EventList(
                         },
                         singleLine = true,
                     )
-                }
 
-                val showBriefingCard = uiState.selectedDate == today && uiState.searchQuery.isBlank()
-                if (!uiState.isAiUser) {
-                    item {
+                    val showBriefingCard = uiState.selectedDate == today && uiState.searchQuery.isBlank()
+                    if (!uiState.isAiUser) {
                         ProUpgradeCard(
                             onUpgradeClick = aiActions.onSubscriptionRequest,
                         )
-                    }
-                }
-                if (showBriefingCard) {
-                    item {
+                    } else if (showBriefingCard && (uiState.isGeneratingBriefing || uiState.dailyBriefing != null)) {
                         DailyBriefingCard(
                             briefing = uiState.dailyBriefing,
                             isGenerating = uiState.isGeneratingBriefing,
@@ -135,110 +135,97 @@ fun EventList(
                         )
                     }
                 }
+            }
 
-                if (eventsInDay.isEmpty() && !uiState.isRefreshing) {
-                    item {
-                        Column(
-                            modifier =
-                                Modifier
-                                    .then(
-                                        if (showBriefingCard) {
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = Dimensions.PaddingLarge)
-                                        } else {
-                                            Modifier.fillParentMaxSize()
-                                        },
-                                    ),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.TipsAndUpdates,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp).padding(bottom = 8.dp),
-                                tint = androidx.compose.material3.MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                            )
-                            Text(
-                                text = "Your day is clear! 🌟",
-                                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-                            )
-                            Text(
-                                text = stringResource(R.string.no_events_found_for_this_day),
-                                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 4.dp),
-                            )
-                        }
-                    }
-                } else {
-                    items(eventsInDay, key = { it.uniqueIntentId }) { event ->
-                        EventCard(
-                            event = event,
-                            isGloballyEnabled = uiState.isGlobalAlarmEnabled,
-                            onToggle = { isEnabled ->
-                                if (event.isRecurring) {
-                                    pendingToggle.value = event to isEnabled
-                                } else {
-                                    eventActions.onEventToggle(event, isEnabled, false)
-                                }
-                            },
-                            onVibrateToggle = { eventActions.onEventVibrateToggle(event, it) },
-                            onEventClick = { eventActions.onEventClick(event) },
-                            onJoinMeeting = eventActions.onJoinMeeting,
-                            onCopyMeetingUrl = eventActions.onCopyMeetingUrl,
+            if (allEvents.isEmpty() && !uiState.isRefreshing) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = Dimensions.PaddingLarge),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.TipsAndUpdates,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp).padding(bottom = 8.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        )
+                        Text(
+                            text = "No Alarms Found",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
-
-                item {
-                    Spacer(modifier = Modifier.height(Dimensions.ListBottomSpacer))
+            } else {
+                items(allEvents, key = { it.uniqueIntentId }) { event ->
+                    EventCard(
+                        event = event,
+                        isGloballyEnabled = uiState.isGlobalAlarmEnabled,
+                        onToggle = { isEnabled ->
+                            if (event.isRecurring) {
+                                pendingToggle.value = event to isEnabled
+                            } else {
+                                eventActions.onEventToggle(event, isEnabled, false)
+                            }
+                        },
+                        onVibrateToggle = { eventActions.onEventVibrateToggle(event, it) },
+                        onEventClick = { eventActions.onEventClick(event) },
+                        onJoinMeeting = eventActions.onJoinMeeting,
+                        onCopyMeetingUrl = eventActions.onCopyMeetingUrl,
+                    )
                 }
             }
 
-            AiVoiceInteractionCard(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(Dimensions.PaddingNormal)
-                        .padding(bottom = Dimensions.ListBottomSpacer),
-                question = uiState.lastAiQuestion,
-                response = uiState.aiResponse,
-                isAsking = uiState.isAskingAi,
-                isSpeaking = uiState.isSpeaking,
-                onSpeak = aiActions.onSpeakAiResponse,
-                onStopSpeaking = aiActions.onStopSpeaking,
-                onDismiss = aiActions.onClearAiResponse,
-                onReply = aiActions.onReply,
-            )
-
-            PullRefreshIndicator(
-                refreshing = uiState.isRefreshing,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-
-            pendingToggle.value?.let { (pendingEvent, pendingEnabled) ->
-                AlertDialog(
-                    onDismissRequest = { pendingToggle.value = null },
-                    title = { Text(stringResource(R.string.update_alarm_title)) },
-                    text = { Text(stringResource(R.string.update_alarm_message)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            eventActions.onEventToggle(pendingEvent, pendingEnabled, true)
-                            pendingToggle.value = null
-                        }) { Text(stringResource(R.string.recurring_option)) }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            eventActions.onEventToggle(pendingEvent, pendingEnabled, false)
-                            pendingToggle.value = null
-                        }) { Text(stringResource(R.string.only_this_option)) }
-                    },
-                )
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Spacer(modifier = Modifier.height(Dimensions.ListBottomSpacer))
             }
+        }
+
+        AiVoiceInteractionCard(
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(Dimensions.PaddingNormal)
+                    .padding(bottom = Dimensions.ListBottomSpacer),
+            question = uiState.lastAiQuestion,
+            response = uiState.aiResponse,
+            isAsking = uiState.isAskingAi,
+            isSpeaking = uiState.isSpeaking,
+            onSpeak = aiActions.onSpeakAiResponse,
+            onStopSpeaking = aiActions.onStopSpeaking,
+            onDismiss = aiActions.onClearAiResponse,
+            onReply = aiActions.onReply,
+        )
+
+        PullRefreshIndicator(
+            refreshing = uiState.isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
+
+        pendingToggle.value?.let { (pendingEvent, pendingEnabled) ->
+            AlertDialog(
+                onDismissRequest = { pendingToggle.value = null },
+                title = { Text(stringResource(R.string.update_alarm_title)) },
+                text = { Text(stringResource(R.string.update_alarm_message)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        eventActions.onEventToggle(pendingEvent, pendingEnabled, true)
+                        pendingToggle.value = null
+                    }) { Text(stringResource(R.string.recurring_option)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        eventActions.onEventToggle(pendingEvent, pendingEnabled, false)
+                        pendingToggle.value = null
+                    }) { Text(stringResource(R.string.only_this_option)) }
+                },
+            )
         }
     }
 }

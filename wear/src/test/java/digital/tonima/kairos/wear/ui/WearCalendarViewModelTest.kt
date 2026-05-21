@@ -51,7 +51,6 @@ class WearCalendarViewModelTest {
         private val wakeUpHistory = MutableStateFlow<List<Long>>(emptyList())
         private val exactAlarmSkipped = MutableStateFlow(false)
         private val fullScreenIntentSkipped = MutableStateFlow(false)
-        private val syncAlertMutedUntil = MutableStateFlow(0L)
         private val isTemperatureInCelsius = MutableStateFlow(true)
         private val autoJoinEnabled = MutableStateFlow(false)
         private val autoFocusModeEnabled = MutableStateFlow(false)
@@ -186,12 +185,6 @@ class WearCalendarViewModelTest {
 
         override suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean) {
             fullScreenIntentSkipped.value = skipped
-        }
-
-        override fun getSyncAlertMutedUntil(): Flow<Long> = syncAlertMutedUntil
-
-        override suspend fun setSyncAlertMutedUntil(timestamp: Long) {
-            syncAlertMutedUntil.value = timestamp
         }
 
         override fun isTemperatureInCelsius(): Flow<Boolean> = isTemperatureInCelsius

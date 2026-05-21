@@ -23,31 +23,34 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CalendarMonth
-import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Mic
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -295,6 +298,22 @@ fun EventScreen(
                     handleIntent = viewModel::handleIntent,
                 )
             },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { viewModel.handleIntent(EventIntent.ShowCreateEventDialog()) },
+                    containerColor = Color(0xFFDEFA5F),
+                    shape = CircleShape,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = "Add Alarm",
+                        tint = Color.Black,
+                        modifier = Modifier.size(32.dp),
+                    )
+                }
+            },
+            floatingActionButtonPosition = androidx.compose.material3.FabPosition.Center,
+            containerColor = Color(0xFF25252D),
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
             Box(modifier = Modifier.fillMaxSize()) {
@@ -580,31 +599,28 @@ private fun EventScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EventTopBar(onOpenMenu: () -> Unit) {
-    CenterAlignedTopAppBar(
+    TopAppBar(
         title = {
             Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleLarge,
+                text = "Alarm",
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
+                color = Color.White,
             )
         },
         colors =
             TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                scrolledContainerColor = Color.Unspecified,
-                navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
-                titleContentColor = MaterialTheme.colorScheme.onBackground,
-                actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+                containerColor = Color.Transparent,
             ),
-        navigationIcon = {
+        actions = {
             IconButton(onClick = onOpenMenu) {
                 Icon(
-                    imageVector = Icons.Rounded.Menu,
-                    contentDescription = stringResource(R.string.cd_open_menu),
+                    imageVector = Icons.Rounded.MoreVert,
+                    contentDescription = "Menu",
+                    tint = Color.White,
                 )
             }
         },
-        actions = { },
     )
 }
 
@@ -615,50 +631,77 @@ private fun EventBottomBar(
     onOpenCalendar: () -> Unit,
     handleIntent: (EventIntent) -> Unit,
 ) {
-    BottomAppBar(
-        actions = {
-            if (uiState.hasCalendarPermission) {
-                IconButton(onClick = { handleIntent(EventIntent.ShowCreateEventDialog()) }) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = stringResource(R.string.create_event),
-                        modifier = Modifier.size(Dimensions.IconSizeNormal),
-                    )
-                }
-            }
-            Spacer(Modifier.weight(1f))
-            if (uiState.hasCalendarPermission &&
-                uiState.hasExactAlarmPermission &&
-                uiState.hasFullScreenIntentPermission
-            ) {
-                IconButton(onClick = onOpenCalendar) {
-                    Icon(
-                        imageVector = Icons.Rounded.CalendarMonth,
-                        contentDescription = stringResource(R.string.open_calendar),
-                        modifier = Modifier.size(Dimensions.IconSizeNormal),
-                    )
-                }
-            }
-        },
-        floatingActionButton = {
-            if (isAiUser) {
-                FloatingActionButton(
-                    onClick = { handleIntent(EventIntent.ShowAiSuggestionsDialog) },
-                    containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                    elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Mic,
-                        contentDescription = stringResource(R.string.cd_voice_capture),
-                        modifier = Modifier.size(Dimensions.IconSizeMedium),
-                    )
-                }
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    NavigationBar(
+        containerColor = Color(0xFF2C2C38),
+        contentColor = Color.White,
         tonalElevation = 0.dp,
-    )
+    ) {
+        NavigationBarItem(
+            selected = true,
+            onClick = { },
+            icon = { Icon(Icons.Rounded.Alarm, contentDescription = "Alarms") },
+            label = { Text("Alarms") },
+            colors =
+                NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color(0xFFDEFA5F),
+                    selectedTextColor = Color(0xFFDEFA5F),
+                    indicatorColor = Color.Transparent,
+                    unselectedIconColor = Color(0xFFB0B0C0),
+                    unselectedTextColor = Color(0xFFB0B0C0),
+                ),
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { onOpenCalendar() },
+            icon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = "Calendar") },
+            label = { Text("Calendar") },
+            colors =
+                NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color(0xFFDEFA5F),
+                    selectedTextColor = Color(0xFFDEFA5F),
+                    indicatorColor = Color.Transparent,
+                    unselectedIconColor = Color(0xFFB0B0C0),
+                    unselectedTextColor = Color(0xFFB0B0C0),
+                ),
+        )
+        Spacer(modifier = Modifier.weight(0.5f))
+        if (isAiUser) {
+            NavigationBarItem(
+                selected = false,
+                onClick = {
+                    handleIntent(
+                        EventIntent.GenerateDailyBriefing("Provide a daily briefing based on my alarms."),
+                    )
+                },
+                icon = { Icon(Icons.Rounded.AutoAwesome, contentDescription = "AI Briefing") },
+                label = { Text("Briefing") },
+                colors =
+                    NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFFDEFA5F),
+                        selectedTextColor = Color(0xFFDEFA5F),
+                        indicatorColor = Color.Transparent,
+                        unselectedIconColor = Color(0xFFB0B0C0),
+                        unselectedTextColor = Color(0xFFB0B0C0),
+                    ),
+            )
+            NavigationBarItem(
+                selected = false,
+                onClick = {
+                    handleIntent(EventIntent.ShowAiSuggestionsDialog)
+                },
+                icon = { Icon(Icons.Rounded.Mic, contentDescription = "Voice") },
+                label = { Text("Voice") },
+                colors =
+                    NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFFDEFA5F),
+                        selectedTextColor = Color(0xFFDEFA5F),
+                        indicatorColor = Color.Transparent,
+                        unselectedIconColor = Color(0xFFB0B0C0),
+                        unselectedTextColor = Color(0xFFB0B0C0),
+                    ),
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -186,7 +186,7 @@ class AlarmSchedulingWorker
             val eventTimeStr = sdf.format(Date(nextEvent.startTime))
 
             if (batteryPct < 20 && !isCharging) {
-                NotificationHelper.showSyncAlertNotification(
+                NotificationHelper.showDeviceHealthAlertNotification(
                     applicationContext,
                     applicationContext
                         .getString(
@@ -199,7 +199,7 @@ class AlarmSchedulingWorker
 
             val ringerMode = ringerModeRepository.ringerMode.value
             if (ringerMode == AudioWarningState.SILENT || ringerMode == AudioWarningState.ALARM_MUTED) {
-                NotificationHelper.showSyncAlertNotification(
+                NotificationHelper.showDeviceHealthAlertNotification(
                     applicationContext,
                     applicationContext.getString(string.silent_mode_warning, eventTimeStr),
                 )

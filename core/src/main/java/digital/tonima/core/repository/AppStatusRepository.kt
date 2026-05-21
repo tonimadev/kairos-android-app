@@ -43,10 +43,6 @@ interface AppStatusRepository {
 
     suspend fun setFullScreenIntentPermissionSkipped(skipped: Boolean)
 
-    fun getSyncAlertMutedUntil(): Flow<Long>
-
-    suspend fun setSyncAlertMutedUntil(timestamp: Long)
-
     fun isTemperatureInCelsius(): Flow<Boolean>
 
     suspend fun setTemperatureInCelsius(isCelsius: Boolean)

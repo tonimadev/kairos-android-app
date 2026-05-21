@@ -181,9 +181,7 @@
     <string name="confirm">Confirmar</string>
     <string name="ai_agent_event_created">Evento criado com sucesso!</string>
     <string name="ai_agent_event_creation_error">Erro ao criar o evento no calendário.</string>
-    <string name="no_events_upcoming_24h_title">Sincronize sua agenda</string>
-    <string name="no_events_upcoming_24h_content">Nenhum evento para as próximas 24h. Abra o app para sincronizar.</string>
-    <string name="no_events_upcoming_24h_dismiss_today">Não me avise mais hoje</string>
+    <string name="device_health_alert_title">Alerta do Dispositivo</string>
 
     <!-- Pro+AI Features -->
     <string name="ai_suggested_late_notification">A IA sugeriu: %1$s</string>

@@ -178,9 +178,7 @@
     <string name="confirm">Bestätigen</string>
     <string name="ai_agent_event_created">Termin erfolgreich erstellt!</string>
     <string name="ai_agent_event_creation_error">Fehler beim Erstellen des Termins im Kalender.</string>
-    <string name="no_events_upcoming_24h_title">Kalender synchronisieren</string>
-    <string name="no_events_upcoming_24h_content">Keine Ereignisse für die nächsten 24 Std. App zum Synchronisieren öffnen.</string>
-    <string name="no_events_upcoming_24h_dismiss_today">Heute nicht mehr benachrichtigen</string>
+    <string name="device_health_alert_title">Gerätealarm</string>
 
     <!-- Pro+AI Features -->
     <string name="ai_suggested_late_notification">KI-Vorschlag: %1$s</string>

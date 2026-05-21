@@ -22,24 +22,25 @@ val OnSurfaceLight = Color(0xFF0F172A)
 val SurfaceVariantLight = Color(0xFFE2E8F0)
 val OnSurfaceVariantLight = Color(0xFF475569)
 
-val PrimaryDark = Color(0xFF6366F1)
-val OnPrimaryDark = Color(0xFFFFFFFF)
-val PrimaryContainerDark = Color(0xFF3730A3)
-val OnPrimaryContainerDark = Color(0xFFE0E7FF)
+// Updated colors for the new alarm design
+val PrimaryDark = Color(0xFFDEFA5F) // Neon Yellow
+val OnPrimaryDark = Color(0xFF000000)
+val PrimaryContainerDark = Color(0xFF42425A)
+val OnPrimaryContainerDark = Color(0xFFFFFFFF)
 
-val SecondaryDark = Color(0xFF34D399)
-val OnSecondaryDark = Color(0xFF022C22)
-val SecondaryContainerDark = Color(0xFF065F46)
-val OnSecondaryContainerDark = Color(0xFFD1FAE5)
+val SecondaryDark = Color(0xFFDEFA5F)
+val OnSecondaryDark = Color(0xFF000000)
+val SecondaryContainerDark = Color(0xFF42425A)
+val OnSecondaryContainerDark = Color(0xFFFFFFFF)
 
 val TertiaryDark = Color(0xFFFB7185)
 val OnTertiaryDark = Color(0xFF4C0519)
 val TertiaryContainerDark = Color(0xFF9F1239)
 val OnTertiaryContainerDark = Color(0xFFFFE4E6)
 
-val SurfaceDark = Color(0xFF0F172A)
-val OnSurfaceDark = Color(0xFFF8FAFC)
-val SurfaceVariantDark = Color(0xFF1E293B)
-val OnSurfaceVariantDark = Color(0xFF94A3B8)
-val OutlineDark = Color(0xFF334155)
+val SurfaceDark = Color(0xFF25252D) // Dark Background
+val OnSurfaceDark = Color(0xFFFFFFFF)
+val SurfaceVariantDark = Color(0xFF323242) // Card Background
+val OnSurfaceVariantDark = Color(0xFFB0B0C0) // Subtext / Muted
+val OutlineDark = Color(0xFF42425A)
 val OutlineLight = Color(0xFFCBD5E1)

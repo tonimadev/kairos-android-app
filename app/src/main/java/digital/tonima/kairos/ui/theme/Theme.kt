@@ -57,7 +57,8 @@ fun KairosTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    // Force the dark color scheme to match the new strict dark UI design
+    val colorScheme = DarkColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
