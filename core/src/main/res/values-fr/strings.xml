@@ -222,5 +222,12 @@
     <string name="day_friday_short">V</string>
     <string name="day_saturday_short">S</string>
     <string name="prompt_daily_briefing">Fournissez un résumé quotidien basé sur mes alarmes.</string>
+    <!-- Google Meet Integration -->
+    <string name="integrations">Intégrations</string>
+    <string name="google_login_title">Connecter Google Meet</string>
+    <string name="google_login_description">Autorisez l\'application à lire et résumer vos réunions grâce à l\'IA.</string>
+    <string name="google_logout_title">Déconnecter Google Meet</string>
+    <string name="login_google">Connecter</string>
+    <string name="logout">Déconnexion</string>
 </resources>
 

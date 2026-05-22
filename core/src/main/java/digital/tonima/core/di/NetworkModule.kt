@@ -64,4 +64,18 @@ object NetworkModule {
             .build()
             .create(DistanceMatrixService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideGoogleMeetService(
+        okHttpClient: OkHttpClient,
+        json: Json,
+    ): digital.tonima.core.repository.GoogleMeetService {
+        return Retrofit.Builder()
+            .baseUrl("https://meet.googleapis.com/")
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(digital.tonima.core.repository.GoogleMeetService::class.java)
+    }
 }

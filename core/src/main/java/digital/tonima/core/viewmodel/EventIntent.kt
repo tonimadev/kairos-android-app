@@ -72,6 +72,7 @@ sealed class EventIntent {
         val startTime: Long,
         val endTime: Long,
         val isAllDay: Boolean,
+        val requestMeetLink: Boolean = false,
     ) : EventIntent()
 
     object DismissAutostartSuggestion : EventIntent()
@@ -145,4 +146,14 @@ sealed class EventIntent {
         val endTime: Long,
         val title: String = "Foco (AI Sugestão)",
     ) : EventIntent()
+
+    data class SummarizeMeetTranscript(
+        val meetingUrl: String,
+    ) : EventIntent()
+
+    object SignInWithGoogle : EventIntent()
+
+    object SignOutFromGoogle : EventIntent()
+
+    data class HandleGoogleSignInResult(val resultData: android.content.Intent?) : EventIntent()
 }

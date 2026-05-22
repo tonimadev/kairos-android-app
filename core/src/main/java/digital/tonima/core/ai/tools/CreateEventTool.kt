@@ -68,6 +68,12 @@ class CreateEventTool
                                 "type" to "boolean",
                                 "description" to "Whether this is an all-day event (default: false)",
                             ),
+                        "request_meet_link" to
+                            mapOf(
+                                "type" to "boolean",
+                                "description" to
+                                    "Set to true to automatically generate a Google Meet link for this event",
+                            ),
                     ),
                 "required" to listOf("title", "start_time", "end_time"),
             )
@@ -89,6 +95,7 @@ class CreateEventTool
                 startTime = startTime,
                 endTime = endTime,
                 isAllDay = args["is_all_day"] as? Boolean ?: false,
+                requestMeetLink = args["request_meet_link"] as? Boolean ?: false,
             )
         }
     }

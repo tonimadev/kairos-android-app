@@ -55,6 +55,7 @@ okhttp = "5.3.2"
 kotlinxSerializationJson = "1.11.0"
 retrofitKotlinxSerializationConverter = "1.0.0"
 splashscreen = "1.2.0"
+playServicesAuth = "21.3.0"
 
 [libraries]
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
@@ -116,6 +117,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 
 # -- bibliotecas para Wear OS --
 androidx-wear-material-compose = { group = "androidx.wear.compose", name = "compose-material", version.ref = "wear-compose" }

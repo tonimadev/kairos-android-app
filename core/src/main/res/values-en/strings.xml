@@ -220,5 +220,13 @@
     <string name="day_friday_short">F</string>
     <string name="day_saturday_short">S</string>
     <string name="prompt_daily_briefing">Provide a daily briefing based on my alarms.</string>
+
+    <!-- Integrations -->
+    <string name="integrations">Integrations</string>
+    <string name="google_login_title">Connect Google Meet</string>
+    <string name="google_login_description">Kairos will use your Google account to automatically generate meeting links in your scheduled events, and to extract summaries from your minutes via AI.\nYour data is secure and never shared.</string>
+    <string name="google_logout_title">Google Meet Connected</string>
+    <string name="login_google">Sign in with Google</string>
+    <string name="logout">Sign out</string>
 </resources>
 

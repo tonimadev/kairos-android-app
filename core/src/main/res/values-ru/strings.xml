@@ -220,5 +220,12 @@
     <string name="day_friday_short">П</string>
     <string name="day_saturday_short">С</string>
     <string name="prompt_daily_briefing">Предоставьте ежедневный брифинг на основе моих будильников.</string>
+    <!-- Google Meet Integration -->
+    <string name="integrations">Интеграции</string>
+    <string name="google_login_title">Подключить Google Meet</string>
+    <string name="google_login_description">Разрешите приложению читать и обобщать ваши встречи с помощью ИИ.</string>
+    <string name="google_logout_title">Отключить Google Meet</string>
+    <string name="login_google">Подключить</string>
+    <string name="logout">Выйти</string>
 </resources>
 

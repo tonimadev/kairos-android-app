@@ -13,12 +13,14 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class CreateEventUseCaseImplTest {
     private lateinit var mockCalendarRepository: CalendarRepository
+    private lateinit var mockGoogleMeetRepository: digital.tonima.core.repository.GoogleMeetRepository
     private lateinit var createEventUseCase: CreateEventUseCase
 
     @Before
     fun setup() {
         mockCalendarRepository = mockk()
-        createEventUseCase = CreateEventUseCaseImpl(mockCalendarRepository)
+        mockGoogleMeetRepository = mockk()
+        createEventUseCase = CreateEventUseCaseImpl(mockCalendarRepository, mockGoogleMeetRepository)
     }
 
     @Test

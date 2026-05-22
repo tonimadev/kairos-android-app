@@ -352,6 +352,14 @@ private fun SettingsContent(
             }
             Switch(checked = uiState.isTemperatureInCelsius, onCheckedChange = settingsActions.onTemperatureUnitToggle)
         }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+        IntegrationsSection(
+            isGoogleConnected = uiState.isGoogleConnected,
+            onGoogleSignInClick = settingsActions.onGoogleSignInClick,
+            onGoogleSignOutClick = settingsActions.onGoogleSignOutClick,
+        )
     }
 }
 
@@ -625,3 +633,59 @@ private fun offsetLabel(offset: AlarmOffset): String =
         AlarmOffset.THIRTY_MINUTES -> stringResource(R.string.alarm_offset_30_min)
         AlarmOffset.ONE_HOUR -> stringResource(R.string.alarm_offset_1_hour)
     }
+
+@Composable
+private fun IntegrationsSection(
+    isGoogleConnected: Boolean,
+    onGoogleSignInClick: () -> Unit,
+    onGoogleSignOutClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+    ) {
+        Text(
+            text = stringResource(R.string.integrations),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text =
+                        stringResource(
+                            if (isGoogleConnected) R.string.google_logout_title else R.string.google_login_title,
+                        ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = stringResource(R.string.google_login_description),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            androidx.compose.material3.TextButton(
+                onClick = if (isGoogleConnected) onGoogleSignOutClick else onGoogleSignInClick,
+                modifier = Modifier.padding(start = Dimensions.PaddingSmall),
+            ) {
+                Text(
+                    text = stringResource(if (isGoogleConnected) R.string.logout else R.string.login_google),
+                    color =
+                        if (isGoogleConnected) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        },
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
+}

@@ -216,5 +216,12 @@
     <string name="day_friday_short">金</string>
     <string name="day_saturday_short">土</string>
     <string name="prompt_daily_briefing">アラームに基づいた毎日のブリーフィングを提供してください。</string>
+    <!-- Google Meet Integration -->
+    <string name="integrations">連携</string>
+    <string name="google_login_title">Google Meetと連携</string>
+    <string name="google_login_description">アプリがAIを使用して会議を読み取り、要約することを許可します。</string>
+    <string name="google_logout_title">Google Meetの連携を解除</string>
+    <string name="login_google">連携する</string>
+    <string name="logout">ログアウト</string>
 </resources>
 

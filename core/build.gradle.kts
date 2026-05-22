@@ -38,10 +38,16 @@ android {
         ?: localProperties.getProperty("google.maps.api.key")
         ?: ""
 
+    val webClientId = System.getenv("GOOGLE_WEB_CLIENT_ID")
+        ?: localProperties.getProperty("GOOGLE_WEB_CLIENT_ID")
+        ?: localProperties.getProperty("google.web.client.id")
+        ?: ""
+
     buildTypes {
         debug {
             buildConfigField("String", "OPENWEATHER_API_KEY", "\"$openWeatherApiKey\"")
             buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
+            buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
         }
         release {
             isMinifyEnabled = false
@@ -51,6 +57,7 @@ android {
             )
             buildConfigField("String", "OPENWEATHER_API_KEY", "\"$openWeatherApiKey\"")
             buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
+            buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
         }
     }
     compileOptions {
@@ -97,6 +104,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.play.review)
     implementation(libs.play.review.ktx)
+    implementation(libs.play.services.auth)
     implementation(libs.play.services.wearable)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlin.serialization)

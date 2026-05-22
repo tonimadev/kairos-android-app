@@ -64,4 +64,9 @@ object AIToolsModule {
     @IntoSet
     @Singleton
     fun provideSuggestFocusBlocksTool(): AITool = SuggestFocusBlocksTool()
+
+    @Provides
+    @IntoSet
+    @Singleton
+    fun provideSummarizeMeetTool(): AITool = digital.tonima.core.ai.tools.SummarizeMeetTool()
 }

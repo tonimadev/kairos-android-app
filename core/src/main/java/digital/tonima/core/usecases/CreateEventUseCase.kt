@@ -9,5 +9,6 @@ interface CreateEventUseCase {
         startTime: Long,
         endTime: Long,
         isAllDay: Boolean = false,
+        requestMeetLink: Boolean = false,
     ): Long?
 }

@@ -219,5 +219,12 @@
     <string name="day_friday_short">ج</string>
     <string name="day_saturday_short">س</string>
     <string name="prompt_daily_briefing">قم بتوفير ملخص يومي بناءً على تنبيهاتي.</string>
+    <!-- Google Meet Integration -->
+    <string name="integrations">عمليات الدمج</string>
+    <string name="google_login_title">ربط Google Meet</string>
+    <string name="google_login_description">اسمح للتطبيق بقراءة وتلخيص اجتماعاتك من خلال الذكاء الاصطناعي.</string>
+    <string name="google_logout_title">فصل Google Meet</string>
+    <string name="login_google">ربط</string>
+    <string name="logout">تسجيل الخروج</string>
 </resources>
 

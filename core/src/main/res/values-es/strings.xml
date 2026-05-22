@@ -221,5 +221,13 @@
     <string name="day_friday_short">V</string>
     <string name="day_saturday_short">S</string>
     <string name="prompt_daily_briefing">Proporcione un resumen diario basado en mis alarmas.</string>
+
+    <!-- Integrations -->
+    <string name="integrations">Integraciones</string>
+    <string name="google_login_title">Conectar Google Meet</string>
+    <string name="google_login_description">Kairós utilizará su cuenta de Google para generar enlaces de reuniones automáticamente en sus eventos programados y extraer resúmenes de sus actas a través de IA.\nSus datos están seguros y nunca se comparten.</string>
+    <string name="google_logout_title">Google Meet Conectado</string>
+    <string name="login_google">Iniciar sesión con Google</string>
+    <string name="logout">Salir</string>
 </resources>
 

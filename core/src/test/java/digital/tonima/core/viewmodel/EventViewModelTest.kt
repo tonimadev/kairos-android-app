@@ -210,6 +210,8 @@ class EventViewModelTest {
             checkPermissionsUseCase = mockCheckPermissionsUseCase,
             toggleFocusModeUseCase = mockToggleFocusModeUseCase,
             reviewManager = mockReviewManager,
+            authRepository = mockk(relaxed = true),
+            googleMeetRepository = mockk(relaxed = true),
             weather =
                 EventViewModel.WeatherDeps(
                     locationRepository = mockLocationRepository,

@@ -14,6 +14,8 @@ import digital.tonima.core.database.mapper.toChatMessage
 import digital.tonima.core.database.mapper.toEntity
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
+import digital.tonima.core.repository.AuthRepository
+import digital.tonima.core.repository.GoogleMeetRepository
 import digital.tonima.core.review.ReviewManager
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAgentUseCase
@@ -67,6 +69,8 @@ class EventViewModel
         private val toggleFocusModeUseCase: ToggleFocusModeUseCase,
         private val reviewManager: ReviewManager,
         private val weather: WeatherDeps,
+        private val googleMeetRepository: GoogleMeetRepository,
+        private val authRepository: AuthRepository,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         /** Dependencies for calendar and event data operations. */
         class CalendarDeps
@@ -128,6 +132,8 @@ class EventViewModel
             observeDailyBriefing()
             observeChatHistory()
             handleIntent(EventIntent.CheckPermissions)
+
+            _uiState.update { it.copy(isGoogleConnected = authRepository.isSignedIn()) }
 
             viewModelScope.launch {
                 isAiUser.collect { isAi ->
@@ -276,7 +282,45 @@ class EventViewModel
                 EventIntent.RejectPendingAction -> rejectPendingAction()
                 is EventIntent.NotifyRunningLate -> handleNotifyRunningLate(intent)
                 is EventIntent.ToggleFocusMode -> handleToggleFocusMode(intent)
+                is EventIntent.SummarizeMeetTranscript -> handleSummarizeMeetTranscript(intent)
+                EventIntent.SignInWithGoogle -> handleSignInWithGoogle()
+                EventIntent.SignOutFromGoogle -> handleSignOutFromGoogle()
+                is EventIntent.HandleGoogleSignInResult -> handleGoogleSignInResult(intent.resultData)
                 else -> Unit
+            }
+        }
+
+        private fun handleGoogleSignInResult(intent: android.content.Intent?) {
+            viewModelScope.launch {
+                val result = authRepository.handleSignInResult(intent)
+                if (result.isSuccess) {
+                    _uiState.update { it.copy(isGoogleConnected = true) }
+                    _sideEffect.trySend(
+                        EventSideEffect.ShowSnackbar(
+                            digital.tonima.core.viewmodel.UiText.StringResource(
+                                digital.tonima.kairos.core.R.string.google_logout_title,
+                            ),
+                        ),
+                    )
+                } else {
+                    _sideEffect.trySend(
+                        EventSideEffect.ShowSnackbar(
+                            digital.tonima.core.viewmodel.UiText.DynamicString("Login failed"),
+                        ),
+                    )
+                }
+            }
+        }
+
+        private fun handleSignInWithGoogle() {
+            val signInIntent = authRepository.getSignInIntent()
+            _sideEffect.trySend(EventSideEffect.LaunchGoogleSignIn(signInIntent))
+        }
+
+        private fun handleSignOutFromGoogle() {
+            viewModelScope.launch {
+                authRepository.signOut()
+                _uiState.update { it.copy(isGoogleConnected = false) }
             }
         }
 
@@ -738,6 +782,7 @@ class EventViewModel
                         intent.startTime,
                         intent.endTime,
                         intent.isAllDay,
+                        intent.requestMeetLink,
                     )
                 if (result != null) {
                     logcat { "Evento criado com sucesso, ID: $result" }
@@ -965,6 +1010,30 @@ class EventViewModel
                         ),
                     ),
                 )
+            }
+        }
+
+        private fun handleSummarizeMeetTranscript(intent: EventIntent.SummarizeMeetTranscript) {
+            viewModelScope.launch {
+                val result = googleMeetRepository.fetchMeetingTranscript(intent.meetingUrl)
+                result.onSuccess { transcript ->
+                    val questionMsg =
+                        digital.tonima.core.ai.model.ChatMessage.Text(
+                            digital.tonima.core.ai.model.ChatMessage.Role.USER,
+                            "Aqui está a transcrição da reunião: \n$transcript\n\n" +
+                                "Por favor, resuma os principais pontos discutidos e extraia as ações (action items).",
+                        )
+                    ai.chatHistoryDao.insertMessage(questionMsg.toEntity())
+                    askAi(null)
+                }.onFailure { e ->
+                    _sideEffect.trySend(
+                        EventSideEffect.AIToolError(
+                            digital.tonima.core.viewmodel.UiText.DynamicString(
+                                "Falha ao baixar transcrição: ${e.message}",
+                            ),
+                        ),
+                    )
+                }
             }
         }
 

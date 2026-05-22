@@ -219,5 +219,12 @@
     <string name="day_friday_short">शु</string>
     <string name="day_saturday_short">श</string>
     <string name="prompt_daily_briefing">मेरे अलार्म के आधार पर दैनिक ब्रीफング प्रदान करें।</string>
+    <!-- Google Meet Integration -->
+    <string name="integrations">एकीकरण</string>
+    <string name="google_login_title">Google Meet कनेक्ट करें</string>
+    <string name="google_login_description">ऐप को AI के माध्यम से आपकी मीटिंग्स को पढ़ने और सारांशित करने की अनुमति दें।</string>
+    <string name="google_logout_title">Google Meet को डिस्कनेक्ट करें</string>
+    <string name="login_google">कनेक्ट करें</string>
+    <string name="logout">लॉग आउट करें</string>
 </resources>
 

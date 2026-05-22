@@ -58,4 +58,5 @@ data class EventScreenUiState(
     val isTemperatureInCelsius: Boolean = true,
     val isAutoJoinEnabled: Boolean = false,
     val isAutoFocusModeEnabled: Boolean = false,
+    val isGoogleConnected: Boolean = false,
 )

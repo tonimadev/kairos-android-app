@@ -185,6 +185,13 @@ fun EventScreen(
         viewModel.handleIntent(EventIntent.CheckPermissions)
     }
 
+    val googleSignInLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+        ) { result ->
+            viewModel.handleIntent(EventIntent.HandleGoogleSignInResult(result.data))
+        }
+
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { effect ->
             when (effect) {
@@ -212,6 +219,9 @@ fun EventScreen(
                     val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
                     clipboard.setPrimaryClip(clip)
                     snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
+                is EventSideEffect.LaunchGoogleSignIn -> {
+                    googleSignInLauncher.launch(effect.intent)
                 }
             }
         }
@@ -570,6 +580,15 @@ private fun EventScreenContent(
                                 },
                                 onTransportModeChanged = {
                                     viewModel.handleIntent(EventIntent.ChangeTransportMode(it))
+                                },
+                                onTemperatureUnitToggle = {
+                                    viewModel.handleIntent(EventIntent.ToggleTemperatureUnit(it))
+                                },
+                                onGoogleSignInClick = {
+                                    viewModel.handleIntent(EventIntent.SignInWithGoogle)
+                                },
+                                onGoogleSignOutClick = {
+                                    viewModel.handleIntent(EventIntent.SignOutFromGoogle)
                                 },
                             ),
                         aiActions =

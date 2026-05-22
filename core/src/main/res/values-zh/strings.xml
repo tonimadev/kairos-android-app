@@ -216,5 +216,12 @@
     <string name="day_friday_short">五</string>
     <string name="day_saturday_short">六</string>
     <string name="prompt_daily_briefing">根据我的闹钟提供每日简报。</string>
+    <!-- Google Meet Integration -->
+    <string name="integrations">整合</string>
+    <string name="google_login_title">连接 Google Meet</string>
+    <string name="google_login_description">授权应用通过AI读取并总结您的会议。</string>
+    <string name="google_logout_title">断开 Google Meet</string>
+    <string name="login_google">连接</string>
+    <string name="logout">退出</string>
 </resources>
 
