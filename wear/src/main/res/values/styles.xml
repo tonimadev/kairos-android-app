@@ -2,4 +2,10 @@
 <resources>
 
     <style name="Theme.Kairos" parent="android:Theme.DeviceDefault" />
+
+    <style name="Theme.Kairos.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@android:color/black</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.Kairos</item>
+    </style>
 </resources>

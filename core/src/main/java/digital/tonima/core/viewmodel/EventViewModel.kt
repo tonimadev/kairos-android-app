@@ -206,6 +206,10 @@ class EventViewModel
                     EventIntent.RejectPendingAction,
                     is EventIntent.NotifyRunningLate,
                     is EventIntent.ToggleFocusMode,
+                    EventIntent.SignInWithGoogle,
+                    EventIntent.SignOutFromGoogle,
+                    is EventIntent.HandleGoogleSignInResult,
+                    is EventIntent.SummarizeMeetTranscript,
                     -> handleSpecialActionIntent(intent)
 
                     // Grouped: UI / dialog / rating intents

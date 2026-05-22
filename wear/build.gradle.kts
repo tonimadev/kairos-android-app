@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.watchface.complications.data.source)
     implementation(libs.androidx.watchface.complications.data.source.ktx)
     implementation(libs.androidx.wear.compose.foundation)

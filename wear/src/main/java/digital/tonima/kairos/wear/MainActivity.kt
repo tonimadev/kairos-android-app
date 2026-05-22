@@ -3,6 +3,7 @@ package digital.tonima.kairos.wear
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.kairos.wear.ui.WearApp
@@ -15,6 +16,7 @@ class MainActivity : ComponentActivity() {
     lateinit var permissionManager: PermissionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             KairosTheme {

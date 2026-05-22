@@ -36,7 +36,7 @@
             android:foregroundServiceType="mediaPlayback" />
 
         <activity android:name=".wear.MainActivity" android:exported="true" android:taskAffinity=""
-            android:theme="@style/Theme.Kairos">
+            android:theme="@style/Theme.Kairos.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -46,7 +46,7 @@
         <activity android:name=".wear.WearAlarmActivity" android:exported="false"
             android:launchMode="singleTask" android:taskAffinity="digital.tonima.kairos.wear.alarm"
             android:showOnLockScreen="true" android:turnScreenOn="true"
-            android:theme="@style/Theme.Kairos" />
+            android:theme="@style/Theme.Kairos.Starting" />
 
         <provider android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup" android:exported="false" tools:node="merge">
