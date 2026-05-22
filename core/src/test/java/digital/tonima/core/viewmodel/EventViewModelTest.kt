@@ -7,7 +7,10 @@ import digital.tonima.core.ai.AIToolResult
 import digital.tonima.core.ai.ActionRegistry
 import digital.tonima.core.ai.RiskLevel
 import digital.tonima.core.ai.model.AIAgentResponse
+import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.analytics.EventAnalytics
+import digital.tonima.core.database.dao.ChatHistoryDao
+import digital.tonima.core.database.entity.ChatHistoryEntity
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.DeviceCalendar
@@ -93,12 +96,14 @@ class EventViewModelTest {
     private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val mockReviewManager: ReviewManager = mockk(relaxed = true)
     private val mockEventAnalytics: EventAnalytics = mockk(relaxed = true)
+    private val mockChatHistoryDao: ChatHistoryDao = mockk(relaxed = true)
 
     private val appPreferencesFlow = MutableStateFlow(defaultAppPreferences())
     private val ringerModeFlow = MutableStateFlow(AudioWarningState.NORMAL)
     private val dailyBriefingFlow = MutableStateFlow<String?>(null)
     private val isProUserFlow = MutableStateFlow(false)
     private val isAiUserFlow = MutableStateFlow(false)
+    private val fakeChatHistory = mutableListOf<ChatHistoryEntity>()
 
     private val mockLocationRepository: digital.tonima.core.repository.LocationRepository = mockk(relaxed = true)
     private val mockWeatherRepository: digital.tonima.core.repository.WeatherRepository = mockk(relaxed = true)
@@ -125,6 +130,17 @@ class EventViewModelTest {
             )
         coEvery { mockGetEventsForMonthUseCase(any()) } returns emptyList()
         coEvery { mockGetAvailableCalendarsUseCase() } returns emptyList()
+
+        every { mockChatHistoryDao.observeHistory() } answers { MutableStateFlow(fakeChatHistory.toList()) }
+        coEvery { mockChatHistoryDao.getHistory() } answers { fakeChatHistory.toList() }
+        coEvery { mockChatHistoryDao.insertMessage(any()) } answers {
+            fakeChatHistory.add(firstArg())
+            1L
+        }
+        coEvery { mockChatHistoryDao.clearHistory() } answers {
+            fakeChatHistory.clear()
+            1
+        }
 
         viewModel = createViewModel()
     }
@@ -187,6 +203,7 @@ class EventViewModelTest {
                     tts = mockTtsHelper,
                     widgetUpdater = mockWidgetUpdater,
                     actionRegistry = mockActionRegistry,
+                    chatHistoryDao = mockChatHistoryDao,
                 ),
             eventAnalytics = mockEventAnalytics,
             observeRingerModeUseCase = mockObserveRingerModeUseCase,
@@ -614,7 +631,11 @@ class EventViewModelTest {
                     "Q2",
                     any(),
                     any(),
-                    match { it.size == 2 && it[0].content == "Q1" && it[1].content == "Response 1" },
+                    match {
+                        it.size == 2 &&
+                            (it[0] as? ChatMessage.Text)?.content == "Q1" &&
+                            (it[1] as? ChatMessage.Text)?.content == "Response 1"
+                    },
                 )
             } returns response2
 
@@ -623,21 +644,21 @@ class EventViewModelTest {
             advanceUntilIdle()
 
             assertEquals("Response 1", viewModel.uiState.value.aiResponse)
-            assertEquals(2, viewModel.uiState.value.chatHistory.size)
+            assertEquals(2, fakeChatHistory.size)
 
             // Second interaction (continuation)
             viewModel.handleIntent(EventIntent.AskAi("Q2", "I"))
             advanceUntilIdle()
 
             assertEquals("Response 2", viewModel.uiState.value.aiResponse)
-            assertEquals(4, viewModel.uiState.value.chatHistory.size)
-            assertEquals("Q2", viewModel.uiState.value.chatHistory[2].content)
-            assertEquals("Response 2", viewModel.uiState.value.chatHistory[3].content)
+            assertEquals(4, fakeChatHistory.size)
+            assertEquals("Q2", fakeChatHistory[2].content)
+            assertEquals("Response 2", fakeChatHistory[3].content)
 
             // Clear response should clear history
             viewModel.handleIntent(EventIntent.ClearAiResponse)
             advanceUntilIdle()
-            assertTrue(viewModel.uiState.value.chatHistory.isEmpty())
+            assertTrue(fakeChatHistory.isEmpty())
         }
 
     @Test

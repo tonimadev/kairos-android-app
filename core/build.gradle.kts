@@ -77,6 +77,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.wear)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.datastore.preferences.core)
@@ -102,6 +104,7 @@ dependencies {
     implementation(project(":core:billing:impl"))
 
     ksp(libs.androidx.hilt.compiler)
+    ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.binder.compiler)
     ksp(libs.hilt.compiler)
 

@@ -10,6 +10,8 @@ import digital.tonima.core.ai.RiskLevel
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.analytics.EventAnalytics
+import digital.tonima.core.database.mapper.toChatMessage
+import digital.tonima.core.database.mapper.toEntity
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
 import digital.tonima.core.review.ReviewManager
@@ -103,6 +105,7 @@ class EventViewModel
                 val tts: TextToSpeechHelper,
                 val widgetUpdater: WidgetUpdater,
                 val actionRegistry: ActionRegistry,
+                val chatHistoryDao: digital.tonima.core.database.dao.ChatHistoryDao,
             )
 
         /** Dependencies for weather operations. */
@@ -123,6 +126,7 @@ class EventViewModel
             observePreferences()
             observeRingerMode()
             observeDailyBriefing()
+            observeChatHistory()
             handleIntent(EventIntent.CheckPermissions)
 
             viewModelScope.launch {
@@ -394,6 +398,13 @@ class EventViewModel
             }.launchIn(viewModelScope)
         }
 
+        private fun observeChatHistory() {
+            ai.chatHistoryDao.observeHistory().onEach { entities ->
+                val messages = entities.mapNotNull { it.toChatMessage() }
+                _uiState.update { it.copy(chatHistory = messages) }
+            }.launchIn(viewModelScope)
+        }
+
         private fun checkPermissions() {
             val p = checkPermissionsUseCase()
             _uiState.update {
@@ -592,28 +603,24 @@ class EventViewModel
         }
 
         private fun askAi(
-            question: String,
-            language: String,
+            question: String?,
+            language: String = java.util.Locale.getDefault().language,
         ) {
-            if (question.isBlank() || _uiState.value.isAskingAi || !_uiState.value.isAiUser) return
+            if (_uiState.value.isAskingAi || !_uiState.value.isAiUser) return
 
             viewModelScope.launch {
-                val currentHistory = _uiState.value.chatHistory
-                val briefingContext =
-                    if (currentHistory.isEmpty() && _uiState.value.dailyBriefing != null) {
-                        listOf(ChatMessage(ChatMessage.Role.ASSISTANT, _uiState.value.dailyBriefing!!))
-                    } else {
-                        currentHistory
-                    }
+                val currentHistory = ai.chatHistoryDao.getHistory().mapNotNull { it.toChatMessage() }
 
-                val newHistory = briefingContext + ChatMessage(ChatMessage.Role.USER, question)
+                if (!question.isNullOrBlank()) {
+                    val questionMsg = ChatMessage.Text(ChatMessage.Role.USER, question)
+                    ai.chatHistoryDao.insertMessage(questionMsg.toEntity())
+                }
 
                 _uiState.update {
                     it.copy(
                         isAskingAi = true,
                         aiResponse = null,
-                        lastAiQuestion = question,
-                        chatHistory = newHistory,
+                        lastAiQuestion = question ?: it.lastAiQuestion,
                     )
                 }
                 val eventsRecent = calendar.getEventsForMonth(_uiState.value.currentMonth)
@@ -628,12 +635,19 @@ class EventViewModel
                     )
 
                 when (agentResponse) {
-                    is AIAgentResponse.Text -> processAiResponse(agentResponse.content)
-                    is AIAgentResponse.FunctionCall ->
+                    is AIAgentResponse.Text -> {
+                        val answerMsg = ChatMessage.Text(ChatMessage.Role.ASSISTANT, agentResponse.content)
+                        ai.chatHistoryDao.insertMessage(answerMsg.toEntity())
+                        processAiResponse(agentResponse.content)
+                    }
+                    is AIAgentResponse.FunctionCall -> {
+                        val callMsg = ChatMessage.FunctionCall(agentResponse.name, agentResponse.args)
+                        ai.chatHistoryDao.insertMessage(callMsg.toEntity())
                         onAIFunctionCalled(
                             agentResponse.name,
                             agentResponse.args,
                         )
+                    }
                     is AIAgentResponse.Empty -> Unit
                 }
 
@@ -655,7 +669,6 @@ class EventViewModel
             _uiState.update {
                 it.copy(
                     aiResponse = response,
-                    chatHistory = it.chatHistory + ChatMessage(ChatMessage.Role.ASSISTANT, response),
                 )
             }
             speak(response)
@@ -701,6 +714,9 @@ class EventViewModel
 
         private fun clearAiResponse() {
             stopSpeaking()
+            viewModelScope.launch {
+                ai.chatHistoryDao.clearHistory()
+            }
             _uiState.update {
                 it.copy(
                     aiResponse = null,
@@ -813,9 +829,22 @@ class EventViewModel
         ) {
             viewModelScope.launch {
                 when (val result = ai.actionRegistry.processAIToolCall(toolName, args)) {
-                    is AIToolResult.Success -> routeByRiskLevel(result)
+                    is AIToolResult.Success -> {
+                        routeByRiskLevel(result)
+                        val responseMsg =
+                            ChatMessage
+                                .FunctionResponse(
+                                    toolName,
+                                    mapOf("status" to "success", "message" to "Intent gerado e processado"),
+                                )
+                        ai.chatHistoryDao.insertMessage(responseMsg.toEntity())
+                        askAi(null)
+                    }
                     is AIToolResult.ToolNotFound -> {
                         logcat { "AI Agent: tool '${result.toolName}' not found" }
+                        val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Tool not found"))
+                        ai.chatHistoryDao.insertMessage(responseMsg.toEntity())
+                        askAi(null)
                         _sideEffect.trySend(
                             EventSideEffect.AIToolError(
                                 UiText.StringResource(
@@ -827,6 +856,9 @@ class EventViewModel
                     }
                     is AIToolResult.InvalidArguments -> {
                         logcat { "AI Agent: invalid args for '${result.toolName}': ${result.args}" }
+                        val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Invalid arguments"))
+                        ai.chatHistoryDao.insertMessage(responseMsg.toEntity())
+                        askAi(null)
                         _sideEffect.trySend(
                             EventSideEffect.AIToolError(
                                 UiText.StringResource(

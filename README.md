@@ -96,24 +96,29 @@ The app integrates an **AI Agent** powered by Gemini (Firebase AI) that can **ex
 
 ### How It Works
 
-```
-User question ──▶ AskAiAgentUseCase (Gemini + Tool declarations)
-                        │
-              ┌─────────┴─────────┐
-              ▼                   ▼
-        Text response      FunctionCall response
-        (show to user)            │
-                                  ▼
-                        onAIFunctionCalled()
-                                  │
-                                  ▼
-                        ActionRegistry.processAIToolCall()
-                                  │
-                    ┌─────────────┼─────────────┐
-                    ▼             ▼              ▼
-                  SAFE        MODERATE       CRITICAL
-               (execute)   (execute +     (pause, ask
-                           snackbar)      user to confirm)
+```text
+User question ──▶ DB (ChatHistoryDao) ──▶ AskAiAgentUseCase (Gemini + Tool declarations)
+                                                │
+                              ┌─────────────────┴─────────────────┐
+                              ▼                                   ▼
+                        Text response                   FunctionCall response
+                     (save to DB & show)                          │
+                                                                  ▼
+                                                        onAIFunctionCalled()
+                                                                  │
+                                                                  ▼
+                                                    ActionRegistry.processAIToolCall()
+                                                                  │
+                                            ┌─────────────────────┼─────────────────────┐
+                                            ▼                     ▼                     ▼
+                                          SAFE                MODERATE               CRITICAL
+                                       (execute)         (execute + snackbar)  (pause, ask user)
+                                            │                     │
+                                            └─────────────────────┘
+                                                      │
+                                           DB (Save FunctionResponse)
+                                                      │
+                                        (Loop back to AskAiAgentUseCase)
 ```
 
 ### Risk Levels
@@ -128,9 +133,10 @@ User question ──▶ AskAiAgentUseCase (Gemini + Tool declarations)
 
 | Component | Role |
 |---|---|
+| `ChatHistoryDao` | Room database interface managing the offline chat history persistence. |
 | `AITool` | Interface — each tool maps an LLM function call to an `EventIntent` |
 | `ActionRegistry` | Singleton — discovers tools, dispatches function calls |
-| `AskAiAgentUseCase` | Sends the prompt + tool declarations to Gemini, returns `Text` or `FunctionCall` |
+| `AskAiAgentUseCase` | Sends the prompt + tool declarations to Gemini (`model.startChat`), returns `Text` or `FunctionCall` |
 | `RiskLevel` | Enum controlling execution policy (`SAFE`, `MODERATE`, `CRITICAL`) |
 | `AIToolResult` | Sealed class wrapping dispatch results (`Success`, `ToolNotFound`, `InvalidArguments`) |
 

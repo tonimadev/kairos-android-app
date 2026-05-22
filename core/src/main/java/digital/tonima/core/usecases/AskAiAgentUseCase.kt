@@ -14,7 +14,7 @@ import digital.tonima.core.model.Event
 interface AskAiAgentUseCase {
     suspend operator fun invoke(
         events: List<Event>,
-        question: String,
+        question: String?, // Nullable for when we just want to resume chat after a function response
         languageInstruction: String,
         availableTools: Set<AITool>,
         history: List<ChatMessage> = emptyList(),

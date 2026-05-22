@@ -1,14 +1,23 @@
 package digital.tonima.core.ai.model
 
-import kotlinx.serialization.Serializable
+sealed interface ChatMessage {
+    val role: Role
 
-@Serializable
-data class ChatMessage(
-    val role: Role,
-    val content: String,
-) {
-    enum class Role {
-        USER,
-        ASSISTANT,
+    enum class Role { USER, ASSISTANT }
+
+    data class Text(override val role: Role, val content: String) : ChatMessage
+
+    data class FunctionCall(
+        val name: String,
+        val args: Map<String, Any?>,
+    ) : ChatMessage {
+        override val role = Role.ASSISTANT
+    }
+
+    data class FunctionResponse(
+        val name: String,
+        val response: Map<String, Any?>,
+    ) : ChatMessage {
+        override val role = Role.USER
     }
 }

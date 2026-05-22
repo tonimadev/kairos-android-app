@@ -2,16 +2,23 @@ package digital.tonima.core.usecases
 
 import com.google.firebase.Firebase
 import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.FunctionCallPart
 import com.google.firebase.ai.type.FunctionDeclaration
+import com.google.firebase.ai.type.FunctionResponsePart
 import com.google.firebase.ai.type.GenerativeBackend
 import com.google.firebase.ai.type.Schema
 import com.google.firebase.ai.type.Tool
+import com.google.firebase.ai.type.content
 import com.paulrybitskyi.hiltbinder.BindType
 import digital.tonima.core.ai.AIConfig
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
+import digital.tonima.core.ai.model.ChatMessage.FunctionResponse
 import digital.tonima.core.model.Event
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import logcat.logcat
 import java.time.Instant
@@ -27,7 +34,7 @@ class AskAiAgentUseCaseImpl
 
         override suspend fun invoke(
             events: List<Event>,
-            question: String,
+            question: String?,
             languageInstruction: String,
             availableTools: Set<AITool>,
             history: List<ChatMessage>,
@@ -44,34 +51,79 @@ class AskAiAgentUseCaseImpl
                     emptyList()
                 }
 
+            val systemInstructionText = buildSystemInstruction(events, languageInstruction)
+
             val model =
                 Firebase.ai(backend = GenerativeBackend.googleAI())
                     .generativeModel(
                         modelName = AIConfig.GEMINI_MODEL,
                         tools = tools,
+                        systemInstruction = content { text(systemInstructionText) },
                     )
 
-            val prompt = buildPrompt(events, question, languageInstruction, history)
+            val historyToUse =
+                if (
+                    question.isNullOrBlank() &&
+                    history.isNotEmpty() &&
+                    history.last() is FunctionResponse
+                ) {
+                    history.dropLast(1)
+                } else {
+                    history
+                }
+
+            val chatHistoryContents =
+                historyToUse.map { message ->
+                    when (message) {
+                        is ChatMessage.Text -> {
+                            val roleName = if (message.role == ChatMessage.Role.USER) "user" else "model"
+                            content(roleName) { text(message.content) }
+                        }
+                        is ChatMessage.FunctionCall -> {
+                            content("model") {
+                                part(FunctionCallPart(message.name, message.args.toJsonElementMap()))
+                            }
+                        }
+                        is FunctionResponse -> {
+                            content("user") {
+                                part(FunctionResponsePart(message.name, message.response.toJsonObject()))
+                            }
+                        }
+                    }
+                }
+
+            val chat = model.startChat(chatHistoryContents)
 
             return try {
-                val response = model.generateContent(prompt)
+                val response =
+                    if (!question.isNullOrBlank()) {
+                        chat.sendMessage(question)
+                    } else {
+                        val lastMsg = history.last()
+                        if (lastMsg is FunctionResponse) {
+                            chat.sendMessage(
+                                content("user") {
+                                    part(
+                                        FunctionResponsePart(
+                                            lastMsg.name,
+                                            lastMsg.response.toJsonObject(),
+                                        ),
+                                    )
+                                },
+                            )
+                        } else {
+                            throw IllegalArgumentException(
+                                "Question cannot be null unless history ends with FunctionResponse",
+                            )
+                        }
+                    }
 
                 val functionCall = response.functionCalls.firstOrNull()
                 if (functionCall != null) {
                     logcat { "AskAiAgent: LLM invoked tool '${functionCall.name}'" }
                     val args: Map<String, Any?> =
                         functionCall.args.mapValues { (_, element) ->
-                            when (element) {
-                                is JsonPrimitive ->
-                                    when {
-                                        element.isString -> element.content
-                                        else ->
-                                            element.content.toDoubleOrNull()
-                                                ?: element.content.toBooleanStrictOrNull()
-                                                ?: element.content
-                                    }
-                                else -> element.toString()
-                            }
+                            element.toString() // We will parse back in the tool
                         }
                     AIAgentResponse.FunctionCall(
                         name = functionCall.name,
@@ -85,6 +137,22 @@ class AskAiAgentUseCaseImpl
                 logcat { "AskAiAgent error: ${e.message}" }
                 AIAgentResponse.Empty
             }
+        }
+
+        private fun Map<String, Any?>.toJsonElementMap(): Map<String, JsonElement> {
+            return this.mapValues { (_, value) ->
+                when (value) {
+                    is String -> JsonPrimitive(value)
+                    is Number -> JsonPrimitive(value)
+                    is Boolean -> JsonPrimitive(value)
+                    null -> JsonNull
+                    else -> JsonPrimitive(value.toString())
+                }
+            }
+        }
+
+        private fun Map<String, Any?>.toJsonObject(): JsonObject {
+            return JsonObject(this.toJsonElementMap())
         }
 
         // ── Tool schema conversion ──────────────────────────────────────────
@@ -125,11 +193,9 @@ class AskAiAgentUseCaseImpl
 
         // ── Prompt ──────────────────────────────────────────────────────────
 
-        private fun buildPrompt(
+        private fun buildSystemInstruction(
             events: List<Event>,
-            question: String,
             languageInstruction: String,
-            history: List<ChatMessage>,
         ): String {
             val now = java.time.LocalDateTime.now()
             val nowStr = dateTimeFormatter.format(now)
@@ -158,17 +224,6 @@ class AskAiAgentUseCaseImpl
                         }
                 }
 
-            val historyStr =
-                if (history.isNotEmpty()) {
-                    "\nHistórico da conversa:\n" +
-                        history.joinToString("\n") { message ->
-                            val roleName = if (message.role == ChatMessage.Role.USER) "Usuário" else "Assistente"
-                            "$roleName: ${message.content}"
-                        } + "\n"
-                } else {
-                    ""
-                }
-
             return """
                 Você é um assistente pessoal inteligente integrado a um calendário.
                 Você tem acesso aos eventos do usuário e a ferramentas (tools/functions) que podem executar ações no app.
@@ -176,8 +231,6 @@ class AskAiAgentUseCaseImpl
                 Responda de forma direta, útil e amigável.
 
                 Data e Hora atual: $nowStr
-                $historyStr
-                Pergunta do usuário: "$question"
 
                 Contexto do Calendário:
                 $eventsStr
