@@ -196,5 +196,28 @@
     <string name="meeting_back_to_back_warning">⚠️ اجتماع متتالي</string>
     <string name="focus_mode_permission_required">إذن عدم الإزعاج مطلوب</string>
     <string name="focus_mode_permission_disclaimer">لتبديل وضع عدم الإزعاج تلقائيًا أثناء الاجتماعات، يحتاج التطبيق إلى إذن سياسة الإشعارات.</string>
+    <string name="greeting_morning">صباح الخير! ☀️</string>
+    <string name="greeting_afternoon">مساء الخير! ☕</string>
+    <string name="greeting_evening">مساء النور! 🌙</string>
+    <string name="no_alarms_found">لم يتم العثور على منبهات</string>
+    <string name="loading_weather">جاري تحميل الطقس...</string>
+    <string name="weather_updates">تحديثات الطقس</string>
+    <string name="location_permission_weather_desc">مطلوب إذن الموقع لإظهار الطقس المحلي.</string>
+    <string name="status_active">✓ نشط</string>
+    <string name="status_disabled">معطل</string>
+    <string name="everyday">كل يوم</string>
+    <string name="alarm">منبه</string>
+    <string name="alarms">منبهات</string>
+    <string name="ai_briefing">ملخص الذكاء الاصطناعي</string>
+    <string name="briefing">ملخص</string>
+    <string name="voice">صوت</string>
+    <string name="day_sunday_short">ح</string>
+    <string name="day_monday_short">ن</string>
+    <string name="day_tuesday_short">ث</string>
+    <string name="day_wednesday_short">ر</string>
+    <string name="day_thursday_short">خ</string>
+    <string name="day_friday_short">ج</string>
+    <string name="day_saturday_short">س</string>
+    <string name="prompt_daily_briefing">قم بتوفير ملخص يومي بناءً على تنبيهاتي.</string>
 </resources>
 

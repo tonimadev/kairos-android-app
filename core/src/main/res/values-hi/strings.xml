@@ -196,5 +196,28 @@
     <string name="meeting_back_to_back_warning">⚠️ लगातार मीटिंग</string>
     <string name="focus_mode_permission_required">DND अनुमति आवश्यक</string>
     <string name="focus_mode_permission_disclaimer">मीटिंग के दौरान स्वचालित रूप से परेशान न करें टॉगल करने के लिए, ऐप को सूचना नीति एक्सेस की आवश्यकता है।</string>
+    <string name="greeting_morning">शुभ प्रभात! ☀️</string>
+    <string name="greeting_afternoon">शुभ दोपहर! ☕</string>
+    <string name="greeting_evening">शुभ संध्या! 🌙</string>
+    <string name="no_alarms_found">कोई अलार्म नहीं मिला</string>
+    <string name="loading_weather">मौसम लोड हो रहा है...</string>
+    <string name="weather_updates">मौसम अपडेट</string>
+    <string name="location_permission_weather_desc">स्थानीय मौसम दिखाने के लिए स्थान की अनुमति आवश्यक है।</string>
+    <string name="status_active">✓ सक्रिय</string>
+    <string name="status_disabled">अक्षम</string>
+    <string name="everyday">हर दिन</string>
+    <string name="alarm">अलार्म</string>
+    <string name="alarms">अलार्म</string>
+    <string name="ai_briefing">एआई ब्रीफिंग</string>
+    <string name="briefing">ब्रीफिंग</string>
+    <string name="voice">आवाज़</string>
+    <string name="day_sunday_short">र</string>
+    <string name="day_monday_short">सो</string>
+    <string name="day_tuesday_short">मं</string>
+    <string name="day_wednesday_short">बु</string>
+    <string name="day_thursday_short">गु</string>
+    <string name="day_friday_short">शु</string>
+    <string name="day_saturday_short">श</string>
+    <string name="prompt_daily_briefing">मेरे अलार्म के आधार पर दैनिक ब्रीफング प्रदान करें।</string>
 </resources>
 

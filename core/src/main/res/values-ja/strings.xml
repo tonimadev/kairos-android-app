@@ -193,5 +193,28 @@
     <string name="meeting_back_to_back_warning">⚠️ 連続ミーティング</string>
     <string name="focus_mode_permission_required">サイレントモードの権限が必要です</string>
     <string name="focus_mode_permission_disclaimer">ミーティング中にサイレントモードを自動切替するには、通知ポリシーへのアクセスが必要です。</string>
+    <string name="greeting_morning">おはようございます！☀️</string>
+    <string name="greeting_afternoon">こんにちは！☕</string>
+    <string name="greeting_evening">こんばんは！🌙</string>
+    <string name="no_alarms_found">アラームが見つかりません</string>
+    <string name="loading_weather">天気を読み込み中...</string>
+    <string name="weather_updates">天気予報の更新</string>
+    <string name="location_permission_weather_desc">地元の天気を表示するには位置情報の許可が必要です。</string>
+    <string name="status_active">✓ 有効</string>
+    <string name="status_disabled">無効</string>
+    <string name="everyday">毎日</string>
+    <string name="alarm">アラーム</string>
+    <string name="alarms">アラーム</string>
+    <string name="ai_briefing">AIブリーフィング</string>
+    <string name="briefing">ブリーフィング</string>
+    <string name="voice">音声</string>
+    <string name="day_sunday_short">日</string>
+    <string name="day_monday_short">月</string>
+    <string name="day_tuesday_short">火</string>
+    <string name="day_wednesday_short">水</string>
+    <string name="day_thursday_short">木</string>
+    <string name="day_friday_short">金</string>
+    <string name="day_saturday_short">土</string>
+    <string name="prompt_daily_briefing">アラームに基づいた毎日のブリーフィングを提供してください。</string>
 </resources>
 

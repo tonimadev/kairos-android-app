@@ -197,5 +197,28 @@
     <string name="meeting_back_to_back_warning">⚠️ Встреча подряд</string>
     <string name="focus_mode_permission_required">Требуется разрешение «Не беспокоить»</string>
     <string name="focus_mode_permission_disclaimer">Для автоматического переключения режима «Не беспокоить» во время встреч приложению необходим доступ к политике уведомлений.</string>
+    <string name="greeting_morning">Доброе утро! ☀️</string>
+    <string name="greeting_afternoon">Добрый день! ☕</string>
+    <string name="greeting_evening">Добрый вечер! 🌙</string>
+    <string name="no_alarms_found">Будильники не найдены</string>
+    <string name="loading_weather">Загрузка погоды...</string>
+    <string name="weather_updates">Обновления погоды</string>
+    <string name="location_permission_weather_desc">Разрешение на местоположение требуется для отображения местной погоды.</string>
+    <string name="status_active">✓ Активен</string>
+    <string name="status_disabled">Деактивировано</string>
+    <string name="everyday">Каждый день</string>
+    <string name="alarm">Будильник</string>
+    <string name="alarms">Будильники</string>
+    <string name="ai_briefing">ИИ-брифинг</string>
+    <string name="briefing">Брифинг</string>
+    <string name="voice">Голос</string>
+    <string name="day_sunday_short">В</string>
+    <string name="day_monday_short">П</string>
+    <string name="day_tuesday_short">В</string>
+    <string name="day_wednesday_short">С</string>
+    <string name="day_thursday_short">Ч</string>
+    <string name="day_friday_short">П</string>
+    <string name="day_saturday_short">С</string>
+    <string name="prompt_daily_briefing">Предоставьте ежедневный брифинг на основе моих будильников.</string>
 </resources>
 

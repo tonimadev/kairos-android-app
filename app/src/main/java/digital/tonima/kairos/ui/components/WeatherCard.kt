@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
@@ -142,7 +143,7 @@ fun WeatherCard(
                             )
                             Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
                             Text(
-                                text = "Loading Weather...",
+                                text = stringResource(digital.tonima.kairos.core.R.string.loading_weather),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
@@ -168,13 +169,13 @@ fun WeatherCard(
                         Spacer(modifier = Modifier.width(Dimensions.SpacingNormal))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Weather Updates",
+                                text = stringResource(digital.tonima.kairos.core.R.string.weather_updates),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
                             Text(
-                                text = "Location permission is required to show your local weather.",
+                                text = stringResource(digital.tonima.kairos.core.R.string.location_permission_weather_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                             )
@@ -190,7 +191,7 @@ fun WeatherCard(
                                 contentColor = MaterialTheme.colorScheme.onPrimary,
                             ),
                     ) {
-                        Text("Grant Permission", fontWeight = FontWeight.Bold)
+                        Text(stringResource(digital.tonima.kairos.core.R.string.provide_permission), fontWeight = FontWeight.Bold)
                     }
                 }
             }

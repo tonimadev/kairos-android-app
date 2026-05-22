@@ -199,5 +199,28 @@
     <string name="meeting_back_to_back_warning">⚠️ Réunion consécutive</string>
     <string name="focus_mode_permission_required">Autorisation Ne pas déranger requise</string>
     <string name="focus_mode_permission_disclaimer">Pour activer automatiquement Ne pas déranger pendant les réunions, l\'application a besoin de l\'accès à la politique de notifications.</string>
+    <string name="greeting_morning">Bonjour ! ☀️</string>
+    <string name="greeting_afternoon">Bon après-midi ! ☕</string>
+    <string name="greeting_evening">Bonsoir ! 🌙</string>
+    <string name="no_alarms_found">Aucune alarme trouvée</string>
+    <string name="loading_weather">Chargement de la météo...</string>
+    <string name="weather_updates">Mises à jour météo</string>
+    <string name="location_permission_weather_desc">L\'autorisation de localisation est requise pour afficher la météo locale.</string>
+    <string name="status_active">✓ Actif</string>
+    <string name="status_disabled">Désactivé</string>
+    <string name="everyday">Tous les jours</string>
+    <string name="alarm">Alarme</string>
+    <string name="alarms">Alarmes</string>
+    <string name="ai_briefing">Résumé IA</string>
+    <string name="briefing">Résumé</string>
+    <string name="voice">Voix</string>
+    <string name="day_sunday_short">D</string>
+    <string name="day_monday_short">L</string>
+    <string name="day_tuesday_short">M</string>
+    <string name="day_wednesday_short">M</string>
+    <string name="day_thursday_short">J</string>
+    <string name="day_friday_short">V</string>
+    <string name="day_saturday_short">S</string>
+    <string name="prompt_daily_briefing">Fournissez un résumé quotidien basé sur mes alarmes.</string>
 </resources>
 

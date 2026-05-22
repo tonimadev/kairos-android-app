@@ -193,5 +193,28 @@
     <string name="meeting_back_to_back_warning">⚠️ 连续会议</string>
     <string name="focus_mode_permission_required">需要勿扰模式权限</string>
     <string name="focus_mode_permission_disclaimer">要在会议期间自动切换勿扰模式，应用需要通知策略访问权限。</string>
+    <string name="greeting_morning">早上好！☀️</string>
+    <string name="greeting_afternoon">下午好！☕</string>
+    <string name="greeting_evening">晚上好！🌙</string>
+    <string name="no_alarms_found">未找到闹钟</string>
+    <string name="loading_weather">正在加载天气...</string>
+    <string name="weather_updates">天气更新</string>
+    <string name="location_permission_weather_desc">需要位置权限才能显示当地天气。</string>
+    <string name="status_active">✓ 已启用</string>
+    <string name="status_disabled">已禁用</string>
+    <string name="everyday">每天</string>
+    <string name="alarm">闹钟</string>
+    <string name="alarms">闹钟</string>
+    <string name="ai_briefing">AI 简报</string>
+    <string name="briefing">简报</string>
+    <string name="voice">语音</string>
+    <string name="day_sunday_short">日</string>
+    <string name="day_monday_short">一</string>
+    <string name="day_tuesday_short">二</string>
+    <string name="day_wednesday_short">三</string>
+    <string name="day_thursday_short">四</string>
+    <string name="day_friday_short">五</string>
+    <string name="day_saturday_short">六</string>
+    <string name="prompt_daily_briefing">根据我的闹钟提供每日简报。</string>
 </resources>
 

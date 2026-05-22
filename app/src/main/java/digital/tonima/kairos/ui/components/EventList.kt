@@ -56,11 +56,9 @@ fun EventList(
         rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = eventActions.onRefresh)
     val today = remember { LocalDate.now() }
 
-    // Instead of filtering by day, let's just show all events as "alarms" for this mockup.
-    // The design shows multiple alarms.
     val allEvents =
-        remember(uiState.events, uiState.searchQuery) {
-            val base = uiState.events
+        remember(eventsByDate, uiState.selectedDate, uiState.searchQuery) {
+            val base = eventsByDate[uiState.selectedDate] ?: emptyList()
             if (uiState.searchQuery.isBlank()) {
                 base
             } else {
@@ -85,9 +83,9 @@ fun EventList(
                     val hour = remember { java.time.LocalTime.now().hour }
                     val greeting =
                         when {
-                            hour < 12 -> "Good Morning! ☀️"
-                            hour < 18 -> "Good Afternoon! ☕"
-                            else -> "Good Evening! 🌙"
+                            hour < 12 -> stringResource(R.string.greeting_morning)
+                            hour < 18 -> stringResource(R.string.greeting_afternoon)
+                            else -> stringResource(R.string.greeting_evening)
                         }
                     Text(
                         text = greeting,
@@ -154,7 +152,7 @@ fun EventList(
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                         )
                         Text(
-                            text = "No Alarms Found",
+                            text = stringResource(R.string.no_alarms_found),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,

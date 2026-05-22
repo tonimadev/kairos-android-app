@@ -198,5 +198,28 @@
     <string name="meeting_back_to_back_warning">⚠️ Aufeinanderfolgendes Meeting</string>
     <string name="focus_mode_permission_required">Nicht-stören-Berechtigung erforderlich</string>
     <string name="focus_mode_permission_disclaimer">Um „Nicht stören" während Meetings automatisch umzuschalten, benötigt die App Zugriff auf die Benachrichtigungsrichtlinien.</string>
+    <string name="greeting_morning">Guten Morgen! ☀️</string>
+    <string name="greeting_afternoon">Guten Tag! ☕</string>
+    <string name="greeting_evening">Guten Abend! 🌙</string>
+    <string name="no_alarms_found">Keine Alarme gefunden</string>
+    <string name="loading_weather">Wetter wird geladen...</string>
+    <string name="weather_updates">Wetter-Updates</string>
+    <string name="location_permission_weather_desc">Standortberechtigung ist erforderlich, um das lokale Wetter anzuzeigen.</string>
+    <string name="status_active">✓ Aktiv</string>
+    <string name="status_disabled">Deaktiviert</string>
+    <string name="everyday">Täglich</string>
+    <string name="alarm">Alarm</string>
+    <string name="alarms">Alarme</string>
+    <string name="ai_briefing">KI-Briefing</string>
+    <string name="briefing">Briefing</string>
+    <string name="voice">Stimme</string>
+    <string name="day_sunday_short">S</string>
+    <string name="day_monday_short">M</string>
+    <string name="day_tuesday_short">D</string>
+    <string name="day_wednesday_short">M</string>
+    <string name="day_thursday_short">D</string>
+    <string name="day_friday_short">F</string>
+    <string name="day_saturday_short">S</string>
+    <string name="prompt_daily_briefing">Geben Sie ein tägliches Briefing basierend auf meinen Alarmen.</string>
 </resources>
 

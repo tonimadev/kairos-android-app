@@ -198,5 +198,28 @@
     <string name="meeting_back_to_back_warning">⚠️ Reunión consecutiva</string>
     <string name="focus_mode_permission_required">Permiso de No molestar requerido</string>
     <string name="focus_mode_permission_disclaimer">Para activar automáticamente No molestar durante las reuniones, la app necesita acceso a la política de notificaciones.</string>
+    <string name="greeting_morning">¡Buen día! ☀️</string>
+    <string name="greeting_afternoon">¡Buenas tardes! ☕</string>
+    <string name="greeting_evening">¡Buenas noches! 🌙</string>
+    <string name="no_alarms_found">No se encontraron alarmas</string>
+    <string name="loading_weather">Cargando clima...</string>
+    <string name="weather_updates">Actualizaciones del clima</string>
+    <string name="location_permission_weather_desc">Se requiere permiso de ubicación para mostrar el clima local.</string>
+    <string name="status_active">✓ Activo</string>
+    <string name="status_disabled">Desactivado</string>
+    <string name="everyday">Todos los días</string>
+    <string name="alarm">Alarma</string>
+    <string name="alarms">Alarmas</string>
+    <string name="ai_briefing">Resumen de IA</string>
+    <string name="briefing">Resumen</string>
+    <string name="voice">Voz</string>
+    <string name="day_sunday_short">D</string>
+    <string name="day_monday_short">L</string>
+    <string name="day_tuesday_short">M</string>
+    <string name="day_wednesday_short">X</string>
+    <string name="day_thursday_short">J</string>
+    <string name="day_friday_short">V</string>
+    <string name="day_saturday_short">S</string>
+    <string name="prompt_daily_briefing">Proporcione un resumen diario basado en mis alarmas.</string>
 </resources>
 

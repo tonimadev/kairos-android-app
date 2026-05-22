@@ -29,12 +29,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -120,13 +122,22 @@ fun EventCard(
             ) {
                 if (event.isRecurring) {
                     Text(
-                        text = "Everyday",
+                        text = stringResource(R.string.everyday),
                         fontSize = 12.sp,
                         color = Color(0xFFB0B0C0),
                     )
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        val days = listOf("S", "M", "T", "W", "T", "F", "S")
+                        val days =
+                            listOf(
+                                stringResource(R.string.day_sunday_short),
+                                stringResource(R.string.day_monday_short),
+                                stringResource(R.string.day_tuesday_short),
+                                stringResource(R.string.day_wednesday_short),
+                                stringResource(R.string.day_thursday_short),
+                                stringResource(R.string.day_friday_short),
+                                stringResource(R.string.day_saturday_short),
+                            )
                         days.forEachIndexed { index, day ->
                             // Calendar.SUNDAY is 1, so index 0 = Sunday
                             val isSelected = (index + 1) == eventDayOfWeek && event.isAlarmEnabled

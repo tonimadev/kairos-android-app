@@ -602,7 +602,7 @@ private fun EventTopBar(onOpenMenu: () -> Unit) {
     TopAppBar(
         title = {
             Text(
-                text = "Alarm",
+                text = stringResource(R.string.alarm),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -616,7 +616,7 @@ private fun EventTopBar(onOpenMenu: () -> Unit) {
             IconButton(onClick = onOpenMenu) {
                 Icon(
                     imageVector = Icons.Rounded.MoreVert,
-                    contentDescription = "Menu",
+                    contentDescription = stringResource(R.string.cd_open_menu),
                     tint = Color.White,
                 )
             }
@@ -631,74 +631,69 @@ private fun EventBottomBar(
     onOpenCalendar: () -> Unit,
     handleIntent: (EventIntent) -> Unit,
 ) {
+    val context = LocalContext.current
+    val dailyBriefingPrompt = stringResource(R.string.prompt_daily_briefing)
     NavigationBar(
         containerColor = Color(0xFF2C2C38),
         contentColor = Color.White,
         tonalElevation = 0.dp,
     ) {
+        val navItemColors = NavigationBarItemDefaults.colors(
+            selectedIconColor = Color(0xFFDEFA5F),
+            selectedTextColor = Color(0xFFDEFA5F),
+            indicatorColor = Color.Transparent,
+            unselectedIconColor = Color(0xFFB0B0C0),
+            unselectedTextColor = Color(0xFFB0B0C0),
+        )
+
         NavigationBarItem(
             selected = true,
             onClick = { },
-            icon = { Icon(Icons.Rounded.Alarm, contentDescription = "Alarms") },
-            label = { Text("Alarms") },
-            colors =
-                NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color(0xFFDEFA5F),
-                    selectedTextColor = Color(0xFFDEFA5F),
-                    indicatorColor = Color.Transparent,
-                    unselectedIconColor = Color(0xFFB0B0C0),
-                    unselectedTextColor = Color(0xFFB0B0C0),
-                ),
+            icon = { Icon(Icons.Rounded.Alarm, contentDescription = stringResource(R.string.alarms)) },
+            label = { Text(stringResource(R.string.alarms)) },
+            colors = navItemColors,
         )
-        NavigationBarItem(
-            selected = false,
-            onClick = { onOpenCalendar() },
-            icon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = "Calendar") },
-            label = { Text("Calendar") },
-            colors =
-                NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color(0xFFDEFA5F),
-                    selectedTextColor = Color(0xFFDEFA5F),
-                    indicatorColor = Color.Transparent,
-                    unselectedIconColor = Color(0xFFB0B0C0),
-                    unselectedTextColor = Color(0xFFB0B0C0),
-                ),
-        )
-        Spacer(modifier = Modifier.weight(0.5f))
+
         if (isAiUser) {
+            NavigationBarItem(
+                selected = false,
+                onClick = { onOpenCalendar() },
+                icon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
+                label = { Text(stringResource(R.string.calendar)) },
+                colors = navItemColors,
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
             NavigationBarItem(
                 selected = false,
                 onClick = {
                     handleIntent(
-                        EventIntent.GenerateDailyBriefing("Provide a daily briefing based on my alarms."),
+                        EventIntent.GenerateDailyBriefing(dailyBriefingPrompt),
                     )
                 },
-                icon = { Icon(Icons.Rounded.AutoAwesome, contentDescription = "AI Briefing") },
-                label = { Text("Briefing") },
-                colors =
-                    NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFFDEFA5F),
-                        selectedTextColor = Color(0xFFDEFA5F),
-                        indicatorColor = Color.Transparent,
-                        unselectedIconColor = Color(0xFFB0B0C0),
-                        unselectedTextColor = Color(0xFFB0B0C0),
-                    ),
+                icon = { Icon(Icons.Rounded.AutoAwesome, contentDescription = stringResource(R.string.ai_briefing)) },
+                label = { Text(stringResource(R.string.briefing)) },
+                colors = navItemColors,
             )
             NavigationBarItem(
                 selected = false,
                 onClick = {
                     handleIntent(EventIntent.ShowAiSuggestionsDialog)
                 },
-                icon = { Icon(Icons.Rounded.Mic, contentDescription = "Voice") },
-                label = { Text("Voice") },
-                colors =
-                    NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFFDEFA5F),
-                        selectedTextColor = Color(0xFFDEFA5F),
-                        indicatorColor = Color.Transparent,
-                        unselectedIconColor = Color(0xFFB0B0C0),
-                        unselectedTextColor = Color(0xFFB0B0C0),
-                    ),
+                icon = { Icon(Icons.Rounded.Mic, contentDescription = stringResource(R.string.voice)) },
+                label = { Text(stringResource(R.string.voice)) },
+                colors = navItemColors,
+            )
+        } else {
+            Spacer(modifier = Modifier.weight(1f))
+
+            NavigationBarItem(
+                selected = false,
+                onClick = { onOpenCalendar() },
+                icon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
+                label = { Text(stringResource(R.string.calendar)) },
+                colors = navItemColors,
             )
         }
     }

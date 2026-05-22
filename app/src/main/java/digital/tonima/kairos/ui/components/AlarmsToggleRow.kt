@@ -126,7 +126,7 @@ fun AlarmsToggleRow(
                             },
                     )
                     Text(
-                        text = if (alarmsEnabled) "✓ Ativo" else "Desativado",
+                        text = if (alarmsEnabled) stringResource(R.string.status_active) else stringResource(R.string.status_disabled),
                         style = MaterialTheme.typography.labelSmall,
                         color =
                             if (alarmsEnabled) {
