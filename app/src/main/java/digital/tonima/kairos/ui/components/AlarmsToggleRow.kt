@@ -35,6 +35,8 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.R.string.status_active
+import digital.tonima.kairos.core.R.string.status_disabled
 import digital.tonima.kairos.ui.theme.Dimensions
 
 @Composable
@@ -126,7 +128,12 @@ fun AlarmsToggleRow(
                             },
                     )
                     Text(
-                        text = if (alarmsEnabled) stringResource(R.string.status_active) else stringResource(R.string.status_disabled),
+                        text =
+                            if (alarmsEnabled) {
+                                stringResource(status_active)
+                            } else {
+                                stringResource(status_disabled)
+                            },
                         style = MaterialTheme.typography.labelSmall,
                         color =
                             if (alarmsEnabled) {

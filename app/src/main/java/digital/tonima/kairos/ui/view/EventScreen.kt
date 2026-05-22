@@ -638,13 +638,14 @@ private fun EventBottomBar(
         contentColor = Color.White,
         tonalElevation = 0.dp,
     ) {
-        val navItemColors = NavigationBarItemDefaults.colors(
-            selectedIconColor = Color(0xFFDEFA5F),
-            selectedTextColor = Color(0xFFDEFA5F),
-            indicatorColor = Color.Transparent,
-            unselectedIconColor = Color(0xFFB0B0C0),
-            unselectedTextColor = Color(0xFFB0B0C0),
-        )
+        val navItemColors =
+            NavigationBarItemDefaults.colors(
+                selectedIconColor = Color(0xFFDEFA5F),
+                selectedTextColor = Color(0xFFDEFA5F),
+                indicatorColor = Color.Transparent,
+                unselectedIconColor = Color(0xFFB0B0C0),
+                unselectedTextColor = Color(0xFFB0B0C0),
+            )
 
         NavigationBarItem(
             selected = true,

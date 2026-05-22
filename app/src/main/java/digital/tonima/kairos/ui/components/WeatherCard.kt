@@ -29,14 +29,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import digital.tonima.core.model.Weather
+import digital.tonima.kairos.core.R.string.location_permission_weather_desc
+import digital.tonima.kairos.core.R.string.provide_permission
 import digital.tonima.kairos.ui.theme.Dimensions
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -175,7 +177,7 @@ fun WeatherCard(
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
                             Text(
-                                text = stringResource(digital.tonima.kairos.core.R.string.location_permission_weather_desc),
+                                text = stringResource(location_permission_weather_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                             )
@@ -191,7 +193,7 @@ fun WeatherCard(
                                 contentColor = MaterialTheme.colorScheme.onPrimary,
                             ),
                     ) {
-                        Text(stringResource(digital.tonima.kairos.core.R.string.provide_permission), fontWeight = FontWeight.Bold)
+                        Text(stringResource(provide_permission), fontWeight = FontWeight.Bold)
                     }
                 }
             }
