@@ -5,10 +5,11 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   check-style:
@@ -114,7 +115,7 @@ jobs:
 
   version_bumper:
     name: Bump Version
-    if: "!contains(github.event.head_commit.message, 'ci: Bump version') && github.event_name == 'push' && github.ref == 'refs/heads/master'"
+    if: "!contains(github.event.head_commit.message, 'ci: Bump version') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'"
     needs: [ check-style, static-analysis, unit-tests ]
     runs-on: ubuntu-latest
     outputs:
@@ -151,7 +152,7 @@ jobs:
 
           git add gradle.properties
           if ! git diff --staged --quiet; then
-            git commit -m "ci: Bump version to $NEW_VERSION_NAME (Phone: $PHONE_VERSION_CODE, Wear: $WEAR_VERSION_CODE)"
+            git commit -m "ci: Bump version to $NEW_VERSION_NAME (Phone: $PHONE_VERSION_CODE, Wear: $WEAR_VERSION_CODE) [skip ci]"
             git pull --rebase origin master
             git push
           else
@@ -161,7 +162,7 @@ jobs:
   deploy_phone:
     name: Build, Sign and Deploy Phone App
     needs: version_bumper
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -203,7 +204,7 @@ jobs:
   deploy_wear:
     name: Build, Sign and Deploy Wear OS App
     needs: version_bumper
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -242,7 +243,7 @@ jobs:
   create_release:
     name: Create GitHub Tag and Release
     needs: [ version_bumper, deploy_phone, deploy_wear ]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       contents: write
