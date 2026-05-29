@@ -223,5 +223,15 @@
     <string name="google_logout_title">断开 Google Meet</string>
     <string name="login_google">连接</string>
     <string name="logout">退出</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_title_1">欢迎使用 Kairos</string>
+    <string name="onboarding_desc_1">高效管理您的活动和时间。</string>
+    <string name="onboarding_title_2">智能闹钟</string>
+    <string name="onboarding_desc_2">通过智能通知，绝不错过任何重要事件。</string>
+    <string name="onboarding_title_3">AI 简报</string>
+    <string name="onboarding_desc_3">获取您日程的每日个性化摘要。</string>
+    <string name="onboarding_btn_next">下一步</string>
+    <string name="onboarding_btn_start">开始</string>
 </resources>
 

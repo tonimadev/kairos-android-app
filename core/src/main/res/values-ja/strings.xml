@@ -223,5 +223,15 @@
     <string name="google_logout_title">Google Meetの連携を解除</string>
     <string name="login_google">連携する</string>
     <string name="logout">ログアウト</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_title_1">Kairosへようこそ</string>
+    <string name="onboarding_desc_1">イベントと時間を効率的に管理しましょう。</string>
+    <string name="onboarding_title_2">スマートアラーム</string>
+    <string name="onboarding_desc_2">インテリジェントな通知で重要なイベントを見逃しません。</string>
+    <string name="onboarding_title_3">AIブリーフィング</string>
+    <string name="onboarding_desc_3">予定のパーソナライズされた日次要約を受け取ります。</string>
+    <string name="onboarding_btn_next">次へ</string>
+    <string name="onboarding_btn_start">はじめる</string>
 </resources>
 

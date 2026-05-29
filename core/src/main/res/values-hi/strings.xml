@@ -226,5 +226,15 @@
     <string name="google_logout_title">Google Meet को डिस्कनेक्ट करें</string>
     <string name="login_google">कनेक्ट करें</string>
     <string name="logout">लॉग आउट करें</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_title_1">Kairos में आपका स्वागत है</string>
+    <string name="onboarding_desc_1">अपने आयोजनों और समय का कुशलतापूर्वक प्रबंधन करें।</string>
+    <string name="onboarding_title_2">स्मार्ट अलार्म</string>
+    <string name="onboarding_desc_2">बुद्धिमान सूचनाओं के साथ कभी भी कोई महत्वपूर्ण घटना न चूकें।</string>
+    <string name="onboarding_title_3">AI ब्रीफिंग</string>
+    <string name="onboarding_desc_3">अपने एजेंडे का दैनिक वैयक्तिकृत सारांश प्राप्त करें।</string>
+    <string name="onboarding_btn_next">अगला</string>
+    <string name="onboarding_btn_start">शुरू करें</string>
 </resources>
 
