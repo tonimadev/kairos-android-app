@@ -226,5 +226,15 @@
     <string name="google_logout_title">فصل Google Meet</string>
     <string name="login_google">ربط</string>
     <string name="logout">تسجيل الخروج</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_title_1">مرحبًا بك في Kairos</string>
+    <string name="onboarding_desc_1">إدارة الأحداث ووقتك بكفاءة.</string>
+    <string name="onboarding_title_2">تنبيهات ذكية</string>
+    <string name="onboarding_desc_2">لا تفوت أي حدث مهم مع الإشعارات الذكية.</string>
+    <string name="onboarding_title_3">موجز الذكاء الاصطناعي</string>
+    <string name="onboarding_desc_3">احصل على ملخصات يومية مخصصة لجدول أعمالك.</string>
+    <string name="onboarding_btn_next">التالي</string>
+    <string name="onboarding_btn_start">البدء</string>
 </resources>
 

@@ -229,5 +229,15 @@
     <string name="google_logout_title">Déconnecter Google Meet</string>
     <string name="login_google">Connecter</string>
     <string name="logout">Déconnexion</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_title_1">Bienvenue sur Kairos</string>
+    <string name="onboarding_desc_1">Gérez vos événements et votre temps efficacement.</string>
+    <string name="onboarding_title_2">Alarmes Intelligentes</string>
+    <string name="onboarding_desc_2">Ne manquez jamais un événement important avec des notifications intelligentes.</string>
+    <string name="onboarding_title_3">Briefing IA</string>
+    <string name="onboarding_desc_3">Obtenez des résumés quotidiens personnalisés de votre agenda.</string>
+    <string name="onboarding_btn_next">Suivant</string>
+    <string name="onboarding_btn_start">Commencer</string>
 </resources>
 

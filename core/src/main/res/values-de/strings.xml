@@ -228,5 +228,15 @@
     <string name="google_logout_title">Google Meet trennen</string>
     <string name="login_google">Verbinden</string>
     <string name="logout">Abmelden</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_title_1">Willkommen bei Kairos</string>
+    <string name="onboarding_desc_1">Verwalten Sie Ihre Termine und Zeit effizient.</string>
+    <string name="onboarding_title_2">Intelligente Alarme</string>
+    <string name="onboarding_desc_2">Verpassen Sie nie wieder ein wichtiges Ereignis mit intelligenten Benachrichtigungen.</string>
+    <string name="onboarding_title_3">KI-Briefing</string>
+    <string name="onboarding_desc_3">Erhalten Sie tägliche personalisierte Zusammenfassungen Ihrer Agenda.</string>
+    <string name="onboarding_btn_next">Weiter</string>
+    <string name="onboarding_btn_start">Loslegen</string>
 </resources>
 

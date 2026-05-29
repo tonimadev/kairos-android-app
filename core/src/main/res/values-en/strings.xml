@@ -228,5 +228,15 @@
     <string name="google_logout_title">Google Meet Connected</string>
     <string name="login_google">Sign in with Google</string>
     <string name="logout">Sign out</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_title_1">Welcome to Kairos</string>
+    <string name="onboarding_desc_1">Manage your events and time efficiently.</string>
+    <string name="onboarding_title_2">Smart Alarms</string>
+    <string name="onboarding_desc_2">Never miss an important event with intelligent notifications.</string>
+    <string name="onboarding_title_3">AI Briefing</string>
+    <string name="onboarding_desc_3">Get daily personalized summaries of your agenda.</string>
+    <string name="onboarding_btn_next">Next</string>
+    <string name="onboarding_btn_start">Get Started</string>
 </resources>
 

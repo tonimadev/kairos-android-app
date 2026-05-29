@@ -227,5 +227,15 @@
     <string name="google_logout_title">Отключить Google Meet</string>
     <string name="login_google">Подключить</string>
     <string name="logout">Выйти</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_title_1">Добро пожаловать в Kairos</string>
+    <string name="onboarding_desc_1">Эффективно управляйте своими событиями и временем.</string>
+    <string name="onboarding_title_2">Умные будильники</string>
+    <string name="onboarding_desc_2">Никогда не пропускайте важные события с интеллектуальными уведомлениями.</string>
+    <string name="onboarding_title_3">ИИ Сводка</string>
+    <string name="onboarding_desc_3">Получайте ежедневные персонализированные сводки вашей повестки дня.</string>
+    <string name="onboarding_btn_next">Далее</string>
+    <string name="onboarding_btn_start">Начать</string>
 </resources>
 
