@@ -15,6 +15,18 @@ interface AppStatusRepository {
 
     suspend fun setRatingPrompted(prompted: Boolean)
 
+    fun isOnboardingCompleted(): Flow<Boolean>
+
+    suspend fun setOnboardingCompleted(completed: Boolean)
+
+    fun getSnoozeCount(): Flow<Int>
+
+    suspend fun incrementSnoozeCount()
+
+    fun getAiUsageCount(): Flow<Int>
+
+    suspend fun incrementAiUsageCount()
+
     fun isRatingCompleted(): Flow<Boolean>
 
     suspend fun setRatingCompleted(completed: Boolean)

@@ -25,11 +25,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignettePosition
-import androidx.wear.compose.material.scrollAway
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.TimeText
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -102,93 +99,98 @@ fun WearApp(
         }
     }
 
-    Scaffold(
-        timeText = { TimeText(modifier = Modifier.scrollAway(listState)) },
-        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-        positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
-    ) {
-        ScalingLazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding =
-                PaddingValues(
-                    top = Dimensions.PaddingLarge,
-                    start = Dimensions.PaddingSmall,
-                    end = Dimensions.PaddingSmall,
-                    bottom = Dimensions.PaddingLarge,
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            state = listState,
+    AppScaffold {
+        ScreenScaffold(
+            scrollState = listState,
+            timeText = { TimeText() },
         ) {
-            val needsStandardPermissions = !standardPermissionState.allPermissionsGranted
-            val needsExactAlarmPermission = !uiState.hasExactAlarmPermission
-            if (needsStandardPermissions) {
-                item {
-                    WearOsPermissionsScreenContent(
-                        onSettingsClick = {
-                            context.startActivity(
-                                Intent(
-                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                    Uri.fromParts("package", context.packageName, null),
-                                ),
-                            )
-                        },
-                        onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
-                    )
-                }
-            } else {
-                if (needsExactAlarmPermission) {
-                    item { ExactAlarmPermissionChip() }
-                }
-                item { AppHeaderTitle() }
-                item {
-                    Spacer(Modifier.height(Dimensions.SpacingSmall))
-                    GlobalAlarmsToggle(
-                        checked = uiState.isGlobalAlarmEnabled,
-                        onCheckedChange = {
-                                isChecked ->
-                            viewModel.handleIntent(EventIntent.ToggleGlobalAlarms(isChecked))
-                        },
-                    )
-                }
-                item {
-                    Spacer(Modifier.height(Dimensions.SpacingExtraSmall))
-                    VibrateOnlyToggle(
-                        checked = uiState.vibrateOnly,
-                        onCheckedChange = { enabled -> viewModel.handleIntent(EventIntent.ToggleVibrateOnly(enabled)) },
-                    )
-                }
-                if (uiState.availableCalendars.isNotEmpty()) {
-                    item { CalendarFilterHeader() }
-                    items(uiState.availableCalendars) { calendar ->
-                        CalendarFilterChip(
-                            calendar = calendar,
-                            enabledCalendarIds = uiState.enabledCalendarIds,
-                            onToggle = { calendarId, enabled ->
-                                viewModel.handleIntent(EventIntent.ToggleCalendarFilter(calendarId, enabled))
+            ScalingLazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding =
+                    PaddingValues(
+                        top = Dimensions.PaddingLarge,
+                        start = Dimensions.PaddingSmall,
+                        end = Dimensions.PaddingSmall,
+                        bottom = Dimensions.PaddingLarge,
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                state = listState,
+            ) {
+                val needsStandardPermissions = !standardPermissionState.allPermissionsGranted
+                val needsExactAlarmPermission = !uiState.hasExactAlarmPermission
+                if (needsStandardPermissions) {
+                    item {
+                        WearOsPermissionsScreenContent(
+                            onSettingsClick = {
+                                context.startActivity(
+                                    Intent(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        Uri.fromParts("package", context.packageName, null),
+                                    ),
+                                )
+                            },
+                            onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
+                        )
+                    }
+                } else {
+                    if (needsExactAlarmPermission) {
+                        item { ExactAlarmPermissionChip() }
+                    }
+                    item { AppHeaderTitle() }
+                    item {
+                        Spacer(Modifier.height(Dimensions.SpacingSmall))
+                        GlobalAlarmsToggle(
+                            checked = uiState.isGlobalAlarmEnabled,
+                            onCheckedChange = {
+                                    isChecked ->
+                                viewModel.handleIntent(EventIntent.ToggleGlobalAlarms(isChecked))
                             },
                         )
                     }
+                    item {
+                        Spacer(Modifier.height(Dimensions.SpacingExtraSmall))
+                        VibrateOnlyToggle(
+                            checked = uiState.vibrateOnly,
+                            onCheckedChange = { enabled ->
+                                viewModel.handleIntent(EventIntent.ToggleVibrateOnly(enabled))
+                            },
+                        )
+                    }
+                    if (uiState.availableCalendars.isNotEmpty()) {
+                        item { CalendarFilterHeader() }
+                        items(uiState.availableCalendars) { calendar ->
+                            CalendarFilterChip(
+                                calendar = calendar,
+                                enabledCalendarIds = uiState.enabledCalendarIds,
+                                onToggle = { calendarId, enabled ->
+                                    viewModel.handleIntent(
+                                        EventIntent.ToggleCalendarFilter(calendarId, enabled),
+                                    )
+                                },
+                            )
+                        }
+                    }
+                    item { Spacer(Modifier.height(Dimensions.SpacingSmall)) }
+                    item { EventsSectionHeader() }
+                    item {
+                        EventsListSection(
+                            events = next24hEvents,
+                            isRefreshing = false,
+                            isGlobalAlarmEnabled = uiState.isGlobalAlarmEnabled,
+                            onEventToggle = { event, isEnabled, applyToSeries ->
+                                viewModel.handleIntent(EventIntent.ToggleEventAlarm(event, isEnabled, applyToSeries))
+                            },
+                        )
+                    }
+                    item {
+                        Spacer(Modifier.height(Dimensions.SpacingSmall))
+                        OpenOnPhoneChip(onClick = {
+                            digital.tonima.kairos.wear.ui.actions.OpenOnPhone
+                                .launch(context)
+                        })
+                    }
+                    item { VersionFooter() }
                 }
-                item { Spacer(Modifier.height(Dimensions.SpacingSmall)) }
-                item { EventsSectionHeader() }
-                item {
-                    EventsListSection(
-                        events = next24hEvents,
-                        isRefreshing = false,
-                        isGlobalAlarmEnabled = uiState.isGlobalAlarmEnabled,
-                        onEventToggle = { event, isEnabled, applyToSeries ->
-                            viewModel.handleIntent(EventIntent.ToggleEventAlarm(event, isEnabled, applyToSeries))
-                        },
-                    )
-                }
-                item {
-                    Spacer(Modifier.height(Dimensions.SpacingSmall))
-                    OpenOnPhoneChip(onClick = {
-                        digital.tonima.kairos.wear.ui.actions.OpenOnPhone
-                            .launch(context)
-                    })
-                }
-                item { VersionFooter() }
             }
         }
     }
@@ -216,39 +218,40 @@ fun WearAppPreview() {
                     isRecurring = true,
                 ),
             )
-        Scaffold(
-            timeText = { TimeText(modifier = Modifier.scrollAway(listState)) },
-            vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-            positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
-        ) {
-            ScalingLazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding =
-                    PaddingValues(
-                        top = Dimensions.PaddingLarge,
-                        start = Dimensions.PaddingSmall,
-                        end = Dimensions.PaddingSmall,
-                        bottom = Dimensions.PaddingLarge,
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                state = listState,
+        AppScaffold {
+            ScreenScaffold(
+                scrollState = listState,
+                timeText = { TimeText() },
             ) {
-                item { AppHeaderTitle() }
-                item { Spacer(Modifier.height(Dimensions.SpacingSmall)) }
-                item { OpenOnPhoneChip(onClick = {}) }
-                item { Spacer(Modifier.height(8.dp)) }
-                item { GlobalAlarmsToggle(checked = true, onCheckedChange = {}) }
-                item { Spacer(Modifier.height(4.dp)) }
-                item { VibrateOnlyToggle(checked = false, onCheckedChange = {}) }
-                item { EventsSectionHeader() }
-                items(sampleEvents) { event ->
-                    EventCard(
-                        event = event,
-                        isGloballyEnabled = true,
-                        onToggle = {},
-                    )
+                ScalingLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding =
+                        PaddingValues(
+                            top = Dimensions.PaddingLarge,
+                            start = Dimensions.PaddingSmall,
+                            end = Dimensions.PaddingSmall,
+                            bottom = Dimensions.PaddingLarge,
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    state = listState,
+                ) {
+                    item { AppHeaderTitle() }
+                    item { Spacer(Modifier.height(Dimensions.SpacingSmall)) }
+                    item { OpenOnPhoneChip(onClick = {}) }
+                    item { Spacer(Modifier.height(8.dp)) }
+                    item { GlobalAlarmsToggle(checked = true, onCheckedChange = {}) }
+                    item { Spacer(Modifier.height(4.dp)) }
+                    item { VibrateOnlyToggle(checked = false, onCheckedChange = {}) }
+                    item { EventsSectionHeader() }
+                    items(sampleEvents) { event ->
+                        EventCard(
+                            event = event,
+                            isGloballyEnabled = true,
+                            onToggle = {},
+                        )
+                    }
+                    item { VersionFooter() }
                 }
-                item { VersionFooter() }
             }
         }
     }

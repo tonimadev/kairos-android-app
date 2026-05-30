@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions", "LongParameterList")
+
 package digital.tonima.kairos.ui.view
 
 import android.Manifest
@@ -12,7 +14,9 @@ import android.provider.CalendarContract
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -113,6 +117,7 @@ fun Context.findActivity(): Activity? {
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("LongMethod")
 fun EventScreen(
     viewModel: EventViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState,
@@ -150,34 +155,6 @@ fun EventScreen(
         }
     }
 
-    val openAppSettings = {
-        context.startActivity(
-            Intent(
-                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.fromParts("package", context.packageName, null),
-            ),
-        )
-    }
-
-    val openExactAlarmSettings = {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            context.startActivity(Intent("android.settings.REQUEST_SCHEDULE_EXACT_ALARM"))
-        } else {
-            Toast.makeText(context, R.string.not_applicable_on_this_android_version, Toast.LENGTH_SHORT).show()
-        }
-    }
-    val openFullScreenIntentSettings = {
-        val intent =
-            Intent("android.settings.MANAGE_APP_ALL_ALARMS").apply {
-                data = Uri.fromParts("package", context.packageName, null)
-            }
-        if (intent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(intent)
-        } else {
-            Toast.makeText(context, R.string.not_applicable_on_this_android_version, Toast.LENGTH_SHORT).show()
-        }
-    }
-
     LaunchedEffect(standardPermissionState.allPermissionsGranted) {
         if (!standardPermissionState.allPermissionsGranted) {
             standardPermissionState.launchMultiplePermissionRequest()
@@ -192,40 +169,12 @@ fun EventScreen(
             viewModel.handleIntent(EventIntent.HandleGoogleSignInResult(result.data))
         }
 
-    LaunchedEffect(viewModel.sideEffect) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                is EventSideEffect.RequireUserConfirmation -> {
-                    aiConfirmationData = effect
-                }
-                is EventSideEffect.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
-                }
-                is EventSideEffect.AIToolError -> {
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
-                }
-                is EventSideEffect.OpenMeetingUrl -> {
-                    try {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)))
-                    } catch (e: Exception) {
-                        logcat { "Failed to open meeting URL: ${e.message}" }
-                    }
-                }
-                is EventSideEffect.CopyToClipboard -> {
-                    val clipboard =
-                        context.getSystemService(
-                            Context.CLIPBOARD_SERVICE,
-                        ) as android.content.ClipboardManager
-                    val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
-                    clipboard.setPrimaryClip(clip)
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
-                }
-                is EventSideEffect.LaunchGoogleSignIn -> {
-                    googleSignInLauncher.launch(effect.intent)
-                }
-            }
-        }
-    }
+    HandleEventSideEffects(
+        viewModel = viewModel,
+        snackbarHostState = snackbarHostState,
+        googleSignInLauncher = googleSignInLauncher,
+        onSetAiConfirmationData = { aiConfirmationData = it },
+    )
 
     val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
     val aiInstruction = stringResource(R.string.ai_briefing_instruction)
@@ -243,19 +192,6 @@ fun EventScreen(
             }
         }
 
-    val launchVoiceCapture = {
-        val intent =
-            Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                putExtra(RecognizerIntent.EXTRA_PROMPT, voiceCapturePrompt)
-            }
-        try {
-            speechRecognizerLauncher.launch(intent)
-        } catch (e: Exception) {
-            Toast.makeText(context, R.string.cannot_open_event, Toast.LENGTH_SHORT).show()
-        }
-    }
-
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer =
@@ -268,6 +204,32 @@ fun EventScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
+
+    val settingsActions =
+        remember(viewModel) {
+            SettingsActions(
+                onToggle = { viewModel.handleIntent(EventIntent.ToggleGlobalAlarms(it)) },
+                onDismissAutostart = { viewModel.handleIntent(EventIntent.DismissAutostartSuggestion) },
+                onVibrateToggle = { viewModel.handleIntent(EventIntent.ToggleVibrateOnly(it)) },
+                onAllDayAlarmsToggle = { viewModel.handleIntent(EventIntent.ToggleAllDayAlarms(it)) },
+                onAllDayAlarmHourChanged = { viewModel.handleIntent(EventIntent.UpdateAllDayAlarmHour(it)) },
+                onAlarmOffsetChanged = { viewModel.handleIntent(EventIntent.UpdateAlarmOffset(it)) },
+                onSnoozeTimeChanged = { viewModel.handleIntent(EventIntent.UpdateSnoozeTime(it)) },
+                onSkipWeekendsToggle = { viewModel.handleIntent(EventIntent.ToggleSkipWeekends(it)) },
+                onAutoDismissMinutesChanged = { viewModel.handleIntent(EventIntent.UpdateAutoDismissMinutes(it)) },
+                onCalendarFilterToggle = { id, enabled ->
+                    viewModel
+                        .handleIntent(EventIntent.ToggleCalendarFilter(id, enabled))
+                },
+                onLocationAlarmToggle = { viewModel.handleIntent(EventIntent.ToggleLocationAlarm(it)) },
+                onTransportModeChanged = { viewModel.handleIntent(EventIntent.ChangeTransportMode(it)) },
+                onTemperatureUnitToggle = { viewModel.handleIntent(EventIntent.ToggleTemperatureUnit(it)) },
+                onGoogleSignInClick = { viewModel.handleIntent(EventIntent.SignInWithGoogle) },
+                onGoogleSignOutClick = { viewModel.handleIntent(EventIntent.SignOutFromGoogle) },
+                onCloseSettings = { viewModel.handleIntent(EventIntent.CloseSettings) },
+                onCustomRingtoneSelected = { viewModel.handleIntent(EventIntent.UpdateCustomRingtoneUri(it)) },
+            )
+        }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -285,123 +247,85 @@ fun EventScreen(
                         )
                     context.startActivity(browserIntent)
                 },
+                onSettingsClick = { viewModel.handleIntent(EventIntent.OpenSettings) },
                 onCloseDrawer = { scope.launch { drawerState.close() } },
             )
         },
     ) {
-        Scaffold(
-            topBar = { EventTopBar(onOpenMenu = { scope.launch { drawerState.open() } }) },
-            bottomBar = {
-                EventBottomBar(
-                    uiState = uiState,
-                    isAiUser = isAiUser,
-                    onOpenCalendar = {
-                        val intent =
-                            context.packageManager
-                                .getLaunchIntentForPackage("com.google.android.calendar")
-                        if (intent != null) {
-                            context.startActivity(intent)
-                        } else {
-                            Toast.makeText(context, googleCalendarNotFound, Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    handleIntent = viewModel::handleIntent,
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { viewModel.handleIntent(EventIntent.ShowCreateEventDialog()) },
-                    containerColor = Color(0xFFDEFA5F),
-                    shape = CircleShape,
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = "Add Alarm",
-                        tint = Color.Black,
-                        modifier = Modifier.size(32.dp),
+        if (uiState.showSettingsScreen) {
+            SettingsScreen(
+                uiState = uiState,
+                settingsActions = settingsActions,
+            )
+        } else {
+            Scaffold(
+                topBar = { EventTopBar(onOpenMenu = { scope.launch { drawerState.open() } }) },
+                bottomBar = {
+                    EventBottomBar(
+                        uiState = uiState,
+                        isAiUser = isAiUser,
+                        onOpenCalendar = {
+                            val intent =
+                                context.packageManager
+                                    .getLaunchIntentForPackage("com.google.android.calendar")
+                            if (intent != null) {
+                                context.startActivity(intent)
+                            } else {
+                                Toast.makeText(context, googleCalendarNotFound, Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        handleIntent = viewModel::handleIntent,
+                    )
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = { viewModel.handleIntent(EventIntent.ShowCreateEventDialog()) },
+                        containerColor = Color(0xFFDEFA5F),
+                        shape = CircleShape,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = "Add Alarm",
+                            tint = Color.Black,
+                            modifier = Modifier.size(32.dp),
+                        )
+                    }
+                },
+                floatingActionButtonPosition = androidx.compose.material3.FabPosition.End,
+                containerColor = Color(0xFF25252D),
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+            ) { paddingValues ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    EventScreenContent(
+                        paddingValues = paddingValues,
+                        uiState = uiState,
+                        viewModel = viewModel,
+                        isProUser = isProUser,
+                        standardPermissionState = standardPermissionState,
+                        openAppSettings = { openAppSettings(context) },
+                        openExactAlarmSettings = { openExactAlarmSettings(context) },
+                        openFullScreenIntentSettings = { openFullScreenIntentSettings(context) },
+                        launchVoiceCapture = {
+                            launchVoiceCapture(
+                                context,
+                                voiceCapturePrompt,
+                                speechRecognizerLauncher,
+                            )
+                        },
+                        onSubscriptionRequest = onSubscriptionRequest,
+                        windowSizeClass = windowSizeClass,
+                        settingsActions = settingsActions,
                     )
                 }
-            },
-            floatingActionButtonPosition = androidx.compose.material3.FabPosition.Center,
-            containerColor = Color(0xFF25252D),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-        ) { paddingValues ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                EventScreenContent(
-                    paddingValues = paddingValues,
-                    uiState = uiState,
-                    viewModel = viewModel,
-                    isProUser = isProUser,
-                    standardPermissionState = standardPermissionState,
-                    openAppSettings = openAppSettings,
-                    openExactAlarmSettings = openExactAlarmSettings,
-                    openFullScreenIntentSettings = openFullScreenIntentSettings,
-                    launchVoiceCapture = launchVoiceCapture,
-                    onSubscriptionRequest = onSubscriptionRequest,
-                    windowSizeClass = windowSizeClass,
-                )
             }
-        }
 
-        if (uiState.showSubscriptionConfirmation) {
-            LaunchedEffect(uiState.showSubscriptionConfirmation) {
-                onSubscriptionRequest()
-                viewModel.handleIntent(EventIntent.DismissUpgradeConfirmation)
-            }
-        }
-
-        if (uiState.showPurchaseConfirmation) {
-            LaunchedEffect(uiState.showPurchaseConfirmation) {
-                onPurchaseRequest()
-                viewModel.handleIntent(EventIntent.DismissUpgradeConfirmation)
-            }
-        }
-
-        if (uiState.showRatingBottomSheet) {
-            RatingBottomSheet(
-                onDismissRequest = { viewModel.handleIntent(EventIntent.RateLater) },
-                onRateNow = {
-                    context.findActivity()?.let { activity ->
-                        viewModel.handleIntent(EventIntent.RateNow(activity))
-                    } ?: run {
-                        val intent =
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                "market://details?id=${context.packageName}".toUri(),
-                            )
-                        context.startActivity(intent)
-                        viewModel.handleIntent(EventIntent.RateNow())
-                    }
-                },
-                onRateLater = { viewModel.handleIntent(EventIntent.RateLater) },
-                onRateNeverShow = { viewModel.handleIntent(EventIntent.RateNever) },
-            )
-        }
-
-        aiConfirmationData?.let { data ->
-            AlertDialog(
-                onDismissRequest = {
-                    aiConfirmationData = null
-                    viewModel.handleIntent(EventIntent.RejectPendingAction)
-                },
-                title = { Text(text = data.title.asString(context)) },
-                text = { Text(text = data.message.asString(context)) },
-                confirmButton = {
-                    TextButton(onClick = {
-                        aiConfirmationData = null
-                        viewModel.handleIntent(EventIntent.ApprovePendingAction)
-                    }) {
-                        Text(text = stringResource(R.string.confirm))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        aiConfirmationData = null
-                        viewModel.handleIntent(EventIntent.RejectPendingAction)
-                    }) {
-                        Text(text = stringResource(R.string.cancel))
-                    }
-                },
+            EventScreenDialogs(
+                uiState = uiState,
+                aiConfirmationData = aiConfirmationData,
+                onSubscriptionRequest = onSubscriptionRequest,
+                onPurchaseRequest = onPurchaseRequest,
+                onClearAiConfirmation = { aiConfirmationData = null },
+                viewModel = viewModel,
             )
         }
     }
@@ -421,6 +345,7 @@ private fun EventScreenContent(
     launchVoiceCapture: () -> Unit,
     onSubscriptionRequest: () -> Unit,
     windowSizeClass: WindowSizeClass?,
+    settingsActions: SettingsActions,
 ) {
     val context = LocalContext.current
     val cannotOpenEvent = stringResource(R.string.cannot_open_event)
@@ -464,6 +389,8 @@ private fun EventScreenContent(
         )
     }
 
+    // SettingsActions was hoisted to EventScreen
+
     Column(
         modifier =
             Modifier
@@ -497,118 +424,84 @@ private fun EventScreenContent(
                 }
 
                 else -> {
-                    MainContent(
-                        uiState = uiState,
-                        eventActions =
-                            EventActions(
-                                onRefresh = { viewModel.handleIntent(EventIntent.RefreshEvents) },
-                                onEventToggle = { event, enabled, all ->
-                                    viewModel.handleIntent(
-                                        EventIntent
-                                            .ToggleEventAlarm(event, enabled, all),
-                                    )
-                                },
-                                onEventVibrateToggle = { event, enabled ->
-                                    viewModel.handleIntent(
-                                        EventIntent
-                                            .ToggleEventVibrate(event, enabled),
-                                    )
-                                },
-                                onMonthChanged = { viewModel.handleIntent(EventIntent.ChangeMonth(it)) },
-                                onDateSelected = { viewModel.handleIntent(EventIntent.SelectDate(it)) },
-                                onEventClick = { event: Event ->
-                                    val uri =
-                                        ContentUris.withAppendedId(
-                                            CalendarContract.Events.CONTENT_URI,
-                                            event.id,
+                    if (uiState.selectedBottomTab == 1) {
+                        digital.tonima.kairos.ui.components.InsightsContent(uiState = uiState)
+                    } else {
+                        MainContent(
+                            uiState = uiState,
+                            eventActions =
+                                EventActions(
+                                    onRefresh = { viewModel.handleIntent(EventIntent.RefreshEvents) },
+                                    onEventToggle = { event, enabled, all ->
+                                        viewModel.handleIntent(
+                                            EventIntent
+                                                .ToggleEventAlarm(event, enabled, all),
                                         )
-                                    val intent =
-                                        Intent(Intent.ACTION_VIEW, uri).apply {
-                                            putExtra("beginTime", event.startTime)
+                                    },
+                                    onEventVibrateToggle = { event, enabled ->
+                                        viewModel.handleIntent(
+                                            EventIntent
+                                                .ToggleEventVibrate(event, enabled),
+                                        )
+                                    },
+                                    onMonthChanged = { viewModel.handleIntent(EventIntent.ChangeMonth(it)) },
+                                    onDateSelected = { viewModel.handleIntent(EventIntent.SelectDate(it)) },
+                                    onEventClick = { event: Event ->
+                                        val uri =
+                                            ContentUris.withAppendedId(
+                                                CalendarContract.Events.CONTENT_URI,
+                                                event.id,
+                                            )
+                                        val intent =
+                                            Intent(Intent.ACTION_VIEW, uri).apply {
+                                                putExtra("beginTime", event.startTime)
+                                            }
+                                        try {
+                                            context.startActivity(intent)
+                                        } catch (e: Exception) {
+                                            Toast.makeText(
+                                                context,
+                                                cannotOpenEvent,
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
                                         }
-                                    try {
-                                        context.startActivity(intent)
-                                    } catch (e: Exception) {
-                                        Toast.makeText(context, cannotOpenEvent, Toast.LENGTH_SHORT).show()
-                                    }
-                                },
-                                onReturnToToday = { viewModel.handleIntent(EventIntent.ReturnToToday) },
-                                onSearchQueryChanged = {
-                                    viewModel.handleIntent(
-                                        EventIntent.SearchQueryChanged(it),
-                                    )
-                                },
-                                onJoinMeeting = { url ->
-                                    viewModel.handleIntent(EventIntent.JoinMeeting(url))
-                                },
-                                onCopyMeetingUrl = { url ->
-                                    viewModel.handleIntent(EventIntent.CopyMeetingUrl(url))
-                                },
-                                onFetchWeather = { viewModel.handleIntent(EventIntent.FetchWeather) },
-                            ),
-                        settingsActions =
-                            SettingsActions(
-                                onToggle = { viewModel.handleIntent(EventIntent.ToggleGlobalAlarms(it)) },
-                                onDismissAutostart = { viewModel.handleIntent(EventIntent.DismissAutostartSuggestion) },
-                                onVibrateToggle = { viewModel.handleIntent(EventIntent.ToggleVibrateOnly(it)) },
-                                onAllDayAlarmsToggle = { viewModel.handleIntent(EventIntent.ToggleAllDayAlarms(it)) },
-                                onAllDayAlarmHourChanged = {
-                                    viewModel.handleIntent(
-                                        EventIntent.UpdateAllDayAlarmHour(it),
-                                    )
-                                },
-                                onAlarmOffsetChanged = { viewModel.handleIntent(EventIntent.UpdateAlarmOffset(it)) },
-                                onSnoozeTimeChanged = {
-                                    viewModel.handleIntent(EventIntent.UpdateSnoozeTime(it))
-                                },
-                                onSkipWeekendsToggle = {
-                                    viewModel.handleIntent(EventIntent.ToggleSkipWeekends(it))
-                                },
-                                onAutoDismissMinutesChanged = {
-                                    viewModel.handleIntent(EventIntent.UpdateAutoDismissMinutes(it))
-                                },
-                                onCalendarFilterToggle = { id, enabled ->
-                                    viewModel.handleIntent(
-                                        EventIntent
-                                            .ToggleCalendarFilter(id, enabled),
-                                    )
-                                },
-                                onLocationAlarmToggle = {
-                                    viewModel.handleIntent(
-                                        EventIntent.ToggleLocationAlarm(it),
-                                    )
-                                },
-                                onTransportModeChanged = {
-                                    viewModel.handleIntent(EventIntent.ChangeTransportMode(it))
-                                },
-                                onTemperatureUnitToggle = {
-                                    viewModel.handleIntent(EventIntent.ToggleTemperatureUnit(it))
-                                },
-                                onGoogleSignInClick = {
-                                    viewModel.handleIntent(EventIntent.SignInWithGoogle)
-                                },
-                                onGoogleSignOutClick = {
-                                    viewModel.handleIntent(EventIntent.SignOutFromGoogle)
-                                },
-                            ),
-                        aiActions =
-                            AiActions(
-                                onGenerateBriefing = {
-                                    viewModel.handleIntent(
-                                        EventIntent
-                                            .GenerateDailyBriefing(aiInstruction),
-                                    )
-                                },
-                                onUpgradeToPro = { viewModel.handleIntent(EventIntent.UpgradeToProIARequest) },
-                                onSubscriptionRequest = onSubscriptionRequest,
-                                onVoiceCaptureClick = { viewModel.handleIntent(EventIntent.ShowAiSuggestionsDialog) },
-                                onClearAiResponse = { viewModel.handleIntent(EventIntent.ClearAiResponse) },
-                                onSpeakAiResponse = { viewModel.handleIntent(EventIntent.SpeakAiResponse) },
-                                onStopSpeaking = { viewModel.handleIntent(EventIntent.StopSpeaking) },
-                                onReply = launchVoiceCapture,
-                            ),
-                        windowSizeClass = windowSizeClass,
-                    )
+                                    },
+                                    onReturnToToday = { viewModel.handleIntent(EventIntent.ReturnToToday) },
+                                    onSearchQueryChanged = {
+                                        viewModel.handleIntent(
+                                            EventIntent.SearchQueryChanged(it),
+                                        )
+                                    },
+                                    onJoinMeeting = { url ->
+                                        viewModel.handleIntent(EventIntent.JoinMeeting(url))
+                                    },
+                                    onCopyMeetingUrl = { url ->
+                                        viewModel.handleIntent(EventIntent.CopyMeetingUrl(url))
+                                    },
+                                    onFetchWeather = { viewModel.handleIntent(EventIntent.FetchWeather) },
+                                ),
+                            settingsActions = settingsActions,
+                            aiActions =
+                                AiActions(
+                                    onGenerateBriefing = {
+                                        viewModel.handleIntent(
+                                            EventIntent
+                                                .GenerateDailyBriefing(aiInstruction),
+                                        )
+                                    },
+                                    onUpgradeToPro = { viewModel.handleIntent(EventIntent.UpgradeToProIARequest) },
+                                    onSubscriptionRequest = onSubscriptionRequest,
+                                    onVoiceCaptureClick = {
+                                        viewModel.handleIntent(EventIntent.ShowAiSuggestionsDialog)
+                                    },
+                                    onClearAiResponse = { viewModel.handleIntent(EventIntent.ClearAiResponse) },
+                                    onSpeakAiResponse = { viewModel.handleIntent(EventIntent.SpeakAiResponse) },
+                                    onStopSpeaking = { viewModel.handleIntent(EventIntent.StopSpeaking) },
+                                    onReply = launchVoiceCapture,
+                                ),
+                            windowSizeClass = windowSizeClass,
+                        )
+                    }
                 }
             }
         }
@@ -667,10 +560,23 @@ private fun EventBottomBar(
             )
 
         NavigationBarItem(
-            selected = true,
-            onClick = { },
+            selected = uiState.selectedBottomTab == 0,
+            onClick = { handleIntent(EventIntent.ChangeBottomTab(0)) },
             icon = { Icon(Icons.Rounded.Alarm, contentDescription = stringResource(R.string.alarms)) },
             label = { Text(stringResource(R.string.alarms)) },
+            colors = navItemColors,
+        )
+
+        NavigationBarItem(
+            selected = uiState.selectedBottomTab == 1,
+            onClick = { handleIntent(EventIntent.ChangeBottomTab(1)) },
+            icon = {
+                Icon(
+                    Icons.Rounded.AutoAwesome,
+                    contentDescription = stringResource(R.string.insights_title),
+                )
+            },
+            label = { Text(stringResource(R.string.insights_title)) },
             colors = navItemColors,
         )
 
@@ -682,8 +588,6 @@ private fun EventBottomBar(
                 label = { Text(stringResource(R.string.calendar)) },
                 colors = navItemColors,
             )
-
-            Spacer(modifier = Modifier.weight(1f))
 
             NavigationBarItem(
                 selected = false,
@@ -706,8 +610,6 @@ private fun EventBottomBar(
                 colors = navItemColors,
             )
         } else {
-            Spacer(modifier = Modifier.weight(1f))
-
             NavigationBarItem(
                 selected = false,
                 onClick = { onOpenCalendar() },
@@ -770,5 +672,187 @@ private fun RatingBottomSheet(
             }
             Spacer(modifier = Modifier.height(Dimensions.PaddingLarge))
         }
+    }
+}
+
+@Composable
+private fun HandleEventSideEffects(
+    viewModel: EventViewModel,
+    snackbarHostState: SnackbarHostState,
+    googleSignInLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    onSetAiConfirmationData: (EventSideEffect.RequireUserConfirmation) -> Unit,
+) {
+    val context = LocalContext.current
+    LaunchedEffect(viewModel.sideEffect) {
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                is EventSideEffect.RequireUserConfirmation -> {
+                    onSetAiConfirmationData(effect)
+                }
+
+                is EventSideEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
+
+                is EventSideEffect.AIToolError -> {
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
+
+                is EventSideEffect.OpenMeetingUrl -> {
+                    try {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, effect.url.toUri()))
+                    } catch (e: Exception) {
+                        logcat { "Failed to open meeting URL: ${e.message}" }
+                    }
+                }
+
+                is EventSideEffect.CopyToClipboard -> {
+                    val clipboard =
+                        context.getSystemService(
+                            Context.CLIPBOARD_SERVICE,
+                        ) as android.content.ClipboardManager
+                    val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
+                    clipboard.setPrimaryClip(clip)
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
+
+                is EventSideEffect.LaunchGoogleSignIn -> {
+                    googleSignInLauncher.launch(effect.intent)
+                }
+
+                is EventSideEffect.RequestAppReview -> {
+                    val activity = context as? android.app.Activity
+                    if (activity != null) {
+                        val reviewManager = com.google.android.play.core.review.ReviewManagerFactory.create(context)
+                        reviewManager.requestReviewFlow().addOnCompleteListener { request ->
+                            if (request.isSuccessful) {
+                                val reviewInfo = request.result
+                                reviewManager.launchReviewFlow(activity, reviewInfo)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EventScreenDialogs(
+    uiState: EventScreenUiState,
+    aiConfirmationData: EventSideEffect.RequireUserConfirmation?,
+    onSubscriptionRequest: () -> Unit,
+    onPurchaseRequest: () -> Unit,
+    onClearAiConfirmation: () -> Unit,
+    viewModel: EventViewModel,
+) {
+    val context = LocalContext.current
+
+    if (uiState.showSubscriptionConfirmation) {
+        LaunchedEffect(uiState.showSubscriptionConfirmation) {
+            onSubscriptionRequest()
+            viewModel.handleIntent(EventIntent.DismissUpgradeConfirmation)
+        }
+    }
+
+    if (uiState.showPurchaseConfirmation) {
+        LaunchedEffect(uiState.showPurchaseConfirmation) {
+            onPurchaseRequest()
+            viewModel.handleIntent(EventIntent.DismissUpgradeConfirmation)
+        }
+    }
+
+    if (uiState.showRatingBottomSheet) {
+        RatingBottomSheet(
+            onDismissRequest = { viewModel.handleIntent(EventIntent.RateLater) },
+            onRateNow = {
+                context.findActivity()?.let { activity ->
+                    viewModel.handleIntent(EventIntent.RateNow(activity))
+                } ?: run {
+                    val intent =
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "market://details?id=${context.packageName}".toUri(),
+                        )
+                    context.startActivity(intent)
+                    viewModel.handleIntent(EventIntent.RateNow())
+                }
+            },
+            onRateLater = { viewModel.handleIntent(EventIntent.RateLater) },
+            onRateNeverShow = { viewModel.handleIntent(EventIntent.RateNever) },
+        )
+    }
+
+    aiConfirmationData?.let { data ->
+        AlertDialog(
+            onDismissRequest = {
+                onClearAiConfirmation()
+                viewModel.handleIntent(EventIntent.RejectPendingAction)
+            },
+            title = { Text(text = data.title.asString(context)) },
+            text = { Text(text = data.message.asString(context)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onClearAiConfirmation()
+                    viewModel.handleIntent(EventIntent.ApprovePendingAction)
+                }) {
+                    Text(text = stringResource(R.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    onClearAiConfirmation()
+                    viewModel.handleIntent(EventIntent.RejectPendingAction)
+                }) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+}
+
+private fun openAppSettings(context: Context) {
+    context.startActivity(
+        Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", context.packageName, null),
+        ),
+    )
+}
+
+private fun openExactAlarmSettings(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        context.startActivity(Intent("android.settings.REQUEST_SCHEDULE_EXACT_ALARM"))
+    } else {
+        Toast.makeText(context, R.string.not_applicable_on_this_android_version, Toast.LENGTH_SHORT).show()
+    }
+}
+
+private fun openFullScreenIntentSettings(context: Context) {
+    val intent =
+        Intent("android.settings.MANAGE_APP_ALL_ALARMS").apply {
+            data = Uri.fromParts("package", context.packageName, null)
+        }
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+    } else {
+        Toast.makeText(context, R.string.not_applicable_on_this_android_version, Toast.LENGTH_SHORT).show()
+    }
+}
+
+private fun launchVoiceCapture(
+    context: Context,
+    voiceCapturePrompt: String,
+    speechRecognizerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+) {
+    val intent =
+        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PROMPT, voiceCapturePrompt)
+        }
+    try {
+        speechRecognizerLauncher.launch(intent)
+    } catch (e: Exception) {
+        Toast.makeText(context, R.string.cannot_open_event, Toast.LENGTH_SHORT).show()
     }
 }

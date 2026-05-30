@@ -178,8 +178,20 @@ class AlarmSoundAndVibrateService : Service() {
                 )
 
                 if (!vibrateOnly) {
+                    val customRingtoneUriStr =
+                        try {
+                            runBlocking {
+                                AppPreferencesRepositoryImpl(applicationContext).getCustomRingtoneUri().first()
+                            }
+                        } catch (e: Exception) {
+                            null
+                        }
+
+                    val customUri = customRingtoneUriStr?.let { Uri.parse(it) }
+
                     val candidateUris =
                         listOfNotNull(
+                            customUri,
                             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM),
                             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
                             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE),

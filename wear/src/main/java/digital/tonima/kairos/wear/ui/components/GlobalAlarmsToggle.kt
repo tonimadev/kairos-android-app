@@ -6,8 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Switch
-import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import digital.tonima.kairos.core.R as coreR
 
@@ -17,11 +16,10 @@ fun GlobalAlarmsToggle(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ToggleChip(
+    SwitchButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
         label = { Text(stringResource(coreR.string.activate_event_alarms)) },
-        toggleControl = { Switch(checked = checked) },
         modifier =
             modifier
                 .fillMaxWidth()

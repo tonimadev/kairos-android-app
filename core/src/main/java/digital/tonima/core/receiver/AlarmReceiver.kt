@@ -17,6 +17,7 @@ import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import logcat.logcat
 import javax.inject.Inject
@@ -48,6 +49,9 @@ class AlarmReceiver : BroadcastReceiver() {
     @Inject
     lateinit var analytics: Analytics
 
+    @Inject
+    lateinit var appStatusRepository: digital.tonima.core.repository.AppPreferencesRepository
+
     @SuppressLint("MissingPermission")
     override fun onReceive(
         context: Context,
@@ -77,6 +81,14 @@ class AlarmReceiver : BroadcastReceiver() {
                 Analytics.EVENT_ALARM_SNOOZE,
                 mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_NOTIFICATION),
             )
+        }
+
+        kotlinx.coroutines.GlobalScope.launch {
+            try {
+                appStatusRepository.incrementSnoozeCount()
+            } catch (e: Exception) {
+                logcat { "Failed to increment snooze count: ${e.message}" }
+            }
         }
 
         AlarmSoundAndVibrateService.stopAlarm(context)

@@ -7,8 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Switch
-import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material3.CheckboxButton
 import androidx.wear.compose.material3.Text
 import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.kairos.core.R as coreR
@@ -41,7 +40,7 @@ fun CalendarFilterChip(
     modifier: Modifier = Modifier,
 ) {
     val isChecked = enabledCalendarIds.isEmpty() || enabledCalendarIds.contains(calendar.id)
-    ToggleChip(
+    CheckboxButton(
         checked = isChecked,
         onCheckedChange = { checked -> onToggle(calendar.id, checked) },
         label = {
@@ -58,7 +57,6 @@ fun CalendarFilterChip(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        toggleControl = { Switch(checked = isChecked) },
         modifier =
             modifier
                 .fillMaxWidth()

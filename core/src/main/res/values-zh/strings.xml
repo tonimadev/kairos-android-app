@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="google_calendar_not_found">找不到谷歌日历</string>
     <string name="open_calendar">打开日历</string>
@@ -155,7 +155,7 @@
     <string name="geo_alarm_upgrade_trial_desc">避免迟到！通过专业版 + AI 计划启用基于实时路况的闹钟。</string>
     <string name="try_pro_plan">试用专业版计划</string>
 
-    <!-- AI Agent -->
+    
     <string name="ai_agent_snackbar_executed">AI 已执行：%1$s</string>
     <string name="ai_agent_tool_not_found">未找到工具 \'%1$s\'。</string>
     <string name="ai_agent_invalid_args">\'%1$s\' 的参数无效。</string>
@@ -175,7 +175,7 @@
     <string name="ai_agent_event_creation_error">在日历中创建事件时出错。</string>
     <string name="device_health_alert_title">设备警报</string>
 
-    <!-- Pro+AI Features -->
+    
     <string name="ai_suggested_late_notification">AI 建议：%1$s</string>
     <string name="ai_prepping_meeting">AI 正在准备会议摘要…</string>
     <string name="pro_ia_upgrade_title">释放 AI 的力量</string>
@@ -184,7 +184,7 @@
     <string name="silent_mode_warning">静音模式已开启。您的 %1$s 闹钟可能不会响。</string>
     <string name="ask_ai_label">与 AI 对话</string>
 
-    <!-- Meeting Companion Features -->
+    
     <string name="auto_join_title">自动加入会议</string>
     <string name="auto_join_description">当闹钟响起时自动打开会议链接，无需显示闹钟界面。</string>
     <string name="auto_focus_mode_title">自动专注模式</string>
@@ -216,7 +216,7 @@
     <string name="day_friday_short">五</string>
     <string name="day_saturday_short">六</string>
     <string name="prompt_daily_briefing">根据我的闹钟提供每日简报。</string>
-    <!-- Google Meet Integration -->
+    
     <string name="integrations">整合</string>
     <string name="google_login_title">连接 Google Meet</string>
     <string name="google_login_description">授权应用通过AI读取并总结您的会议。</string>
@@ -224,7 +224,7 @@
     <string name="login_google">连接</string>
     <string name="logout">退出</string>
 
-    <!-- Onboarding Strings -->
+    
     <string name="onboarding_title_1">欢迎使用 Kairos</string>
     <string name="onboarding_desc_1">高效管理您的活动和时间。</string>
     <string name="onboarding_title_2">智能闹钟</string>
@@ -233,5 +233,12 @@
     <string name="onboarding_desc_3">获取您日程的每日个性化摘要。</string>
     <string name="onboarding_btn_next">下一步</string>
     <string name="onboarding_btn_start">开始</string>
-</resources>
+<string name="insights_title">洞察与统计</string><string name="insights_streak">连续早起</string><string name="insights_punctuality">准时得分</string><string name="insights_ai_usage">生成的AI简报</string>
+    <!-- Custom Ringtone Strings -->
+    <string name="custom_ringtone">自定义铃声</string>
+    <string name="default_ringtone">默认铃声</string>
+    <string name="change">更改</string>
 
+    <!-- Additional Strings -->
+    <string name="settings">设置</string>
+</resources>

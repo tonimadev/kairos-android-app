@@ -9,32 +9,42 @@ import digital.tonima.core.ai.ActionRegistry
 import digital.tonima.core.ai.RiskLevel
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
-import digital.tonima.core.analytics.EventAnalytics
-import digital.tonima.core.database.mapper.toChatMessage
-import digital.tonima.core.database.mapper.toEntity
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
-import digital.tonima.core.repository.AuthRepository
-import digital.tonima.core.repository.GoogleMeetRepository
 import digital.tonima.core.review.ReviewManager
-import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AskAiAgentUseCase
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
+import digital.tonima.core.usecases.CancelEventAlarmUseCase
 import digital.tonima.core.usecases.CheckPermissionsUseCase
+import digital.tonima.core.usecases.ClearChatHistoryUseCase
 import digital.tonima.core.usecases.CreateEventUseCase
+import digital.tonima.core.usecases.FetchMeetingTranscriptUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetAvailableCalendarsUseCase
+import digital.tonima.core.usecases.GetChatHistoryUseCase
+import digital.tonima.core.usecases.GetCurrentLocationUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.usecases.GetGoogleSignInIntentUseCase
+import digital.tonima.core.usecases.GetRegisteredAiToolsUseCase
+import digital.tonima.core.usecases.GetWeatherUseCase
+import digital.tonima.core.usecases.HandleGoogleSignInResultUseCase
+import digital.tonima.core.usecases.InsertChatMessageUseCase
+import digital.tonima.core.usecases.IsGoogleSignedInUseCase
+import digital.tonima.core.usecases.LogEventUseCase
 import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
+import digital.tonima.core.usecases.ObserveChatHistoryUseCase
 import digital.tonima.core.usecases.ObserveDailyBriefingUseCase
 import digital.tonima.core.usecases.ObserveRingerModeUseCase
+import digital.tonima.core.usecases.ProcessAiResponseUseCase
+import digital.tonima.core.usecases.ScheduleEventAlarmUseCase
+import digital.tonima.core.usecases.SignOutFromGoogleUseCase
+import digital.tonima.core.usecases.SpeakTextUseCase
 import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
 import digital.tonima.core.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
+import digital.tonima.core.usecases.UpdateWidgetUseCase
 import digital.tonima.core.util.toOpenWeatherLang
-import digital.tonima.core.utils.TextToSpeechHelper
-import digital.tonima.core.utils.WidgetUpdater
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,67 +69,40 @@ class EventViewModel
     @Suppress("LongParameterList")
     constructor(
         proUserProvider: ProUserProvider,
-        private val calendar: CalendarDeps,
-        private val prefs: PreferencesDeps,
-        private val alarm: AlarmDeps,
-        private val ai: AiDeps,
-        private val eventAnalytics: EventAnalytics,
+        private val getEventsForMonthUseCase: GetEventsForMonthUseCase,
+        private val getAvailableCalendarsUseCase: GetAvailableCalendarsUseCase,
+        private val createEventUseCase: CreateEventUseCase,
+        private val observeAppPreferencesUseCase: ObserveAppPreferencesUseCase,
+        private val updateAppPreferenceUseCase: UpdateAppPreferenceUseCase,
+        private val toggleEventAlarmUseCase: ToggleEventAlarmUseCase,
+        private val toggleEventVibrateUseCase: ToggleEventVibrateUseCase,
+        private val scheduleEventAlarmUseCase: ScheduleEventAlarmUseCase,
+        private val cancelEventAlarmUseCase: CancelEventAlarmUseCase,
+        private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
+        private val askAiAgentUseCase: AskAiAgentUseCase,
+        private val calculateDepartureTimeUseCase: CalculateDepartureTimeUseCase,
+        private val observeDailyBriefingUseCase: ObserveDailyBriefingUseCase,
+        private val getRegisteredAiToolsUseCase: GetRegisteredAiToolsUseCase,
+        private val processAiResponseUseCase: ProcessAiResponseUseCase,
+        private val speakTextUseCase: SpeakTextUseCase,
+        private val updateWidgetUseCase: UpdateWidgetUseCase,
+        private val observeChatHistoryUseCase: ObserveChatHistoryUseCase,
+        private val getChatHistoryUseCase: GetChatHistoryUseCase,
+        private val insertChatMessageUseCase: InsertChatMessageUseCase,
+        private val clearChatHistoryUseCase: ClearChatHistoryUseCase,
+        private val logEventUseCase: LogEventUseCase,
         private val observeRingerModeUseCase: ObserveRingerModeUseCase,
         private val checkPermissionsUseCase: CheckPermissionsUseCase,
         private val toggleFocusModeUseCase: ToggleFocusModeUseCase,
         private val reviewManager: ReviewManager,
-        private val weather: WeatherDeps,
-        private val googleMeetRepository: GoogleMeetRepository,
-        private val authRepository: AuthRepository,
+        private val fetchMeetingTranscriptUseCase: FetchMeetingTranscriptUseCase,
+        private val isGoogleSignedIn: IsGoogleSignedInUseCase,
+        private val getGoogleSignInIntent: GetGoogleSignInIntentUseCase,
+        private val handleGoogleSignInResultUseCase: HandleGoogleSignInResultUseCase,
+        private val signOutFromGoogle: SignOutFromGoogleUseCase,
+        private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+        private val getWeatherUseCase: GetWeatherUseCase,
     ) : ViewModel(), ProUserProvider by proUserProvider {
-        /** Dependencies for calendar and event data operations. */
-        class CalendarDeps
-            @Inject
-            constructor(
-                val getEventsForMonth: GetEventsForMonthUseCase,
-                val getAvailableCalendars: GetAvailableCalendarsUseCase,
-                val createEvent: CreateEventUseCase,
-            )
-
-        /** Dependencies for reading and writing app preferences. */
-        class PreferencesDeps
-            @Inject
-            constructor(
-                val observe: ObserveAppPreferencesUseCase,
-                val update: UpdateAppPreferenceUseCase,
-            )
-
-        /** Dependencies for alarm scheduling and toggling. */
-        class AlarmDeps
-            @Inject
-            constructor(
-                val toggleEventAlarm: ToggleEventAlarmUseCase,
-                val toggleEventVibrate: ToggleEventVibrateUseCase,
-                val scheduler: EventAlarmScheduler,
-            )
-
-        /** Dependencies for AI-powered features (briefing, suggestions, TTS, widgets, agent). */
-        class AiDeps
-            @Inject
-            constructor(
-                val generateDailyBriefing: GenerateDailyBriefingUseCase,
-                val askAiAgent: AskAiAgentUseCase,
-                val calculateDepartureTime: CalculateDepartureTimeUseCase,
-                val observeDailyBriefing: ObserveDailyBriefingUseCase,
-                val tts: TextToSpeechHelper,
-                val widgetUpdater: WidgetUpdater,
-                val actionRegistry: ActionRegistry,
-                val chatHistoryDao: digital.tonima.core.database.dao.ChatHistoryDao,
-            )
-
-        /** Dependencies for weather operations. */
-        class WeatherDeps
-            @Inject
-            constructor(
-                val locationRepository: digital.tonima.core.repository.LocationRepository,
-                val weatherRepository: digital.tonima.core.repository.WeatherRepository,
-            )
-
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
 
@@ -133,7 +116,7 @@ class EventViewModel
             observeChatHistory()
             handleIntent(EventIntent.CheckPermissions)
 
-            _uiState.update { it.copy(isGoogleConnected = authRepository.isSignedIn()) }
+            _uiState.update { it.copy(isGoogleConnected = isGoogleSignedIn()) }
 
             viewModelScope.launch {
                 isAiUser.collect { isAi ->
@@ -149,7 +132,7 @@ class EventViewModel
         }
 
         fun handleIntent(intent: EventIntent) {
-            eventAnalytics.logIntent(intent)
+            logEventUseCase(intent)
             viewModelScope.launch {
                 when (intent) {
                     // Grouped: Calendar intents
@@ -229,7 +212,7 @@ class EventViewModel
                     viewModelScope.launch { onCalendarFilterToggle(intent.calendarId, intent.enabled) }
                 EventIntent.ClearCalendarFilter ->
                     viewModelScope.launch {
-                        prefs.update.setEnabledCalendarIds(emptySet())
+                        updateAppPreferenceUseCase.setEnabledCalendarIds(emptySet())
                     }
                 is EventIntent.CreateEvent -> createEvent(intent)
                 else -> Unit
@@ -239,20 +222,27 @@ class EventViewModel
         private fun handleSettingsIntent(intent: EventIntent) {
             viewModelScope.launch {
                 when (intent) {
-                    is EventIntent.ToggleGlobalAlarms -> prefs.update.setGlobalAlarmEnabled(intent.enabled)
-                    is EventIntent.ToggleVibrateOnly -> prefs.update.setVibrateOnly(intent.enabled)
-                    is EventIntent.ToggleAllDayAlarms -> prefs.update.setAllDayAlarmsEnabled(intent.enabled)
-                    is EventIntent.UpdateAllDayAlarmHour -> prefs.update.setAllDayAlarmHour(intent.hour)
-                    is EventIntent.UpdateAlarmOffset -> prefs.update.setAlarmOffsetMinutes(intent.offset.minutes)
-                    is EventIntent.UpdateSnoozeTime -> prefs.update.setSnoozeTimeMinutes(intent.minutes)
-                    is EventIntent.ToggleSkipWeekends -> prefs.update.setSkipWeekendsEnabled(intent.enabled)
-                    is EventIntent.UpdateAutoDismissMinutes -> prefs.update.setAutoDismissMinutes(intent.minutes)
+                    is EventIntent.ToggleGlobalAlarms ->
+                        updateAppPreferenceUseCase.setGlobalAlarmEnabled(intent.enabled)
+                    is EventIntent.ToggleVibrateOnly -> updateAppPreferenceUseCase.setVibrateOnly(intent.enabled)
+                    is EventIntent.ToggleAllDayAlarms ->
+                        updateAppPreferenceUseCase.setAllDayAlarmsEnabled(intent.enabled)
+                    is EventIntent.UpdateAllDayAlarmHour -> updateAppPreferenceUseCase.setAllDayAlarmHour(intent.hour)
+                    is EventIntent.UpdateAlarmOffset ->
+                        updateAppPreferenceUseCase.setAlarmOffsetMinutes(intent.offset.minutes)
+                    is EventIntent.UpdateSnoozeTime -> updateAppPreferenceUseCase.setSnoozeTimeMinutes(intent.minutes)
+                    is EventIntent.ToggleSkipWeekends ->
+                        updateAppPreferenceUseCase.setSkipWeekendsEnabled(intent.enabled)
+                    is EventIntent.UpdateAutoDismissMinutes ->
+                        updateAppPreferenceUseCase.setAutoDismissMinutes(intent.minutes)
                     is EventIntent.ToggleLocationAlarm -> onLocationAlarmToggle(intent.enabled)
-                    is EventIntent.ToggleAutoJoin -> prefs.update.setAutoJoinEnabled(intent.enabled)
-                    is EventIntent.ToggleAutoFocusMode -> prefs.update.setAutoFocusModeEnabled(intent.enabled)
-                    is EventIntent.ChangeTransportMode -> prefs.update.setPreferredTransportMode(intent.mode)
+                    is EventIntent.ToggleAutoJoin -> updateAppPreferenceUseCase.setAutoJoinEnabled(intent.enabled)
+                    is EventIntent.ToggleAutoFocusMode ->
+                        updateAppPreferenceUseCase.setAutoFocusModeEnabled(intent.enabled)
+                    is EventIntent.ChangeTransportMode ->
+                        updateAppPreferenceUseCase.setPreferredTransportMode(intent.mode)
                     is EventIntent.ToggleTemperatureUnit -> {
-                        prefs.update.setTemperatureInCelsius(intent.isCelsius)
+                        updateAppPreferenceUseCase.setTemperatureInCelsius(intent.isCelsius)
                         handleIntent(EventIntent.FetchWeather)
                     }
                     EventIntent.FetchWeather -> fetchWeather()
@@ -273,9 +263,9 @@ class EventViewModel
                     )
                 }
                 is EventIntent.ToggleEventAlarm ->
-                    alarm.toggleEventAlarm(intent.event, intent.enabled, intent.allOccurrences)
+                    toggleEventAlarmUseCase(intent.event, intent.enabled, intent.allOccurrences)
                 is EventIntent.ToggleEventVibrate ->
-                    alarm.toggleEventVibrate(intent.event, intent.enabled)
+                    toggleEventVibrateUseCase(intent.event, intent.enabled)
                 else -> Unit
             }
         }
@@ -296,20 +286,20 @@ class EventViewModel
 
         private fun handleGoogleSignInResult(intent: android.content.Intent?) {
             viewModelScope.launch {
-                val result = authRepository.handleSignInResult(intent)
+                val result = handleGoogleSignInResultUseCase(intent)
                 if (result.isSuccess) {
                     _uiState.update { it.copy(isGoogleConnected = true) }
                     _sideEffect.trySend(
                         EventSideEffect.ShowSnackbar(
-                            digital.tonima.core.viewmodel.UiText.StringResource(
-                                digital.tonima.kairos.core.R.string.google_logout_title,
+                            UiText.StringResource(
+                                R.string.google_logout_title,
                             ),
                         ),
                     )
                 } else {
                     _sideEffect.trySend(
                         EventSideEffect.ShowSnackbar(
-                            digital.tonima.core.viewmodel.UiText.DynamicString("Login failed"),
+                            UiText.DynamicString("Login failed"),
                         ),
                     )
                 }
@@ -317,13 +307,13 @@ class EventViewModel
         }
 
         private fun handleSignInWithGoogle() {
-            val signInIntent = authRepository.getSignInIntent()
+            val signInIntent = getGoogleSignInIntent()
             _sideEffect.trySend(EventSideEffect.LaunchGoogleSignIn(signInIntent))
         }
 
         private fun handleSignOutFromGoogle() {
             viewModelScope.launch {
-                authRepository.signOut()
+                signOutFromGoogle()
                 _uiState.update { it.copy(isGoogleConnected = false) }
             }
         }
@@ -345,14 +335,14 @@ class EventViewModel
                 EventIntent.SkipExactAlarmPermission -> {
                     logcat { "User skipped exact alarm permission request - alarms will be inexact" }
                     viewModelScope.launch {
-                        prefs.update.setExactAlarmPermissionSkipped(true)
+                        updateAppPreferenceUseCase.setExactAlarmPermissionSkipped(true)
                         checkPermissions()
                     }
                 }
                 EventIntent.SkipFullScreenIntentPermission -> {
                     logcat { "User skipped full-screen intent permission request" }
                     viewModelScope.launch {
-                        prefs.update.setFullScreenIntentPermissionSkipped(true)
+                        updateAppPreferenceUseCase.setFullScreenIntentPermissionSkipped(true)
                         checkPermissions()
                     }
                 }
@@ -363,7 +353,7 @@ class EventViewModel
         private suspend fun handleUiIntent(intent: EventIntent) {
             when (intent) {
                 EventIntent.DismissAutostartSuggestion ->
-                    prefs.update.setAutostartSuggestionDismissed(true)
+                    updateAppPreferenceUseCase.setAutostartSuggestionDismissed(true)
                 EventIntent.UpgradeToProRequest ->
                     _uiState.update { it.copy(showPurchaseConfirmation = true) }
                 EventIntent.UpgradeToProIARequest ->
@@ -372,6 +362,14 @@ class EventViewModel
                     _uiState.update {
                         it.copy(showSubscriptionConfirmation = false, showPurchaseConfirmation = false)
                     }
+                is EventIntent.ChangeBottomTab ->
+                    _uiState.update { it.copy(selectedBottomTab = intent.tabIndex) }
+                EventIntent.OpenSettings ->
+                    _uiState.update { it.copy(showSettingsScreen = true) }
+                EventIntent.CloseSettings ->
+                    _uiState.update { it.copy(showSettingsScreen = false) }
+                is EventIntent.UpdateCustomRingtoneUri ->
+                    _uiState.update { it.copy(customRingtoneUri = intent.uri) }
                 is EventIntent.SearchQueryChanged ->
                     _uiState.update { it.copy(searchQuery = intent.query) }
                 is EventIntent.ShowCreateEventDialog ->
@@ -388,7 +386,7 @@ class EventViewModel
                 EventIntent.RateLater ->
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
                 EventIntent.RateNever -> {
-                    prefs.update.setRatingCompleted(true)
+                    updateAppPreferenceUseCase.setRatingCompleted(true)
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
                 }
                 else -> Unit
@@ -396,7 +394,7 @@ class EventViewModel
         }
 
         private fun observePreferences() {
-            prefs.observe().onEach { appPrefs ->
+            observeAppPreferencesUseCase().onEach { appPrefs ->
                 val prevGlobalEnabled = _uiState.value.isGlobalAlarmEnabled
                 _uiState.update {
                     it.copy(
@@ -422,7 +420,7 @@ class EventViewModel
                 }
 
                 if (prevGlobalEnabled && !appPrefs.isGlobalAlarmEnabled) {
-                    _uiState.value.events.forEach { alarm.scheduler.cancel(it) }
+                    _uiState.value.events.forEach { cancelEventAlarmUseCase(it) }
                 }
 
                 refreshEvents()
@@ -441,14 +439,13 @@ class EventViewModel
         }
 
         private fun observeDailyBriefing() {
-            ai.observeDailyBriefing().onEach { briefing ->
+            observeDailyBriefingUseCase().onEach { briefing ->
                 _uiState.update { it.copy(dailyBriefing = briefing) }
             }.launchIn(viewModelScope)
         }
 
         private fun observeChatHistory() {
-            ai.chatHistoryDao.observeHistory().onEach { entities ->
-                val messages = entities.mapNotNull { it.toChatMessage() }
+            observeChatHistoryUseCase().onEach { messages ->
                 _uiState.update { it.copy(chatHistory = messages) }
             }.launchIn(viewModelScope)
         }
@@ -486,8 +483,8 @@ class EventViewModel
 
             viewModelScope.launch {
                 _uiState.update { it.copy(isRefreshing = true) }
-                val calendarEvents = calendar.getEventsForMonth(_uiState.value.currentMonth)
-                val appPrefs = prefs.observe().first()
+                val calendarEvents = getEventsForMonthUseCase(_uiState.value.currentMonth)
+                val appPrefs = observeAppPreferencesUseCase().first()
 
                 val updatedEvents =
                     calendarEvents.map { event ->
@@ -503,7 +500,7 @@ class EventViewModel
                         var travelTimeMinutes: Int? = null
 
                         if (isAlarmEnabled && _uiState.value.isAiUser && event.location != null) {
-                            val departureInfo = ai.calculateDepartureTime(event)
+                            val departureInfo = calculateDepartureTimeUseCase(event)
                             departureTime = departureInfo?.departureTime
                             travelTimeMinutes = departureInfo?.travelTimeMinutes
                         }
@@ -573,14 +570,14 @@ class EventViewModel
                 events.filter { it.isAlarmEnabled }.forEach { event ->
                     val triggerTime =
                         if (_uiState.value.isAiUser && event.location != null) {
-                            ai.calculateDepartureTime(event)?.departureTime
+                            calculateDepartureTimeUseCase(event)?.departureTime
                         } else {
                             null
                         }
                     val alarmFireTime =
                         triggerTime ?: (event.startTime - TimeUnit.MINUTES.toMillis(offsetMinutes))
                     if (alarmFireTime in (now + 1)..windowEnd) {
-                        alarm.scheduler.schedule(event, triggerTime)
+                        scheduleEventAlarmUseCase(event, triggerTime)
                     }
                 }
             }
@@ -595,12 +592,12 @@ class EventViewModel
                 _uiState.update { it.copy(showSubscriptionConfirmation = true) }
                 return
             }
-            viewModelScope.launch { prefs.update.setLocationAlarmEnabled(enabled) }
+            viewModelScope.launch { updateAppPreferenceUseCase.setLocationAlarmEnabled(enabled) }
         }
 
         private fun loadAvailableCalendars() {
             viewModelScope.launch {
-                val calendars = calendar.getAvailableCalendars()
+                val calendars = getAvailableCalendarsUseCase()
                 _uiState.update { it.copy(availableCalendars = calendars) }
             }
         }
@@ -624,7 +621,7 @@ class EventViewModel
             _uiState.update { it.copy(enabledCalendarIds = newLongSet) }
 
             val newStringSet = newLongSet.map { it.toString() }.toSet()
-            prefs.update.setEnabledCalendarIds(newStringSet)
+            updateAppPreferenceUseCase.setEnabledCalendarIds(newStringSet)
 
             refreshEvents()
         }
@@ -642,9 +639,9 @@ class EventViewModel
 
             viewModelScope.launch {
                 _uiState.update { it.copy(isGeneratingBriefing = true) }
-                val briefing = ai.generateDailyBriefing(eventsToday, language)
+                val briefing = generateDailyBriefingUseCase(eventsToday, language)
                 if (briefing != null) {
-                    ai.widgetUpdater.updateDailyBriefingWidget()
+                    updateWidgetUseCase.updateDailyBriefingWidget()
                 }
                 _uiState.update { it.copy(isGeneratingBriefing = false) }
             }
@@ -657,11 +654,11 @@ class EventViewModel
             if (_uiState.value.isAskingAi || !_uiState.value.isAiUser) return
 
             viewModelScope.launch {
-                val currentHistory = ai.chatHistoryDao.getHistory().mapNotNull { it.toChatMessage() }
+                val currentHistory = getChatHistoryUseCase()
 
                 if (!question.isNullOrBlank()) {
                     val questionMsg = ChatMessage.Text(ChatMessage.Role.USER, question)
-                    ai.chatHistoryDao.insertMessage(questionMsg.toEntity())
+                    insertChatMessageUseCase(questionMsg)
                 }
 
                 _uiState.update {
@@ -671,26 +668,26 @@ class EventViewModel
                         lastAiQuestion = question ?: it.lastAiQuestion,
                     )
                 }
-                val eventsRecent = calendar.getEventsForMonth(_uiState.value.currentMonth)
+                val eventsRecent = getEventsForMonthUseCase(_uiState.value.currentMonth)
 
                 val agentResponse =
-                    ai.askAiAgent(
+                    askAiAgentUseCase(
                         eventsRecent,
                         question,
                         language,
-                        ai.actionRegistry.registeredTools(),
+                        getRegisteredAiToolsUseCase(),
                         currentHistory,
                     )
 
                 when (agentResponse) {
                     is AIAgentResponse.Text -> {
                         val answerMsg = ChatMessage.Text(ChatMessage.Role.ASSISTANT, agentResponse.content)
-                        ai.chatHistoryDao.insertMessage(answerMsg.toEntity())
+                        insertChatMessageUseCase(answerMsg)
                         processAiResponse(agentResponse.content)
                     }
                     is AIAgentResponse.FunctionCall -> {
                         val callMsg = ChatMessage.FunctionCall(agentResponse.name, agentResponse.args)
-                        ai.chatHistoryDao.insertMessage(callMsg.toEntity())
+                        insertChatMessageUseCase(callMsg)
                         onAIFunctionCalled(
                             agentResponse.name,
                             agentResponse.args,
@@ -746,7 +743,7 @@ class EventViewModel
 
         private fun speak(text: String) {
             _uiState.update { it.copy(isSpeaking = true) }
-            ai.tts.speak(text) { _uiState.update { it.copy(isSpeaking = false) } }
+            speakTextUseCase(text) { _uiState.update { it.copy(isSpeaking = false) } }
         }
 
         private fun speakAiResponse() {
@@ -756,14 +753,14 @@ class EventViewModel
         }
 
         private fun stopSpeaking() {
-            ai.tts.stop()
+            speakTextUseCase.stop()
             _uiState.update { it.copy(isSpeaking = false) }
         }
 
         private fun clearAiResponse() {
             stopSpeaking()
             viewModelScope.launch {
-                ai.chatHistoryDao.clearHistory()
+                clearChatHistoryUseCase()
             }
             _uiState.update {
                 it.copy(
@@ -778,7 +775,7 @@ class EventViewModel
             logcat { "Criando evento: ${intent.title} no calendário ${intent.calendarId}" }
             viewModelScope.launch {
                 val result =
-                    calendar.createEvent(
+                    createEventUseCase(
                         intent.calendarId,
                         intent.title,
                         intent.description,
@@ -790,15 +787,15 @@ class EventViewModel
                     )
                 if (result != null) {
                     logcat { "Evento criado com sucesso, ID: $result" }
-                    eventAnalytics.logEventCreated()
+                    logEventUseCase.logEventCreated()
                     handleIntent(EventIntent.DismissCreateEventDialog)
 
                     // Navigate to the event date so the user can see it
                     val eventDate =
-                        java.time.Instant.ofEpochMilli(intent.startTime)
-                            .atZone(java.time.ZoneId.systemDefault())
+                        Instant.ofEpochMilli(intent.startTime)
+                            .atZone(ZoneId.systemDefault())
                             .toLocalDate()
-                    val eventMonth = java.time.YearMonth.from(eventDate)
+                    val eventMonth = YearMonth.from(eventDate)
 
                     _uiState.update { it.copy(selectedDate = eventDate) }
                     if (eventMonth != _uiState.value.currentMonth) {
@@ -820,7 +817,7 @@ class EventViewModel
                         ),
                     )
                 } else {
-                    logcat { "Falha ao criar evento: calendar.createEvent retornou null" }
+                    logcat { "Falha ao criar evento: createEvent retornou null" }
                     _sideEffect.send(
                         EventSideEffect.AIToolError(
                             UiText.StringResource(R.string.ai_agent_event_creation_error),
@@ -832,7 +829,7 @@ class EventViewModel
 
         private fun onRateNow(activity: android.app.Activity?) {
             viewModelScope.launch {
-                prefs.update.setRatingCompleted(true)
+                updateAppPreferenceUseCase.setRatingCompleted(true)
                 _uiState.update { it.copy(showRatingBottomSheet = false) }
                 activity?.let { reviewManager.requestReview(it) {} }
             }
@@ -842,14 +839,14 @@ class EventViewModel
             viewModelScope.launch {
                 val isCelsius = _uiState.value.isTemperatureInCelsius
                 val lang = java.util.Locale.getDefault().toOpenWeatherLang()
-                val locationStr = weather.locationRepository.getCurrentLocation()
+                val locationStr = getCurrentLocationUseCase()
                 if (locationStr != null) {
                     val parts = locationStr.split(",")
                     if (parts.size == 2) {
                         val lat = parts[0].toDoubleOrNull()
                         val lon = parts[1].toDoubleOrNull()
                         if (lat != null && lon != null) {
-                            val weatherData = weather.weatherRepository.getWeather(lat, lon, isCelsius, lang)
+                            val weatherData = getWeatherUseCase(lat, lon, isCelsius, lang)
                             if (weatherData != null) {
                                 _uiState.update { it.copy(weather = weatherData) }
                             }
@@ -877,7 +874,7 @@ class EventViewModel
             args: Map<String, Any?>,
         ) {
             viewModelScope.launch {
-                when (val result = ai.actionRegistry.processAIToolCall(toolName, args)) {
+                when (val result = processAiResponseUseCase(toolName, args)) {
                     is AIToolResult.Success -> {
                         routeByRiskLevel(result)
                         val responseMsg =
@@ -886,13 +883,13 @@ class EventViewModel
                                     toolName,
                                     mapOf("status" to "success", "message" to "Intent gerado e processado"),
                                 )
-                        ai.chatHistoryDao.insertMessage(responseMsg.toEntity())
+                        insertChatMessageUseCase(responseMsg)
                         askAi(null)
                     }
                     is AIToolResult.ToolNotFound -> {
                         logcat { "AI Agent: tool '${result.toolName}' not found" }
                         val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Tool not found"))
-                        ai.chatHistoryDao.insertMessage(responseMsg.toEntity())
+                        insertChatMessageUseCase(responseMsg)
                         askAi(null)
                         _sideEffect.trySend(
                             EventSideEffect.AIToolError(
@@ -906,7 +903,7 @@ class EventViewModel
                     is AIToolResult.InvalidArguments -> {
                         logcat { "AI Agent: invalid args for '${result.toolName}': ${result.args}" }
                         val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Invalid arguments"))
-                        ai.chatHistoryDao.insertMessage(responseMsg.toEntity())
+                        insertChatMessageUseCase(responseMsg)
                         askAi(null)
                         _sideEffect.trySend(
                             EventSideEffect.AIToolError(
@@ -1019,20 +1016,20 @@ class EventViewModel
 
         private fun handleSummarizeMeetTranscript(intent: EventIntent.SummarizeMeetTranscript) {
             viewModelScope.launch {
-                val result = googleMeetRepository.fetchMeetingTranscript(intent.meetingUrl)
+                val result = fetchMeetingTranscriptUseCase(intent.meetingUrl)
                 result.onSuccess { transcript ->
                     val questionMsg =
-                        digital.tonima.core.ai.model.ChatMessage.Text(
-                            digital.tonima.core.ai.model.ChatMessage.Role.USER,
+                        ChatMessage.Text(
+                            ChatMessage.Role.USER,
                             "Aqui está a transcrição da reunião: \n$transcript\n\n" +
                                 "Por favor, resuma os principais pontos discutidos e extraia as ações (action items).",
                         )
-                    ai.chatHistoryDao.insertMessage(questionMsg.toEntity())
+                    insertChatMessageUseCase(questionMsg)
                     askAi(null)
                 }.onFailure { e ->
                     _sideEffect.trySend(
                         EventSideEffect.AIToolError(
-                            digital.tonima.core.viewmodel.UiText.DynamicString(
+                            UiText.DynamicString(
                                 "Falha ao baixar transcrição: ${e.message}",
                             ),
                         ),

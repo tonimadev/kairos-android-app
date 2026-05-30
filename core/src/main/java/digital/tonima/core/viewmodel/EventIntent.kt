@@ -99,6 +99,8 @@ sealed class EventIntent {
 
     data class SearchQueryChanged(val query: String) : EventIntent()
 
+    data class ChangeBottomTab(val tabIndex: Int) : EventIntent()
+
     // UI Dialog state intents
     data class ShowCreateEventDialog(val voiceEventData: VoiceEventData? = null) : EventIntent()
 
@@ -112,6 +114,12 @@ sealed class EventIntent {
     object SkipExactAlarmPermission : EventIntent()
 
     object SkipFullScreenIntentPermission : EventIntent()
+
+    object OpenSettings : EventIntent()
+
+    object CloseSettings : EventIntent()
+
+    data class UpdateCustomRingtoneUri(val uri: String?) : EventIntent()
 
     // ── AI Agent intents ────────────────────────────────────────────────
 

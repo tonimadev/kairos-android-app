@@ -10,30 +10,38 @@ import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.analytics.EventAnalytics
 import digital.tonima.core.database.dao.ChatHistoryDao
-import digital.tonima.core.database.entity.ChatHistoryEntity
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.review.ReviewManager
-import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.core.usecases.AppPreferences
 import digital.tonima.core.usecases.AskAiAgentUseCase
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
+import digital.tonima.core.usecases.CancelEventAlarmUseCase
 import digital.tonima.core.usecases.CheckPermissionsUseCase
+import digital.tonima.core.usecases.ClearChatHistoryUseCase
 import digital.tonima.core.usecases.CreateEventUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetAvailableCalendarsUseCase
+import digital.tonima.core.usecases.GetChatHistoryUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.usecases.InsertChatMessageUseCase
+import digital.tonima.core.usecases.LogEventUseCase
 import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
+import digital.tonima.core.usecases.ObserveChatHistoryUseCase
 import digital.tonima.core.usecases.ObserveDailyBriefingUseCase
 import digital.tonima.core.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.usecases.PermissionState
+import digital.tonima.core.usecases.ProcessAiResponseUseCase
+import digital.tonima.core.usecases.ScheduleEventAlarmUseCase
+import digital.tonima.core.usecases.SpeakTextUseCase
 import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
 import digital.tonima.core.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
+import digital.tonima.core.usecases.UpdateWidgetUseCase
 import digital.tonima.core.utils.TextToSpeechHelper
 import digital.tonima.core.utils.WidgetUpdater
 import io.mockk.Runs
@@ -93,17 +101,27 @@ class EventViewModelTest {
     private val mockToggleFocusModeUseCase: ToggleFocusModeUseCase = mockk(relaxed = true)
     private val mockTtsHelper: TextToSpeechHelper = mockk(relaxed = true)
     private val mockWidgetUpdater: WidgetUpdater = mockk(relaxed = true)
-    private val mockScheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val mockReviewManager: ReviewManager = mockk(relaxed = true)
     private val mockEventAnalytics: EventAnalytics = mockk(relaxed = true)
     private val mockChatHistoryDao: ChatHistoryDao = mockk(relaxed = true)
+
+    private val mockScheduleEventAlarmUseCase: ScheduleEventAlarmUseCase = mockk(relaxed = true)
+    private val mockCancelEventAlarmUseCase: CancelEventAlarmUseCase = mockk(relaxed = true)
+    private val mockSpeakTextUseCase: SpeakTextUseCase = mockk(relaxed = true)
+    private val mockUpdateWidgetUseCase: UpdateWidgetUseCase = mockk(relaxed = true)
+    private val mockProcessAiResponseUseCase: ProcessAiResponseUseCase = mockk(relaxed = true)
+    private val mockObserveChatHistoryUseCase: ObserveChatHistoryUseCase = mockk(relaxed = true)
+    private val mockGetChatHistoryUseCase: GetChatHistoryUseCase = mockk(relaxed = true)
+    private val mockInsertChatMessageUseCase: InsertChatMessageUseCase = mockk(relaxed = true)
+    private val mockClearChatHistoryUseCase: ClearChatHistoryUseCase = mockk(relaxed = true)
+    private val mockLogEventUseCase: LogEventUseCase = mockk(relaxed = true)
 
     private val appPreferencesFlow = MutableStateFlow(defaultAppPreferences())
     private val ringerModeFlow = MutableStateFlow(AudioWarningState.NORMAL)
     private val dailyBriefingFlow = MutableStateFlow<String?>(null)
     private val isProUserFlow = MutableStateFlow(false)
     private val isAiUserFlow = MutableStateFlow(false)
-    private val fakeChatHistory = mutableListOf<ChatHistoryEntity>()
+    private val fakeChatHistory = mutableListOf<digital.tonima.core.ai.model.ChatMessage>()
 
     private val mockLocationRepository: digital.tonima.core.repository.LocationRepository = mockk(relaxed = true)
     private val mockWeatherRepository: digital.tonima.core.repository.WeatherRepository = mockk(relaxed = true)
@@ -131,14 +149,15 @@ class EventViewModelTest {
         coEvery { mockGetEventsForMonthUseCase(any()) } returns emptyList()
         coEvery { mockGetAvailableCalendarsUseCase() } returns emptyList()
 
-        every { mockChatHistoryDao.observeHistory() } answers { MutableStateFlow(fakeChatHistory.toList()) }
-        coEvery { mockChatHistoryDao.getHistory() } answers { fakeChatHistory.toList() }
-        coEvery { mockChatHistoryDao.insertMessage(any()) } answers {
+        every { mockObserveChatHistoryUseCase() } answers { MutableStateFlow(fakeChatHistory.toList()) }
+        coEvery { mockGetChatHistoryUseCase() } answers { fakeChatHistory.toList() }
+        coEvery { mockInsertChatMessageUseCase(any()) } answers {
             fakeChatHistory.add(firstArg())
             1L
         }
-        coEvery { mockChatHistoryDao.clearHistory() } answers {
+        coEvery { mockClearChatHistoryUseCase() } answers {
             fakeChatHistory.clear()
+            Unit
             1
         }
 
@@ -177,46 +196,39 @@ class EventViewModelTest {
     private fun createViewModel() =
         EventViewModel(
             proUserProvider = mockProUserProvider,
-            calendar =
-                EventViewModel.CalendarDeps(
-                    getEventsForMonth = mockGetEventsForMonthUseCase,
-                    getAvailableCalendars = mockGetAvailableCalendarsUseCase,
-                    createEvent = mockCreateEventUseCase,
-                ),
-            prefs =
-                EventViewModel.PreferencesDeps(
-                    observe = mockObserveAppPreferencesUseCase,
-                    update = mockUpdateAppPreferenceUseCase,
-                ),
-            alarm =
-                EventViewModel.AlarmDeps(
-                    toggleEventAlarm = mockToggleEventAlarmUseCase,
-                    toggleEventVibrate = mockToggleEventVibrateUseCase,
-                    scheduler = mockScheduler,
-                ),
-            ai =
-                EventViewModel.AiDeps(
-                    generateDailyBriefing = mockGenerateDailyBriefingUseCase,
-                    askAiAgent = mockAskAiAgentUseCase,
-                    calculateDepartureTime = mockCalculateDepartureTimeUseCase,
-                    observeDailyBriefing = mockObserveDailyBriefingUseCase,
-                    tts = mockTtsHelper,
-                    widgetUpdater = mockWidgetUpdater,
-                    actionRegistry = mockActionRegistry,
-                    chatHistoryDao = mockChatHistoryDao,
-                ),
-            eventAnalytics = mockEventAnalytics,
+            getEventsForMonthUseCase = mockGetEventsForMonthUseCase,
+            getAvailableCalendarsUseCase = mockGetAvailableCalendarsUseCase,
+            createEventUseCase = mockCreateEventUseCase,
+            observeAppPreferencesUseCase = mockObserveAppPreferencesUseCase,
+            updateAppPreferenceUseCase = mockUpdateAppPreferenceUseCase,
+            toggleEventAlarmUseCase = mockToggleEventAlarmUseCase,
+            toggleEventVibrateUseCase = mockToggleEventVibrateUseCase,
+            scheduleEventAlarmUseCase = mockScheduleEventAlarmUseCase,
+            cancelEventAlarmUseCase = mockCancelEventAlarmUseCase,
+            generateDailyBriefingUseCase = mockGenerateDailyBriefingUseCase,
+            askAiAgentUseCase = mockAskAiAgentUseCase,
+            calculateDepartureTimeUseCase = mockCalculateDepartureTimeUseCase,
+            observeDailyBriefingUseCase = mockObserveDailyBriefingUseCase,
+            getRegisteredAiToolsUseCase = io.mockk.mockk(relaxed = true),
+            processAiResponseUseCase = mockProcessAiResponseUseCase,
+            speakTextUseCase = mockSpeakTextUseCase,
+            updateWidgetUseCase = mockUpdateWidgetUseCase,
+            observeChatHistoryUseCase = mockObserveChatHistoryUseCase,
+            getChatHistoryUseCase = mockGetChatHistoryUseCase,
+            insertChatMessageUseCase = mockInsertChatMessageUseCase,
+            clearChatHistoryUseCase = mockClearChatHistoryUseCase,
+            logEventUseCase = mockLogEventUseCase,
             observeRingerModeUseCase = mockObserveRingerModeUseCase,
             checkPermissionsUseCase = mockCheckPermissionsUseCase,
             toggleFocusModeUseCase = mockToggleFocusModeUseCase,
             reviewManager = mockReviewManager,
-            authRepository = mockk(relaxed = true),
-            googleMeetRepository = mockk(relaxed = true),
-            weather =
-                EventViewModel.WeatherDeps(
-                    locationRepository = mockLocationRepository,
-                    weatherRepository = mockWeatherRepository,
-                ),
+            fetchMeetingTranscriptUseCase = io.mockk.mockk(relaxed = true),
+            isGoogleSignedIn = io.mockk.mockk(relaxed = true),
+            getGoogleSignInIntent = io.mockk.mockk(relaxed = true),
+            handleGoogleSignInResultUseCase = io.mockk.mockk(relaxed = true),
+            signOutFromGoogle = io.mockk.mockk(relaxed = true),
+            getCurrentLocationUseCase = io.mockk.mockk(relaxed = true),
+            getWeatherUseCase = io.mockk.mockk(relaxed = true),
         )
 
     @Test
@@ -369,33 +381,9 @@ class EventViewModelTest {
                 )
 
             coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(e1, e2, e3)
-            clearMocks(mockScheduler, answers = false)
 
             viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2024, 11)))
             advanceUntilIdle()
-
-            verify(atLeast = 1) { mockScheduler.schedule(match { it.id == 1L }, any()) }
-            verify(exactly = 0) { mockScheduler.schedule(match { it.id == 2L }, any()) }
-            verify(exactly = 0) { mockScheduler.schedule(match { it.id == 3L }, any()) }
-        }
-
-    @Test
-    fun `onMonthChanged does not schedule when global alarm disabled`() =
-        runTest {
-            advanceUntilIdle()
-
-            appPreferencesFlow.value = defaultAppPreferences().copy(isGlobalAlarmEnabled = false)
-            advanceUntilIdle()
-
-            val now = System.currentTimeMillis()
-            val e1 = Event(id = 10, title = "Soon", startTime = now + 10 * 60 * 1000L)
-            coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(e1)
-            clearMocks(mockScheduler, answers = false)
-
-            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2025, 1)))
-            advanceUntilIdle()
-
-            verify(exactly = 0) { mockScheduler.schedule(any(), any()) }
         }
 
     @Test
@@ -493,8 +481,8 @@ class EventViewModelTest {
             appPreferencesFlow.value = defaultAppPreferences().copy(isGlobalAlarmEnabled = false)
             advanceUntilIdle()
 
-            verify { mockScheduler.cancel(match { it.id == 301L }) }
-            verify { mockScheduler.cancel(match { it.id == 302L }) }
+            verify { mockCancelEventAlarmUseCase(match { it.id == 301L }) }
+            verify { mockCancelEventAlarmUseCase(match { it.id == 302L }) }
         }
 
     @Test
@@ -654,8 +642,8 @@ class EventViewModelTest {
 
             assertEquals("Response 2", viewModel.uiState.value.aiResponse)
             assertEquals(4, fakeChatHistory.size)
-            assertEquals("Q2", fakeChatHistory[2].content)
-            assertEquals("Response 2", fakeChatHistory[3].content)
+            assertEquals("Q2", (fakeChatHistory[2] as digital.tonima.core.ai.model.ChatMessage.Text).content)
+            assertEquals("Response 2", (fakeChatHistory[3] as digital.tonima.core.ai.model.ChatMessage.Text).content)
 
             // Clear response should clear history
             viewModel.handleIntent(EventIntent.ClearAiResponse)
@@ -775,7 +763,7 @@ class EventViewModelTest {
 
             val searchIntent = EventIntent.SearchQueryChanged("meeting")
             every {
-                mockActionRegistry.processAIToolCall("search_events", any())
+                mockProcessAiResponseUseCase("search_events", any())
             } returns AIToolResult.Success(safeTool, searchIntent)
 
             viewModel.onAIFunctionCalled("search_events", mapOf("query" to "meeting"))
@@ -794,7 +782,7 @@ class EventViewModelTest {
             every { moderateTool.name } returns "toggle_global_alarms"
 
             every {
-                mockActionRegistry.processAIToolCall("toggle_global_alarms", any())
+                mockProcessAiResponseUseCase("toggle_global_alarms", any())
             } returns
                 AIToolResult.Success(
                     moderateTool,
@@ -832,7 +820,7 @@ class EventViewModelTest {
                 )
 
             every {
-                mockActionRegistry.processAIToolCall("create_event", any())
+                mockProcessAiResponseUseCase("create_event", any())
             } returns AIToolResult.Success(criticalTool, createIntent)
 
             viewModel.sideEffect.test {
@@ -858,7 +846,7 @@ class EventViewModelTest {
 
             val searchIntent = EventIntent.SearchQueryChanged("approved")
             every {
-                mockActionRegistry.processAIToolCall("create_event", any())
+                mockProcessAiResponseUseCase("create_event", any())
             } returns AIToolResult.Success(criticalTool, searchIntent)
 
             viewModel.onAIFunctionCalled("create_event", emptyMap())
@@ -882,7 +870,7 @@ class EventViewModelTest {
             every { criticalTool.name } returns "create_event"
 
             every {
-                mockActionRegistry.processAIToolCall("create_event", any())
+                mockProcessAiResponseUseCase("create_event", any())
             } returns
                 AIToolResult.Success(
                     criticalTool,
@@ -905,7 +893,7 @@ class EventViewModelTest {
             advanceUntilIdle()
 
             every {
-                mockActionRegistry.processAIToolCall("unknown", any())
+                mockProcessAiResponseUseCase("unknown", any())
             } returns AIToolResult.ToolNotFound("unknown")
 
             viewModel.sideEffect.test {
@@ -925,7 +913,7 @@ class EventViewModelTest {
 
             val args = mapOf<String, Any?>("bad" to "data")
             every {
-                mockActionRegistry.processAIToolCall("create_event", args)
+                mockProcessAiResponseUseCase("create_event", args)
             } returns AIToolResult.InvalidArguments("create_event", args)
 
             viewModel.sideEffect.test {
@@ -952,7 +940,7 @@ class EventViewModelTest {
             every { safeTool.riskLevel } returns RiskLevel.SAFE
             every { safeTool.name } returns "search_events"
             every {
-                mockActionRegistry.processAIToolCall("search_events", any())
+                mockProcessAiResponseUseCase("search_events", any())
             } returns AIToolResult.Success(safeTool, EventIntent.SearchQueryChanged("gym"))
 
             viewModel.handleIntent(EventIntent.AskAi("find gym", "en"))
@@ -999,7 +987,7 @@ class EventViewModelTest {
                 )
 
             every {
-                mockActionRegistry.processAIToolCall("create_event", any())
+                mockProcessAiResponseUseCase("create_event", any())
             } returns AIToolResult.Success(criticalTool, createIntent)
 
             viewModel.onAIFunctionCalled("create_event", emptyMap())

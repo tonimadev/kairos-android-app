@@ -59,4 +59,11 @@ data class EventScreenUiState(
     val isAutoJoinEnabled: Boolean = false,
     val isAutoFocusModeEnabled: Boolean = false,
     val isGoogleConnected: Boolean = false,
+    val snoozeCount: Int = 0,
+    val aiUsageCount: Int = 0,
+    val currentStreak: Int = 0,
+    val punctualityScore: Int = 100,
+    val selectedBottomTab: Int = 0,
+    val showSettingsScreen: Boolean = false,
+    val customRingtoneUri: String? = null,
 )

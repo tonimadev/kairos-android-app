@@ -44,4 +44,8 @@ interface AlarmPreferencesRepository {
     fun isAutoFocusModeEnabled(): Flow<Boolean>
 
     suspend fun setAutoFocusModeEnabled(enabled: Boolean)
+
+    fun getCustomRingtoneUri(): Flow<String?>
+
+    suspend fun setCustomRingtoneUri(uri: String?)
 }

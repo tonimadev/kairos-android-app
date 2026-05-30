@@ -9,14 +9,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.Text
 import digital.tonima.kairos.core.R as coreR
 
 @Composable
 fun ExactAlarmPermissionChip(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    Chip(
+    Button(
         onClick = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val i =

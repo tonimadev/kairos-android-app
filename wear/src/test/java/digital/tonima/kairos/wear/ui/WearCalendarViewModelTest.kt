@@ -204,6 +204,38 @@ class WearCalendarViewModelTest {
         override suspend fun setAutoFocusModeEnabled(enabled: Boolean) {
             autoFocusModeEnabled.value = enabled
         }
+
+        private val customRingtoneUri = MutableStateFlow<String?>(null)
+
+        override fun getCustomRingtoneUri(): Flow<String?> = customRingtoneUri
+
+        override suspend fun setCustomRingtoneUri(uri: String?) {
+            customRingtoneUri.value = uri
+        }
+
+        private val onboardingCompleted = MutableStateFlow(false)
+
+        override fun isOnboardingCompleted(): Flow<Boolean> = onboardingCompleted
+
+        override suspend fun setOnboardingCompleted(completed: Boolean) {
+            onboardingCompleted.value = completed
+        }
+
+        private val snoozeCount = MutableStateFlow(0)
+
+        override fun getSnoozeCount(): Flow<Int> = snoozeCount
+
+        override suspend fun incrementSnoozeCount() {
+            snoozeCount.value += 1
+        }
+
+        private val aiUsageCount = MutableStateFlow(0)
+
+        override fun getAiUsageCount(): Flow<Int> = aiUsageCount
+
+        override suspend fun incrementAiUsageCount() {
+            aiUsageCount.value += 1
+        }
     }
 
     private fun createVm(repo: FakePrefsRepo): WearCalendarViewModel {

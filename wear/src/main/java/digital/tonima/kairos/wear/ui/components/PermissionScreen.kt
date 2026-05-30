@@ -10,9 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.Text
+import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Text
 import digital.tonima.kairos.core.R as coreR
 
 @Composable
@@ -37,7 +37,7 @@ fun WearOsPermissionsScreenContent(
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(bottom = 16.dp),
         )
-        Chip(
+        Button(
             onClick = onRetryClick,
             label = { Text(stringResource(coreR.string.provide_permission)) },
             modifier =
@@ -46,7 +46,7 @@ fun WearOsPermissionsScreenContent(
                     .padding(horizontal = 8.dp),
         )
         Spacer(Modifier.height(8.dp))
-        Chip(
+        Button(
             onClick = onSettingsClick,
             label = { Text(stringResource(coreR.string.open_settings)) },
             modifier =

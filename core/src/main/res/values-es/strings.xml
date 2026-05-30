@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="google_calendar_not_found">Google Calendar no encontrado</string>
     <string name="open_calendar">Abrir Calendario</string>
@@ -160,7 +160,7 @@
     <string name="geo_alarm_upgrade_trial_desc">¡Evita retrasos! Activa alarmas basadas en el tráfico en tiempo real con el plan Pro + IA.</string>
     <string name="try_pro_plan">Probar Plan Pro</string>
 
-    <!-- AI Agent -->
+    
     <string name="ai_agent_snackbar_executed">IA ejecutó: %1$s</string>
     <string name="ai_agent_tool_not_found">Herramienta \'%1$s\' no encontrada.</string>
     <string name="ai_agent_invalid_args">Argumentos inválidos para \'%1$s\'.</string>
@@ -180,7 +180,7 @@
     <string name="ai_agent_event_creation_error">Error ao crear el evento en el calendario.</string>
     <string name="device_health_alert_title">Alerta del Dispositivo</string>
 
-    <!-- Pro+AI Features -->
+    
     <string name="ai_suggested_late_notification">Sugerencia de IA: %1$s</string>
     <string name="ai_prepping_meeting">La IA está preparando el resumen de la reunión…</string>
     <string name="pro_ia_upgrade_title">Desata el poder de la IA</string>
@@ -189,7 +189,7 @@
     <string name="silent_mode_warning">Modo silencio activado. Es posible que tu alarma de %1$s no suene.</string>
     <string name="ask_ai_label">Hablar con la IA</string>
 
-    <!-- Meeting Companion Features -->
+    
     <string name="auto_join_title">Unirse automáticamente a reuniones</string>
     <string name="auto_join_description">Abrir automáticamente el enlace de la reunión cuando suene la alarma, sin mostrar la pantalla de alarma.</string>
     <string name="auto_focus_mode_title">Modo enfoque automático</string>
@@ -222,7 +222,7 @@
     <string name="day_saturday_short">S</string>
     <string name="prompt_daily_briefing">Proporcione un resumen diario basado en mis alarmas.</string>
 
-    <!-- Integrations -->
+    
     <string name="integrations">Integraciones</string>
     <string name="google_login_title">Conectar Google Meet</string>
     <string name="google_login_description">Kairós utilizará su cuenta de Google para generar enlaces de reuniones automáticamente en sus eventos programados y extraer resúmenes de sus actas a través de IA.\nSus datos están seguros y nunca se comparten.</string>
@@ -230,7 +230,7 @@
     <string name="login_google">Iniciar sesión con Google</string>
     <string name="logout">Salir</string>
 
-    <!-- Onboarding Strings -->
+    
     <string name="onboarding_title_1">Bienvenido a Kairos</string>
     <string name="onboarding_desc_1">Gestiona tus eventos y tiempo de manera eficiente.</string>
     <string name="onboarding_title_2">Alarmas Inteligentes</string>
@@ -239,5 +239,12 @@
     <string name="onboarding_desc_3">Obtén resúmenes diarios personalizados de tu agenda.</string>
     <string name="onboarding_btn_next">Siguiente</string>
     <string name="onboarding_btn_start">Empezar</string>
-</resources>
+<string name="insights_title">Estadísticas e Insights</string><string name="insights_streak">Racha al Despertar</string><string name="insights_punctuality">Puntuación de Puntualidad</string><string name="insights_ai_usage">Resúmenes de IA Generados</string>
+    <!-- Custom Ringtone Strings -->
+    <string name="custom_ringtone">Tono Personalizado</string>
+    <string name="default_ringtone">Tono Predeterminado</string>
+    <string name="change">Cambiar</string>
 
+    <!-- Additional Strings -->
+    <string name="settings">Ajustes</string>
+</resources>

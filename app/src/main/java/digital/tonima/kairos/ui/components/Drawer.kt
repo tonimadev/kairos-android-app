@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Subscriptions
@@ -49,6 +50,7 @@ fun DrawerContent(
     isAiUser: Boolean,
     onUpgradeToProClick: () -> Unit,
     onOurOtherAppsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     onCloseDrawer: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -179,6 +181,23 @@ fun DrawerContent(
                         horizontal = Dimensions.PaddingNormal,
                         vertical = Dimensions.PaddingSmall,
                     ),
+            )
+
+            NavigationDrawerItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                    )
+                },
+                label = { Text(stringResource(R.string.settings), fontWeight = FontWeight.Medium) },
+                selected = false,
+                onClick = {
+                    onSettingsClick()
+                    onCloseDrawer()
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
             )
 
             NavigationDrawerItem(

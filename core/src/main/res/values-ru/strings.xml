@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="google_calendar_not_found">Google Календарь не найден</string>
     <string name="open_calendar">Открыть Календарь</string>
@@ -159,7 +159,7 @@
     <string name="geo_alarm_upgrade_trial_desc">Избегайте опозданий! Включите будильники на основе дорожной обстановки с планом Pro + ИИ.</string>
     <string name="try_pro_plan">Попробовать план Pro</string>
 
-    <!-- AI Agent -->
+    
     <string name="ai_agent_snackbar_executed">ИИ выполнил: %1$s</string>
     <string name="ai_agent_tool_not_found">Инструмент \'%1$s\' не найден.</string>
     <string name="ai_agent_invalid_args">Недопустимые аргументы для \'%1$s\'.</string>
@@ -179,7 +179,7 @@
     <string name="ai_agent_event_creation_error">Ошибка при создании события в календаре.</string>
     <string name="device_health_alert_title">Оповещение устройства</string>
 
-    <!-- Pro+AI Features -->
+    
     <string name="ai_suggested_late_notification">Предложение ИИ: %1$s</string>
     <string name="ai_prepping_meeting">ИИ готовит краткий отчет о встрече…</string>
     <string name="pro_ia_upgrade_title">Раскройте потенциал ИИ</string>
@@ -188,7 +188,7 @@
     <string name="silent_mode_warning">Включен беззвучный режим. Ваш будильник на %1$s может не прозвучать.</string>
     <string name="ask_ai_label">Говорить с ИИ</string>
 
-    <!-- Meeting Companion Features -->
+    
     <string name="auto_join_title">Автоподключение к встречам</string>
     <string name="auto_join_description">Автоматически открывать ссылку на встречу при срабатывании будильника, без показа экрана будильника.</string>
     <string name="auto_focus_mode_title">Автоматический режим фокуса</string>
@@ -220,7 +220,7 @@
     <string name="day_friday_short">П</string>
     <string name="day_saturday_short">С</string>
     <string name="prompt_daily_briefing">Предоставьте ежедневный брифинг на основе моих будильников.</string>
-    <!-- Google Meet Integration -->
+    
     <string name="integrations">Интеграции</string>
     <string name="google_login_title">Подключить Google Meet</string>
     <string name="google_login_description">Разрешите приложению читать и обобщать ваши встречи с помощью ИИ.</string>
@@ -228,7 +228,7 @@
     <string name="login_google">Подключить</string>
     <string name="logout">Выйти</string>
 
-    <!-- Onboarding Strings -->
+    
     <string name="onboarding_title_1">Добро пожаловать в Kairos</string>
     <string name="onboarding_desc_1">Эффективно управляйте своими событиями и временем.</string>
     <string name="onboarding_title_2">Умные будильники</string>
@@ -237,5 +237,12 @@
     <string name="onboarding_desc_3">Получайте ежедневные персонализированные сводки вашей повестки дня.</string>
     <string name="onboarding_btn_next">Далее</string>
     <string name="onboarding_btn_start">Начать</string>
-</resources>
+<string name="insights_title">Статистика и аналитика</string><string name="insights_streak">Серия пробуждений</string><string name="insights_punctuality">Оценка пунктуальности</string><string name="insights_ai_usage">Созданные ИИ-сводки</string>
+    <!-- Custom Ringtone Strings -->
+    <string name="custom_ringtone">Пользовательская Мелодия</string>
+    <string name="default_ringtone">Мелодия по Умолчанию</string>
+    <string name="change">Изменить</string>
 
+    <!-- Additional Strings -->
+    <string name="settings">Настройки</string>
+</resources>

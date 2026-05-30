@@ -1,0 +1,35 @@
+# Kairos Android App - AI Coding Guidelines & Architecture Rules
+
+This file contains strict architectural guidelines that ALL AI agents must follow when modifying or creating new features in this codebase.
+
+## 1. Clean Architecture & Dependency Injection
+
+- **Use Cases Must Be Flat**: DO NOT group UseCases into dependency wrapper classes (e.g., `CalendarDeps`, `PreferencesDeps`, `AlarmDeps`). Every UseCase must be injected individually and directly into the ViewModel or target class.
+- **No Direct Repositories in ViewModels**: ViewModels must NEVER interact with or depend on Repositories, DAOs, or Data Sources directly. All data access or business logic must go through a single-responsibility `UseCase`.
+- **Naming Convention**: UseCases should be named with a clear action verb and end with the `UseCase` suffix (e.g., `GetEventsForMonthUseCase`, `ToggleEventAlarmUseCase`).
+
+## 2. ViewModels
+
+- **State Management**: ViewModels should expose a single `StateFlow` for the UI state.
+- **Intent Handling**: User actions should be passed to the ViewModel via an intent mechanism (e.g., `handleIntent(intent: EventIntent)`).
+- **Separation of Concerns**: Keep ViewModels focused on mapping UI intents to UseCase calls and reducing the results back into the UI state. Do not put heavy business logic inside the ViewModel.
+
+## 3. General Rules
+
+- Always verify that new UseCases are properly provided in the corresponding Dagger/Hilt Module.
+- If a class requires a large number of UseCases, inject them individually regardless of the number. The "flat" structure is prioritized over constructor brevity.
+- Keep tests aligned with the architecture: update the `mockk` objects in test classes strictly using the flat UseCase pattern.
+
+## 4. Code Quality & Formatting (Mandatory)
+
+Before considering any task or feature "complete", ALL AI agents must execute the following suite of commands and ensure a `BUILD SUCCESSFUL` outcome:
+```bash
+./gradlew spotlessApply sortDependencies detekt testDebugUnitTest
+```
+
+- **Spotless**: All Kotlin files must adhere strictly to `ktfmt` via the spotless plugin. If there are formatting errors, `spotlessApply` must be executed to fix them.
+- **Detekt**: Do not introduce code smells, excessive complexity, or long lines (`MaxLineLength`). If `detekt` fails, refactor the code (e.g. break lines, simplify logic) until it passes.
+- **Sort Dependencies**: The custom `sortDependencies` task must be run whenever `build.gradle.kts` files are modified to maintain dependency order.
+- **Unit Tests**: Existing unit tests (`testDebugUnitTest` or simply `test`) must pass without exceptions. If an architectural change breaks an existing test, update the test (especially `mockk` definitions) to reflect the new structure.
+
+Never end a development cycle without validating against these automated checks!

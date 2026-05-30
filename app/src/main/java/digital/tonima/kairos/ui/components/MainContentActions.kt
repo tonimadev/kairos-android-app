@@ -35,6 +35,8 @@ data class SettingsActions(
     val onTemperatureUnitToggle: (Boolean) -> Unit = {},
     val onGoogleSignInClick: () -> Unit = {},
     val onGoogleSignOutClick: () -> Unit = {},
+    val onCloseSettings: () -> Unit = {},
+    val onCustomRingtoneSelected: (String?) -> Unit = {},
 )
 
 data class AiActions(

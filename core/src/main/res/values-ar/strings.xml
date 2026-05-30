@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="google_calendar_not_found">لم يتم العثور على تقويم جوجل</string>
     <string name="open_calendar">فتح التقويم</string>
@@ -158,7 +158,7 @@
     <string name="geo_alarm_upgrade_trial_desc">تجنب التأخير! قم بتفعيل المنبهات القائمة على حركة المرور في الوقت الفعلي مع خطة Pro + الذكاء الاصطناعي.</string>
     <string name="try_pro_plan">جرب خطة Pro</string>
 
-    <!-- AI Agent -->
+    
     <string name="ai_agent_snackbar_executed">نفّذ الذكاء الاصطناعي: %1$s</string>
     <string name="ai_agent_tool_not_found">الأداة \'%1$s\' غير موجودة.</string>
     <string name="ai_agent_invalid_args">وسائط غير صالحة للأداة \'%1$s\'.</string>
@@ -178,7 +178,7 @@
     <string name="ai_agent_event_creation_error">خطأ في إنشاء الحدث في التقويم.</string>
     <string name="device_health_alert_title">تنبيه الجهاز</string>
 
-    <!-- Pro+AI Features -->
+    
     <string name="ai_suggested_late_notification">اقترح الذكاء الاصطناعي: %1$s</string>
     <string name="ai_prepping_meeting">يعمل الذكاء الاصطناعي على تحضير ملخص الاجتماع…</string>
     <string name="pro_ia_upgrade_title">أطلق العنان لقوة الذكاء الاصطناعي</string>
@@ -187,7 +187,7 @@
     <string name="silent_mode_warning">وضع الصامت نشط. قد لا يصدر صوت منبه %1$s الخاص بك.</string>
     <string name="ask_ai_label">تحدث مع الذكاء الاصطناعي</string>
 
-    <!-- Meeting Companion Features -->
+    
     <string name="auto_join_title">الانضمام التلقائي للاجتماعات</string>
     <string name="auto_join_description">فتح رابط الاجتماع تلقائيًا عند انطلاق المنبه، دون عرض شاشة المنبه.</string>
     <string name="auto_focus_mode_title">وضع التركيز التلقائي</string>
@@ -219,7 +219,7 @@
     <string name="day_friday_short">ج</string>
     <string name="day_saturday_short">س</string>
     <string name="prompt_daily_briefing">قم بتوفير ملخص يومي بناءً على تنبيهاتي.</string>
-    <!-- Google Meet Integration -->
+    
     <string name="integrations">عمليات الدمج</string>
     <string name="google_login_title">ربط Google Meet</string>
     <string name="google_login_description">اسمح للتطبيق بقراءة وتلخيص اجتماعاتك من خلال الذكاء الاصطناعي.</string>
@@ -227,7 +227,7 @@
     <string name="login_google">ربط</string>
     <string name="logout">تسجيل الخروج</string>
 
-    <!-- Onboarding Strings -->
+    
     <string name="onboarding_title_1">مرحبًا بك في Kairos</string>
     <string name="onboarding_desc_1">إدارة الأحداث ووقتك بكفاءة.</string>
     <string name="onboarding_title_2">تنبيهات ذكية</string>
@@ -236,5 +236,12 @@
     <string name="onboarding_desc_3">احصل على ملخصات يومية مخصصة لجدول أعمالك.</string>
     <string name="onboarding_btn_next">التالي</string>
     <string name="onboarding_btn_start">البدء</string>
-</resources>
+<string name="insights_title">الإحصائيات والرؤى</string><string name="insights_streak">سلسلة الاستيقاظ</string><string name="insights_punctuality">نقاط الالتزام بالمواعيد</string><string name="insights_ai_usage">ملخصات الذكاء الاصطناعي المُنشأة</string>
+    <!-- Custom Ringtone Strings -->
+    <string name="custom_ringtone">نغمة مخصصة</string>
+    <string name="default_ringtone">النغمة الافتراضية</string>
+    <string name="change">تغيير</string>
 
+    <!-- Additional Strings -->
+    <string name="settings">إعدادات</string>
+</resources>

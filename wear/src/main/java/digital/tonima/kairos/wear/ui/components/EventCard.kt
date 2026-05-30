@@ -18,9 +18,10 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.wear.compose.material.Switch
-import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.SwitchDefaults
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Text
 import digital.tonima.core.model.Event
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.wear.ui.theme.Dimensions
@@ -142,6 +143,13 @@ fun EventCard(
                     checked = event.isAlarmEnabled,
                     enabled = isGloballyEnabled,
                     onCheckedChange = null,
+                    colors =
+                        SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                            uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ),
                 )
             }
         }

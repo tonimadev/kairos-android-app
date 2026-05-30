@@ -38,4 +38,6 @@ sealed class EventSideEffect {
     data class CopyToClipboard(val text: String, val message: UiText) : EventSideEffect()
 
     data class LaunchGoogleSignIn(val intent: android.content.Intent) : EventSideEffect()
+
+    data object RequestAppReview : EventSideEffect()
 }

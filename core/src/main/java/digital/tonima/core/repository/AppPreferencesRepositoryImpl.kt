@@ -48,6 +48,10 @@ class AppPreferencesRepositoryImpl
             val TEMPERATURE_IN_CELSIUS = booleanPreferencesKey("temperature_in_celsius")
             val AUTO_JOIN_ENABLED = booleanPreferencesKey("auto_join_enabled")
             val AUTO_FOCUS_MODE_ENABLED = booleanPreferencesKey("auto_focus_mode_enabled")
+            val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+            val SNOOZE_COUNT = intPreferencesKey("snooze_count")
+            val AI_USAGE_COUNT = intPreferencesKey("ai_usage_count")
+            val CUSTOM_RINGTONE_URI = stringPreferencesKey("custom_ringtone_uri")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -164,6 +168,47 @@ class AppPreferencesRepositoryImpl
         override suspend fun setRatingCompleted(completed: Boolean) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.RATING_COMPLETED] = completed
+            }
+        }
+
+        override suspend fun setOnboardingCompleted(completed: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ONBOARDING_COMPLETED] = completed
+            }
+        }
+
+        override fun isOnboardingCompleted(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.ONBOARDING_COMPLETED] ?: false
+                }
+        }
+
+        override fun getSnoozeCount(): Flow<Int> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.SNOOZE_COUNT] ?: 0
+                }
+        }
+
+        override suspend fun incrementSnoozeCount() {
+            context.dataStore.edit { preferences ->
+                val current = preferences[PreferencesKeys.SNOOZE_COUNT] ?: 0
+                preferences[PreferencesKeys.SNOOZE_COUNT] = current + 1
+            }
+        }
+
+        override fun getAiUsageCount(): Flow<Int> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.AI_USAGE_COUNT] ?: 0
+                }
+        }
+
+        override suspend fun incrementAiUsageCount() {
+            context.dataStore.edit { preferences ->
+                val current = preferences[PreferencesKeys.AI_USAGE_COUNT] ?: 0
+                preferences[PreferencesKeys.AI_USAGE_COUNT] = current + 1
             }
         }
 
@@ -390,6 +435,22 @@ class AppPreferencesRepositoryImpl
         override suspend fun setAutoFocusModeEnabled(enabled: Boolean) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.AUTO_FOCUS_MODE_ENABLED] = enabled
+            }
+        }
+
+        override fun getCustomRingtoneUri(): Flow<String?> {
+            return context.dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.CUSTOM_RINGTONE_URI]
+            }
+        }
+
+        override suspend fun setCustomRingtoneUri(uri: String?) {
+            context.dataStore.edit { preferences ->
+                if (uri == null) {
+                    preferences.remove(PreferencesKeys.CUSTOM_RINGTONE_URI)
+                } else {
+                    preferences[PreferencesKeys.CUSTOM_RINGTONE_URI] = uri
+                }
             }
         }
     }
