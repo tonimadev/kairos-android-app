@@ -44,7 +44,7 @@ object ColorTokens {
     val OnTertiary = OnTertiaryDark
     val OnTertiaryContainer = OnTertiaryContainerDark
 
-    val Background = SurfaceDark
+    val Background = Color.Black
     val OnBackground = OnSurfaceDark
 
     val SurfaceContainerLow = Color(0xFF1E1E26)
