@@ -138,9 +138,16 @@ class EventAlarmSchedulerImpl
 
             try {
                 if (canScheduleExact) {
-                    alarmManager.setExactAndAllowWhileIdle(
-                        AlarmManager.RTC_WAKEUP,
-                        alarmTime,
+                    val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                    val showIntent =
+                        PendingIntent.getActivity(
+                            context,
+                            0,
+                            launchIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                        )
+                    alarmManager.setAlarmClock(
+                        AlarmManager.AlarmClockInfo(alarmTime, showIntent),
                         pendingIntent,
                     )
                     logcat {
@@ -209,7 +216,15 @@ class EventAlarmSchedulerImpl
 
             try {
                 if (canScheduleExact) {
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+                    val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                    val showIntent =
+                        PendingIntent.getActivity(
+                            context,
+                            0,
+                            launchIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                        )
+                    alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(alarmTime, showIntent), pendingIntent)
                 } else {
                     alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
                 }

@@ -37,6 +37,8 @@ class CalendarRepositoryImpl
                 CalendarContract.Instances.CALENDAR_COLOR,
                 CalendarContract.Instances.DESCRIPTION,
                 CalendarContract.Instances.EVENT_LOCATION,
+                CalendarContract.Events.RRULE,
+                CalendarContract.Events.RDATE,
             )
 
         private val projectionIdIndex = 0
@@ -47,6 +49,8 @@ class CalendarRepositoryImpl
         private val projectionCalendarColorIndex = 6
         private val projectionDescriptionIndex = 7
         private val projectionLocationIndex = 8
+        private val projectionRruleIndex = 9
+        private val projectionRdateIndex = 10
 
         private fun hasCalendarPermission() =
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
@@ -155,6 +159,9 @@ class CalendarRepositoryImpl
                         val color = it.getInt(projectionCalendarColorIndex)
                         val description = it.getString(projectionDescriptionIndex)
                         val location = it.getString(projectionLocationIndex)
+                        val rrule = it.getString(projectionRruleIndex)
+                        val rdate = it.getString(projectionRdateIndex)
+                        val isRecurring = !rrule.isNullOrBlank() || !rdate.isNullOrBlank()
 
                         events.add(
                             Event(
@@ -163,6 +170,7 @@ class CalendarRepositoryImpl
                                 startTime = begin,
                                 endTime = end,
                                 isAllDay = isAllDay,
+                                isRecurring = isRecurring,
                                 calendarColor = color,
                                 meetingUrl = extractMeetLink(description, location),
                                 location = location,
@@ -171,19 +179,7 @@ class CalendarRepositoryImpl
                     }
                 }
 
-                val enriched =
-                    events
-                        .sortedBy { it.startTime }
-                        .map { e ->
-                            val recurring =
-                                try {
-                                    isRecurring(e.id)
-                                } catch (t: Throwable) {
-                                    false
-                                }
-                            e.copy(isRecurring = recurring)
-                        }
-                return@withContext enriched
+                return@withContext events.sortedBy { it.startTime }
             }
 
         override suspend fun getNextUpcomingEvent(allowedCalendarIds: List<Long>): Event? =
@@ -236,6 +232,9 @@ class CalendarRepositoryImpl
                         val color = it.getInt(projectionCalendarColorIndex)
                         val description = it.getString(projectionDescriptionIndex)
                         val location = it.getString(projectionLocationIndex)
+                        val rrule = it.getString(projectionRruleIndex)
+                        val rdate = it.getString(projectionRdateIndex)
+                        val isRecurring = !rrule.isNullOrBlank() || !rdate.isNullOrBlank()
                         nextEvent =
                             Event(
                                 id = eventId,
@@ -243,6 +242,7 @@ class CalendarRepositoryImpl
                                 startTime = begin,
                                 endTime = end,
                                 isAllDay = isAllDay,
+                                isRecurring = isRecurring,
                                 calendarColor = color,
                                 meetingUrl = extractMeetLink(description, location),
                                 location = location,

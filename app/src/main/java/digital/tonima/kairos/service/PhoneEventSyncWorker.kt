@@ -4,9 +4,10 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
-import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingPeriodicWorkPolicy.UPDATE
+import androidx.work.ExistingWorkPolicy.REPLACE
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
+import androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -16,7 +17,6 @@ import com.google.android.gms.wearable.Wearable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import digital.tonima.core.delegates.ProUserProvider
-import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
@@ -45,7 +45,6 @@ class PhoneEventSyncWorker
         private val calendarRepository: CalendarRepository,
         private val proUserProvider: ProUserProvider,
         private val calculateDepartureTimeUseCase: CalculateDepartureTimeUseCase,
-        private val appPreferencesRepository: AppPreferencesRepository,
     ) : CoroutineWorker(appContext, workerParams) {
         override suspend fun doWork(): Result =
             try {
@@ -109,15 +108,19 @@ class PhoneEventSyncWorker
                         .build()
                 WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                     UNIQUE_WORK_NAME,
-                    ExistingPeriodicWorkPolicy.UPDATE,
+                    UPDATE,
                     periodic,
                 )
                 val rescheduleRequest =
                     OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
                         .setConstraints(constraints)
-                        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                        .setExpedited(RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                         .build()
-                WorkManager.getInstance(context).enqueue(rescheduleRequest)
+                WorkManager.getInstance(context).enqueueUniqueWork(
+                    "phone_event_sync_immediate",
+                    REPLACE,
+                    rescheduleRequest,
+                )
             }
         }
     }

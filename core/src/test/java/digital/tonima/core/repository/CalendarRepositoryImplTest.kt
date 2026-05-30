@@ -91,6 +91,8 @@ class CalendarRepositoryImplTest {
                         CalendarContract.Instances.CALENDAR_COLOR,
                         CalendarContract.Instances.DESCRIPTION,
                         CalendarContract.Instances.EVENT_LOCATION,
+                        CalendarContract.Events.RRULE,
+                        CalendarContract.Events.RDATE,
                     ),
                 )
             cursor.addRow(
@@ -104,6 +106,8 @@ class CalendarRepositoryImplTest {
                     0xFF0000,
                     "Desc",
                     "Loc",
+                    null,
+                    null,
                 ),
             )
 

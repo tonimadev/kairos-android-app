@@ -55,7 +55,11 @@ class WakeUpReceiver : BroadcastReceiver() {
 
                     // Disparar o DailyBriefingWorker para usuários PRO
                     val workRequest = OneTimeWorkRequestBuilder<DailyBriefingWorker>().build()
-                    WorkManager.getInstance(context.applicationContext).enqueue(workRequest)
+                    WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+                        "daily_briefing_wakeup",
+                        androidx.work.ExistingWorkPolicy.REPLACE,
+                        workRequest,
+                    )
                 }
             }
         }

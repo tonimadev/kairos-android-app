@@ -1,8 +1,9 @@
 package digital.tonima.kairos.service
 
 import android.content.Context
+import androidx.work.ExistingWorkPolicy.REPLACE
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
+import androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST
 import androidx.work.WorkManager
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
@@ -71,9 +72,13 @@ class WearMessagesListenerService : WearableListenerService() {
         try {
             val request =
                 OneTimeWorkRequestBuilder<PhoneEventSyncWorker>()
-                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .setExpedited(RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                     .build()
-            WorkManager.getInstance(context).enqueue(request)
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "phone_sync_immediate",
+                REPLACE,
+                request,
+            )
         } catch (t: Throwable) {
             logcat(
                 LogPriority.ERROR,
