@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +26,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -45,6 +47,8 @@ import digital.tonima.kairos.ui.theme.Dimensions
 @Composable
 fun WeatherCard(
     weather: Weather?,
+    isWeatherLoading: Boolean,
+    weatherError: String?,
     isTemperatureInCelsius: Boolean,
     onFetchWeather: () -> Unit,
     modifier: Modifier = Modifier,
@@ -133,6 +137,24 @@ fun WeatherCard(
                                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                                     )
                                 }
+                            }
+                        }
+                    } else if (weatherError != null) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Rounded.Warning,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                            )
+                            Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
+                            Text(
+                                text = weatherError,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.weight(1f),
+                            )
+                            TextButton(onClick = onFetchWeather) {
+                                Text("Retry")
                             }
                         }
                     } else {

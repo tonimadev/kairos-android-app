@@ -425,7 +425,10 @@ private fun EventScreenContent(
 
                 else -> {
                     if (uiState.selectedBottomTab == 1) {
-                        digital.tonima.kairos.ui.components.InsightsContent(uiState = uiState)
+                        digital.tonima.kairos.ui.components.InsightsContent(
+                            uiState = uiState,
+                            onIntent = viewModel::handleIntent,
+                        )
                     } else {
                         MainContent(
                             uiState = uiState,

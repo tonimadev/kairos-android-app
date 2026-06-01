@@ -1,7 +1,9 @@
 package digital.tonima.core.viewmodel
 
+import android.content.Intent
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.Event
+import digital.tonima.core.model.InsightsPeriod
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -163,5 +165,9 @@ sealed class EventIntent {
 
     object SignOutFromGoogle : EventIntent()
 
-    data class HandleGoogleSignInResult(val resultData: android.content.Intent?) : EventIntent()
+    data class HandleGoogleSignInResult(val resultData: Intent?) : EventIntent()
+
+    data class ChangeInsightsPeriod(val period: InsightsPeriod) : EventIntent()
+
+    data class AnalyzeSchedule(val timeframe: String) : EventIntent()
 }

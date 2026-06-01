@@ -27,6 +27,7 @@ import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetAvailableCalendarsUseCase
 import digital.tonima.core.usecases.GetChatHistoryUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.usecases.GetMeetingTimeStatsUseCase
 import digital.tonima.core.usecases.InsertChatMessageUseCase
 import digital.tonima.core.usecases.LogEventUseCase
 import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
@@ -115,6 +116,9 @@ class EventViewModelTest {
     private val mockInsertChatMessageUseCase: InsertChatMessageUseCase = mockk(relaxed = true)
     private val mockClearChatHistoryUseCase: ClearChatHistoryUseCase = mockk(relaxed = true)
     private val mockLogEventUseCase: LogEventUseCase = mockk(relaxed = true)
+
+    private val mockGetMeetingTimeStatsUseCase:
+        GetMeetingTimeStatsUseCase = mockk(relaxed = true)
 
     private val appPreferencesFlow = MutableStateFlow(defaultAppPreferences())
     private val ringerModeFlow = MutableStateFlow(AudioWarningState.NORMAL)
@@ -229,6 +233,7 @@ class EventViewModelTest {
             signOutFromGoogle = io.mockk.mockk(relaxed = true),
             getCurrentLocationUseCase = io.mockk.mockk(relaxed = true),
             getWeatherUseCase = io.mockk.mockk(relaxed = true),
+            getMeetingTimeStatsUseCase = mockGetMeetingTimeStatsUseCase,
         )
 
     @Test

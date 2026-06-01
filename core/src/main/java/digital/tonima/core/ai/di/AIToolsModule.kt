@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import digital.tonima.core.ai.AITool
+import digital.tonima.core.ai.tools.AnalyzeScheduleTool
 import digital.tonima.core.ai.tools.CategorizeEventTool
 import digital.tonima.core.ai.tools.CreateEventTool
 import digital.tonima.core.ai.tools.ManageFocusModeTool
@@ -13,6 +14,7 @@ import digital.tonima.core.ai.tools.NotifyLateTool
 import digital.tonima.core.ai.tools.RescheduleEventTool
 import digital.tonima.core.ai.tools.SearchTool
 import digital.tonima.core.ai.tools.SuggestFocusBlocksTool
+import digital.tonima.core.ai.tools.SummarizeMeetTool
 import digital.tonima.core.ai.tools.ToggleGlobalAlarmsTool
 import javax.inject.Singleton
 
@@ -68,5 +70,10 @@ object AIToolsModule {
     @Provides
     @IntoSet
     @Singleton
-    fun provideSummarizeMeetTool(): AITool = digital.tonima.core.ai.tools.SummarizeMeetTool()
+    fun provideSummarizeMeetTool(): AITool = SummarizeMeetTool()
+
+    @Provides
+    @IntoSet
+    @Singleton
+    fun provideAnalyzeScheduleTool(): AITool = AnalyzeScheduleTool()
 }

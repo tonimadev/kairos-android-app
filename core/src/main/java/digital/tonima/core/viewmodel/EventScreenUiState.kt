@@ -3,6 +3,8 @@ package digital.tonima.core.viewmodel
 import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
+import digital.tonima.core.model.InsightsPeriod
+import digital.tonima.core.model.InsightsPeriod.WEEK
 import digital.tonima.core.repository.AudioWarningState
 import java.time.LocalDate
 import java.time.YearMonth
@@ -55,6 +57,8 @@ data class EventScreenUiState(
     val meetingPrepSummary: String? = null,
     val isPreparingMeeting: Boolean = false,
     val weather: digital.tonima.core.model.Weather? = null,
+    val isWeatherLoading: Boolean = false,
+    val weatherError: String? = null,
     val isTemperatureInCelsius: Boolean = true,
     val isAutoJoinEnabled: Boolean = false,
     val isAutoFocusModeEnabled: Boolean = false,
@@ -66,4 +70,7 @@ data class EventScreenUiState(
     val selectedBottomTab: Int = 0,
     val showSettingsScreen: Boolean = false,
     val customRingtoneUri: String? = null,
+    val selectedInsightsPeriod: InsightsPeriod =
+        WEEK,
+    val meetingStats: List<Pair<String, Float>> = emptyList(),
 )

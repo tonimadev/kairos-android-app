@@ -25,6 +25,7 @@ import digital.tonima.core.usecases.GetChatHistoryUseCase
 import digital.tonima.core.usecases.GetCurrentLocationUseCase
 import digital.tonima.core.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.usecases.GetGoogleSignInIntentUseCase
+import digital.tonima.core.usecases.GetMeetingTimeStatsUseCase
 import digital.tonima.core.usecases.GetRegisteredAiToolsUseCase
 import digital.tonima.core.usecases.GetWeatherUseCase
 import digital.tonima.core.usecases.HandleGoogleSignInResultUseCase
@@ -102,6 +103,7 @@ class EventViewModel
         private val signOutFromGoogle: SignOutFromGoogleUseCase,
         private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
         private val getWeatherUseCase: GetWeatherUseCase,
+        private val getMeetingTimeStatsUseCase: GetMeetingTimeStatsUseCase,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
@@ -117,6 +119,11 @@ class EventViewModel
             handleIntent(EventIntent.CheckPermissions)
 
             _uiState.update { it.copy(isGoogleConnected = isGoogleSignedIn()) }
+
+            viewModelScope.launch {
+                val stats = getMeetingTimeStatsUseCase(_uiState.value.selectedInsightsPeriod)
+                _uiState.update { it.copy(meetingStats = stats) }
+            }
 
             viewModelScope.launch {
                 isAiUser.collect { isAi ->
@@ -210,10 +217,12 @@ class EventViewModel
                 EventIntent.LoadCalendars -> loadAvailableCalendars()
                 is EventIntent.ToggleCalendarFilter ->
                     viewModelScope.launch { onCalendarFilterToggle(intent.calendarId, intent.enabled) }
+
                 EventIntent.ClearCalendarFilter ->
                     viewModelScope.launch {
                         updateAppPreferenceUseCase.setEnabledCalendarIds(emptySet())
                     }
+
                 is EventIntent.CreateEvent -> createEvent(intent)
                 else -> Unit
             }
@@ -224,27 +233,35 @@ class EventViewModel
                 when (intent) {
                     is EventIntent.ToggleGlobalAlarms ->
                         updateAppPreferenceUseCase.setGlobalAlarmEnabled(intent.enabled)
+
                     is EventIntent.ToggleVibrateOnly -> updateAppPreferenceUseCase.setVibrateOnly(intent.enabled)
                     is EventIntent.ToggleAllDayAlarms ->
                         updateAppPreferenceUseCase.setAllDayAlarmsEnabled(intent.enabled)
+
                     is EventIntent.UpdateAllDayAlarmHour -> updateAppPreferenceUseCase.setAllDayAlarmHour(intent.hour)
                     is EventIntent.UpdateAlarmOffset ->
                         updateAppPreferenceUseCase.setAlarmOffsetMinutes(intent.offset.minutes)
+
                     is EventIntent.UpdateSnoozeTime -> updateAppPreferenceUseCase.setSnoozeTimeMinutes(intent.minutes)
                     is EventIntent.ToggleSkipWeekends ->
                         updateAppPreferenceUseCase.setSkipWeekendsEnabled(intent.enabled)
+
                     is EventIntent.UpdateAutoDismissMinutes ->
                         updateAppPreferenceUseCase.setAutoDismissMinutes(intent.minutes)
+
                     is EventIntent.ToggleLocationAlarm -> onLocationAlarmToggle(intent.enabled)
                     is EventIntent.ToggleAutoJoin -> updateAppPreferenceUseCase.setAutoJoinEnabled(intent.enabled)
                     is EventIntent.ToggleAutoFocusMode ->
                         updateAppPreferenceUseCase.setAutoFocusModeEnabled(intent.enabled)
+
                     is EventIntent.ChangeTransportMode ->
                         updateAppPreferenceUseCase.setPreferredTransportMode(intent.mode)
+
                     is EventIntent.ToggleTemperatureUnit -> {
                         updateAppPreferenceUseCase.setTemperatureInCelsius(intent.isCelsius)
                         handleIntent(EventIntent.FetchWeather)
                     }
+
                     EventIntent.FetchWeather -> fetchWeather()
                     else -> Unit
                 }
@@ -262,10 +279,13 @@ class EventViewModel
                         ),
                     )
                 }
+
                 is EventIntent.ToggleEventAlarm ->
                     toggleEventAlarmUseCase(intent.event, intent.enabled, intent.allOccurrences)
+
                 is EventIntent.ToggleEventVibrate ->
                     toggleEventVibrateUseCase(intent.event, intent.enabled)
+
                 else -> Unit
             }
         }
@@ -280,6 +300,8 @@ class EventViewModel
                 EventIntent.SignInWithGoogle -> handleSignInWithGoogle()
                 EventIntent.SignOutFromGoogle -> handleSignOutFromGoogle()
                 is EventIntent.HandleGoogleSignInResult -> handleGoogleSignInResult(intent.resultData)
+                is EventIntent.CreateFocusBlock -> handleCreateFocusBlock(intent)
+                is EventIntent.AnalyzeSchedule -> handleAnalyzeSchedule(intent)
                 else -> Unit
             }
         }
@@ -339,6 +361,7 @@ class EventViewModel
                         checkPermissions()
                     }
                 }
+
                 EventIntent.SkipFullScreenIntentPermission -> {
                     logcat { "User skipped full-screen intent permission request" }
                     viewModelScope.launch {
@@ -346,6 +369,7 @@ class EventViewModel
                         checkPermissions()
                     }
                 }
+
                 else -> Unit
             }
         }
@@ -354,41 +378,64 @@ class EventViewModel
             when (intent) {
                 EventIntent.DismissAutostartSuggestion ->
                     updateAppPreferenceUseCase.setAutostartSuggestionDismissed(true)
+
                 EventIntent.UpgradeToProRequest ->
                     _uiState.update { it.copy(showPurchaseConfirmation = true) }
+
                 EventIntent.UpgradeToProIARequest ->
                     _uiState.update { it.copy(showSubscriptionConfirmation = true) }
+
                 EventIntent.DismissUpgradeConfirmation ->
                     _uiState.update {
                         it.copy(showSubscriptionConfirmation = false, showPurchaseConfirmation = false)
                     }
+
                 is EventIntent.ChangeBottomTab ->
                     _uiState.update { it.copy(selectedBottomTab = intent.tabIndex) }
+
                 EventIntent.OpenSettings ->
                     _uiState.update { it.copy(showSettingsScreen = true) }
+
                 EventIntent.CloseSettings ->
                     _uiState.update { it.copy(showSettingsScreen = false) }
+
+                is EventIntent.ChangeInsightsPeriod -> {
+                    _uiState.update { it.copy(selectedInsightsPeriod = intent.period) }
+                    viewModelScope.launch {
+                        val stats = getMeetingTimeStatsUseCase(intent.period)
+                        _uiState.update { it.copy(meetingStats = stats) }
+                    }
+                }
+
                 is EventIntent.UpdateCustomRingtoneUri ->
                     _uiState.update { it.copy(customRingtoneUri = intent.uri) }
+
                 is EventIntent.SearchQueryChanged ->
                     _uiState.update { it.copy(searchQuery = intent.query) }
+
                 is EventIntent.ShowCreateEventDialog ->
                     _uiState.update {
                         it.copy(showCreateEventDialog = true, voiceEventData = intent.voiceEventData)
                     }
+
                 EventIntent.DismissCreateEventDialog ->
                     _uiState.update { it.copy(showCreateEventDialog = false, voiceEventData = null) }
+
                 EventIntent.ShowAiSuggestionsDialog ->
                     _uiState.update { it.copy(showAiSuggestionsDialog = true) }
+
                 EventIntent.DismissAiSuggestionsDialog ->
                     _uiState.update { it.copy(showAiSuggestionsDialog = false) }
+
                 is EventIntent.RateNow -> onRateNow(intent.activity)
                 EventIntent.RateLater ->
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
+
                 EventIntent.RateNever -> {
                     updateAppPreferenceUseCase.setRatingCompleted(true)
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
                 }
+
                 else -> Unit
             }
         }
@@ -519,6 +566,9 @@ class EventViewModel
                 if (_uiState.value.isGlobalAlarmEnabled) {
                     scheduleImmediateEvents(enrichedEvents)
                 }
+
+                val stats = getMeetingTimeStatsUseCase(_uiState.value.selectedInsightsPeriod)
+                _uiState.update { it.copy(meetingStats = stats) }
             }
         }
 
@@ -685,6 +735,7 @@ class EventViewModel
                         insertChatMessageUseCase(answerMsg)
                         processAiResponse(agentResponse.content)
                     }
+
                     is AIAgentResponse.FunctionCall -> {
                         val callMsg = ChatMessage.FunctionCall(agentResponse.name, agentResponse.args)
                         insertChatMessageUseCase(callMsg)
@@ -693,6 +744,7 @@ class EventViewModel
                             agentResponse.args,
                         )
                     }
+
                     is AIAgentResponse.Empty -> Unit
                 }
 
@@ -837,8 +889,10 @@ class EventViewModel
 
         private fun fetchWeather() {
             viewModelScope.launch {
+                if (_uiState.value.isWeatherLoading) return@launch
                 val isCelsius = _uiState.value.isTemperatureInCelsius
                 val lang = java.util.Locale.getDefault().toOpenWeatherLang()
+                _uiState.update { it.copy(isWeatherLoading = true, weatherError = null) }
                 val locationStr = getCurrentLocationUseCase()
                 if (locationStr != null) {
                     val parts = locationStr.split(",")
@@ -848,10 +902,23 @@ class EventViewModel
                         if (lat != null && lon != null) {
                             val weatherData = getWeatherUseCase(lat, lon, isCelsius, lang)
                             if (weatherData != null) {
-                                _uiState.update { it.copy(weather = weatherData) }
+                                _uiState.update { it.copy(weather = weatherData, isWeatherLoading = false) }
+                            } else {
+                                _uiState.update {
+                                    it.copy(
+                                        isWeatherLoading = false,
+                                        weatherError = "Failed to fetch weather",
+                                    )
+                                }
                             }
+                        } else {
+                            _uiState.update { it.copy(isWeatherLoading = false, weatherError = "Invalid location") }
                         }
+                    } else {
+                        _uiState.update { it.copy(isWeatherLoading = false, weatherError = "Invalid location format") }
                     }
+                } else {
+                    _uiState.update { it.copy(isWeatherLoading = false, weatherError = "Location unavailable") }
                 }
             }
         }
@@ -886,6 +953,7 @@ class EventViewModel
                         insertChatMessageUseCase(responseMsg)
                         askAi(null)
                     }
+
                     is AIToolResult.ToolNotFound -> {
                         logcat { "AI Agent: tool '${result.toolName}' not found" }
                         val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Tool not found"))
@@ -900,6 +968,7 @@ class EventViewModel
                             ),
                         )
                     }
+
                     is AIToolResult.InvalidArguments -> {
                         logcat { "AI Agent: invalid args for '${result.toolName}': ${result.args}" }
                         val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Invalid arguments"))
@@ -927,6 +996,7 @@ class EventViewModel
                     logcat { "AI Agent [SAFE]: dispatching ${intent::class.simpleName}" }
                     handleIntent(intent)
                 }
+
                 RiskLevel.MODERATE -> {
                     logcat { "AI Agent [MODERATE]: dispatching ${intent::class.simpleName} + snackbar" }
                     handleIntent(intent)
@@ -939,6 +1009,7 @@ class EventViewModel
                         ),
                     )
                 }
+
                 RiskLevel.CRITICAL -> {
                     logcat { "AI Agent [CRITICAL]: pausing for confirmation — ${intent::class.simpleName}" }
                     _uiState.update { it.copy(pendingAIAction = intent) }
@@ -1058,10 +1129,32 @@ class EventViewModel
                             listOf(intent.title),
                         )
                     }
+
                 else ->
                     UiText.StringResource(
                         R.string.ai_agent_generic_confirmation,
                         listOf(tool.name),
                     )
             }
+
+        private fun handleCreateFocusBlock(intent: EventIntent.CreateFocusBlock) {
+            viewModelScope.launch {
+                val defaultCalendar = _uiState.value.availableCalendars.firstOrNull() ?: return@launch
+                createEventUseCase(
+                    calendarId = defaultCalendar.id,
+                    title = intent.title,
+                    description = "Focus time recommended by AI",
+                    location = null,
+                    startTime = intent.startTime,
+                    endTime = intent.endTime,
+                    isAllDay = false,
+                    requestMeetLink = false,
+                )
+                refreshEvents()
+            }
+        }
+
+        private fun handleAnalyzeSchedule(intent: EventIntent.AnalyzeSchedule) {
+            _sideEffect.trySend(EventSideEffect.ShowSnackbar(UiText.DynamicString("Analysing schedule...")))
+        }
     }
