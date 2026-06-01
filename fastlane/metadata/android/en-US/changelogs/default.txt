@@ -1,10 +1,6 @@
+- More reliable alarms: fixed issues where alarms could be delayed or missed.
+- Auto-restore: your alarms now automatically reschedule after a device restart or app update.
+- Android 14+ compatibility: resolved silent failures that prevented sound and vibration on newer devices.
+- Wear OS: applied the same rock-solid stability improvements to your smartwatch app!
 - New Daily Briefing Widget (AI Pro) and next events.
 - Tap the widget to open the app or calendar directly.
-- Voice assistant for smart event creation.
-- Daily AI briefing card now always visible in app.
-- "Manage subscription" added to the side menu.
-- Added event search functionality.
-- New Snooze feature for alarms.
-- System-synced calendar colors.
-- UI adapted for tablets and landscape mode.
-- Support project: help the app's development.

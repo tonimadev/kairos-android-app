@@ -45,7 +45,7 @@ class CachedEventSchedulingWorker
                 val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
 
                 val now = System.currentTimeMillis()
-                val scheduleWindowEnd = now + TimeUnit.HOURS.toMillis(24)
+                val scheduleWindowEnd = now + TimeUnit.DAYS.toMillis(7)
                 val sdf = SimpleDateFormat("dd/MM HH:mm:ss", Locale.getDefault())
 
                 logcat {

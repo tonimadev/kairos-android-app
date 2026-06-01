@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
 import android.media.AudioAttributes
 import android.media.Ringtone
 import android.media.RingtoneManager
@@ -394,7 +395,7 @@ class AlarmSoundAndVibrateService : Service() {
                 startForeground(
                     NOTIFICATION_ID,
                     notification,
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+                    FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED,
                 )
             } else {
                 startForeground(NOTIFICATION_ID, notification)

@@ -8,7 +8,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -32,8 +33,16 @@
 
         <receiver android:name=".wear.service.WearAlarmActionReceiver" android:exported="false" />
 
+        <receiver android:name=".wear.service.WearBootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <service android:name="digital.tonima.core.service.AlarmSoundAndVibrateService" android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:foregroundServiceType="systemExempted" />
 
         <activity android:name=".wear.MainActivity" android:exported="true" android:taskAffinity=""
             android:theme="@style/Theme.Kairos.Starting">

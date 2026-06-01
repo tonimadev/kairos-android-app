@@ -1,10 +1,5 @@
+- Zuverlässigere Alarme: Probleme behoben, durch die Alarme verzögert oder verpasst werden konnten.
+- Automatische Wiederherstellung: Ihre Alarme werden nach einem Geräteneustart oder App-Update automatisch neu geplant.
+- Kompatibilität mit Android 14+: Stille Fehler behoben, die Ton und Vibration auf neueren Geräten verhinderten.
+- Wear OS: Die gleichen Stabilitätsverbesserungen wurden auch in der Smartwatch-App angewendet!
 - Neues Daily Briefing Widget (KI Pro) und nächste Termine.
-- Tippen Sie auf das Widget, um die App/Kalender zu öffnen.
-- Intelligenter Sprachassistent für Ereignisse.
-- KI-Tagesbericht-Karte immer sichtbar.
-- "Abonnement verwalten" hinzugefügt.
-- Ereignissuche hinzugefügt.
-- Schlummerfunktion (Snooze) für Alarme.
-- Synchronisierte Kalenderfarben.
-- UI für Tablets und Querformat angepasst.
-- Projekt unterstützen: Jetzt App-Entwicklung unterstützen.

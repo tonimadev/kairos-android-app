@@ -33,3 +33,8 @@ Before considering any task or feature "complete", ALL AI agents must execute th
 - **Unit Tests**: Existing unit tests (`testDebugUnitTest` or simply `test`) must pass without exceptions. If an architectural change breaks an existing test, update the test (especially `mockk` definitions) to reflect the new structure.
 
 Never end a development cycle without validating against these automated checks!
+
+## 5. String Translations (Internationalization)
+
+- Kairos supports **10 languages**: Arabic (`ar`), German (`de`), English (`en`), Spanish (`es`), French (`fr`), Hindi (`hi`), Japanese (`ja`), Russian (`ru`), Chinese (`zh`), and Portuguese (default).
+- **Mandatory Translation Check**: Whenever you add or modify a user-facing string in `strings.xml`, you MUST provide the translated equivalent in all 9 other `values-*` folders. Never forget to translate new strings!

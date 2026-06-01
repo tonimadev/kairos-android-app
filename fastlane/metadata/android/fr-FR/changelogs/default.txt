@@ -1,10 +1,4 @@
-- Nouveau widget de briefing quotidien (IA Pro) et événements.
-- Appuyez sur le widget pour ouvrir l'app ou le calendrier.
-- Assistant vocal intelligent pour les événements.
-- Briefing quotidien IA toujours visible.
-- Option "Gérer l'abonnement" au menu.
-- Recherche d'événements ajoutée.
-- Fonction Snooze pour les alarmes.
-- Couleurs du calendrier synchronisées.
-- UI pour tablettes, pliables et paysage.
-- Soutenez le développement du projet.
+- Alarmes plus fiables : résolution de problèmes pouvant retarder ou annuler des alarmes.
+- Restauration automatique : vos alarmes sont automatiquement reprogrammées après un redémarrage de l'appareil ou une mise à jour de l'application.
+- Compatibilité Android 14+ : résolution de défaillances silencieuses empêchant le son et la vibration sur les appareils récents.
+- Wear OS : application des mêmes améliorations de stabilité à l'application pour montre connectée !

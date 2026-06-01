@@ -3,6 +3,7 @@ package digital.tonima.kairos.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.work.ExistingWorkPolicy.REPLACE
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.EntryPoint
@@ -10,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.core.service.AlarmSchedulingWorker
 import digital.tonima.core.service.DailyBriefingWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +33,22 @@ class WakeUpReceiver : BroadcastReceiver() {
         context: Context,
         intent: Intent,
     ) {
-        if (intent.action == Intent.ACTION_USER_PRESENT) {
+        val action = intent.action
+
+        if (action == Intent.ACTION_BOOT_COMPLETED ||
+            action == Intent.ACTION_MY_PACKAGE_REPLACED ||
+            action == android.app.AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED
+        ) {
+            logcat { "WakeUpReceiver: Reprogramming alarms after $action" }
+            val workRequest = OneTimeWorkRequestBuilder<AlarmSchedulingWorker>().build()
+            WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+                "reschedule_alarms_boot",
+                REPLACE,
+                workRequest,
+            )
+        }
+
+        if (action == Intent.ACTION_USER_PRESENT) {
             val repository =
                 EntryPointAccessors.fromApplication(
                     context.applicationContext,
@@ -57,7 +74,7 @@ class WakeUpReceiver : BroadcastReceiver() {
                     val workRequest = OneTimeWorkRequestBuilder<DailyBriefingWorker>().build()
                     WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
                         "daily_briefing_wakeup",
-                        androidx.work.ExistingWorkPolicy.REPLACE,
+                        REPLACE,
                         workRequest,
                     )
                 }

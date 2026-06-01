@@ -17,7 +17,7 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
 
     <queries>
         <package android:name="com.google.android.calendar" />
@@ -57,6 +57,9 @@
         <receiver android:name=".receivers.WakeUpReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
 
@@ -70,7 +73,7 @@
         </receiver>
 
         <service android:name="digital.tonima.core.service.AlarmSoundAndVibrateService" android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:foregroundServiceType="systemExempted" />
 
         <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id" />

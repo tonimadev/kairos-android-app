@@ -80,7 +80,7 @@ class AlarmSchedulingWorker
                     val now = System.currentTimeMillis()
                     val scheduleWindowEnd =
                         now +
-                            TimeUnit.MINUTES.toMillis(75) +
+                            TimeUnit.DAYS.toMillis(7) +
                             TimeUnit.MINUTES.toMillis(offsetMinutes)
                     val sdf = SimpleDateFormat("dd/MM HH:mm:ss", Locale.getDefault())
 

@@ -1,10 +1,4 @@
-- Novo Widget de Resumo Diário (IA Pro) e próximos eventos.
-- Toque no widget para abrir o app ou calendário diretamente.
-- Assistente de voz inteligente para eventos.
-- Resumo diário da IA sempre visível no app.
-- "Gerenciar assinatura" no menu lateral.
-- Adicionada busca de eventos.
-- Recurso de Adiar (Snooze) para alarmes.
-- Cores do calendário sincronizadas.
-- Interface para tablets e modo paisagem.
-- Apoie o desenvolvimento do projeto.
+- Alarmes mais confiáveis: resolvemos problemas que faziam com que alarmes se atrasassem ou não tocassem.
+- Restauração automática: seus alarmes agora voltam a funcionar automaticamente após reiniciar o celular ou atualizar o app.
+- Compatibilidade com Android 14+: corrigimos falhas silenciosas que impediam o toque e vibração nos aparelhos mais recentes.
+- Wear OS: aplicamos as mesmas melhorias de estabilidade e confiabilidade no aplicativo do seu relógio!
