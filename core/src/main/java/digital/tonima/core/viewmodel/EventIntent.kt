@@ -123,6 +123,19 @@ sealed class EventIntent {
 
     data class UpdateCustomRingtoneUri(val uri: String?) : EventIntent()
 
+    // ── Chat Screen intents ─────────────────────────────────────────────
+    object OpenChatHistoryScreen : EventIntent()
+
+    object CloseChatHistoryScreen : EventIntent()
+
+    data class OpenChatDetail(val conversationId: Long) : EventIntent()
+
+    object CloseChatDetail : EventIntent()
+
+    data class CreateNewChat(val title: String) : EventIntent()
+
+    data class DeleteChat(val conversationId: Long) : EventIntent()
+
     // ── AI Agent intents ────────────────────────────────────────────────
 
     /** User approved the pending CRITICAL action queued by the AI agent. */

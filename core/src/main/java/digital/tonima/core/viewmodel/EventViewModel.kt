@@ -17,7 +17,9 @@ import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.usecases.CancelEventAlarmUseCase
 import digital.tonima.core.usecases.CheckPermissionsUseCase
 import digital.tonima.core.usecases.ClearChatHistoryUseCase
+import digital.tonima.core.usecases.CreateConversationUseCase
 import digital.tonima.core.usecases.CreateEventUseCase
+import digital.tonima.core.usecases.DeleteConversationUseCase
 import digital.tonima.core.usecases.FetchMeetingTranscriptUseCase
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.usecases.GetAvailableCalendarsUseCase
@@ -34,6 +36,7 @@ import digital.tonima.core.usecases.IsGoogleSignedInUseCase
 import digital.tonima.core.usecases.LogEventUseCase
 import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.usecases.ObserveChatHistoryUseCase
+import digital.tonima.core.usecases.ObserveConversationsUseCase
 import digital.tonima.core.usecases.ObserveDailyBriefingUseCase
 import digital.tonima.core.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.usecases.ProcessAiResponseUseCase
@@ -104,6 +107,9 @@ class EventViewModel
         private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
         private val getWeatherUseCase: GetWeatherUseCase,
         private val getMeetingTimeStatsUseCase: GetMeetingTimeStatsUseCase,
+        private val observeConversationsUseCase: ObserveConversationsUseCase,
+        private val createConversationUseCase: CreateConversationUseCase,
+        private val deleteConversationUseCase: DeleteConversationUseCase,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
@@ -111,11 +117,13 @@ class EventViewModel
         private val _sideEffect = Channel<EventSideEffect>(Channel.BUFFERED)
         val sideEffect = _sideEffect.receiveAsFlow()
 
+        private var chatHistoryJob: kotlinx.coroutines.Job? = null
+
         init {
             observePreferences()
             observeRingerMode()
             observeDailyBriefing()
-            observeChatHistory()
+            observeConversations()
             handleIntent(EventIntent.CheckPermissions)
 
             _uiState.update { it.copy(isGoogleConnected = isGoogleSignedIn()) }
@@ -343,6 +351,35 @@ class EventViewModel
         private fun handleAiIntent(intent: EventIntent) {
             when (intent) {
                 is EventIntent.AskAi -> askAi(intent.question, intent.language)
+                is EventIntent.OpenChatHistoryScreen -> {
+                    _uiState.update { it.copy(showChatHistoryScreen = true) }
+                }
+                is EventIntent.CloseChatHistoryScreen -> {
+                    _uiState.update { it.copy(showChatHistoryScreen = false, selectedConversationId = null) }
+                    chatHistoryJob?.cancel()
+                }
+                is EventIntent.OpenChatDetail -> {
+                    _uiState.update { it.copy(selectedConversationId = intent.conversationId) }
+                    observeChatHistory(intent.conversationId)
+                }
+                is EventIntent.CloseChatDetail -> {
+                    _uiState.update { it.copy(selectedConversationId = null) }
+                    chatHistoryJob?.cancel()
+                }
+                is EventIntent.CreateNewChat -> {
+                    viewModelScope.launch {
+                        val id = createConversationUseCase(intent.title)
+                        handleIntent(EventIntent.OpenChatDetail(id))
+                    }
+                }
+                is EventIntent.DeleteChat -> {
+                    viewModelScope.launch {
+                        deleteConversationUseCase(intent.conversationId)
+                        if (_uiState.value.selectedConversationId == intent.conversationId) {
+                            handleIntent(EventIntent.CloseChatDetail)
+                        }
+                    }
+                }
                 is EventIntent.GenerateDailyBriefing -> generateDailyBriefing(intent.language)
                 EventIntent.SpeakAiResponse -> speakAiResponse()
                 EventIntent.StopSpeaking -> stopSpeaking()
@@ -491,10 +528,18 @@ class EventViewModel
             }.launchIn(viewModelScope)
         }
 
-        private fun observeChatHistory() {
-            observeChatHistoryUseCase().onEach { messages ->
-                _uiState.update { it.copy(chatHistory = messages) }
+        private fun observeConversations() {
+            observeConversationsUseCase().onEach { list ->
+                _uiState.update { it.copy(conversations = list) }
             }.launchIn(viewModelScope)
+        }
+
+        private fun observeChatHistory(conversationId: Long) {
+            chatHistoryJob?.cancel()
+            chatHistoryJob =
+                observeChatHistoryUseCase(conversationId).onEach { messages ->
+                    _uiState.update { it.copy(chatHistory = messages) }
+                }.launchIn(viewModelScope)
         }
 
         private fun checkPermissions() {
@@ -704,11 +749,18 @@ class EventViewModel
             if (_uiState.value.isAskingAi || !_uiState.value.isAiUser) return
 
             viewModelScope.launch {
-                val currentHistory = getChatHistoryUseCase()
+                var convId = _uiState.value.selectedConversationId
+                if (convId == null) {
+                    convId = createConversationUseCase(question ?: "Nova Conversa")
+                    _uiState.update { it.copy(selectedConversationId = convId) }
+                    observeChatHistory(convId)
+                }
+
+                val currentHistory = getChatHistoryUseCase(convId)
 
                 if (!question.isNullOrBlank()) {
                     val questionMsg = ChatMessage.Text(ChatMessage.Role.USER, question)
-                    insertChatMessageUseCase(questionMsg)
+                    insertChatMessageUseCase(convId, questionMsg)
                 }
 
                 _uiState.update {
@@ -732,13 +784,13 @@ class EventViewModel
                 when (agentResponse) {
                     is AIAgentResponse.Text -> {
                         val answerMsg = ChatMessage.Text(ChatMessage.Role.ASSISTANT, agentResponse.content)
-                        insertChatMessageUseCase(answerMsg)
+                        insertChatMessageUseCase(convId, answerMsg)
                         processAiResponse(agentResponse.content)
                     }
 
                     is AIAgentResponse.FunctionCall -> {
                         val callMsg = ChatMessage.FunctionCall(agentResponse.name, agentResponse.args)
-                        insertChatMessageUseCase(callMsg)
+                        insertChatMessageUseCase(convId, callMsg)
                         onAIFunctionCalled(
                             agentResponse.name,
                             agentResponse.args,
@@ -810,16 +862,19 @@ class EventViewModel
         }
 
         private fun clearAiResponse() {
-            stopSpeaking()
             viewModelScope.launch {
-                clearChatHistoryUseCase()
-            }
-            _uiState.update {
-                it.copy(
-                    aiResponse = null,
-                    lastAiQuestion = null,
-                    chatHistory = emptyList(),
-                )
+                val convId = _uiState.value.selectedConversationId
+                if (convId != null) {
+                    clearChatHistoryUseCase(convId)
+                }
+                _uiState.update {
+                    it.copy(
+                        aiResponse = null,
+                        chatHistory = emptyList(),
+                        lastAiQuestion = null,
+                    )
+                }
+                stopSpeaking()
             }
         }
 
@@ -941,6 +996,12 @@ class EventViewModel
             args: Map<String, Any?>,
         ) {
             viewModelScope.launch {
+                var convId = _uiState.value.selectedConversationId
+                if (convId == null) {
+                    convId = createConversationUseCase("Nova Conversa")
+                    _uiState.update { it.copy(selectedConversationId = convId) }
+                    observeChatHistory(convId)
+                }
                 when (val result = processAiResponseUseCase(toolName, args)) {
                     is AIToolResult.Success -> {
                         routeByRiskLevel(result)
@@ -950,14 +1011,14 @@ class EventViewModel
                                     toolName,
                                     mapOf("status" to "success", "message" to "Intent gerado e processado"),
                                 )
-                        insertChatMessageUseCase(responseMsg)
+                        insertChatMessageUseCase(convId, responseMsg)
                         askAi(null)
                     }
 
                     is AIToolResult.ToolNotFound -> {
                         logcat { "AI Agent: tool '${result.toolName}' not found" }
                         val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Tool not found"))
-                        insertChatMessageUseCase(responseMsg)
+                        insertChatMessageUseCase(convId, responseMsg)
                         askAi(null)
                         _sideEffect.trySend(
                             EventSideEffect.AIToolError(
@@ -972,7 +1033,7 @@ class EventViewModel
                     is AIToolResult.InvalidArguments -> {
                         logcat { "AI Agent: invalid args for '${result.toolName}': ${result.args}" }
                         val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Invalid arguments"))
-                        insertChatMessageUseCase(responseMsg)
+                        insertChatMessageUseCase(convId, responseMsg)
                         askAi(null)
                         _sideEffect.trySend(
                             EventSideEffect.AIToolError(
@@ -1089,13 +1150,19 @@ class EventViewModel
             viewModelScope.launch {
                 val result = fetchMeetingTranscriptUseCase(intent.meetingUrl)
                 result.onSuccess { transcript ->
+                    var convId = _uiState.value.selectedConversationId
+                    if (convId == null) {
+                        convId = createConversationUseCase("Resumo Reunião")
+                        _uiState.update { it.copy(selectedConversationId = convId) }
+                        observeChatHistory(convId)
+                    }
                     val questionMsg =
                         ChatMessage.Text(
                             ChatMessage.Role.USER,
                             "Aqui está a transcrição da reunião: \n$transcript\n\n" +
                                 "Por favor, resuma os principais pontos discutidos e extraia as ações (action items).",
                         )
-                    insertChatMessageUseCase(questionMsg)
+                    insertChatMessageUseCase(convId, questionMsg)
                     askAi(null)
                 }.onFailure { e ->
                     _sideEffect.trySend(

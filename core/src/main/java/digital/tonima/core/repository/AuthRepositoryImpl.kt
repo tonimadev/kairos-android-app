@@ -6,6 +6,7 @@ import com.google.android.gms.auth.GoogleAuthUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -70,6 +71,9 @@ class AuthRepositoryImpl
                     } else {
                         Result.failure(Exception("Account is null"))
                     }
+                } catch (e: ApiException) {
+                    logcat { "handleSignInResult ApiException: statusCode=${e.statusCode}, message=${e.message}" }
+                    Result.failure(e)
                 } catch (e: Exception) {
                     logcat { "handleSignInResult failed: ${e.message}" }
                     Result.failure(e)

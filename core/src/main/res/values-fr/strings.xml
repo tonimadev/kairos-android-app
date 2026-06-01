@@ -32,7 +32,8 @@
     <string name="dismiss">Ignorer</string>
     <string name="autostart_fallback_toast">Impossible d\'ouvrir l\'écran spécifique. Veuillez rechercher « Démarrage automatique » ou «
         Gestionnaire de batterie » dans les paramètres.</string>
-    <string name="remove_ads">Soutenir le projet</string>
+    <string name="remove_ads">Supprimer les publicités</string>
+    <string name="drawer_ai_assistant">Conversations avec l\'IA</string>
     <string name="share_app">Partager l\'application</string>
     <string name="share_text">Découvrez Kairos, une application incroyable para gérer vos événements et alarmes : https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">Menu</string>
@@ -161,7 +162,7 @@
     <string name="geo_alarm_upgrade_trial_desc">Évitez les retards ! Activez les alarmes basées sur le trafic en temps réel avec le plan Pro + IA.</string>
     <string name="try_pro_plan">Essayer le Plan Pro</string>
 
-    
+
     <string name="ai_agent_snackbar_executed">IA a exécuté : %1$s</string>
     <string name="ai_agent_tool_not_found">Outil \'%1$s\' introuvable.</string>
     <string name="ai_agent_invalid_args">Arguments invalides pour \'%1$s\'.</string>
@@ -181,7 +182,7 @@
     <string name="ai_agent_event_creation_error">Erreur lors de la création de l\'événement dans l\'agenda.</string>
     <string name="device_health_alert_title">Alerte de l\'appareil</string>
 
-    
+
     <string name="ai_suggested_late_notification">Suggéré par l\'IA : %1$s</string>
     <string name="ai_prepping_meeting">L\'IA prépare le résumé de la réunion…</string>
     <string name="pro_ia_upgrade_title">Libérez la puissance de l\'IA</string>
@@ -190,7 +191,7 @@
     <string name="silent_mode_warning">Mode silencieux activé. Votre alarme de %1$s pourrait ne pas sonner.</string>
     <string name="ask_ai_label">Parler à l\'IA</string>
 
-    
+
     <string name="auto_join_title">Rejoindre automatiquement les réunions</string>
     <string name="auto_join_description">Ouvrir automatiquement le lien de la réunion lorsque l\'alarme sonne, sans afficher l\'écran d\'alarme.</string>
     <string name="auto_focus_mode_title">Mode concentration automatique</string>
@@ -222,7 +223,7 @@
     <string name="day_friday_short">V</string>
     <string name="day_saturday_short">S</string>
     <string name="prompt_daily_briefing">Fournissez un résumé quotidien basé sur mes alarmes.</string>
-    
+
     <string name="integrations">Intégrations</string>
     <string name="google_login_title">Connecter Google Meet</string>
     <string name="google_login_description">Autorisez l\'application à lire et résumer vos réunions grâce à l\'IA.</string>
@@ -230,7 +231,7 @@
     <string name="login_google">Connecter</string>
     <string name="logout">Déconnexion</string>
 
-    
+
     <string name="onboarding_title_1">Bienvenue sur Kairos</string>
     <string name="onboarding_desc_1">Gérez vos événements et votre temps efficacement.</string>
     <string name="onboarding_title_2">Alarmes Intelligentes</string>
@@ -239,7 +240,24 @@
     <string name="onboarding_desc_3">Obtenez des résumés quotidiens personnalisés de votre agenda.</string>
     <string name="onboarding_btn_next">Suivant</string>
     <string name="onboarding_btn_start">Commencer</string>
-<string name="insights_title">Statistiques et Aperçus</string><string name="insights_streak">Série de Réveils</string><string name="insights_punctuality">Score de Ponctualité</string><string name="insights_ai_usage">Briefings IA Générés</string>
+    <string name="insights_title">Statistiques</string>
+    <string name="insights_streak">Série de Réveil</string>
+    <string name="insights_streak_days">%1$d Jours</string>
+    <string name="insights_total_snoozes">Total de Snoozes</string>
+    <string name="insights_punctuality">Score de Ponctualité</string>
+    <string name="insights_punctuality_great">Beau travail ! Vous repoussez rarement.</string>
+    <string name="insights_punctuality_bad">Vous avez un peu repoussé ces derniers temps.</string>
+    <string name="insights_ai_usage">Résumés IA Générés</string>
+    <string name="insights_time_in_meetings">Temps en Réunions</string>
+    <string name="insights_period_day">Jour</string>
+    <string name="insights_period_week">Semaine</string>
+    <string name="insights_period_month">Mois</string>
+    <string name="insights_hours_axis_title">Heures</string>
+    <string name="insights_no_data">Aucune donnée disponible</string>
+    <string name="insights_morning">Matin</string>
+    <string name="insights_afternoon">Après-midi</string>
+    <string name="insights_evening">Soir</string>
+    <string name="insights_week_format">S%1$d</string>
     <!-- Custom Ringtone Strings -->
     <string name="custom_ringtone">Sonnerie Personnalisée</string>
     <string name="default_ringtone">Sonnerie par Défaut</string>

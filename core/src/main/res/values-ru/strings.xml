@@ -30,7 +30,8 @@
     <string name="dismiss">Отклонить</string>
     <string name="autostart_fallback_toast">Не удалось открыть указанный экран. Пожалуйста, найдите «Автозапуск» или «Диспетчер батареи» в
         настройках.</string>
-    <string name="remove_ads">Поддержать проект</string>
+    <string name="remove_ads">Удалить рекламу</string>
+    <string name="drawer_ai_assistant">Чат с ИИ</string>
     <string name="share_app">Поделиться приложением</string>
     <string name="share_text">Посмотрите Kairos — отличное приложение для управления событиями и будильниками: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">Меню</string>
@@ -159,7 +160,7 @@
     <string name="geo_alarm_upgrade_trial_desc">Избегайте опозданий! Включите будильники на основе дорожной обстановки с планом Pro + ИИ.</string>
     <string name="try_pro_plan">Попробовать план Pro</string>
 
-    
+
     <string name="ai_agent_snackbar_executed">ИИ выполнил: %1$s</string>
     <string name="ai_agent_tool_not_found">Инструмент \'%1$s\' не найден.</string>
     <string name="ai_agent_invalid_args">Недопустимые аргументы для \'%1$s\'.</string>
@@ -179,7 +180,7 @@
     <string name="ai_agent_event_creation_error">Ошибка при создании события в календаре.</string>
     <string name="device_health_alert_title">Оповещение устройства</string>
 
-    
+
     <string name="ai_suggested_late_notification">Предложение ИИ: %1$s</string>
     <string name="ai_prepping_meeting">ИИ готовит краткий отчет о встрече…</string>
     <string name="pro_ia_upgrade_title">Раскройте потенциал ИИ</string>
@@ -188,7 +189,7 @@
     <string name="silent_mode_warning">Включен беззвучный режим. Ваш будильник на %1$s может не прозвучать.</string>
     <string name="ask_ai_label">Говорить с ИИ</string>
 
-    
+
     <string name="auto_join_title">Автоподключение к встречам</string>
     <string name="auto_join_description">Автоматически открывать ссылку на встречу при срабатывании будильника, без показа экрана будильника.</string>
     <string name="auto_focus_mode_title">Автоматический режим фокуса</string>
@@ -220,7 +221,7 @@
     <string name="day_friday_short">П</string>
     <string name="day_saturday_short">С</string>
     <string name="prompt_daily_briefing">Предоставьте ежедневный брифинг на основе моих будильников.</string>
-    
+
     <string name="integrations">Интеграции</string>
     <string name="google_login_title">Подключить Google Meet</string>
     <string name="google_login_description">Разрешите приложению читать и обобщать ваши встречи с помощью ИИ.</string>
@@ -228,7 +229,7 @@
     <string name="login_google">Подключить</string>
     <string name="logout">Выйти</string>
 
-    
+
     <string name="onboarding_title_1">Добро пожаловать в Kairos</string>
     <string name="onboarding_desc_1">Эффективно управляйте своими событиями и временем.</string>
     <string name="onboarding_title_2">Умные будильники</string>
@@ -237,7 +238,24 @@
     <string name="onboarding_desc_3">Получайте ежедневные персонализированные сводки вашей повестки дня.</string>
     <string name="onboarding_btn_next">Далее</string>
     <string name="onboarding_btn_start">Начать</string>
-<string name="insights_title">Статистика и аналитика</string><string name="insights_streak">Серия пробуждений</string><string name="insights_punctuality">Оценка пунктуальности</string><string name="insights_ai_usage">Созданные ИИ-сводки</string>
+    <string name="insights_title">Статистика</string>
+    <string name="insights_streak">Серия пробуждений</string>
+    <string name="insights_streak_days">%1$d дн.</string>
+    <string name="insights_total_snoozes">Всего откладываний</string>
+    <string name="insights_punctuality">Оценка пунктуальности</string>
+    <string name="insights_punctuality_great">Отличная работа! Вы редко откладываете.</string>
+    <string name="insights_punctuality_bad">В последнее время вы часто откладываете.</string>
+    <string name="insights_ai_usage">Создано ИИ-брифингов</string>
+    <string name="insights_time_in_meetings">Время на встречах</string>
+    <string name="insights_period_day">День</string>
+    <string name="insights_period_week">Неделя</string>
+    <string name="insights_period_month">Месяц</string>
+    <string name="insights_hours_axis_title">Часы</string>
+    <string name="insights_no_data">Нет данных</string>
+    <string name="insights_morning">Утро</string>
+    <string name="insights_afternoon">День</string>
+    <string name="insights_evening">Вечер</string>
+    <string name="insights_week_format">Н%1$d</string>
     <!-- Custom Ringtone Strings -->
     <string name="custom_ringtone">Пользовательская Мелодия</string>
     <string name="default_ringtone">Мелодия по Умолчанию</string>

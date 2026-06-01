@@ -51,6 +51,7 @@ fun DrawerContent(
     onUpgradeToProClick: () -> Unit,
     onOurOtherAppsClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onChatHistoryClick: () -> Unit,
     onCloseDrawer: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -152,6 +153,23 @@ fun DrawerContent(
             }
 
             if (isAiUser) {
+                NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Favorite, // Just a placeholder, better would be Chat
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    label = { Text(stringResource(R.string.drawer_ai_assistant), fontWeight = FontWeight.Medium) },
+                    selected = false,
+                    onClick = {
+                        onChatHistoryClick()
+                        onCloseDrawer()
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                )
+
                 NavigationDrawerItem(
                     icon = {
                         Icon(

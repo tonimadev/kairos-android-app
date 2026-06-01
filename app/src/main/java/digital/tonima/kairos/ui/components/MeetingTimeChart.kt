@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +31,7 @@ import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.FloatEntry
 import digital.tonima.core.model.InsightsPeriod
+import digital.tonima.kairos.core.R
 
 @Composable
 fun MeetingTimeChart(
@@ -48,7 +50,7 @@ fun MeetingTimeChart(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Time in Meetings",
+                text = stringResource(id = R.string.insights_time_in_meetings),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -59,7 +61,11 @@ fun MeetingTimeChart(
 
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 val options =
-                    listOf(InsightsPeriod.DAY to "Day", InsightsPeriod.WEEK to "Week", InsightsPeriod.MONTH to "Month")
+                    listOf(
+                        InsightsPeriod.DAY to stringResource(id = R.string.insights_period_day),
+                        InsightsPeriod.WEEK to stringResource(id = R.string.insights_period_week),
+                        InsightsPeriod.MONTH to stringResource(id = R.string.insights_period_month),
+                    )
                 options.forEachIndexed { index, (period, label) ->
                     SegmentedButton(
                         selected = period == selectedPeriod,
@@ -99,7 +105,7 @@ fun MeetingTimeChart(
                         chartModelProducer = chartEntryModelProducer,
                         startAxis =
                             rememberStartAxis(
-                                title = "Hours",
+                                title = stringResource(id = R.string.insights_hours_axis_title),
                                 valueFormatter = { value, _ -> "${value.toInt()}h" },
                             ),
                         bottomAxis = rememberBottomAxis(valueFormatter = bottomAxisValueFormatter),
@@ -107,7 +113,7 @@ fun MeetingTimeChart(
                     )
                 }
             } else {
-                Text("No data available", color = Color.Gray)
+                Text(stringResource(id = R.string.insights_no_data), color = Color.Gray)
             }
         }
     }

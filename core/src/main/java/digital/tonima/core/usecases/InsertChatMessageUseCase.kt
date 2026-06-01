@@ -9,7 +9,10 @@ class InsertChatMessageUseCase
     constructor(
         private val repository: ChatHistoryRepository,
     ) {
-        suspend operator fun invoke(message: ChatMessage): Long {
-            return repository.insertMessage(message)
+        suspend operator fun invoke(
+            conversationId: Long,
+            message: ChatMessage,
+        ): Long {
+            return repository.insertMessage(conversationId, message)
         }
     }

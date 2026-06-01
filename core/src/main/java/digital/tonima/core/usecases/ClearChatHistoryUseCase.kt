@@ -8,7 +8,7 @@ class ClearChatHistoryUseCase
     constructor(
         private val repository: ChatHistoryRepository,
     ) {
-        suspend operator fun invoke(): Int {
-            return repository.clearHistory()
+        suspend operator fun invoke(conversationId: Long): Int {
+            return repository.clearHistory(conversationId)
         }
     }

@@ -153,19 +153,19 @@ class EventViewModelTest {
         coEvery { mockGetEventsForMonthUseCase(any()) } returns emptyList()
         coEvery { mockGetAvailableCalendarsUseCase() } returns emptyList()
 
-        every { mockObserveChatHistoryUseCase() } answers { MutableStateFlow(fakeChatHistory.toList()) }
-        coEvery { mockGetChatHistoryUseCase() } answers { fakeChatHistory.toList() }
-        coEvery { mockInsertChatMessageUseCase(any()) } answers {
-            fakeChatHistory.add(firstArg())
+        every { mockObserveChatHistoryUseCase(any()) } answers { MutableStateFlow(fakeChatHistory.toList()) }
+        coEvery { mockGetChatHistoryUseCase(any()) } answers { fakeChatHistory.toList() }
+        coEvery { mockInsertChatMessageUseCase(any(), any()) } answers {
+            fakeChatHistory.add(secondArg())
             1L
         }
-        coEvery { mockClearChatHistoryUseCase() } answers {
+        coEvery { mockClearChatHistoryUseCase(any()) } answers {
             fakeChatHistory.clear()
-            Unit
             1
         }
 
         viewModel = createViewModel()
+        viewModel.handleIntent(EventIntent.OpenChatDetail(1L))
     }
 
     @After
@@ -234,6 +234,9 @@ class EventViewModelTest {
             getCurrentLocationUseCase = io.mockk.mockk(relaxed = true),
             getWeatherUseCase = io.mockk.mockk(relaxed = true),
             getMeetingTimeStatsUseCase = mockGetMeetingTimeStatsUseCase,
+            observeConversationsUseCase = io.mockk.mockk(relaxed = true),
+            createConversationUseCase = io.mockk.mockk(relaxed = true),
+            deleteConversationUseCase = io.mockk.mockk(relaxed = true),
         )
 
     @Test

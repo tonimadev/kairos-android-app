@@ -66,17 +66,19 @@ fun ChatHistoryEntity.toChatMessage(): ChatMessage? {
     }
 }
 
-fun ChatMessage.toEntity(): ChatHistoryEntity {
+fun ChatMessage.toEntity(conversationId: Long): ChatHistoryEntity {
     val roleStr = if (role == ChatMessage.Role.USER) "USER" else "ASSISTANT"
     return when (this) {
         is ChatMessage.Text ->
             ChatHistoryEntity(
+                conversationId = conversationId,
                 role = roleStr,
                 type = "TEXT",
                 content = content,
             )
         is ChatMessage.FunctionCall ->
             ChatHistoryEntity(
+                conversationId = conversationId,
                 role = roleStr,
                 type = "FUNCTION_CALL",
                 functionName = name,
@@ -84,6 +86,7 @@ fun ChatMessage.toEntity(): ChatHistoryEntity {
             )
         is ChatMessage.FunctionResponse ->
             ChatHistoryEntity(
+                conversationId = conversationId,
                 role = roleStr,
                 type = "FUNCTION_RESPONSE",
                 functionName = name,

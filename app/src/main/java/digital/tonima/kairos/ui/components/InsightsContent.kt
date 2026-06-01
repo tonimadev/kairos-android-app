@@ -78,7 +78,7 @@ fun InsightsContent(
             InsightCard(
                 modifier = Modifier.weight(1f),
                 title = stringResource(id = R.string.insights_streak),
-                value = "${uiState.currentStreak} Days",
+                value = stringResource(id = R.string.insights_streak_days, uiState.currentStreak),
                 icon = Icons.Rounded.LocalFireDepartment,
                 iconTint = Color(0xFFFF9800),
                 backgroundColor = Color(0xFF2C2C38),
@@ -86,7 +86,7 @@ fun InsightsContent(
 
             InsightCard(
                 modifier = Modifier.weight(1f),
-                title = "Total Snoozes",
+                title = stringResource(id = R.string.insights_total_snoozes),
                 value = "${uiState.snoozeCount}",
                 icon = Icons.Rounded.Bedtime,
                 iconTint = Color(0xFF9FA8DA),
@@ -223,7 +223,12 @@ fun PunctualityCard(score: Int) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = if (score > 80) "Great job! You rarely snooze." else "You've been hitting snooze a bit.",
+                    text =
+                        if (score > 80) {
+                            stringResource(id = R.string.insights_punctuality_great)
+                        } else {
+                            stringResource(id = R.string.insights_punctuality_bad)
+                        },
                     fontSize = 14.sp,
                     color = Color.Gray,
                 )

@@ -1,9 +1,12 @@
 package digital.tonima.core.usecases
 
+import android.content.Context
 import com.paulrybitskyi.hiltbinder.BindType
+import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.model.InsightsPeriod
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
+import digital.tonima.kairos.core.R
 import kotlinx.coroutines.flow.firstOrNull
 import java.time.Instant
 import java.time.LocalDate
@@ -18,6 +21,7 @@ class GetMeetingTimeStatsUseCaseImpl
     constructor(
         private val calendarRepository: CalendarRepository,
         private val appPreferencesRepository: AppPreferencesRepository,
+        @ApplicationContext private val context: Context,
     ) : GetMeetingTimeStatsUseCase {
         override suspend operator fun invoke(period: InsightsPeriod): List<Pair<String, Float>> {
             val enabledCalendarIdStrings = appPreferencesRepository.getEnabledCalendarIds().firstOrNull() ?: emptySet()
@@ -78,9 +82,9 @@ class GetMeetingTimeStatsUseCaseImpl
                             else -> evening += (event.durationMinutes / 60f)
                         }
                     }
-                    result.add(Pair("Morning", morning))
-                    result.add(Pair("Afternoon", afternoon))
-                    result.add(Pair("Evening", evening))
+                    result.add(Pair(context.getString(R.string.insights_morning), morning))
+                    result.add(Pair(context.getString(R.string.insights_afternoon), afternoon))
+                    result.add(Pair(context.getString(R.string.insights_evening), evening))
                 }
                 InsightsPeriod.MONTH -> {
                     val events = calendarRepository.getEventsForMonth(YearMonth.from(now), allowedCalendarIds)
@@ -112,10 +116,10 @@ class GetMeetingTimeStatsUseCaseImpl
                         }
                     }
 
-                    result.add(Pair("W1", week1))
-                    result.add(Pair("W2", week2))
-                    result.add(Pair("W3", week3))
-                    result.add(Pair("W4+", week4))
+                    result.add(Pair(context.getString(R.string.insights_week_format, 1), week1))
+                    result.add(Pair(context.getString(R.string.insights_week_format, 2), week2))
+                    result.add(Pair(context.getString(R.string.insights_week_format, 3), week3))
+                    result.add(Pair(context.getString(R.string.insights_week_format, 4) + "+", week4))
                 }
             }
 

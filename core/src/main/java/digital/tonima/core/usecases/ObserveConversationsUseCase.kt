@@ -1,16 +1,14 @@
 package digital.tonima.core.usecases
 
-import digital.tonima.core.ai.model.ChatMessage
+import digital.tonima.core.database.entity.ConversationEntity
 import digital.tonima.core.repository.ChatHistoryRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ObserveChatHistoryUseCase
+class ObserveConversationsUseCase
     @Inject
     constructor(
         private val repository: ChatHistoryRepository,
     ) {
-        operator fun invoke(conversationId: Long): Flow<List<ChatMessage>> {
-            return repository.observeHistory(conversationId)
-        }
+        operator fun invoke(): Flow<List<ConversationEntity>> = repository.observeConversations()
     }

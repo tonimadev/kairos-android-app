@@ -29,7 +29,8 @@
         आपके डिवाइस की सेटिंग्स में Kairos के लिए "ऑटोस्टार्ट" सक्षम करने की सलाह देते हैं।</string>
     <string name="dismiss">खारिज करें</string>
     <string name="autostart_fallback_toast">विशिष्ट स्क्रीन नहीं खुल सकी। कृपया सेटिंग्स में "ऑटोस्टार्ट" या "बैटरी मैनेजर" खोजें।</string>
-    <string name="remove_ads">परियोजना का समर्थन करें</string>
+    <string name="remove_ads">विज्ञापन हटाएँ</string>
+    <string name="drawer_ai_assistant">एआई बातचीत</string>
     <string name="share_app">ऐप साझा करें</string>
     <string name="share_text">Kairos को देखें, जो आपके इवेंट और अलार्म को प्रबंधित करने के लिए एक अद्भुत ऐप है: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">मेनू</string>
@@ -158,7 +159,7 @@
     <string name="geo_alarm_upgrade_trial_desc">देरी से बचें! प्रो + एआई प्लान के साथ रीयल-टाइम ट्रैफ़िक-आधारित अलार्म सक्षम करें।</string>
     <string name="try_pro_plan">प्रो प्लान आज़माएँ</string>
 
-    
+
     <string name="ai_agent_snackbar_executed">AI ने निष्पादित किया: %1$s</string>
     <string name="ai_agent_tool_not_found">टूल \'%1$s\' नहीं मिला।</string>
     <string name="ai_agent_invalid_args">\'%1$s\' के लिए अमान्य तर्क।</string>
@@ -178,7 +179,7 @@
     <string name="ai_agent_event_creation_error">कैलेंडर में इवेंट बनाने में त्रुटि।</string>
     <string name="device_health_alert_title">डिवाइस अलर्ट</string>
 
-    
+
     <string name="ai_suggested_late_notification">AI का सुझाव: %1$s</string>
     <string name="ai_prepping_meeting">AI मीटिंग का सारांश तैयार कर रहा है…</string>
     <string name="pro_ia_upgrade_title">AI की शक्ति का लाभ उठाएं</string>
@@ -187,7 +188,7 @@
     <string name="silent_mode_warning">साइलेंट मोड सक्रिय है। आपका %1$s अलार्म शायद न बजे।</string>
     <string name="ask_ai_label">AI से बात करें</string>
 
-    
+
     <string name="auto_join_title">मीटिंग में स्वतः शामिल हों</string>
     <string name="auto_join_description">अलार्म बजने पर स्वचालित रूप से मीटिंग लिंक खोलें, अलार्म स्क्रीन दिखाए बिना।</string>
     <string name="auto_focus_mode_title">ऑटो फोकस मोड</string>
@@ -219,7 +220,7 @@
     <string name="day_friday_short">शु</string>
     <string name="day_saturday_short">श</string>
     <string name="prompt_daily_briefing">मेरे अलार्म के आधार पर दैनिक ब्रीफング प्रदान करें।</string>
-    
+
     <string name="integrations">एकीकरण</string>
     <string name="google_login_title">Google Meet कनेक्ट करें</string>
     <string name="google_login_description">ऐप को AI के माध्यम से आपकी मीटिंग्स को पढ़ने और सारांशित करने की अनुमति दें।</string>
@@ -227,7 +228,7 @@
     <string name="login_google">कनेक्ट करें</string>
     <string name="logout">लॉग आउट करें</string>
 
-    
+
     <string name="onboarding_title_1">Kairos में आपका स्वागत है</string>
     <string name="onboarding_desc_1">अपने आयोजनों और समय का कुशलतापूर्वक प्रबंधन करें।</string>
     <string name="onboarding_title_2">स्मार्ट अलार्म</string>
@@ -236,7 +237,24 @@
     <string name="onboarding_desc_3">अपने एजेंडे का दैनिक वैयक्तिकृत सारांश प्राप्त करें।</string>
     <string name="onboarding_btn_next">अगला</string>
     <string name="onboarding_btn_start">शुरू करें</string>
-<string name="insights_title">आँकड़े और अंतर्दृष्टि</string><string name="insights_streak">जागने की स्ट्रीक</string><string name="insights_punctuality">समय की पाबंदी का स्कोर</string><string name="insights_ai_usage">उत्पन्न AI ब्रीफिंग</string>
+    <string name="insights_title">आंकड़े</string>
+    <string name="insights_streak">जागने का सिलसिला</string>
+    <string name="insights_streak_days">%1$d दिन</string>
+    <string name="insights_total_snoozes">कुल स्नूज़</string>
+    <string name="insights_punctuality">समयपालन स्कोर</string>
+    <string name="insights_punctuality_great">बहुत बढ़िया! आप शायद ही कभी स्नूज़ करते हैं।</string>
+    <string name="insights_punctuality_bad">आप हाल ही में काफी स्नूज़ कर रहे हैं।</string>
+    <string name="insights_ai_usage">उत्पन्न एआई ब्रीफिंग</string>
+    <string name="insights_time_in_meetings">बैठकों में समय</string>
+    <string name="insights_period_day">दिन</string>
+    <string name="insights_period_week">सप्ताह</string>
+    <string name="insights_period_month">महीना</string>
+    <string name="insights_hours_axis_title">घंटे</string>
+    <string name="insights_no_data">कोई डेटा उपलब्ध नहीं है</string>
+    <string name="insights_morning">सुबह</string>
+    <string name="insights_afternoon">दोपहर</string>
+    <string name="insights_evening">शाम</string>
+    <string name="insights_week_format">ह%1$d</string>
     <!-- Custom Ringtone Strings -->
     <string name="custom_ringtone">कस्टम रिंगटोन</string>
     <string name="default_ringtone">डिफ़ॉल्ट रिंगटोन</string>

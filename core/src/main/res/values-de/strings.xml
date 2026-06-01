@@ -31,7 +31,8 @@
     <string name="dismiss">Verwerfen</string>
     <string name="autostart_fallback_toast">Der spezifische Bildschirm konnte nicht geöffnet werden. Bitte suchen Sie in den Einstellungen
         nach „Autostart“ oder „Akkumanager“.</string>
-    <string name="remove_ads">Projekt unterstützen</string>
+    <string name="remove_ads">Anzeigen entfernen</string>
+    <string name="drawer_ai_assistant">KI-Konversationen</string>
     <string name="share_app">App teilen</string>
     <string name="share_text">Schau dir Kairos an, eine tolle App zum Verwalten deiner Termine und Alarme: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">Menü</string>
@@ -160,7 +161,7 @@
     <string name="geo_alarm_upgrade_trial_desc">Vermeiden Sie Verspätungen! Aktivieren Sie mit dem Pro + KI-Plan Alarme basierend auf dem Echtzeit-Verkehr.</string>
     <string name="try_pro_plan">Pro-Plan ausprobieren</string>
 
-    
+
     <string name="ai_agent_snackbar_executed">KI hat ausgeführt: %1$s</string>
     <string name="ai_agent_tool_not_found">Werkzeug \'%1$s\' nicht gefunden.</string>
     <string name="ai_agent_invalid_args">Ungültige Argumente für \'%1$s\'.</string>
@@ -180,7 +181,7 @@
     <string name="ai_agent_event_creation_error">Fehler beim Erstellen des Termins im Kalender.</string>
     <string name="device_health_alert_title">Gerätealarm</string>
 
-    
+
     <string name="ai_suggested_late_notification">KI-Vorschlag: %1$s</string>
     <string name="ai_prepping_meeting">KI bereitet die Besprechungszusammenfassung vor …</string>
     <string name="pro_ia_upgrade_title">Entfesseln Sie die Kraft der KI</string>
@@ -189,7 +190,7 @@
     <string name="silent_mode_warning">Lautlosmodus aktiv. Ihr Wecker (%1$s) klingelt möglicherweise nicht.</string>
     <string name="ask_ai_label">Mit KI sprechen</string>
 
-    
+
     <string name="auto_join_title">Automatisch Meetings beitreten</string>
     <string name="auto_join_description">Öffnet automatisch den Meeting-Link, wenn der Alarm ausgelöst wird, ohne den Alarmbildschirm anzuzeigen.</string>
     <string name="auto_focus_mode_title">Auto-Fokusmodus</string>
@@ -221,7 +222,7 @@
     <string name="day_friday_short">F</string>
     <string name="day_saturday_short">S</string>
     <string name="prompt_daily_briefing">Geben Sie ein tägliches Briefing basierend auf meinen Alarmen.</string>
-    
+
     <string name="integrations">Integrationen</string>
     <string name="google_login_title">Google Meet verbinden</string>
     <string name="google_login_description">Autorisieren Sie die App, Ihre Besprechungen durch KI zu lesen und zusammenzufassen.</string>
@@ -229,7 +230,7 @@
     <string name="login_google">Verbinden</string>
     <string name="logout">Abmelden</string>
 
-    
+
     <string name="onboarding_title_1">Willkommen bei Kairos</string>
     <string name="onboarding_desc_1">Verwalten Sie Ihre Termine und Zeit effizient.</string>
     <string name="onboarding_title_2">Intelligente Alarme</string>
@@ -238,7 +239,24 @@
     <string name="onboarding_desc_3">Erhalten Sie tägliche personalisierte Zusammenfassungen Ihrer Agenda.</string>
     <string name="onboarding_btn_next">Weiter</string>
     <string name="onboarding_btn_start">Loslegen</string>
-<string name="insights_title">Statistiken &amp; Einblicke</string><string name="insights_streak">Aufwach-Serie</string><string name="insights_punctuality">Pünktlichkeits-Score</string><string name="insights_ai_usage">Generierte KI-Briefings</string>
+    <string name="insights_title">Einblicke &amp; Statistiken</string>
+    <string name="insights_streak">Aufwach-Serie</string>
+    <string name="insights_streak_days">%1$d Tage</string>
+    <string name="insights_total_snoozes">Snoozes insgesamt</string>
+    <string name="insights_punctuality">Pünktlichkeitsbewertung</string>
+    <string name="insights_punctuality_great">Gute Arbeit! Du drückst selten auf Schlummern.</string>
+    <string name="insights_punctuality_bad">Du hast in letzter Zeit öfter auf Schlummern gedrückt.</string>
+    <string name="insights_ai_usage">KI-Briefings generiert</string>
+    <string name="insights_time_in_meetings">Zeit in Besprechungen</string>
+    <string name="insights_period_day">Tag</string>
+    <string name="insights_period_week">Woche</string>
+    <string name="insights_period_month">Monat</string>
+    <string name="insights_hours_axis_title">Stunden</string>
+    <string name="insights_no_data">Keine Daten verfügbar</string>
+    <string name="insights_morning">Vormittag</string>
+    <string name="insights_afternoon">Nachmittag</string>
+    <string name="insights_evening">Abend</string>
+    <string name="insights_week_format">W%1$d</string>
     <!-- Custom Ringtone Strings -->
     <string name="custom_ringtone">Benutzerdefinierter Klingelton</string>
     <string name="default_ringtone">Standard-Klingelton</string>

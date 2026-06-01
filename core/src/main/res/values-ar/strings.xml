@@ -29,7 +29,8 @@
         Kairos في إعدادات جهازك.</string>
     <string name="dismiss">تجاهل</string>
     <string name="autostart_fallback_toast">تعذر فتح الشاشة المحددة. يرجى البحث عن "البدء التلقائي" أو "مدير البطارية" في الإعدادات.</string>
-    <string name="remove_ads">دعم المشروع</string>
+    <string name="remove_ads">إزالة الإعلانات</string>
+    <string name="drawer_ai_assistant">محادثات الذكاء الاصطناعي</string>
     <string name="share_app">مشاركة التطبيق</string>
     <string name="share_text">تحقق من Kairos، تطبيق مذهل لإدارة الأحداث والمنبهات: https://play.google.com/store/apps/details?id=digital.tonima.kairos</string>
     <string name="menu">قائمة</string>
@@ -158,7 +159,7 @@
     <string name="geo_alarm_upgrade_trial_desc">تجنب التأخير! قم بتفعيل المنبهات القائمة على حركة المرور في الوقت الفعلي مع خطة Pro + الذكاء الاصطناعي.</string>
     <string name="try_pro_plan">جرب خطة Pro</string>
 
-    
+
     <string name="ai_agent_snackbar_executed">نفّذ الذكاء الاصطناعي: %1$s</string>
     <string name="ai_agent_tool_not_found">الأداة \'%1$s\' غير موجودة.</string>
     <string name="ai_agent_invalid_args">وسائط غير صالحة للأداة \'%1$s\'.</string>
@@ -178,7 +179,7 @@
     <string name="ai_agent_event_creation_error">خطأ في إنشاء الحدث في التقويم.</string>
     <string name="device_health_alert_title">تنبيه الجهاز</string>
 
-    
+
     <string name="ai_suggested_late_notification">اقترح الذكاء الاصطناعي: %1$s</string>
     <string name="ai_prepping_meeting">يعمل الذكاء الاصطناعي على تحضير ملخص الاجتماع…</string>
     <string name="pro_ia_upgrade_title">أطلق العنان لقوة الذكاء الاصطناعي</string>
@@ -187,7 +188,7 @@
     <string name="silent_mode_warning">وضع الصامت نشط. قد لا يصدر صوت منبه %1$s الخاص بك.</string>
     <string name="ask_ai_label">تحدث مع الذكاء الاصطناعي</string>
 
-    
+
     <string name="auto_join_title">الانضمام التلقائي للاجتماعات</string>
     <string name="auto_join_description">فتح رابط الاجتماع تلقائيًا عند انطلاق المنبه، دون عرض شاشة المنبه.</string>
     <string name="auto_focus_mode_title">وضع التركيز التلقائي</string>
@@ -219,7 +220,7 @@
     <string name="day_friday_short">ج</string>
     <string name="day_saturday_short">س</string>
     <string name="prompt_daily_briefing">قم بتوفير ملخص يومي بناءً على تنبيهاتي.</string>
-    
+
     <string name="integrations">عمليات الدمج</string>
     <string name="google_login_title">ربط Google Meet</string>
     <string name="google_login_description">اسمح للتطبيق بقراءة وتلخيص اجتماعاتك من خلال الذكاء الاصطناعي.</string>
@@ -227,7 +228,7 @@
     <string name="login_google">ربط</string>
     <string name="logout">تسجيل الخروج</string>
 
-    
+
     <string name="onboarding_title_1">مرحبًا بك في Kairos</string>
     <string name="onboarding_desc_1">إدارة الأحداث ووقتك بكفاءة.</string>
     <string name="onboarding_title_2">تنبيهات ذكية</string>
@@ -236,7 +237,24 @@
     <string name="onboarding_desc_3">احصل على ملخصات يومية مخصصة لجدول أعمالك.</string>
     <string name="onboarding_btn_next">التالي</string>
     <string name="onboarding_btn_start">البدء</string>
-<string name="insights_title">الإحصائيات والرؤى</string><string name="insights_streak">سلسلة الاستيقاظ</string><string name="insights_punctuality">نقاط الالتزام بالمواعيد</string><string name="insights_ai_usage">ملخصات الذكاء الاصطناعي المُنشأة</string>
+    <string name="insights_title">الإحصائيات</string>
+    <string name="insights_streak">سلسلة الاستيقاظ</string>
+    <string name="insights_streak_days">%1$d أيام</string>
+    <string name="insights_total_snoozes">إجمالي الغفوات</string>
+    <string name="insights_punctuality">درجة الالتزام بالمواعيد</string>
+    <string name="insights_punctuality_great">عمل رائع! نادراً ما تؤجل.</string>
+    <string name="insights_punctuality_bad">لقد كنت تؤجل قليلاً مؤخراً.</string>
+    <string name="insights_ai_usage">تم إنشاء ملخصات الذكاء الاصطناعي</string>
+    <string name="insights_time_in_meetings">الوقت في الاجتماعات</string>
+    <string name="insights_period_day">يوم</string>
+    <string name="insights_period_week">أسبوع</string>
+    <string name="insights_period_month">شهر</string>
+    <string name="insights_hours_axis_title">ساعات</string>
+    <string name="insights_no_data">لا توجد بيانات متاحة</string>
+    <string name="insights_morning">صباح</string>
+    <string name="insights_afternoon">بعد الظهر</string>
+    <string name="insights_evening">مساء</string>
+    <string name="insights_week_format">أ%1$d</string>
     <!-- Custom Ringtone Strings -->
     <string name="custom_ringtone">نغمة مخصصة</string>
     <string name="default_ringtone">النغمة الافتراضية</string>

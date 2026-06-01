@@ -248,6 +248,7 @@ fun EventScreen(
                     context.startActivity(browserIntent)
                 },
                 onSettingsClick = { viewModel.handleIntent(EventIntent.OpenSettings) },
+                onChatHistoryClick = { viewModel.handleIntent(EventIntent.OpenChatHistoryScreen) },
                 onCloseDrawer = { scope.launch { drawerState.close() } },
             )
         },
@@ -256,6 +257,29 @@ fun EventScreen(
             SettingsScreen(
                 uiState = uiState,
                 settingsActions = settingsActions,
+            )
+        } else if (uiState.selectedConversationId != null) {
+            ChatDetailScreen(
+                messages = uiState.chatHistory,
+                isAsking = uiState.isAskingAi,
+                isSpeaking = false, // Not perfectly tracked currently, but enough for UI state
+                onBack = { viewModel.handleIntent(EventIntent.CloseChatDetail) },
+                onSendMessage = { viewModel.handleIntent(EventIntent.AskAi(it, aiInstruction)) },
+                onSpeakToggle = {
+                    launchVoiceCapture(
+                        context,
+                        voiceCapturePrompt,
+                        speechRecognizerLauncher,
+                    )
+                },
+            )
+        } else if (uiState.showChatHistoryScreen) {
+            ChatHistoryScreen(
+                conversations = uiState.conversations,
+                onBack = { viewModel.handleIntent(EventIntent.CloseChatHistoryScreen) },
+                onConversationClick = { viewModel.handleIntent(EventIntent.OpenChatDetail(it)) },
+                onCreateNewChat = { viewModel.handleIntent(EventIntent.CreateNewChat(it)) },
+                onDeleteConversation = { viewModel.handleIntent(EventIntent.DeleteChat(it)) },
             )
         } else {
             Scaffold(
