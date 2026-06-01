@@ -55,7 +55,7 @@ okhttp = "5.3.2"
 kotlinxSerializationJson = "1.11.0"
 retrofitKotlinxSerializationConverter = "1.0.0"
 splashscreen = "1.2.0"
-playServicesAuth = "21.3.0"
+playServicesAuth = "21.6.0"
 vico = "1.15.0"
 
 [libraries]
