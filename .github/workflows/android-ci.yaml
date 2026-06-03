@@ -266,7 +266,7 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.version_bumper.outputs.version_name }}
           name: Release v${{ needs.version_bumper.outputs.version_name }}
