@@ -1,0 +1,4 @@
+Novedades:
+- Soporte de importación ICS: ¡Importa calendarios .ics con URLs o archivos locales!
+- Gestión fácil: Renombra, cambia colores y elimina calendarios rápidamente.
+- Alarmas: Elige si habilitar o deshabilitar las alarmas por defecto al importar.

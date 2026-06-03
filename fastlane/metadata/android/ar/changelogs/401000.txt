@@ -1,0 +1,4 @@
+What's New:
+- ICS Import Support: You can now import .ics calendars using URLs or local files directly in the app!
+- Easy Management: Rename, change colors, and remove your imported calendars quickly in one place.
+- Customizable Alarms: Choose whether to enable or disable alarms by default when importing.

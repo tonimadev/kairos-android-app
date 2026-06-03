@@ -183,4 +183,12 @@ sealed class EventIntent {
     data class ChangeInsightsPeriod(val period: InsightsPeriod) : EventIntent()
 
     data class AnalyzeSchedule(val timeframe: String) : EventIntent()
+
+    object OpenImportCalendarScreen : EventIntent()
+
+    object CloseImportCalendarScreen : EventIntent()
+
+    object OpenManageCalendarsScreen : EventIntent()
+
+    object CloseManageCalendarsScreen : EventIntent()
 }

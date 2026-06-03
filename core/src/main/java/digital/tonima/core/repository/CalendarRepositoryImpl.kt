@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.provider.CalendarContract
 import androidx.core.content.ContextCompat
 import com.paulrybitskyi.hiltbinder.BindType
@@ -325,6 +326,97 @@ class CalendarRepositoryImpl
 
                 val uri = context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
                 return@withContext uri?.lastPathSegment?.toLongOrNull()
+            }
+
+        private fun asSyncAdapter(
+            uri: Uri,
+            accountName: String,
+            accountType: String,
+        ): Uri {
+            return uri.buildUpon()
+                .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, accountName)
+                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, accountType)
+                .build()
+        }
+
+        override suspend fun createLocalCalendar(
+            name: String,
+            color: Int,
+        ): Long? =
+            withContext(Dispatchers.IO) {
+                if (!hasWriteCalendarPermission()) {
+                    logcat { "Tentativa de criar calendário sem a permissão WRITE_CALENDAR." }
+                    return@withContext null
+                }
+
+                val accountName = "Kairos Imports"
+                val accountType = CalendarContract.ACCOUNT_TYPE_LOCAL
+
+                val values =
+                    android.content.ContentValues().apply {
+                        put(CalendarContract.Calendars.ACCOUNT_NAME, accountName)
+                        put(CalendarContract.Calendars.ACCOUNT_TYPE, accountType)
+                        put(CalendarContract.Calendars.NAME, name)
+                        put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, name)
+                        put(CalendarContract.Calendars.CALENDAR_COLOR, color)
+                        put(
+                            CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL,
+                            CalendarContract.Calendars.CAL_ACCESS_OWNER,
+                        )
+                        put(CalendarContract.Calendars.OWNER_ACCOUNT, accountName)
+                        put(CalendarContract.Calendars.VISIBLE, 1)
+                        put(CalendarContract.Calendars.SYNC_EVENTS, 1)
+                    }
+
+                val uri = asSyncAdapter(CalendarContract.Calendars.CONTENT_URI, accountName, accountType)
+                val resultUri = context.contentResolver.insert(uri, values)
+                return@withContext resultUri?.lastPathSegment?.toLongOrNull()
+            }
+
+        override suspend fun updateCalendar(
+            calendarId: Long,
+            name: String,
+            color: Int,
+        ): Boolean =
+            withContext(Dispatchers.IO) {
+                if (!hasWriteCalendarPermission()) return@withContext false
+
+                val accountName = "Kairos Imports"
+                val accountType = CalendarContract.ACCOUNT_TYPE_LOCAL
+
+                val values =
+                    android.content.ContentValues().apply {
+                        put(CalendarContract.Calendars.NAME, name)
+                        put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, name)
+                        put(CalendarContract.Calendars.CALENDAR_COLOR, color)
+                    }
+
+                val uri =
+                    asSyncAdapter(
+                        ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendarId),
+                        accountName,
+                        accountType,
+                    )
+                val rows = context.contentResolver.update(uri, values, null, null)
+                return@withContext rows > 0
+            }
+
+        override suspend fun deleteCalendar(calendarId: Long): Boolean =
+            withContext(Dispatchers.IO) {
+                if (!hasWriteCalendarPermission()) return@withContext false
+
+                val accountName = "Kairos Imports"
+                val accountType = CalendarContract.ACCOUNT_TYPE_LOCAL
+
+                val uri =
+                    asSyncAdapter(
+                        ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendarId),
+                        accountName,
+                        accountType,
+                    )
+                val rows = context.contentResolver.delete(uri, null, null)
+                return@withContext rows > 0
             }
 
         private fun extractMeetLink(

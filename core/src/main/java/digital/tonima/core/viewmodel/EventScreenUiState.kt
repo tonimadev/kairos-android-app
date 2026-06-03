@@ -76,4 +76,6 @@ data class EventScreenUiState(
     val selectedInsightsPeriod: InsightsPeriod =
         WEEK,
     val meetingStats: List<Pair<String, Float>> = emptyList(),
+    val showImportCalendarScreen: Boolean = false,
+    val showManageCalendarsScreen: Boolean = false,
 )

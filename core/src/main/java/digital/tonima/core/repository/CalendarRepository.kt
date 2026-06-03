@@ -25,4 +25,17 @@ interface CalendarRepository {
         endTime: Long,
         isAllDay: Boolean = false,
     ): Long?
+
+    suspend fun createLocalCalendar(
+        name: String,
+        color: Int,
+    ): Long?
+
+    suspend fun updateCalendar(
+        calendarId: Long,
+        name: String,
+        color: Int,
+    ): Boolean
+
+    suspend fun deleteCalendar(calendarId: Long): Boolean
 }

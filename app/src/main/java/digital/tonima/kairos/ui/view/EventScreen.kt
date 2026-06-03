@@ -249,6 +249,8 @@ fun EventScreen(
                 },
                 onSettingsClick = { viewModel.handleIntent(EventIntent.OpenSettings) },
                 onChatHistoryClick = { viewModel.handleIntent(EventIntent.OpenChatHistoryScreen) },
+                onImportCalendarClick = { viewModel.handleIntent(EventIntent.OpenImportCalendarScreen) },
+                onManageCalendarsClick = { viewModel.handleIntent(EventIntent.OpenManageCalendarsScreen) },
                 onCloseDrawer = { scope.launch { drawerState.close() } },
             )
         },
@@ -280,6 +282,14 @@ fun EventScreen(
                 onConversationClick = { viewModel.handleIntent(EventIntent.OpenChatDetail(it)) },
                 onCreateNewChat = { viewModel.handleIntent(EventIntent.CreateNewChat(it)) },
                 onDeleteConversation = { viewModel.handleIntent(EventIntent.DeleteChat(it)) },
+            )
+        } else if (uiState.showImportCalendarScreen) {
+            ImportCalendarScreen(
+                onNavigateBack = { viewModel.handleIntent(EventIntent.CloseImportCalendarScreen) },
+            )
+        } else if (uiState.showManageCalendarsScreen) {
+            ManageCalendarsScreen(
+                onNavigateBack = { viewModel.handleIntent(EventIntent.CloseManageCalendarsScreen) },
             )
         } else {
             Scaffold(

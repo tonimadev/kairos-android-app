@@ -436,6 +436,18 @@ class EventViewModel
                 EventIntent.CloseSettings ->
                     _uiState.update { it.copy(showSettingsScreen = false) }
 
+                EventIntent.OpenImportCalendarScreen ->
+                    _uiState.update { it.copy(showImportCalendarScreen = true) }
+
+                EventIntent.CloseImportCalendarScreen ->
+                    _uiState.update { it.copy(showImportCalendarScreen = false) }
+
+                EventIntent.OpenManageCalendarsScreen ->
+                    _uiState.update { it.copy(showManageCalendarsScreen = true) }
+
+                EventIntent.CloseManageCalendarsScreen ->
+                    _uiState.update { it.copy(showManageCalendarsScreen = false) }
+
                 is EventIntent.ChangeInsightsPeriod -> {
                     _uiState.update { it.copy(selectedInsightsPeriod = intent.period) }
                     viewModelScope.launch {

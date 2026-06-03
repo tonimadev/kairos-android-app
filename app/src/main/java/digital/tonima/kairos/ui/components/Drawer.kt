@@ -52,6 +52,8 @@ fun DrawerContent(
     onOurOtherAppsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onChatHistoryClick: () -> Unit,
+    onImportCalendarClick: () -> Unit,
+    onManageCalendarsClick: () -> Unit,
     onCloseDrawer: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -213,6 +215,40 @@ fun DrawerContent(
                 selected = false,
                 onClick = {
                     onSettingsClick()
+                    onCloseDrawer()
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+            )
+
+            NavigationDrawerItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                    )
+                },
+                label = { Text("Importar Calendário ICS", fontWeight = FontWeight.Medium) },
+                selected = false,
+                onClick = {
+                    onImportCalendarClick()
+                    onCloseDrawer()
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+            )
+
+            NavigationDrawerItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                    )
+                },
+                label = { Text("Gerenciar Calendários", fontWeight = FontWeight.Medium) },
+                selected = false,
+                onClick = {
+                    onManageCalendarsClick()
                     onCloseDrawer()
                 },
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
