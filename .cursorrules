@@ -38,3 +38,9 @@ Never end a development cycle without validating against these automated checks!
 
 - Kairos supports **10 languages**: Arabic (`ar`), German (`de`), English (`en`), Spanish (`es`), French (`fr`), Hindi (`hi`), Japanese (`ja`), Russian (`ru`), Chinese (`zh`), and Portuguese (default).
 - **Mandatory Translation Check**: Whenever you add or modify a user-facing string in `strings.xml`, you MUST provide the translated equivalent in all 9 other `values-*` folders. Never forget to translate new strings!
+
+## 6. UI & Navigation (Compose)
+
+- **Back Navigation**: When adding a new standalone screen that is conditionally displayed via state (e.g., `if (uiState.showMyScreen)`) and acts as a separate navigation destination, ALWAYS include:
+  1. `androidx.activity.compose.BackHandler(onBack = onNavigateBack)` to handle the system back button properly. Otherwise, pressing the system back button will minimize/close the app.
+  2. A navigation icon in the `TopAppBar` (e.g., `androidx.compose.material3.IconButton` with `Icons.AutoMirrored.Filled.ArrowBack`) so the user has a visual, clickable back button on the screen.

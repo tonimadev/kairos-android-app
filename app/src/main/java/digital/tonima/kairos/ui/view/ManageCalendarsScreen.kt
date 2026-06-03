@@ -1,5 +1,6 @@
 package digital.tonima.kairos.ui.view
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +20,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.Icons.AutoMirrored.Filled
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
@@ -128,9 +131,21 @@ fun ManageCalendarsScreen(
         )
     }
 
+    BackHandler(onBack = onNavigateBack)
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Meus Calendários Importados") })
+            TopAppBar(
+                title = { Text("Meus Calendários Importados") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Filled.ArrowBack,
+                            contentDescription = "Voltar",
+                        )
+                    }
+                },
+            )
         },
     ) { padding ->
         if (state.isLoading) {
