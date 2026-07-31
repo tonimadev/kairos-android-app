@@ -165,7 +165,6 @@ dependencies {
     implementation(libs.play.services.wearable)
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
-    implementation(libs.vico.core)
     implementation(platform(libs.androidx.compose.bom))
     implementation(platform(libs.google.firebase.bom))
     implementation(project(":core"))

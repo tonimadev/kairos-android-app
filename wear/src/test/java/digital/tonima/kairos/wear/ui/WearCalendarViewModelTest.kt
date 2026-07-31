@@ -54,6 +54,8 @@ class WearCalendarViewModelTest {
         private val isTemperatureInCelsius = MutableStateFlow(true)
         private val autoJoinEnabled = MutableStateFlow(false)
         private val autoFocusModeEnabled = MutableStateFlow(false)
+        private val isProUser = MutableStateFlow(false)
+        private val isAiUser = MutableStateFlow(false)
 
         override fun isGlobalAlarmEnabled() = global as Flow<Boolean>
 
@@ -203,6 +205,18 @@ class WearCalendarViewModelTest {
 
         override suspend fun setAutoFocusModeEnabled(enabled: Boolean) {
             autoFocusModeEnabled.value = enabled
+        }
+
+        override fun isProUser(): Flow<Boolean> = isProUser
+
+        override suspend fun setProUser(isPro: Boolean) {
+            isProUser.value = isPro
+        }
+
+        override fun isAiUser(): Flow<Boolean> = isAiUser
+
+        override suspend fun setAiUser(isAi: Boolean) {
+            isAiUser.value = isAi
         }
 
         private val customRingtoneUri = MutableStateFlow<String?>(null)

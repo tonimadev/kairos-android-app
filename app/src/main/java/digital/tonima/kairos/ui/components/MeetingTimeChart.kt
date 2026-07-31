@@ -13,6 +13,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,15 +22,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
-import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
-import com.patrykandpatrick.vico.compose.chart.Chart
-import com.patrykandpatrick.vico.compose.chart.column.columnChart
-import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
-import com.patrykandpatrick.vico.core.axis.AxisPosition
-import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
-import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
-import com.patrykandpatrick.vico.core.entry.FloatEntry
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis.Companion.rememberBottom
+import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis.Companion.rememberStart
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.data.columnModel
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
+import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
 import digital.tonima.core.model.InsightsPeriod
 import digital.tonima.kairos.core.R
 
@@ -80,35 +82,39 @@ fun MeetingTimeChart(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (meetingStats.isNotEmpty()) {
-                val chartEntryModelProducer =
-                    remember(meetingStats) {
-                        val entries =
-                            meetingStats.mapIndexed { index, pair ->
-                                FloatEntry(x = index.toFloat(), y = pair.second)
-                            }
-                        ChartEntryModelProducer(entries)
-                    }
+                val modelProducer = remember { CartesianChartModelProducer() }
 
-                val bottomAxisValueFormatter =
-                    AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
-                        val index = value.toInt()
-                        if (index >= 0 && index < meetingStats.size) {
-                            meetingStats[index].first
-                        } else {
-                            ""
+                LaunchedEffect(meetingStats) {
+                    modelProducer.runTransaction {
+                        columnModel {
+                            series(meetingStats.map { it.second })
                         }
                     }
+                }
 
-                ProvideChartStyle {
-                    Chart(
-                        chart = columnChart(),
-                        chartModelProducer = chartEntryModelProducer,
-                        startAxis =
-                            rememberStartAxis(
-                                title = stringResource(id = R.string.insights_hours_axis_title),
-                                valueFormatter = { value, _ -> "${value.toInt()}h" },
+                val bottomAxisValueFormatter =
+                    CartesianValueFormatter { _, value, _ ->
+                        meetingStats.getOrNull(value.toInt())?.first ?: ""
+                    }
+
+                val axisTitle = stringResource(id = R.string.insights_hours_axis_title)
+
+                ProvideVicoTheme(rememberM3VicoTheme()) {
+                    CartesianChartHost(
+                        chart =
+                            rememberCartesianChart(
+                                rememberColumnCartesianLayer(),
+                                startAxis =
+                                    rememberStart(
+                                        title = { axisTitle },
+                                        valueFormatter =
+                                            CartesianValueFormatter { _, value, _ ->
+                                                "${value.toInt()}h"
+                                            },
+                                    ),
+                                bottomAxis = rememberBottom(valueFormatter = bottomAxisValueFormatter),
                             ),
-                        bottomAxis = rememberBottomAxis(valueFormatter = bottomAxisValueFormatter),
+                        modelProducer = modelProducer,
                         modifier = Modifier.fillMaxWidth().height(200.dp),
                     )
                 }
