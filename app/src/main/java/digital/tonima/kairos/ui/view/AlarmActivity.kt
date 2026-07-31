@@ -88,6 +88,8 @@ class AlarmActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
+        proUserProvider.refresh()
+
         viewModel.handleIntent(
             AlarmIntent.Init(
                 eventTitle =

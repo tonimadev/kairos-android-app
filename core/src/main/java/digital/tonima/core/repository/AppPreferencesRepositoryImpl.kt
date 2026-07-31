@@ -52,6 +52,8 @@ class AppPreferencesRepositoryImpl
             val SNOOZE_COUNT = intPreferencesKey("snooze_count")
             val AI_USAGE_COUNT = intPreferencesKey("ai_usage_count")
             val CUSTOM_RINGTONE_URI = stringPreferencesKey("custom_ringtone_uri")
+            val IS_PRO_USER = booleanPreferencesKey("is_pro_user")
+            val IS_AI_USER = booleanPreferencesKey("is_ai_user")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -451,6 +453,30 @@ class AppPreferencesRepositoryImpl
                 } else {
                     preferences[PreferencesKeys.CUSTOM_RINGTONE_URI] = uri
                 }
+            }
+        }
+
+        override fun isProUser(): Flow<Boolean> {
+            return context.dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.IS_PRO_USER] ?: false
+            }
+        }
+
+        override suspend fun setProUser(isPro: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.IS_PRO_USER] = isPro
+            }
+        }
+
+        override fun isAiUser(): Flow<Boolean> {
+            return context.dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.IS_AI_USER] ?: false
+            }
+        }
+
+        override suspend fun setAiUser(isAi: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.IS_AI_USER] = isAi
             }
         }
     }

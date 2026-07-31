@@ -94,12 +94,18 @@ class BillingManagerImpl
                     .setProductType(BillingClient.ProductType.INAPP)
                     .build()
 
-            billingClient.queryPurchasesAsync(inAppParams) { _, inAppPurchases ->
+            billingClient.queryPurchasesAsync(inAppParams) { billingResult, inAppPurchases ->
+                if (billingResult.responseCode == OK) {
+                    for (purchase in inAppPurchases) {
+                        handlePurchase(purchase)
+                    }
+                }
+
                 val hasInAppPremium =
                     inAppPurchases.any {
                         it.products.contains(
                             PRODUCT_ID_REMOVE_ADS,
-                        ) && it.isAcknowledged
+                        ) && (it.isAcknowledged || it.purchaseState == PURCHASED)
                     }
                 _isProUser.value = hasInAppPremium
             }

@@ -95,12 +95,18 @@ class SubscriptionManagerImpl
                     .setProductType(BillingClient.ProductType.SUBS)
                     .build()
 
-            billingClient.queryPurchasesAsync(subsParams) { _, subsPurchases ->
+            billingClient.queryPurchasesAsync(subsParams) { billingResult, subsPurchases ->
+                if (billingResult.responseCode == OK) {
+                    for (purchase in subsPurchases) {
+                        handlePurchase(purchase)
+                    }
+                }
+
                 val hasSubsPremium =
                     subsPurchases.any {
                         it.products.contains(
                             MONTHLY_SUBSCRIPTION_PLAN,
-                        ) && it.isAcknowledged
+                        ) && (it.isAcknowledged || it.purchaseState == PURCHASED)
                     }
                 _isProUser.value = hasSubsPremium
             }

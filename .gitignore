@@ -37,4 +37,15 @@ local.properties
 **/dagger.hilt.internal.processedroots/
 /build-logic/bin/*
 /.vscode/settings.json
+# IDE - Android Studio / IntelliJ
+.idea/androidTestResultsUserPreferences.xml
+.idea/appInsightsSettings.xml
+.idea/deploymentTargetSelector.xml
+.idea/deviceManager.xml
+.idea/planningMode.xml
+.idea/copilot.data.migration.*.xml
+.idea/material_theme_project_new.xml
 /.idea/copilotDiffState.xml
+
+# Arquivos temporários
+X#

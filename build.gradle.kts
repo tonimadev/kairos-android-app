@@ -137,49 +137,84 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
     group = "Reporting"
     description = "Generates a merged Jacoco code coverage report for all modules."
 
-    val modulesToInclude = listOf(
-        ":app",
-        ":core",
-        ":wear"
-    )
+    val modulesToInclude =
+        listOf(
+            ":app",
+            ":core",
+            ":wear",
+        )
 
     dependsOn(modulesToInclude.map { "$it:createJacocoDebugCoverageReport" })
 
-    sourceDirectories.setFrom(files(subprojects.flatMap {
-        listOf("${it.projectDir}/src/main/java", "${it.projectDir}/src/main/kotlin")
-    }))
+    sourceDirectories.setFrom(
+        files(
+            subprojects.flatMap {
+                listOf("${it.projectDir}/src/main/java", "${it.projectDir}/src/main/kotlin")
+            },
+        ),
+    )
 
-    classDirectories.setFrom(files(subprojects.flatMap { sp ->
-        listOf(
-            fileTree(sp.layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
-                exclude(
-                    "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-                    "**/*Test*.*", "android/**/*.*", "**/*_Hilt*.class", "**/Dagger*Component.class",
-                    "**/Dagger*Module.class", "**/Dagger*Module_Provide*Factory.class",
-                    "**/*_Provide*Factory*.*", "**/*_Factory*.*"
+    classDirectories.setFrom(
+        files(
+            subprojects.flatMap { sp ->
+                listOf(
+                    fileTree(sp.layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+                        exclude(
+                            "**/R.class",
+                            "**/R$*.class",
+                            "**/BuildConfig.*",
+                            "**/Manifest*.*",
+                            "**/*Test*.*",
+                            "android/**/*.*",
+                            "**/*_Hilt*.class",
+                            "**/Dagger*Component.class",
+                            "**/Dagger*Module.class",
+                            "**/Dagger*Module_Provide*Factory.class",
+                            "**/*_Provide*Factory*.*",
+                            "**/*_Factory*.*",
+                        )
+                    },
+                    fileTree(sp.layout.buildDirectory.dir("intermediates/javac/debug/classes")) {
+                        exclude(
+                            "**/R.class",
+                            "**/R$*.class",
+                            "**/BuildConfig.*",
+                            "**/Manifest*.*",
+                            "**/*Test*.*",
+                            "android/**/*.*",
+                            "**/*_Hilt*.class",
+                            "**/Dagger*Component.class",
+                            "**/Dagger*Module.class",
+                            "**/Dagger*Module_Provide*Factory.class",
+                            "**/*_Provide*Factory*.*",
+                            "**/*_Factory*.*",
+                        )
+                    },
                 )
             },
-            fileTree(sp.layout.buildDirectory.dir("intermediates/javac/debug/classes")) {
-                exclude(
-                    "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-                    "**/*Test*.*", "android/**/*.*", "**/*_Hilt*.class", "**/Dagger*Component.class",
-                    "**/Dagger*Module.class", "**/Dagger*Module_Provide*Factory.class",
-                    "**/*_Provide*Factory*.*", "**/*_Factory*.*"
-                )
-            }
-        )
-    }))
+        ),
+    )
 
-    executionData.setFrom(files(subprojects.flatMap { sp ->
-        listOf(
-            fileTree(sp.layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") },
-            fileTree(sp.layout.buildDirectory) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") }
-        )
-    }))
+    executionData.setFrom(
+        files(
+            subprojects.flatMap { sp ->
+                listOf(
+                    fileTree(sp.layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") },
+                    fileTree(
+                        sp.layout.buildDirectory,
+                    ) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") },
+                )
+            },
+        ),
+    )
 
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/createJacocoMergedCoverageReport/createJacocoMergedCoverageReport.xml"))
+        xml.outputLocation.set(
+            layout.buildDirectory.file(
+                "reports/jacoco/createJacocoMergedCoverageReport/createJacocoMergedCoverageReport.xml",
+            ),
+        )
         html.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/createJacocoMergedCoverageReport/html"))
     }

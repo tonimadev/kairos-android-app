@@ -13,6 +13,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.HiltAndroidApp
+import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSchedulingWorker
 import digital.tonima.core.utils.DeviceInfoUtils
@@ -39,6 +40,9 @@ class KairosApplication :
 
     @Inject
     lateinit var appPreferencesRepository: AppPreferencesRepository
+
+    @Inject
+    lateinit var proUserProvider: ProUserProvider
 
     override val workManagerConfiguration: Configuration
         get() =
