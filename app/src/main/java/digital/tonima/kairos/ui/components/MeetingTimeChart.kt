@@ -23,8 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis.Companion.rememberBottom
-import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis.Companion.rememberStart
+import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.columnModel
@@ -94,7 +94,8 @@ fun MeetingTimeChart(
 
                 val bottomAxisValueFormatter =
                     CartesianValueFormatter { _, value, _ ->
-                        meetingStats.getOrNull(value.toInt())?.first ?: ""
+                        meetingStats.getOrNull(value.toInt())?.first.takeUnless { it.isNullOrBlank() }
+                            ?: value.toInt().toString()
                     }
 
                 val axisTitle = stringResource(id = R.string.insights_hours_axis_title)
@@ -105,14 +106,19 @@ fun MeetingTimeChart(
                             rememberCartesianChart(
                                 rememberColumnCartesianLayer(),
                                 startAxis =
-                                    rememberStart(
+                                    VerticalAxis.rememberStart(
                                         title = { axisTitle },
                                         valueFormatter =
                                             CartesianValueFormatter { _, value, _ ->
                                                 "${value.toInt()}h"
                                             },
                                     ),
-                                bottomAxis = rememberBottom(valueFormatter = bottomAxisValueFormatter),
+                                bottomAxis =
+                                    HorizontalAxis.rememberBottom(
+                                        valueFormatter = bottomAxisValueFormatter,
+                                        itemPlacer =
+                                            remember { HorizontalAxis.ItemPlacer.aligned(spacing = { 1 }) },
+                                    ),
                             ),
                         modelProducer = modelProducer,
                         modifier = Modifier.fillMaxWidth().height(200.dp),

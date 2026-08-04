@@ -262,4 +262,5 @@
 
     <!-- Additional Strings -->
     <string name="settings">सेटिंग्स</string>
+    <string name="app_functions_description">आपके शेड्यूल, अलार्म और दैनिक सारांश को प्रबंधित करने के लिए काइरोस स्मार्ट क्रियाएं।</string>
 </resources>

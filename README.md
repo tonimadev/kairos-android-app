@@ -20,6 +20,8 @@ Kairós is a modern application that transforms your calendar appointments into 
   - **Tiles**: Instant access to event information with a side swipe.
 - **Smart Synchronization**: Uses WorkManager for efficient background scheduling without draining the battery.
 - **Native Integration**: Reads events from any calendar account configured on the device (e.g., Google Calendar).
+- **AI-Powered Daily Summaries**: Intelligent briefing of your day, processed on-device (Gemini Nano) for privacy and speed.
+- **AppFunctions Support**: Exposes core features to the Android system, allowing execution via voice commands or system shortcuts.
 - **Total Control**: Enable or disable alarms globally or for specific events.
 
 <p align="center">
@@ -38,9 +40,10 @@ This project follows modern Android development principles with MVVM + MVI archi
 - **UI**: Jetpack Compose (Phone & Wear OS)
 - **Architecture**: MVVM + MVI, Clean Architecture, Multi-module
 - **Async**: Kotlin Coroutines + Flow
-- **Persistence & Background**: DataStore, WorkManager, AlarmManager
+- **Persistence & Background**: DataStore, Room, WorkManager, AlarmManager
 - **DI**: Hilt
-- **AI**: Firebase AI (Gemini) with Function Calling
+- **AI**: Firebase AI (Gemini Pro/Flash) & Gemini Nano (On-Device inference)
+- **System**: Android AppFunctions (API 36+)
 - **Sync**: Wearable Data Layer (Play Services)
 - **Testing**: JUnit4, Robolectric, Turbine, MockK
 
@@ -92,9 +95,18 @@ View (Compose) ──EventIntent──▶ ViewModel ──▶ UseCases / Reposit
 
 ## 🤖 AI Agent Architecture
 
-The app integrates an **AI Agent** powered by Gemini (Firebase AI) that can **execute actions** in the app via Function Calling. Instead of modifying the UI or database directly, the AI dispatches **MVI Intents** — exactly as if the user had tapped a button.
+The app integrates an **AI Agent** using a **hybrid approach**:
+- **Cloud-hosted (Gemini Pro/Flash)**: Used for complex tasks like "Function Calling" (executing actions).
+- **On-Device (Gemini Nano)**: Used for privacy-sensitive tasks like the **Daily Briefing**, utilizing the device's hardware for inference.
 
-### How It Works
+### Hybrid Inference Mode
+
+Kairos uses `InferenceMode.PREFER_ON_DEVICE` for text generation tasks. This ensures:
+1. **Privacy**: Sensitive data (like your schedule) stays on the device when summarized.
+2. **Speed**: No network latency for local tasks.
+3. **Fallback**: If the device doesn't support Gemini Nano, it automatically fails back to the Cloud model.
+
+### How It Works (Tool Calling)
 
 ```text
 User question ──▶ DB (ChatHistoryDao) ──▶ AskAiAgentUseCase (Gemini + Tool declarations)
@@ -178,6 +190,23 @@ fun provideMyNewTool(): AITool = MyNewTool()
 **Step 3 —** Done. `ActionRegistry` discovers it automatically via Hilt multibinding, includes it in the Gemini tool declarations, and routes function calls through `onAIFunctionCalled()`.
 
 > **Tip:** Choose `RiskLevel` carefully — `SAFE` executes silently, `MODERATE` shows a snackbar, and `CRITICAL` pauses for user confirmation.
+
+---
+
+## 📲 AppFunctions & System Integration
+
+Kairos leverages the **Android AppFunctions** framework (available from Android 16+) to expose its capabilities as agentic tools directly to the OS. This allows system-level assistants (like Gemini on Android) to discover and execute app features without opening the UI.
+
+### Exposed Functions
+
+| Function | Description |
+|---|---|
+| `createEvent` | Allows the system to schedule new appointments on the user's calendar. |
+| `getDailyBriefing` | Provides the AI-generated summary of the user's day to the system assistant. |
+
+### Technical Setup
+- **Metadata**: Capabilities are declared in `res/xml/app_metadata.xml`.
+- **Hilt Integration**: `KairosApplication` implements `AppFunctionConfiguration.Provider` to allow the framework to inject dependencies into function implementations.
 
 ---
 

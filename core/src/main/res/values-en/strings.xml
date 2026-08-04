@@ -264,4 +264,5 @@
 
     <!-- Additional Strings -->
     <string name="settings">Settings</string>
+    <string name="app_functions_description">Kairos smart actions to manage your schedule, alarms, and daily summaries.</string>
 </resources>

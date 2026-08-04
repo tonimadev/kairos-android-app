@@ -263,4 +263,5 @@
 
     <!-- Additional Strings -->
     <string name="settings">Настройки</string>
+    <string name="app_functions_description">Умные действия Kairos для управления вашим расписанием, будильниками и ежедневными сводками.</string>
 </resources>

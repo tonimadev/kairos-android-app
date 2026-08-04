@@ -259,4 +259,5 @@
 
     <!-- Additional Strings -->
     <string name="settings">設定</string>
+    <string name="app_functions_description">スケジュール、アラーム、毎日の要約を管理するための Kairos スマート アクション。</string>
 </resources>

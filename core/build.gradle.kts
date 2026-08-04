@@ -67,6 +67,9 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    ksp {
+        arg("appfunctions:aggregateAppFunctions", "true")
+    }
     lint {
         baseline = file("lint-baseline.xml")
         abortOnError = true
@@ -82,6 +85,7 @@ dependencies {
     api(project(":core:billing:bridge"))
 
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.appfunctions)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.room.ktx)
@@ -92,6 +96,7 @@ dependencies {
     implementation(libs.google.firebase.analytics)
     implementation(libs.google.firebase.crashlytics)
     implementation(libs.google.firebase.ia)
+    implementation(libs.google.firebase.ia.ondevice)
     implementation(libs.google.inapp.update)
     implementation(libs.google.inapp.update.ktx)
     implementation(libs.hilt.android)
@@ -111,6 +116,7 @@ dependencies {
     implementation(platform(libs.google.firebase.bom))
     implementation(project(":core:billing:impl"))
 
+    ksp(libs.androidx.appfunctions.compiler)
     ksp(libs.androidx.hilt.compiler)
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.binder.compiler)

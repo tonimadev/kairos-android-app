@@ -1,8 +1,11 @@
 package digital.tonima.core.usecases
 
 import com.google.firebase.Firebase
+import com.google.firebase.ai.InferenceMode
+import com.google.firebase.ai.OnDeviceConfig
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
+import com.google.firebase.ai.type.PublicPreviewAPI
 import com.paulrybitskyi.hiltbinder.BindType
 import digital.tonima.core.ai.AIConfig
 import digital.tonima.core.model.Event
@@ -25,6 +28,7 @@ class GenerateDailyBriefingUseCaseImpl
     ) : GenerateDailyBriefingUseCase {
         private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
+        @OptIn(PublicPreviewAPI::class)
         override suspend fun invoke(
             events: List<Event>,
             languageInstruction: String,
@@ -33,7 +37,10 @@ class GenerateDailyBriefingUseCaseImpl
         ): String? {
             val model =
                 Firebase.ai(backend = GenerativeBackend.googleAI())
-                    .generativeModel(AIConfig.GEMINI_MODEL)
+                    .generativeModel(
+                        modelName = AIConfig.GEMINI_MODEL,
+                        onDeviceConfig = OnDeviceConfig(mode = InferenceMode.PREFER_ON_DEVICE),
+                    )
 
             val lang = java.util.Locale.getDefault().toOpenWeatherLang()
             val weather = if (city != null) weatherRepository.getWeather(city, lang = lang) else null

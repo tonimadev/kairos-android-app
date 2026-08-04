@@ -5,7 +5,7 @@ import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.GoogleMeetRepository
 import javax.inject.Inject
 
-@BindType(installIn = BindType.Component.VIEW_MODEL)
+@BindType(installIn = BindType.Component.SINGLETON)
 class CreateEventUseCaseImpl
     @Inject
     constructor(

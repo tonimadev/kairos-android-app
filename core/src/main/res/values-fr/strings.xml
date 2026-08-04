@@ -265,4 +265,5 @@
 
     <!-- Additional Strings -->
     <string name="settings">Paramètres</string>
+    <string name="app_functions_description">Actions intelligentes de Kairos pour gérer votre emploi du temps, vos alarmes et vos résumés quotidiens.</string>
 </resources>

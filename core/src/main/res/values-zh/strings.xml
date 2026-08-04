@@ -259,4 +259,5 @@
 
     <!-- Additional Strings -->
     <string name="settings">设置</string>
+    <string name="app_functions_description">用于管理您的日程、闹钟和每日摘要的 Kairos 智能操作。</string>
 </resources>

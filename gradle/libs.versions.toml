@@ -57,6 +57,7 @@ retrofitKotlinxSerializationConverter = "1.0.0"
 splashscreen = "1.2.0"
 playServicesAuth = "21.6.0"
 vico = "3.2.3"
+androidx-appfunctions = "1.0.0-alpha10"
 
 [libraries]
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
@@ -90,6 +91,7 @@ google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", ve
 google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 google-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 google-firebase-ia = { group = "com.google.firebase", name = "firebase-ai" }
+google-firebase-ia-ondevice = { group = "com.google.firebase", name = "firebase-ai-ondevice", version = "16.0.0-beta04" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-binder = { group = "com.paulrybitskyi", name = "hilt-binder", version.ref = "hilt-binder" }
@@ -97,6 +99,8 @@ hilt-binder-compiler = { group = "com.paulrybitskyi", name = "hilt-binder-compil
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigations-compose" }
 hilt-worker = { group = "androidx.hilt", name = "hilt-work", version.ref = "hilt-worker" }
 billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billingKtx" }
+androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version.ref = "androidx-appfunctions" }
+androidx-appfunctions-compiler = { group = "androidx.appfunctions", name = "appfunctions-compiler", version.ref = "androidx-appfunctions" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 logcat = { group = "com.squareup.logcat", name = "logcat", version.ref = "logcat" }
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }

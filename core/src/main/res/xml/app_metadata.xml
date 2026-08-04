@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
+    appfn:description="Este app gerencia eventos, alarmes e fornece resumos inteligentes do dia.
+    Padrões Operacionais:
+    - Use 'create_event' para agendar novos compromissos.
+    - Use 'get_daily_briefing' para obter o resumo do dia gerado por IA.
+    Restrições:
+    - Ações de criação requerem horários de início e término válidos."
+    appfn:displayDescription="@string/app_functions_description" />

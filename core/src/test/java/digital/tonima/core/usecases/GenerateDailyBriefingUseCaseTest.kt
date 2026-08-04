@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.PublicPreviewAPI
 import digital.tonima.core.model.Event
 import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.WeatherRepository
@@ -51,6 +52,7 @@ class GenerateDailyBriefingUseCaseTest {
         unmockkStatic("com.google.firebase.ai.FirebaseAIKt")
     }
 
+    @OptIn(PublicPreviewAPI::class)
     @Test
     fun `when events list is empty should return null`() =
         runBlocking {
@@ -63,13 +65,14 @@ class GenerateDailyBriefingUseCaseTest {
 
             every { Firebase.ai(any(), any()) } returns
                 mockk {
-                    every { generativeModel(any(), any(), any(), any(), any(), any(), any()) } returns mockModel
+                    every { generativeModel(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockModel
                 }
 
             val result = useCase.invoke(emptyList(), "Instruction", null)
             assertNull(result)
         }
 
+    @OptIn(PublicPreviewAPI::class)
     @Test
     fun `when events exist should return briefing text`() =
         runBlocking {
@@ -81,7 +84,7 @@ class GenerateDailyBriefingUseCaseTest {
 
             every { Firebase.ai(any(), any()) } returns
                 mockk {
-                    every { generativeModel(any(), any(), any(), any(), any(), any(), any()) } returns mockModel
+                    every { generativeModel(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockModel
                 }
 
             val events =

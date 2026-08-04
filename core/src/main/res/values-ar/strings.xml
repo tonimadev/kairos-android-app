@@ -262,4 +262,5 @@
 
     <!-- Additional Strings -->
     <string name="settings">إعدادات</string>
+    <string name="app_functions_description">إجراءات Kairos الذكية لإدارة جدولك الزمني وتنبيهاتك وملخصاتك اليومية.</string>
 </resources>

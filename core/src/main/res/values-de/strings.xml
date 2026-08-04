@@ -264,4 +264,5 @@
 
     <!-- Additional Strings -->
     <string name="settings">Einstellungen</string>
+    <string name="app_functions_description">Intelligente Kairos-Aktionen zur Verwaltung Ihres Zeitplans, Ihrer Alarme und täglichen Zusammenfassungen.</string>
 </resources>

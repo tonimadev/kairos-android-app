@@ -2,6 +2,7 @@ package digital.tonima.kairos
 
 import android.app.Application
 import android.os.Build
+import androidx.appfunctions.AppFunctionConfiguration
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.Constraints
@@ -13,6 +14,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.HiltAndroidApp
+import digital.tonima.core.ai.appfunctions.KairosAppFunctions
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSchedulingWorker
@@ -34,15 +36,25 @@ import javax.inject.Inject
 @HiltAndroidApp
 class KairosApplication :
     Application(),
-    Configuration.Provider {
+    Configuration.Provider,
+    AppFunctionConfiguration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject
+    lateinit var kairosAppFunctions: KairosAppFunctions
 
     @Inject
     lateinit var appPreferencesRepository: AppPreferencesRepository
 
     @Inject
     lateinit var proUserProvider: ProUserProvider
+
+    override val appFunctionConfiguration: AppFunctionConfiguration
+        get() =
+            AppFunctionConfiguration.Builder()
+                .addEnclosingClassFactory(KairosAppFunctions::class.java) { kairosAppFunctions }
+                .build()
 
     override val workManagerConfiguration: Configuration
         get() =

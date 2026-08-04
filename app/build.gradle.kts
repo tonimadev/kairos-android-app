@@ -135,6 +135,7 @@ dependencies {
 
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appfunctions)
     implementation(libs.androidx.compose.calendar)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.material3)
