@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -65,6 +66,7 @@ class WearAlarmActivity : ComponentActivity() {
         val eventId = intent?.getLongExtra(EXTRA_EVENT_ID, -1L) ?: -1L
         val startTime = intent?.getLongExtra(EXTRA_EVENT_START_TIME, -1L) ?: -1L
         val meetingUrl = intent?.getStringExtra(EXTRA_MEETING_URL)
+        val eventLocation = intent?.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION)
 
         viewModel.handleIntent(
             AlarmIntent.Init(
@@ -73,10 +75,19 @@ class WearAlarmActivity : ComponentActivity() {
                 eventId = eventId,
                 startTime = startTime,
                 meetingUrl = meetingUrl,
+                eventLocation = eventLocation,
             ),
         )
 
-        AlarmSoundAndVibrateService.startAlarm(this, title, uniqueId, eventId, startTime, meetingUrl)
+        AlarmSoundAndVibrateService.startAlarm(
+            this,
+            title,
+            uniqueId,
+            eventId,
+            startTime,
+            meetingUrl,
+            eventLocation,
+        )
 
         collectSideEffects()
 
@@ -87,7 +98,9 @@ class WearAlarmActivity : ComponentActivity() {
                 WearAlarmScreen(
                     title = uiState.eventTitle,
                     meetingUrl = uiState.meetingUrl,
+                    hasLocation = uiState.hasLocation,
                     onJoinMeeting = { viewModel.handleIntent(AlarmIntent.JoinMeeting) },
+                    onOpenMap = { viewModel.handleIntent(AlarmIntent.OpenMap) },
                     onSnooze = { viewModel.handleIntent(AlarmIntent.Snooze) },
                     onStop = { viewModel.handleIntent(AlarmIntent.Stop) },
                 )
@@ -108,12 +121,32 @@ class WearAlarmActivity : ComponentActivity() {
                     }
                     is AlarmSideEffect.OpenMeetingUrl -> {
                         try {
-                            val meetingIntent = Intent(Intent.ACTION_VIEW, Uri.parse(effect.url))
+                            val meetingIntent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
                             meetingIntent.addCategory(Intent.CATEGORY_BROWSABLE)
-                            meetingIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             startActivity(meetingIntent)
                         } catch (e: Exception) {
                             logcat { "Failed to open meeting URL: ${e.message}" }
+                        }
+                    }
+                    is AlarmSideEffect.OpenMapUrl -> {
+                        try {
+                            val uri = "google.navigation:q=${Uri.encode(effect.location)}".toUri()
+                            val mapIntent =
+                                Intent(Intent.ACTION_VIEW, uri).apply {
+                                    setPackage("com.google.android.apps.maps")
+                                }
+                            startActivity(mapIntent)
+                        } catch (e: Exception) {
+                            logcat { "Failed to open navigation intent: ${e.message}" }
+                            try {
+                                val fallbackUri = "geo:0,0?q=${Uri.encode(effect.location)}".toUri()
+                                val geoIntent =
+                                    Intent(Intent.ACTION_VIEW, fallbackUri).apply {
+                                    }
+                                startActivity(geoIntent)
+                            } catch (inner: Exception) {
+                                logcat { "Failed to open fallback geo intent: ${inner.message}" }
+                            }
                         }
                     }
                     is AlarmSideEffect.SendSnoozeBroadcast -> {
@@ -147,7 +180,9 @@ class WearAlarmActivity : ComponentActivity() {
 private fun WearAlarmScreen(
     title: String,
     meetingUrl: String? = null,
+    hasLocation: Boolean = false,
     onJoinMeeting: () -> Unit,
+    onOpenMap: () -> Unit,
     onSnooze: () -> Unit,
     onStop: () -> Unit,
 ) {
@@ -184,6 +219,24 @@ private fun WearAlarmScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.disable_alarm_and_join_meeting),
+                                fontSize = Dimensions.ButtonFontSize,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
+
+                if (hasLocation) {
+                    item {
+                        Button(
+                            onClick = onOpenMap,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = Dimensions.PaddingSmall),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.open_map_label),
                                 fontSize = Dimensions.ButtonFontSize,
                                 textAlign = TextAlign.Center,
                             )
@@ -235,7 +288,9 @@ fun WearAlarmScreenPreview() {
         WearAlarmScreen(
             title = "Reunião começa em 5 min",
             meetingUrl = "https://meet.google.com/abc-defg-hij",
+            hasLocation = true,
             onJoinMeeting = {},
+            onOpenMap = {},
             onSnooze = {},
             onStop = {},
         )

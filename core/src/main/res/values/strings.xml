@@ -143,6 +143,7 @@
     <string name="next_events_title">Próximos Eventos</string>
     <string name="no_more_events_today">Sem mais eventos hoje</string>
     <string name="disable_alarm_and_join_meeting">Desativar alarme e entrar na reunião</string>
+    <string name="open_map_label">Abrir rota</string>
     <string name="location_alarm_title">Alarme Inteligente por Geolocalização</string>
     <string name="location_alarm_description">Disparar alarme baseado no tempo de deslocamento para eventos com endereço.</string>
     <string name="location_permission_required">Permissão de Localização Necessária</string>
@@ -205,7 +206,7 @@
     <string name="greeting_afternoon">Boa tarde! ☕</string>
     <string name="greeting_evening">Boa noite! 🌙</string>
     <string name="no_alarms_found">Nenhum alarme encontrado</string>
-    <string name="loading_weather">Carregando clima...</string>
+    <string name="loading_weather">Carregando clima…</string>
     <string name="weather_updates">Atualizações de clima</string>
     <string name="location_permission_weather_desc">Permissão de localização é necessária para mostrar o clima local.</string>
     <string name="status_active">✓ Ativo</string>

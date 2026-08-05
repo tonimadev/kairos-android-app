@@ -12,4 +12,6 @@ sealed class AlarmSideEffect {
     data object FinishScreen : AlarmSideEffect()
 
     data class OpenMeetingUrl(val url: String) : AlarmSideEffect()
+
+    data class OpenMapUrl(val location: String) : AlarmSideEffect()
 }

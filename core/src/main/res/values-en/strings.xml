@@ -140,6 +140,7 @@
     <string name="next_events_title">Upcoming Events</string>
     <string name="no_more_events_today">No more events today</string>
     <string name="disable_alarm_and_join_meeting">Disable alarm and join meeting</string>
+    <string name="open_map_label">Open route</string>
     <string name="location_alarm_title">Smart Geolocation Alarm</string>
     <string name="location_alarm_description">Trigger alarm based on travel time for events with addresses.</string>
     <string name="location_permission_required">Location Permission Required</string>

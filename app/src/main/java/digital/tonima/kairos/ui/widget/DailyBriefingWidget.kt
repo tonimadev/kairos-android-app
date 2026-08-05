@@ -223,7 +223,6 @@ class DailyBriefingWidget : GlanceAppWidget() {
             Intent(Intent.ACTION_VIEW).apply {
                 data = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, event.id)
                 putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, event.startTime)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
 
         Row(

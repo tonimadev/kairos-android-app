@@ -139,6 +139,7 @@
     <string name="next_events_title">आने वाले कार्यक्रम</string>
     <string name="no_more_events_today">आज और कोई कार्यक्रम नहीं है</string>
     <string name="disable_alarm_and_join_meeting">अलार्म बंद करें और बैठक में शामिल हों</string>
+    <string name="open_map_label">मार्ग खोलें</string>
     <string name="location_alarm_title">स्मार्ट जियोलोकेशन अलार्म</string>
     <string name="location_alarm_description">पते वाले ईवेंट के लिए यात्रा के समय के आधार पर अलार्म बजाएं।</string>
     <string name="location_permission_required">स्थान अनुमति आवश्यक है</string>

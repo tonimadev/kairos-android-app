@@ -63,38 +63,37 @@ class EventAlarmSchedulerImpl
             }
 
             val alarmTime =
-                if (triggerTime != null) {
-                    triggerTime
-                } else if (event.isAllDay) {
-                    val allDayAlarmsEnabled =
-                        runBlocking {
-                            preferencesRepository.isAllDayAlarmsEnabled().firstOrNull() ?: true
+                triggerTime
+                    ?: if (event.isAllDay) {
+                        val allDayAlarmsEnabled =
+                            runBlocking {
+                                preferencesRepository.isAllDayAlarmsEnabled().firstOrNull() ?: true
+                            }
+
+                        if (!allDayAlarmsEnabled) {
+                            logcat {
+                                "Skipping alarm for all-day event (disabled in settings): ${event.title}"
+                            }
+                            return
                         }
 
-                    if (!allDayAlarmsEnabled) {
-                        logcat {
-                            "Skipping alarm for all-day event (disabled in settings): ${event.title}"
-                        }
-                        return
+                        val alarmHour =
+                            runBlocking {
+                                preferencesRepository.getAllDayAlarmHour().firstOrNull() ?: 9
+                            }
+
+                        val instant = Instant.ofEpochMilli(event.startTime)
+                        val localDate = instant.atZone(ZoneId.of("UTC")).toLocalDate()
+                        val alarmDateTime = localDate.atTime(LocalTime.of(alarmHour, 0))
+                        alarmDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    } else {
+                        val offsetMinutes =
+                            runBlocking {
+                                preferencesRepository.getAlarmOffsetMinutes().firstOrNull() ?: 0L
+                            }
+                        val offset = AlarmOffset.fromMinutes(offsetMinutes)
+                        event.startTime - java.util.concurrent.TimeUnit.MINUTES.toMillis(offset.minutes)
                     }
-
-                    val alarmHour =
-                        runBlocking {
-                            preferencesRepository.getAllDayAlarmHour().firstOrNull() ?: 9
-                        }
-
-                    val instant = Instant.ofEpochMilli(event.startTime)
-                    val localDate = instant.atZone(ZoneId.of("UTC")).toLocalDate()
-                    val alarmDateTime = localDate.atTime(LocalTime.of(alarmHour, 0))
-                    alarmDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                } else {
-                    val offsetMinutes =
-                        runBlocking {
-                            preferencesRepository.getAlarmOffsetMinutes().firstOrNull() ?: 0L
-                        }
-                    val offset = AlarmOffset.fromMinutes(offsetMinutes)
-                    event.startTime - java.util.concurrent.TimeUnit.MINUTES.toMillis(offset.minutes)
-                }
 
             logcat {
                 "Scheduling alarm for event: ${event.title} at $alarmTime " +
@@ -126,6 +125,7 @@ class EventAlarmSchedulerImpl
                     putExtra(EXTRA_EVENT_ID, event.id)
                     putExtra(EXTRA_EVENT_START_TIME, event.startTime)
                     putExtra(EXTRA_MEETING_URL, event.meetingUrl)
+                    putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, event.location)
                     putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, event.endTime)
                 }
             val pendingIntent =

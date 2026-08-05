@@ -31,8 +31,7 @@ class ReviewManagerImpl
                 } else {
                     // Fallback para a Play Store se a API falhar
                     val intent = Intent(Intent.ACTION_VIEW, "market://details?id=${context.packageName}".toUri())
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(intent)
+                    activity.startActivity(intent)
                     onComplete()
                 }
             }

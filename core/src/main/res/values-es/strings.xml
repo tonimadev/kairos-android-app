@@ -141,6 +141,7 @@
     <string name="next_events_title">Próximos eventos</string>
     <string name="no_more_events_today">No hay más eventos hoy</string>
     <string name="disable_alarm_and_join_meeting">Desactivar alarma y unirse a la reunión</string>
+    <string name="open_map_label">Abrir ruta</string>
     <string name="location_alarm_title">Alarma Inteligente por Geolocalización</string>
     <string name="location_alarm_description">Dispara la alarma basada en el tiempo de viaje para eventos con dirección.</string>
     <string name="location_permission_required">Permiso de Ubicación Requerido</string>

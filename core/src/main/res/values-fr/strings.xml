@@ -141,8 +141,7 @@
     <string name="widget_no_briefing">Aucun résumé disponible. Ouvrez l\'application pour en générer un !</string>
     <string name="next_events_title">Événements à venir</string>
     <string name="no_more_events_today">Plus d\'événements aujourd\'hui</string>
-    <string name="disable_alarm_and_join_meeting">Désactiver l\'alarme et rejoindre la réunion</string>
-    <string name="location_alarm_title">Alarme Intelligente par Géolocalisation</string>
+    <string name="disable_alarm_and_join_meeting">Désactiver l\'alarme et rejoindre la réunion</string>    <string name="open_map_label">Ouvrir l'itinéraire</string>    <string name="location_alarm_title">Alarme Intelligente par Géolocalisation</string>
     <string name="location_alarm_description">Déclencher l\'alarme en fonction du temps de trajet pour les événements avec adresse.</string>
     <string name="location_permission_required">Autorisation de Localisation Requise</string>
     <string name="location_permission_disclaimer">Pour calculer le temps de trajet, l\'application doit connaître votre position.</string>

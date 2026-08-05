@@ -139,6 +139,7 @@
     <string name="next_events_title">الأحداث القادمة</string>
     <string name="no_more_events_today">لا يوجد مزيد من الأحداث اليوم</string>
     <string name="disable_alarm_and_join_meeting">تعطيل المنبه والانضمام إلى الاجتماع</string>
+    <string name="open_map_label">افتح المسار</string>
     <string name="location_alarm_title">منبه ذكي بموقع جغرافي</string>
     <string name="location_alarm_description">تشغيل المنبه بناءً على وقت السفر للأحداث التي تحتوي على عناوين.</string>
     <string name="location_permission_required">إذن الموقع مطلوب</string>

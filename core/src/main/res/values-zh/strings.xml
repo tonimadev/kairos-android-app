@@ -136,6 +136,7 @@
     <string name="next_events_title">接下来的活动</string>
     <string name="no_more_events_today">今天没有更多活动</string>
     <string name="disable_alarm_and_join_meeting">禁用闹钟并加入会议</string>
+    <string name="open_map_label">打开路线</string>
     <string name="location_alarm_title">基于地理位置的智能闹钟</string>
     <string name="location_alarm_description">对于带有地址的事件，根据通勤时间触发闹钟。</string>
     <string name="location_permission_required">需要位置权限</string>

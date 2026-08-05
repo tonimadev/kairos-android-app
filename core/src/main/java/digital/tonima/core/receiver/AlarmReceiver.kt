@@ -6,19 +6,22 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import androidx.core.net.toUri
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors.fromApplication
 import dagger.hilt.components.SingletonComponent
 import digital.tonima.core.analytics.Analytics
-import digital.tonima.core.repository.AppPreferencesRepositoryImpl
+import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.kairos.core.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import logcat.logcat
 import javax.inject.Inject
 
@@ -37,8 +40,11 @@ class AlarmReceiver : BroadcastReceiver() {
         const val EXTRA_EVENT_ID = "EXTRA_EVENT_ID"
         const val EXTRA_EVENT_START_TIME = "EXTRA_EVENT_START_TIME"
         const val EXTRA_MEETING_URL = "EXTRA_MEETING_URL"
+        const val EXTRA_EVENT_LOCATION = "EXTRA_EVENT_LOCATION"
         const val EXTRA_EVENT_END_TIME = "EXTRA_EVENT_END_TIME"
         const val ACTION_SNOOZE = "digital.tonima.core.ACTION_SNOOZE"
+        const val ACTION_JOIN_MEETING = "digital.tonima.core.ACTION_JOIN_MEETING"
+        const val ACTION_OPEN_MAP = "digital.tonima.core.ACTION_OPEN_MAP"
         const val ACTION_FOCUS_END = "digital.tonima.core.ACTION_FOCUS_END"
         const val EXTRA_SOURCE = "EXTRA_SOURCE"
     }
@@ -50,7 +56,10 @@ class AlarmReceiver : BroadcastReceiver() {
     lateinit var analytics: Analytics
 
     @Inject
-    lateinit var appStatusRepository: digital.tonima.core.repository.AppPreferencesRepository
+    lateinit var appStatusRepository: AppPreferencesRepository
+
+    // Escopo customizado para manter as tarefas rodando em background (IO) com segurança
+    private val receiverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @SuppressLint("MissingPermission")
     override fun onReceive(
@@ -59,9 +68,80 @@ class AlarmReceiver : BroadcastReceiver() {
     ) {
         when (intent.action) {
             ACTION_SNOOZE -> handleSnooze(context, intent)
+            ACTION_JOIN_MEETING -> handleJoinMeeting(context, intent)
+            ACTION_OPEN_MAP -> handleOpenMap(context, intent)
             ACTION_FOCUS_END -> handleFocusEnd(context)
             ACTION_ALARM_TRIGGERED -> handleAlarmTriggered(context, intent)
             else -> return
+        }
+    }
+
+    private fun handleOpenMap(
+        context: Context,
+        intent: Intent,
+    ) {
+        val location = intent.getStringExtra(EXTRA_EVENT_LOCATION)
+        val uniqueId = intent.getIntExtra(EXTRA_UNIQUE_ID, -1)
+
+        if (location.isNullOrBlank()) return
+
+        analytics.logEvent(
+            Analytics.EVENT_ALARM_STOP,
+            mapOf(
+                Analytics.PARAM_SOURCE to Analytics.SOURCE_NOTIFICATION,
+                "action" to "open_map",
+            ),
+        )
+
+        AlarmSoundAndVibrateService.stopAlarm(context, Analytics.SOURCE_NOTIFICATION, uniqueId)
+
+        try {
+            val uri = "google.navigation:q=${Uri.encode(location)}".toUri()
+            val navigationIntent =
+                Intent(Intent.ACTION_VIEW, uri).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    setPackage("com.google.android.apps.maps")
+                }
+            context.startActivity(navigationIntent)
+        } catch (e: Exception) {
+            logcat { "Failed to open navigation for location '$location': ${e.message}" }
+            try {
+                val geoUri = "geo:0,0?q=${Uri.encode(location)}".toUri()
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, geoUri).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    },
+                )
+            } catch (inner: Exception) {
+                logcat { "Failed to open fallback geo intent: ${inner.message}" }
+            }
+        }
+    }
+
+    private fun handleJoinMeeting(
+        context: Context,
+        intent: Intent,
+    ) {
+        val meetingUrl = intent.getStringExtra(EXTRA_MEETING_URL)
+        val uniqueId = intent.getIntExtra(EXTRA_UNIQUE_ID, -1)
+
+        if (meetingUrl.isNullOrBlank()) return
+
+        analytics.logEvent(
+            Analytics.EVENT_JOIN_MEETING,
+            mapOf(Analytics.PARAM_SOURCE to Analytics.SOURCE_NOTIFICATION),
+        )
+
+        AlarmSoundAndVibrateService.stopAlarm(context, Analytics.SOURCE_NOTIFICATION, uniqueId)
+
+        try {
+            val meetIntent =
+                Intent(Intent.ACTION_VIEW, meetingUrl.toUri()).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+            context.startActivity(meetIntent)
+        } catch (e: Exception) {
+            logcat { "Failed to open meeting URL from notification: ${e.message}" }
         }
     }
 
@@ -83,11 +163,15 @@ class AlarmReceiver : BroadcastReceiver() {
             )
         }
 
-        kotlinx.coroutines.GlobalScope.launch {
+        val pendingResult = goAsync()
+
+        receiverScope.launch {
             try {
                 appStatusRepository.incrementSnoozeCount()
             } catch (e: Exception) {
                 logcat { "Failed to increment snooze count: ${e.message}" }
+            } finally {
+                pendingResult.finish()
             }
         }
 
@@ -127,6 +211,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
         val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
         val meetingUrl = intent.getStringExtra(EXTRA_MEETING_URL)
+        val eventLocation = intent.getStringExtra(EXTRA_EVENT_LOCATION)
         val endTime = intent.getLongExtra(EXTRA_EVENT_END_TIME, -1L)
 
         analytics.logEvent(
@@ -134,59 +219,61 @@ class AlarmReceiver : BroadcastReceiver() {
             mapOf(Analytics.PARAM_HAS_MEETING_URL to !meetingUrl.isNullOrEmpty()),
         )
 
-        // ── Auto Focus Mode: enable DND + schedule end ──────────────────────
-        val isAutoFocusEnabled =
+        val pendingResult = goAsync()
+
+        receiverScope.launch {
             try {
-                runBlocking {
-                    AppPreferencesRepositoryImpl(context.applicationContext)
-                        .isAutoFocusModeEnabled().first()
-                }
-            } catch (_: Exception) {
-                false
-            }
-
-        if (isAutoFocusEnabled && endTime > 0L) {
-            enableAutoFocusMode(context, endTime, uniqueId)
-        }
-
-        // ── Auto Join: skip alarm screen and open meeting URL ───────────────
-        val isAutoJoinEnabled =
-            try {
-                runBlocking {
-                    AppPreferencesRepositoryImpl(context.applicationContext)
-                        .isAutoJoinEnabled().first()
-                }
-            } catch (_: Exception) {
-                false
-            }
-
-        if (isAutoJoinEnabled && !meetingUrl.isNullOrEmpty()) {
-            logcat { "Auto-Join: Opening meeting URL directly for '$eventTitle'" }
-            analytics.logEvent(
-                Analytics.EVENT_ALARM_STOP,
-                mapOf(
-                    Analytics.PARAM_SOURCE to "AUTO_JOIN",
-                    "action" to "join_meeting",
-                ),
-            )
-            analytics.logEvent(Analytics.EVENT_JOIN_MEETING)
-
-            try {
-                val meetIntent =
-                    Intent(Intent.ACTION_VIEW, Uri.parse(meetingUrl)).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                // ── Auto Focus Mode: enable DND + schedule end ──────────────────────
+                val isAutoFocusEnabled =
+                    try {
+                        appStatusRepository.isAutoFocusModeEnabled().first()
+                    } catch (_: Exception) {
+                        false
                     }
-                context.startActivity(meetIntent)
-            } catch (e: Exception) {
-                logcat { "Auto-Join: Failed to open meeting URL: ${e.message}" }
-                // Fallback to normal alarm flow
-                startNormalAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl)
-            }
-            return
-        }
 
-        // ── Normal alarm flow ───────────────────────────────────────────────
-        startNormalAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl)
+                if (isAutoFocusEnabled && endTime > 0L) {
+                    enableAutoFocusMode(context, endTime, uniqueId)
+                }
+
+                // ── Auto Join: skip alarm screen and open meeting URL ───────────────
+                val isAutoJoinEnabled =
+                    try {
+                        appStatusRepository.isAutoJoinEnabled().first()
+                    } catch (_: Exception) {
+                        false
+                    }
+
+                if (isAutoJoinEnabled && !meetingUrl.isNullOrEmpty()) {
+                    logcat { "Auto-Join: Opening meeting URL directly for '$eventTitle'" }
+                    analytics.logEvent(
+                        Analytics.EVENT_ALARM_STOP,
+                        mapOf(
+                            Analytics.PARAM_SOURCE to "AUTO_JOIN",
+                            "action" to "join_meeting",
+                        ),
+                    )
+                    analytics.logEvent(Analytics.EVENT_JOIN_MEETING)
+
+                    try {
+                        val meetIntent =
+                            Intent(Intent.ACTION_VIEW, meetingUrl.toUri()).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                        context.startActivity(meetIntent)
+                    } catch (e: Exception) {
+                        logcat { "Auto-Join: Failed to open meeting URL: ${e.message}" }
+                        // Fallback to normal alarm flow
+                        startNormalAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation)
+                    }
+                    return@launch
+                }
+
+                // ── Normal alarm flow ───────────────────────────────────────────────
+                startNormalAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation)
+            } finally {
+                pendingResult.finish()
+            }
+        }
     }
 
     private fun enableAutoFocusMode(
@@ -209,7 +296,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 val pendingIntent =
                     android.app.PendingIntent.getBroadcast(
                         context,
-                        uniqueId + 0x0F0C05, // offset to avoid collision with alarm PendingIntents
+                        uniqueId + 0x0F0C05,
                         focusEndIntent,
                         android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
                     )
@@ -247,9 +334,8 @@ class AlarmReceiver : BroadcastReceiver() {
         eventId: Long,
         startTime: Long,
         meetingUrl: String?,
+        eventLocation: String?,
     ) {
-        // No Wear OS (ou se o contexto indicar hardware.type.watch), iniciamos a Activity diretamente
-        // para evitar ForegroundServiceStartNotAllowedException
         val isWatch = context.packageManager.hasSystemFeature("android.hardware.type.watch")
 
         if (isWatch) {
@@ -263,15 +349,23 @@ class AlarmReceiver : BroadcastReceiver() {
                         putExtra(EXTRA_EVENT_ID, eventId)
                         putExtra(EXTRA_EVENT_START_TIME, startTime)
                         putExtra(EXTRA_MEETING_URL, meetingUrl)
+                        putExtra(EXTRA_EVENT_LOCATION, eventLocation)
                     }
                 context.startActivity(activityIntent)
                 return
             } catch (e: Exception) {
                 logcat(logcat.LogPriority.ERROR) { "Failed to start WearAlarmActivity: ${e.message}" }
-                // Fallback para o serviço se a atividade falhar
             }
         }
 
-        AlarmSoundAndVibrateService.startAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl)
+        AlarmSoundAndVibrateService.startAlarm(
+            context,
+            eventTitle,
+            uniqueId,
+            eventId,
+            startTime,
+            meetingUrl,
+            eventLocation,
+        )
     }
 }

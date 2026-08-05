@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,20 +71,8 @@ class AlarmActivity : ComponentActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        } else {
-            @Suppress("DEPRECATION")
-            window.addFlags(
-                android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                    android.view.WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
-                    android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
-            )
-        }
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
 
@@ -99,6 +87,7 @@ class AlarmActivity : ComponentActivity() {
                 eventId = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_ID, -1L),
                 startTime = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, -1L),
                 meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL),
+                eventLocation = intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION),
             ),
         )
 
@@ -166,12 +155,32 @@ class AlarmActivity : ComponentActivity() {
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            if (uiState.hasLocation) {
+                                Button(
+                                    onClick = { viewModel.handleIntent(AlarmIntent.OpenMap) },
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 60.dp),
+                                ) {
+                                    Text(
+                                        text = getString(R.string.open_map_label),
+                                        fontSize = 18.sp,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            if (uiState.hasMeetingUrl) {
                                 androidx.compose.material3.OutlinedButton(
                                     onClick = {
                                         uiState.meetingUrl?.let { url ->
                                             val clipboard =
                                                 getSystemService(
-                                                    Context.CLIPBOARD_SERVICE,
+                                                    CLIPBOARD_SERVICE,
                                                 ) as android.content.ClipboardManager
                                             val clip = android.content.ClipData.newPlainText("Meeting Link", url)
                                             clipboard.setPrimaryClip(clip)
@@ -255,10 +264,29 @@ class AlarmActivity : ComponentActivity() {
                     is AlarmSideEffect.OpenMeetingUrl -> {
                         try {
                             startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)),
+                                Intent(Intent.ACTION_VIEW, effect.url.toUri()),
                             )
                         } catch (e: Exception) {
                             logcat { "Failed to open meeting URL: ${e.message}" }
+                        }
+                    }
+                    is AlarmSideEffect.OpenMapUrl -> {
+                        try {
+                            val uri = "google.navigation:q=${Uri.encode(effect.location)}".toUri()
+                            val mapIntent =
+                                Intent(Intent.ACTION_VIEW, uri).apply {
+                                    setPackage("com.google.android.apps.maps")
+                                }
+                            startActivity(mapIntent)
+                        } catch (e: Exception) {
+                            logcat { "Failed to open navigation intent: ${e.message}" }
+                            try {
+                                startActivity(
+                                    Intent(Intent.ACTION_VIEW, "geo:0,0?q=${Uri.encode(effect.location)}".toUri()),
+                                )
+                            } catch (inner: Exception) {
+                                logcat { "Failed to open geo intent: ${inner.message}" }
+                            }
                         }
                     }
                     is AlarmSideEffect.SendSnoozeBroadcast -> {
@@ -282,7 +310,7 @@ class AlarmActivity : ComponentActivity() {
         super.onStart()
         val filter = IntentFilter(AlarmSoundAndVibrateService.ACTION_FINISH_ALARM_ACTIVITY)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(finishReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            registerReceiver(finishReceiver, filter, RECEIVER_NOT_EXPORTED)
         } else {
             @Suppress("UnspecifiedRegisterReceiverFlag")
             registerReceiver(finishReceiver, filter)
@@ -293,7 +321,10 @@ class AlarmActivity : ComponentActivity() {
         super.onStop()
         try {
             unregisterReceiver(finishReceiver)
-        } catch (ignored: IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
+            logcat {
+                e.stackTraceToString()
+            }
         }
     }
 

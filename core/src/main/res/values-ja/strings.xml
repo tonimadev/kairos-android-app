@@ -136,6 +136,7 @@
     <string name="next_events_title">今後のイベント</string>
     <string name="no_more_events_today">本日の予定はもうありません</string>
     <string name="disable_alarm_and_join_meeting">アラームをオフにして会議に参加する</string>
+    <string name="open_map_label">ルートを開く</string>
     <string name="location_alarm_title">位置情報スマートアラーム</string>
     <string name="location_alarm_description">住所のあるイベントに対して、移動時間に基づいたアラームを鳴らします。</string>
     <string name="location_permission_required">位置情報の権限が必要です</string>

@@ -19,6 +19,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.receiver.AlarmReceiver
@@ -35,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import logcat.logcat
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @AndroidEntryPoint
 class AlarmSoundAndVibrateService : Service() {
@@ -56,6 +58,7 @@ class AlarmSoundAndVibrateService : Service() {
             eventId: Long = -1L,
             startTime: Long = -1L,
             meetingUrl: String? = null,
+            eventLocation: String? = null,
         ) {
             val intent =
                 Intent(context, AlarmSoundAndVibrateService::class.java).apply {
@@ -67,6 +70,7 @@ class AlarmSoundAndVibrateService : Service() {
                     putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
                     putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
                     putExtra(AlarmReceiver.EXTRA_MEETING_URL, meetingUrl)
+                    putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, eventLocation)
                 }
             ContextCompat.startForegroundService(context, intent)
         }
@@ -123,8 +127,9 @@ class AlarmSoundAndVibrateService : Service() {
                         -1L,
                     )
                 val meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL)
+                val eventLocation = intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION)
 
-                ensureForeground(eventTitle, uniqueId, eventId, startTime, meetingUrl)
+                ensureForeground(eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation)
 
                 val vibrateOnly =
                     try {
@@ -143,14 +148,14 @@ class AlarmSoundAndVibrateService : Service() {
                             AppPreferencesRepositoryImpl(applicationContext)
                                 .getAutoDismissMinutes().first()
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         10
                     }
 
                 autoDismissJob?.cancel()
                 autoDismissJob =
                     serviceScope.launch {
-                        delay(autoDismissMinutes * 60 * 1000L)
+                        delay((autoDismissMinutes * 60 * 1000L).milliseconds)
                         logcat {
                             "AlarmSoundAndVibrateService: " +
                                 "Auto-dismissing alarm after $autoDismissMinutes minutes."
@@ -184,11 +189,11 @@ class AlarmSoundAndVibrateService : Service() {
                             runBlocking {
                                 AppPreferencesRepositoryImpl(applicationContext).getCustomRingtoneUri().first()
                             }
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             null
                         }
 
-                    val customUri = customRingtoneUriStr?.let { Uri.parse(it) }
+                    val customUri = customRingtoneUriStr?.toUri()
 
                     val candidateUris =
                         listOfNotNull(
@@ -290,6 +295,7 @@ class AlarmSoundAndVibrateService : Service() {
         eventId: Long = -1L,
         startTime: Long = -1L,
         meetingUrl: String? = null,
+        eventLocation: String? = null,
     ) {
         val isWatch = packageManager.hasSystemFeature("android.hardware.type.watch")
         val fullScreenPendingIntent =
@@ -369,6 +375,38 @@ class AlarmSoundAndVibrateService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
+        val joinMeetingPendingIntent =
+            meetingUrl?.let {
+                val joinIntent =
+                    Intent(this, AlarmReceiver::class.java).apply {
+                        action = AlarmReceiver.ACTION_JOIN_MEETING
+                        putExtra(AlarmReceiver.EXTRA_MEETING_URL, it)
+                        putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+                    }
+                PendingIntent.getBroadcast(
+                    this,
+                    uniqueId + 1,
+                    joinIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            }
+
+        val openMapPendingIntent =
+            eventLocation?.let {
+                val mapIntent =
+                    Intent(this, AlarmReceiver::class.java).apply {
+                        action = AlarmReceiver.ACTION_OPEN_MAP
+                        putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, it)
+                        putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, uniqueId)
+                    }
+                PendingIntent.getBroadcast(
+                    this,
+                    uniqueId + 2,
+                    mapIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            }
+
         val contentText = eventTitle ?: getString(R.string.upcoming_event)
         val notificationBuilder =
             NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
@@ -383,6 +421,22 @@ class AlarmSoundAndVibrateService : Service() {
                 .setAutoCancel(false)
                 .addAction(0, getString(R.string.snooze), snoozePendingIntent)
                 .addAction(0, getString(R.string.stop), stopPendingIntent)
+
+        joinMeetingPendingIntent?.let {
+            notificationBuilder.addAction(
+                0,
+                getString(R.string.join_meeting_label),
+                it,
+            )
+        }
+
+        openMapPendingIntent?.let {
+            notificationBuilder.addAction(
+                0,
+                getString(R.string.open_map_label),
+                it,
+            )
+        }
 
         if (fullScreenPendingIntent != null) {
             notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true)

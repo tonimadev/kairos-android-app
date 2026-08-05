@@ -50,6 +50,7 @@ class AlarmViewModelTest {
                     eventId = 100L,
                     startTime = 999L,
                     meetingUrl = "https://meet.google.com/abc",
+                    eventLocation = null,
                 ),
             )
 
@@ -66,7 +67,7 @@ class AlarmViewModelTest {
     fun `init with no meeting url sets hasMeetingUrl false`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Event", 1, 1L, 1L, null),
+                AlarmIntent.Init("Event", 1, 1L, 1L, null, null),
             )
 
             assertFalse(viewModel.uiState.value.hasMeetingUrl)
@@ -76,7 +77,7 @@ class AlarmViewModelTest {
     fun `snooze logs analytics and emits side effects`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Daily", 10, 50L, 800L, null),
+                AlarmIntent.Init("Daily", 10, 50L, 800L, null, null),
             )
 
             viewModel.sideEffect.test {
@@ -109,7 +110,7 @@ class AlarmViewModelTest {
     fun `stop logs analytics and emits finish`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Meeting", 5, 20L, 500L, null),
+                AlarmIntent.Init("Meeting", 5, 20L, 500L, null, null),
             )
 
             viewModel.sideEffect.test {
@@ -134,7 +135,14 @@ class AlarmViewModelTest {
     fun `joinMeeting logs both analytics events and emits url and finish`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Sprint Review", 7, 30L, 600L, "https://meet.google.com/xyz"),
+                AlarmIntent.Init(
+                    "Sprint Review",
+                    7,
+                    30L,
+                    600L,
+                    "https://meet.google.com/xyz",
+                    null,
+                ),
             )
 
             viewModel.sideEffect.test {
@@ -169,7 +177,7 @@ class AlarmViewModelTest {
     fun `joinMeeting without meeting url does not emit OpenMeetingUrl`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Event", 1, 1L, 1L, null),
+                AlarmIntent.Init("Event", 1, 1L, 1L, null, null),
             )
 
             viewModel.sideEffect.test {

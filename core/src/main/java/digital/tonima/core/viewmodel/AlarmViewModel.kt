@@ -36,6 +36,7 @@ class AlarmViewModel
                 AlarmIntent.Snooze -> onSnooze()
                 AlarmIntent.Stop -> onStop()
                 AlarmIntent.JoinMeeting -> onJoinMeeting()
+                AlarmIntent.OpenMap -> onOpenMap()
             }
         }
 
@@ -47,6 +48,7 @@ class AlarmViewModel
                     eventId = intent.eventId,
                     startTime = intent.startTime,
                     meetingUrl = intent.meetingUrl,
+                    eventLocation = intent.eventLocation,
                 )
             }
         }
@@ -115,6 +117,28 @@ class AlarmViewModel
 
             state.meetingUrl?.let { url ->
                 _sideEffect.trySend(AlarmSideEffect.OpenMeetingUrl(url))
+            }
+            _sideEffect.trySend(AlarmSideEffect.FinishScreen)
+        }
+
+        private fun onOpenMap() {
+            val state = _uiState.value
+            userStoppedAlarm = true
+
+            analytics.logEvent(
+                Analytics.EVENT_ALARM_STOP,
+                mapOf(
+                    Analytics.PARAM_SOURCE to Analytics.SOURCE_ACTIVITY,
+                    "action" to "open_map",
+                ),
+            )
+
+            viewModelScope.launch {
+                wearMessagingHelper.sendDismissAlarm(state.uniqueId)
+            }
+
+            state.eventLocation?.let { location ->
+                _sideEffect.trySend(AlarmSideEffect.OpenMapUrl(location))
             }
             _sideEffect.trySend(AlarmSideEffect.FinishScreen)
         }

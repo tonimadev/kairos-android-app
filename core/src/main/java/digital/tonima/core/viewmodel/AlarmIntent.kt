@@ -7,6 +7,7 @@ sealed class AlarmIntent {
         val eventId: Long,
         val startTime: Long,
         val meetingUrl: String?,
+        val eventLocation: String?,
     ) : AlarmIntent()
 
     data object Snooze : AlarmIntent()
@@ -14,4 +15,6 @@ sealed class AlarmIntent {
     data object Stop : AlarmIntent()
 
     data object JoinMeeting : AlarmIntent()
+
+    data object OpenMap : AlarmIntent()
 }

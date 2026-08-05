@@ -141,6 +141,7 @@
     <string name="next_events_title">Anstehende Termine</string>
     <string name="no_more_events_today">Heute keine weiteren Ereignisse</string>
     <string name="disable_alarm_and_join_meeting">Alarm deaktivieren und an Besprechung teilnehmen</string>
+    <string name="open_map_label">Route öffnen</string>
     <string name="location_alarm_title">Intelligenter Geostandort-Alarm</string>
     <string name="location_alarm_description">Löst den Alarm basierend auf der Fahrzeit für Termine mit Adresse aus.</string>
     <string name="location_permission_required">Standortberechtigung erforderlich</string>
