@@ -199,7 +199,7 @@
     <string name="greeting_afternoon">こんにちは！☕</string>
     <string name="greeting_evening">こんばんは！🌙</string>
     <string name="no_alarms_found">アラームが見つかりません</string>
-    <string name="loading_weather">天気を読み込み中...</string>
+    <string name="loading_weather">天気を読み込み中…</string>
     <string name="weather_updates">天気予報の更新</string>
     <string name="location_permission_weather_desc">地元の天気を表示するには位置情報の許可が必要です。</string>
     <string name="status_active">✓ 有効</string>

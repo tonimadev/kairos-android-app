@@ -202,7 +202,7 @@
     <string name="greeting_afternoon">مساء الخير! ☕</string>
     <string name="greeting_evening">مساء النور! 🌙</string>
     <string name="no_alarms_found">لم يتم العثور على منبهات</string>
-    <string name="loading_weather">جاري تحميل الطقس...</string>
+    <string name="loading_weather">جاري تحميل الطقس…</string>
     <string name="weather_updates">تحديثات الطقس</string>
     <string name="location_permission_weather_desc">مطلوب إذن الموقع لإظهار الطقس المحلي.</string>
     <string name="status_active">✓ نشط</string>

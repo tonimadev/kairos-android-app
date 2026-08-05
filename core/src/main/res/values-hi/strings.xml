@@ -202,7 +202,7 @@
     <string name="greeting_afternoon">शुभ दोपहर! ☕</string>
     <string name="greeting_evening">शुभ संध्या! 🌙</string>
     <string name="no_alarms_found">कोई अलार्म नहीं मिला</string>
-    <string name="loading_weather">मौसम लोड हो रहा है...</string>
+    <string name="loading_weather">मौसम लोड हो रहा है…</string>
     <string name="weather_updates">मौसम अपडेट</string>
     <string name="location_permission_weather_desc">स्थानीय मौसम दिखाने के लिए स्थान की अनुमति आवश्यक है।</string>
     <string name="status_active">✓ सक्रिय</string>

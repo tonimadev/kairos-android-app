@@ -204,7 +204,7 @@
     <string name="greeting_afternoon">Guten Tag! ☕</string>
     <string name="greeting_evening">Guten Abend! 🌙</string>
     <string name="no_alarms_found">Keine Alarme gefunden</string>
-    <string name="loading_weather">Wetter wird geladen...</string>
+    <string name="loading_weather">Wetter wird geladen…</string>
     <string name="weather_updates">Wetter-Updates</string>
     <string name="location_permission_weather_desc">Standortberechtigung ist erforderlich, um das lokale Wetter anzuzeigen.</string>
     <string name="status_active">✓ Aktiv</string>

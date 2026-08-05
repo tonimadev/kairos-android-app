@@ -199,7 +199,7 @@
     <string name="greeting_afternoon">下午好！☕</string>
     <string name="greeting_evening">晚上好！🌙</string>
     <string name="no_alarms_found">未找到闹钟</string>
-    <string name="loading_weather">正在加载天气...</string>
+    <string name="loading_weather">正在加载天气…</string>
     <string name="weather_updates">天气更新</string>
     <string name="location_permission_weather_desc">需要位置权限才能显示当地天气。</string>
     <string name="status_active">✓ 已启用</string>

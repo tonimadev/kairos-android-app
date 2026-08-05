@@ -203,7 +203,7 @@
     <string name="greeting_afternoon">Добрый день! ☕</string>
     <string name="greeting_evening">Добрый вечер! 🌙</string>
     <string name="no_alarms_found">Будильники не найдены</string>
-    <string name="loading_weather">Загрузка погоды...</string>
+    <string name="loading_weather">Загрузка погоды…</string>
     <string name="weather_updates">Обновления погоды</string>
     <string name="location_permission_weather_desc">Разрешение на местоположение требуется для отображения местной погоды.</string>
     <string name="status_active">✓ Активен</string>

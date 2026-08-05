@@ -204,7 +204,7 @@
     <string name="greeting_afternoon">¡Buenas tardes! ☕</string>
     <string name="greeting_evening">¡Buenas noches! 🌙</string>
     <string name="no_alarms_found">No se encontraron alarmas</string>
-    <string name="loading_weather">Cargando clima...</string>
+    <string name="loading_weather">Cargando clima…</string>
     <string name="weather_updates">Actualizaciones del clima</string>
     <string name="location_permission_weather_desc">Se requiere permiso de ubicación para mostrar el clima local.</string>
     <string name="status_active">✓ Activo</string>
