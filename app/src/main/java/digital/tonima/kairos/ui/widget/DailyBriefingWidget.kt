@@ -164,7 +164,7 @@ class DailyBriefingWidget : GlanceAppWidget() {
             ) {
                 Image(
                     provider = ImageProvider(R.drawable.ic_k_monochrome),
-                    contentDescription = null,
+                    contentDescription = context.getString(R.string.cd_app_logo),
                     modifier = GlanceModifier.size(18.dp),
                     colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
                 )

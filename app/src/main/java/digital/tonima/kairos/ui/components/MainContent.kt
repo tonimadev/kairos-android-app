@@ -32,8 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.viewmodel.EventScreenUiState
+import digital.tonima.kairos.core.R.string.hide_dashboard
+import digital.tonima.kairos.core.R.string.show_dashboard
 import digital.tonima.kairos.ui.theme.Dimensions
 import java.time.Instant
 import java.time.ZoneId
@@ -125,7 +128,7 @@ fun MainContent(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFB0B0C0)),
                     ) {
-                        Text(if (showDashboard) "Hide Dashboard" else "Show Dashboard")
+                        Text(stringResource(if (showDashboard) hide_dashboard else show_dashboard))
                         Icon(
                             imageVector =
                                 if (showDashboard) {
@@ -133,7 +136,10 @@ fun MainContent(
                                 } else {
                                     Icons.Rounded.KeyboardArrowDown
                                 },
-                            contentDescription = null,
+                            contentDescription =
+                                stringResource(
+                                    if (showDashboard) hide_dashboard else show_dashboard,
+                                ),
                             modifier = Modifier.padding(start = 4.dp),
                         )
                     }

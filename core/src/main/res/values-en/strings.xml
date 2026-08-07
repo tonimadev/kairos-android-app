@@ -266,4 +266,11 @@
     <!-- Additional Strings -->
     <string name="settings">Settings</string>
     <string name="app_functions_description">Kairos smart actions to manage your schedule, alarms, and daily summaries.</string>
+    <string name="import_calendar">Import ICS Calendar</string>
+    <string name="manage_calendars">Manage Calendars</string>
+    <string name="clear_search">Clear Search</string>
+    <string name="show_dashboard">Show Dashboard</string>
+    <string name="hide_dashboard">Hide Dashboard</string>
+    <string name="back">Back</string>
+    <string name="use_celsius_for_weather">Use Celsius for Weather</string>
 </resources>

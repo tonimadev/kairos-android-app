@@ -47,7 +47,7 @@ fun AiSuggestionsDialog(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_k_monochrome),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.cd_app_logo),
                     modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.primary,
                 )
@@ -99,7 +99,7 @@ fun AiSuggestionsDialog(
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_mic),
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.cd_voice_capture),
                             modifier = Modifier.size(24.dp),
                         )
                         Text(
@@ -137,7 +137,7 @@ private fun SuggestionItem(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_k_monochrome),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.cd_app_logo),
                 modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )

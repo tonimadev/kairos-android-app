@@ -140,7 +140,7 @@ fun DrawerContent(
                     icon = {
                         Icon(
                             imageVector = Icons.Rounded.Star,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.remove_ads),
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     },
@@ -159,7 +159,7 @@ fun DrawerContent(
                     icon = {
                         Icon(
                             imageVector = Icons.Rounded.Favorite, // Just a placeholder, better would be Chat
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.drawer_ai_assistant),
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     },
@@ -176,7 +176,7 @@ fun DrawerContent(
                     icon = {
                         Icon(
                             imageVector = Icons.Rounded.Subscriptions,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.manage_subscription),
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     },
@@ -207,7 +207,7 @@ fun DrawerContent(
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.Settings,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.settings),
                         tint = MaterialTheme.colorScheme.secondary,
                     )
                 },
@@ -224,11 +224,11 @@ fun DrawerContent(
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.Settings,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.import_calendar),
                         tint = MaterialTheme.colorScheme.secondary,
                     )
                 },
-                label = { Text("Importar Calendário ICS", fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.import_calendar), fontWeight = FontWeight.Medium) },
                 selected = false,
                 onClick = {
                     onImportCalendarClick()
@@ -241,11 +241,11 @@ fun DrawerContent(
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.Settings,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.manage_calendars),
                         tint = MaterialTheme.colorScheme.secondary,
                     )
                 },
-                label = { Text("Gerenciar Calendários", fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.manage_calendars), fontWeight = FontWeight.Medium) },
                 selected = false,
                 onClick = {
                     onManageCalendarsClick()
@@ -258,7 +258,7 @@ fun DrawerContent(
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.Favorite,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.our_other_apps),
                         tint = MaterialTheme.colorScheme.secondary,
                     )
                 },
@@ -276,7 +276,7 @@ fun DrawerContent(
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.Share,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.share_app),
                         tint = MaterialTheme.colorScheme.secondary,
                     )
                 },

@@ -267,4 +267,11 @@
     <!-- Additional Strings -->
     <string name="settings">Ajustes</string>
     <string name="app_functions_description">Acciones inteligentes de Kairos para gestionar tu agenda, alarmas y resúmenes diarios.</string>
+    <string name="import_calendar">Importar Calendario ICS</string>
+    <string name="manage_calendars">Administrar Calendarios</string>
+    <string name="clear_search">Limpiar búsqueda</string>
+    <string name="show_dashboard">Mostrar panel</string>
+    <string name="hide_dashboard">Ocultar panel</string>
+    <string name="back">Atrás</string>
+    <string name="use_celsius_for_weather">Usar Celsius para el clima</string>
 </resources>

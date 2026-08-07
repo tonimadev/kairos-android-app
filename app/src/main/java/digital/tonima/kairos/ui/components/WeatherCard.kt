@@ -116,7 +116,7 @@ fun WeatherCard(
                                             } else {
                                                 Icons.Rounded.Cloud
                                             },
-                                        contentDescription = null,
+                                        contentDescription = weather.description,
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                         modifier = Modifier.size(28.dp),
                                     )
@@ -143,7 +143,7 @@ fun WeatherCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Rounded.Warning,
-                                contentDescription = null,
+                                contentDescription = weatherError,
                                 tint = MaterialTheme.colorScheme.error,
                             )
                             Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
@@ -154,7 +154,7 @@ fun WeatherCard(
                                 modifier = Modifier.weight(1f),
                             )
                             TextButton(onClick = onFetchWeather) {
-                                Text("Retry")
+                                Text(stringResource(digital.tonima.kairos.core.R.string.try_again))
                             }
                         }
                     } else {
@@ -162,7 +162,10 @@ fun WeatherCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Rounded.Cloud,
-                                contentDescription = null,
+                                contentDescription =
+                                    stringResource(
+                                        digital.tonima.kairos.core.R.string.loading_weather,
+                                    ),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
                             Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
@@ -185,7 +188,7 @@ fun WeatherCard(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.LocationOn,
-                                contentDescription = null,
+                                contentDescription = stringResource(location_permission_weather_desc),
                                 tint = MaterialTheme.colorScheme.onErrorContainer,
                                 modifier = Modifier.size(20.dp),
                             )

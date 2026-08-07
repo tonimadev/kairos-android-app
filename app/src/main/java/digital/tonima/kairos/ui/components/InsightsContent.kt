@@ -236,7 +236,10 @@ fun PunctualityCard(score: Int) {
 
             Icon(
                 imageVector = Icons.Rounded.CheckCircle,
-                contentDescription = null,
+                contentDescription =
+                    stringResource(
+                        if (score > 80) R.string.status_active else R.string.status_disabled,
+                    ),
                 tint = if (score > 80) Color(0xFF4CAF50) else Color.Gray,
                 modifier = Modifier.size(32.dp),
             )

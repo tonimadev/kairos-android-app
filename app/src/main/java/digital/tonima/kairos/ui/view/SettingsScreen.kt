@@ -80,7 +80,10 @@ fun SettingsScreen(
                 title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = settingsActions.onCloseSettings) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                        )
                     }
                 },
             )
@@ -109,7 +112,7 @@ fun SettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Vibration,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.vibrate_only),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(Dimensions.IconSizeSmall),
                     )
@@ -139,7 +142,7 @@ fun SettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.CalendarMonth,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.skip_weekends_label),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(Dimensions.IconSizeSmall),
                     )
@@ -237,12 +240,12 @@ fun SettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Thermostat,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.use_celsius_for_weather),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(Dimensions.IconSizeSmall),
                     )
                     Text(
-                        "Use Celsius for Weather",
+                        stringResource(R.string.use_celsius_for_weather),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                     )
@@ -304,7 +307,7 @@ fun CustomRingtoneSection(
         ) {
             Icon(
                 imageVector = Icons.Rounded.MusicNote,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.custom_ringtone),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(Dimensions.IconSizeSmall),
             )
@@ -365,7 +368,7 @@ private fun AllDayAlarmsSection(
         ) {
             Icon(
                 imageVector = Icons.Rounded.CalendarMonth,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.all_day_alarms),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(Dimensions.IconSizeSmall),
             )

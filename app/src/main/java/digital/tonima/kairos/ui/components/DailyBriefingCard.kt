@@ -49,7 +49,7 @@ fun DailyBriefingCard(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_k_monochrome),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.cd_app_logo),
                     modifier = Modifier.size(Dimensions.IconSizeSmall),
                     tint = MaterialTheme.colorScheme.primary,
                 )

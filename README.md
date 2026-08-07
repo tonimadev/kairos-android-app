@@ -1,4 +1,4 @@
-<img src="/images/kairos-banner.png" width="1024" height="500">
+<img src="/images/kairos-banner.webp" width="1024" height="500">
 
 [![Android CI - Kairos Multi-Module](https://github.com/tonimadev/kairos-android-app/actions/workflows/android-ci.yaml/badge.svg)](https://github.com/tonimadev/kairos-android-app/actions/workflows/android-ci.yaml) [![codecov](https://codecov.io/gh/tonimadev/kairos-android-app/graph/badge.svg?token=TKC92HM5VY)](https://codecov.io/gh/tonimadev/kairos-android-app)
 
@@ -25,8 +25,8 @@ Kairós is a modern application that transforms your calendar appointments into 
 - **Total Control**: Enable or disable alarms globally or for specific events.
 
 <p align="center">
-  <img src="/images/watch1.png" width="200">
-  <img src="/images/watch2.png" width="200">
+  <img src="/images/watch1.webp" width="200">
+  <img src="/images/watch2.webp" width="200">
   <img src="/images/tile.gif" width="300">
 </p>
 

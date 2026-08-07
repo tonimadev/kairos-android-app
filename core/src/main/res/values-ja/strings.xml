@@ -261,4 +261,11 @@
     <!-- Additional Strings -->
     <string name="settings">設定</string>
     <string name="app_functions_description">スケジュール、アラーム、毎日の要約を管理するための Kairos スマート アクション。</string>
+    <string name="import_calendar">ICSカレンダーをインポート</string>
+    <string name="manage_calendars">カレンダーを管理</string>
+    <string name="clear_search">検索をクリア</string>
+    <string name="show_dashboard">ダッシュボードを表示</string>
+    <string name="hide_dashboard">ダッシュボードを非表示</string>
+    <string name="back">戻る</string>
+    <string name="use_celsius_for_weather">天気にセルシウスを使用</string>
 </resources>

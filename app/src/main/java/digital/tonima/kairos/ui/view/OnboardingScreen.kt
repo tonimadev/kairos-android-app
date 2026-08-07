@@ -168,7 +168,7 @@ fun OnboardingPageContent(page: OnboardingPage) {
     ) {
         Icon(
             imageVector = page.icon,
-            contentDescription = null,
+            contentDescription = stringResource(id = page.titleRes),
             tint = Color(0xFFDEFA5F),
             modifier = Modifier.size(120.dp),
         )

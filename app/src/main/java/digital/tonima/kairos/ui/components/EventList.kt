@@ -108,7 +108,7 @@ fun EventList(
                                 IconButton(onClick = { eventActions.onSearchQueryChanged("") }) {
                                     Icon(
                                         painterResource(R.drawable.ic_k_monochrome),
-                                        contentDescription = null,
+                                        contentDescription = stringResource(R.string.clear_search),
                                     )
                                 }
                             }
@@ -147,7 +147,7 @@ fun EventList(
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.TipsAndUpdates,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.no_events),
                             modifier = Modifier.size(48.dp).padding(bottom = 8.dp),
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                         )

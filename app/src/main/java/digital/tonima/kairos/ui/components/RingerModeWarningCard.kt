@@ -52,7 +52,7 @@ fun RingerModeWarningCard(ringerMode: AudioWarningState) {
             ) {
                 Icon(
                     painter = painterResource(icon),
-                    contentDescription = null,
+                    contentDescription = warningText,
                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
                 )
                 Spacer(modifier = Modifier.width(Dimensions.PaddingNormal))

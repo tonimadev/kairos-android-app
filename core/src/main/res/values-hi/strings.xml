@@ -264,4 +264,11 @@
     <!-- Additional Strings -->
     <string name="settings">सेटिंग्स</string>
     <string name="app_functions_description">आपके शेड्यूल, अलार्म और दैनिक सारांश को प्रबंधित करने के लिए काइरोस स्मार्ट क्रियाएं।</string>
+    <string name="import_calendar">ICS कैलेंडर आयात करें</string>
+    <string name="manage_calendars">कैलेंडर प्रबंधित करें</string>
+    <string name="clear_search">खोज साफ़ करें</string>
+    <string name="show_dashboard">डैशबोर्ड दिखाएं</string>
+    <string name="hide_dashboard">डैशबोर्ड छुपाएं</string>
+    <string name="back">वापस</string>
+    <string name="use_celsius_for_weather">मौसम के लिए सेल्सियस का उपयोग करें</string>
 </resources>

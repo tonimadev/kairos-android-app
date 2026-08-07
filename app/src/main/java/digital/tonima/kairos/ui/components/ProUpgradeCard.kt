@@ -53,7 +53,7 @@ fun ProUpgradeCard(
         ) {
             Icon(
                 imageVector = Icons.Default.AutoAwesome,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.pro_label),
                 modifier = Modifier.size(40.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )

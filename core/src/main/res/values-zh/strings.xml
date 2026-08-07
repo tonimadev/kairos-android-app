@@ -261,4 +261,11 @@
     <!-- Additional Strings -->
     <string name="settings">设置</string>
     <string name="app_functions_description">用于管理您的日程、闹钟和每日摘要的 Kairos 智能操作。</string>
+    <string name="import_calendar">导入 ICS 日历</string>
+    <string name="manage_calendars">管理日历</string>
+    <string name="clear_search">清除搜索</string>
+    <string name="show_dashboard">显示仪表板</string>
+    <string name="hide_dashboard">隐藏仪表板</string>
+    <string name="back">返回</string>
+    <string name="use_celsius_for_weather">天气使用摄氏度</string>
 </resources>

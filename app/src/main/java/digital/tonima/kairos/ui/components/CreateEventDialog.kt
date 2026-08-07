@@ -118,7 +118,7 @@ fun CreateEventDialog(
                         trailingIcon = {
                             Icon(
                                 painter = painterResource(digital.tonima.kairos.R.drawable.ic_expand_more),
-                                contentDescription = null,
+                                contentDescription = stringResource(CoreR.string.cd_expand_settings),
                                 Modifier.clickable { calendarExpanded = true },
                             )
                         },
