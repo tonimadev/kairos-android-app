@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -224,4 +225,24 @@ fun WeatherCard(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WeatherCardPreview() {
+    val sampleWeather =
+        Weather(
+            temperature = 25.0,
+            description = "Sunny",
+            icon = "01d",
+            city = "São Paulo",
+            conditionCode = 800,
+        )
+    WeatherCard(
+        weather = sampleWeather,
+        isWeatherLoading = false,
+        weatherError = null,
+        isTemperatureInCelsius = true,
+        onFetchWeather = {},
+    )
 }

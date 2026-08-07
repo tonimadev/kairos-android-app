@@ -6,13 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.util.openAutostartSettings
 import digital.tonima.core.viewmodel.EventScreenUiState
@@ -25,8 +20,6 @@ fun ControlPanel(
     settingsActions: SettingsActions,
 ) {
     val context = LocalContext.current
-    var settingsExpanded by remember { mutableStateOf(false) }
-    val currentOffset = AlarmOffset.fromMinutes(uiState.alarmOffsetMinutes)
 
     Column(
         modifier = Modifier.animateContentSize(),

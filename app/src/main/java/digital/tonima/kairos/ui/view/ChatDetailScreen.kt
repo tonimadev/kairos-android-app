@@ -20,8 +20,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -46,7 +46,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.ai.model.ChatMessage
+import digital.tonima.kairos.R.drawable.volume_off
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.R.drawable.ic_mic
 import digital.tonima.kairos.ui.components.parseMarkdownToAnnotatedString
 import digital.tonima.kairos.ui.theme.Dimensions
 
@@ -74,10 +76,13 @@ fun ChatDetailScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(digital.tonima.kairos.core.R.string.drawer_ai_assistant)) },
+                title = { Text(stringResource(R.string.drawer_ai_assistant)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_close))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_close),
+                        )
                     }
                 },
             )
@@ -118,7 +123,7 @@ fun ChatDetailScreen(
                                     contentColor = MaterialTheme.colorScheme.onPrimary,
                                 ),
                         ) {
-                            Icon(Icons.Default.Send, contentDescription = "Enviar")
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Enviar")
                         }
                     } else {
                         IconButton(
@@ -133,9 +138,9 @@ fun ChatDetailScreen(
                                 painter =
                                     painterResource(
                                         if (isSpeaking) {
-                                            digital.tonima.kairos.R.drawable.volume_off
+                                            volume_off
                                         } else {
-                                            digital.tonima.kairos.core.R.drawable.ic_mic
+                                            ic_mic
                                         },
                                     ),
                                 contentDescription = "Falar",

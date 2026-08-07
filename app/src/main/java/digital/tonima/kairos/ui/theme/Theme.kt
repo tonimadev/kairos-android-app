@@ -1,9 +1,7 @@
 package digital.tonima.kairos.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val DarkColorScheme =
@@ -29,35 +27,8 @@ private val DarkColorScheme =
         outline = OutlineDark,
     )
 
-private val LightColorScheme =
-    lightColorScheme(
-        primary = PrimaryLight,
-        onPrimary = OnPrimaryLight,
-        primaryContainer = PrimaryContainerLight,
-        onPrimaryContainer = OnPrimaryContainerLight,
-        secondary = SecondaryLight,
-        onSecondary = OnSecondaryLight,
-        secondaryContainer = SecondaryContainerLight,
-        onSecondaryContainer = OnSecondaryContainerLight,
-        tertiary = TertiaryLight,
-        onTertiary = OnTertiaryLight,
-        tertiaryContainer = TertiaryContainerLight,
-        onTertiaryContainer = OnTertiaryContainerLight,
-        background = SurfaceLight,
-        surface = SurfaceLight,
-        surfaceVariant = SurfaceVariantLight,
-        onBackground = OnSurfaceLight,
-        onSurface = OnSurfaceLight,
-        onSurfaceVariant = OnSurfaceVariantLight,
-        outline = OutlineLight,
-    )
-
 @Composable
-fun KairosTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
-    // Force the dark color scheme to match the new strict dark UI design
+fun KairosTheme(content: @Composable () -> Unit) {
     val colorScheme = DarkColorScheme
 
     MaterialTheme(

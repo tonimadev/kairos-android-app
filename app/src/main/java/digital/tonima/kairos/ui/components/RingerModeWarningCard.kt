@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.kairos.R.drawable.vibration
 import digital.tonima.kairos.R.drawable.volume_off
@@ -64,4 +65,10 @@ fun RingerModeWarningCard(ringerMode: AudioWarningState) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RingerModeWarningCardPreview() {
+    RingerModeWarningCard(ringerMode = AudioWarningState.VIBRATE)
 }

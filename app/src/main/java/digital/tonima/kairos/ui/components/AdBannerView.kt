@@ -4,8 +4,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -21,8 +22,7 @@ fun AdBannerView(
     if (isProUser) return
 
     val isInspectionMode = LocalInspectionMode.current
-    val configuration = LocalConfiguration.current
-    val adWidth = configuration.screenWidthDp
+    val adWidth = LocalWindowInfo.current.containerSize.width
 
     AndroidView(
         modifier =
@@ -39,9 +39,18 @@ fun AdBannerView(
                 }
             }
         },
-        update = { adView -> },
         onRelease = { adView ->
             adView.destroy()
         },
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdBannerViewPreview() {
+    AdBannerView(
+        adId = "ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyyyyyy",
+        isProUser = false,
+        loadAd = false,
     )
 }

@@ -36,7 +36,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.DeviceCalendar
-import digital.tonima.kairos.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

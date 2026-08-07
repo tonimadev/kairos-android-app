@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,7 +49,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
-import java.util.Locale
 
 @Composable
 fun CalendarView(
@@ -96,9 +96,9 @@ fun CalendarView(
                     hasEvents = eventsByDate.containsKey(day.date),
                 ) { onDateSelected(it.date) }
             },
-            monthHeader = {
+            monthHeader = { month ->
                 DaysOfWeekHeader(
-                    daysOfWeek = it.weekDays.first().map { it.date.dayOfWeek },
+                    daysOfWeek = month.weekDays.first().map { it.date.dayOfWeek },
                 )
             },
         )
@@ -119,7 +119,7 @@ private fun MonthHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        val locale = Locale.getDefault()
+        val locale = LocalConfiguration.current.locales.get(0)
         val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
         Text(
             text = month.format(formatter).replaceFirstChar { it.titlecase(locale) },
@@ -145,7 +145,7 @@ private fun MonthHeader(
 @Composable
 private fun DaysOfWeekHeader(daysOfWeek: List<DayOfWeek>) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        val locale = Locale.getDefault()
+        val locale = LocalConfiguration.current.locales.get(0)
         for (dayOfWeek in daysOfWeek) {
             val isWeekend = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
             Text(

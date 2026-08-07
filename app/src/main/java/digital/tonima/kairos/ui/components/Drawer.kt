@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.ic_k_monochrome
@@ -308,4 +309,20 @@ fun DrawerContent(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DrawerContentPreview() {
+    DrawerContent(
+        isProUser = false,
+        isAiUser = true,
+        onUpgradeToProClick = {},
+        onOurOtherAppsClick = {},
+        onSettingsClick = {},
+        onChatHistoryClick = {},
+        onImportCalendarClick = {},
+        onManageCalendarsClick = {},
+        onCloseDrawer = {},
+    )
 }

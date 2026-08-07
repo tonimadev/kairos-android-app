@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import digital.tonima.core.viewmodel.EventIntent
@@ -245,4 +246,22 @@ fun PunctualityCard(score: Int) {
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun InsightCardPreview() {
+    InsightCard(
+        title = "Current Streak",
+        value = "5 days",
+        icon = Icons.Rounded.LocalFireDepartment,
+        iconTint = Color(0xFFFF9800),
+        backgroundColor = Color(0xFF2C2C38),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PunctualityCardPreview() {
+    PunctualityCard(score = 85)
 }

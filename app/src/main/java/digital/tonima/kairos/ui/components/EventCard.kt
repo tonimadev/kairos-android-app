@@ -48,7 +48,6 @@ fun EventCard(
     event: Event,
     isGloballyEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
-    onVibrateToggle: (Boolean) -> Unit, // Kept for signature compatibility but unused in this design
     onEventClick: () -> Unit,
     onJoinMeeting: ((String) -> Unit)? = null, // Kept for signature compatibility
     onCopyMeetingUrl: ((String) -> Unit)? = null, // Kept for signature compatibility
@@ -202,7 +201,6 @@ fun EventCardPreview() {
         event = sampleEvent,
         isGloballyEnabled = true,
         onToggle = {},
-        onVibrateToggle = {},
         onEventClick = {},
     )
 }

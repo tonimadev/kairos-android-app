@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.Dimensions
 
@@ -122,4 +123,33 @@ fun FullScreenIntentPermissionScreen(
         Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
         TextButton(onClick = onSkipClick) { Text(stringResource(R.string.skip)) }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StandardPermissionsScreenPreview() {
+    StandardPermissionsScreen(
+        onSettingsClick = {},
+        onRetryClick = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExactAlarmPermissionScreenPreview() {
+    ExactAlarmPermissionScreen(
+        onAlreadyAuthorizedClick = {},
+        onProvidePermissionClick = {},
+        onSkipClick = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FullScreenIntentPermissionScreenPreview() {
+    FullScreenIntentPermissionScreen(
+        onAlreadyAuthorizedClick = {},
+        onOpenSettingsClick = {},
+        onSkipClick = {},
+    )
 }

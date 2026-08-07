@@ -58,14 +58,13 @@ class PhoneEventSyncWorker
                         calendarRepository.getEventsForMonth(ymNow) + calendarRepository.getEventsForMonth(ymNext)
                     ).filter { it.startTime in now..end }
                         .sortedBy { it.startTime }
-                val events = monthEvents
-                logcat { "Phone→Wear sync: sending ${events.size} events (Pro: $isAiUser)." }
+                logcat { "Phone→Wear sync: sending ${monthEvents.size} events (Pro: $isAiUser)." }
 
                 val dataClient: DataClient = Wearable.getDataClient(applicationContext)
                 val putReq = PutDataMapRequest.create(PATH_EVENTS_24H)
                 val map = putReq.dataMap
                 val list = ArrayList<com.google.android.gms.wearable.DataMap>()
-                events.forEach { e ->
+                monthEvents.forEach { e ->
                     val dm =
                         com.google.android.gms.wearable
                             .DataMap()
