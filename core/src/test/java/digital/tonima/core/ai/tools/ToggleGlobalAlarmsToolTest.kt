@@ -1,7 +1,7 @@
 package digital.tonima.core.ai.tools
 
 import digital.tonima.core.ai.RiskLevel
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.SettingsIntent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -26,8 +26,8 @@ class ToggleGlobalAlarmsToolTest {
         val result = tool.parseArguments(mapOf("enabled" to true))
 
         assertNotNull(result)
-        assertTrue(result is EventIntent.ToggleGlobalAlarms)
-        assertTrue((result as EventIntent.ToggleGlobalAlarms).enabled)
+        assertTrue(result is SettingsIntent.ToggleGlobalAlarms)
+        assertTrue((result as SettingsIntent.ToggleGlobalAlarms).enabled)
     }
 
     @Test
@@ -35,7 +35,7 @@ class ToggleGlobalAlarmsToolTest {
         val result = tool.parseArguments(mapOf("enabled" to false))
 
         assertNotNull(result)
-        assertEquals(false, (result as EventIntent.ToggleGlobalAlarms).enabled)
+        assertEquals(false, (result as SettingsIntent.ToggleGlobalAlarms).enabled)
     }
 
     @Test

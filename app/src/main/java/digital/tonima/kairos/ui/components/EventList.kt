@@ -37,7 +37,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.Event
+import digital.tonima.core.viewmodel.AiUiState
 import digital.tonima.core.viewmodel.EventScreenUiState
+import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.Dimensions
 import java.time.LocalDate
@@ -47,6 +49,8 @@ import java.time.LocalDate
 fun EventList(
     modifier: Modifier = Modifier,
     uiState: EventScreenUiState,
+    aiUiState: AiUiState,
+    settingsUiState: SettingsUiState,
     eventsByDate: Map<LocalDate, List<Event>>,
     eventActions: EventActions,
     aiActions: AiActions,
@@ -121,11 +125,14 @@ fun EventList(
                         ProUpgradeCard(
                             onUpgradeClick = aiActions.onSubscriptionRequest,
                         )
-                    } else if (showBriefingCard && (uiState.isGeneratingBriefing || uiState.dailyBriefing != null)) {
+                    } else if (showBriefingCard && (
+                            aiUiState.isGeneratingBriefing ||
+                                aiUiState.dailyBriefing != null
+                        )
+                    ) {
                         DailyBriefingCard(
-                            briefing = uiState.dailyBriefing,
-                            isGenerating = uiState.isGeneratingBriefing,
-                            isAiUser = uiState.isAiUser,
+                            briefing = aiUiState.dailyBriefing,
+                            isGenerating = aiUiState.isGeneratingBriefing,
                             onGenerateClick = aiActions.onGenerateBriefing,
                             onInteractClick = aiActions.onReply,
                             onUpgradeClick = aiActions.onSubscriptionRequest,
@@ -163,7 +170,7 @@ fun EventList(
                 items(allEvents, key = { it.uniqueIntentId }) { event ->
                     EventCard(
                         event = event,
-                        isGloballyEnabled = uiState.isGlobalAlarmEnabled,
+                        isGloballyEnabled = settingsUiState.isGlobalAlarmEnabled,
                         onToggle = { isEnabled ->
                             if (event.isRecurring) {
                                 pendingToggle.value = event to isEnabled

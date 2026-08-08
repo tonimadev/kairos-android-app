@@ -29,7 +29,6 @@ import digital.tonima.kairos.ui.theme.Dimensions
 fun DailyBriefingCard(
     briefing: String?,
     isGenerating: Boolean,
-    isAiUser: Boolean,
     onGenerateClick: () -> Unit,
     onInteractClick: () -> Unit,
     onUpgradeClick: () -> Unit,
@@ -84,7 +83,7 @@ fun DailyBriefingCard(
                 ) {
                     Text(stringResource(R.string.ask_ai_label))
                 }
-            } else if (isAiUser) {
+            } else {
                 if (!isGenerating) {
                     Text(
                         text = stringResource(R.string.daily_briefing_placeholder),
@@ -98,18 +97,6 @@ fun DailyBriefingCard(
                         Text(stringResource(R.string.generate_briefing))
                     }
                 }
-            } else {
-                Text(
-                    text = stringResource(R.string.daily_briefing_trial_invite),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-                TextButton(
-                    onClick = onUpgradeClick,
-                    modifier = Modifier.align(Alignment.End),
-                ) {
-                    Text(stringResource(R.string.subscribe_now))
-                }
             }
         }
     }
@@ -121,7 +108,6 @@ fun DailyBriefingCardPreview() {
     DailyBriefingCard(
         briefing = "Today you have 3 meetings scheduled. You should arrive 10 minutes early to the first meeting.",
         isGenerating = false,
-        isAiUser = true,
         onGenerateClick = {},
         onInteractClick = {},
         onUpgradeClick = {},

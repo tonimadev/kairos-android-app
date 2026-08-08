@@ -2,7 +2,8 @@ package digital.tonima.core.ai.tools
 
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.RiskLevel
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.AiIntent
+import digital.tonima.core.viewmodel.BaseIntent
 import javax.inject.Inject
 
 /**
@@ -40,9 +41,9 @@ class SummarizeMeetTool
                 "required" to listOf("meeting_url"),
             )
 
-        override fun parseArguments(args: Map<String, Any?>): EventIntent? {
+        override fun parseArguments(args: Map<String, Any?>): BaseIntent? {
             val meetingUrl = args["meeting_url"]?.toString()?.takeIf { it.isNotBlank() } ?: return null
 
-            return EventIntent.SummarizeMeetTranscript(meetingUrl)
+            return AiIntent.SummarizeMeetTranscript(meetingUrl)
         }
     }

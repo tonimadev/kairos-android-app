@@ -2,7 +2,8 @@ package digital.tonima.core.ai.tools
 
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.RiskLevel
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.AiIntent.CategorizeEvent
+import digital.tonima.core.viewmodel.BaseIntent
 import javax.inject.Inject
 
 class CategorizeEventTool
@@ -35,11 +36,11 @@ class CategorizeEventTool
                 "required" to listOf("event_id", "category"),
             )
 
-        override fun parseArguments(args: Map<String, Any?>): EventIntent? {
+        override fun parseArguments(args: Map<String, Any?>): BaseIntent? {
             val eventId = args["event_id"]?.toString() ?: return null
             val category = args["category"]?.toString() ?: return null
 
-            return EventIntent.CategorizeEvent(
+            return CategorizeEvent(
                 eventId = eventId,
                 category = category,
             )

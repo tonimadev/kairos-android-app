@@ -58,7 +58,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.model.DeviceCalendar
+import digital.tonima.core.viewmodel.AuthUiState
 import digital.tonima.core.viewmodel.EventScreenUiState
+import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.components.SettingsActions
 import digital.tonima.kairos.ui.theme.Dimensions
@@ -68,6 +70,8 @@ import kotlin.math.roundToInt
 @Composable
 fun SettingsScreen(
     uiState: EventScreenUiState,
+    settingsUiState: SettingsUiState,
+    authUiState: AuthUiState,
     settingsActions: SettingsActions,
 ) {
     BackHandler {
@@ -89,7 +93,7 @@ fun SettingsScreen(
             )
         },
     ) { paddingValues ->
-        val currentOffset = AlarmOffset.fromMinutes(uiState.alarmOffsetMinutes)
+        val currentOffset = AlarmOffset.fromMinutes(settingsUiState.alarmOffsetMinutes)
 
         Column(
             modifier =
@@ -122,11 +126,11 @@ fun SettingsScreen(
                         fontWeight = FontWeight.Medium,
                     )
                 }
-                Switch(checked = uiState.vibrateOnly, onCheckedChange = settingsActions.onVibrateToggle)
+                Switch(checked = settingsUiState.vibrateOnly, onCheckedChange = settingsActions.onVibrateToggle)
             }
 
             CustomRingtoneSection(
-                customRingtoneUri = uiState.customRingtoneUri,
+                customRingtoneUri = settingsUiState.customRingtoneUri,
                 onCustomRingtoneSelected = settingsActions.onCustomRingtoneSelected,
             )
 
@@ -152,13 +156,13 @@ fun SettingsScreen(
                         fontWeight = FontWeight.Medium,
                     )
                 }
-                Switch(checked = uiState.skipWeekends, onCheckedChange = settingsActions.onSkipWeekendsToggle)
+                Switch(checked = settingsUiState.skipWeekends, onCheckedChange = settingsActions.onSkipWeekendsToggle)
             }
 
             AllDayAlarmsSection(
-                enabled = uiState.allDayAlarmsEnabled,
+                enabled = settingsUiState.allDayAlarmsEnabled,
                 onToggle = settingsActions.onAllDayAlarmsToggle,
-                hour = uiState.allDayAlarmHour,
+                hour = settingsUiState.allDayAlarmHour,
                 onHourChange = settingsActions.onAllDayAlarmHourChanged,
             )
 
@@ -174,9 +178,9 @@ fun SettingsScreen(
 
             LocationAlarmSection(
                 isAiUser = uiState.isAiUser,
-                isEnabled = uiState.isLocationAlarmEnabled,
+                isEnabled = settingsUiState.isLocationAlarmEnabled,
                 onToggle = settingsActions.onLocationAlarmToggle,
-                preferredTransportMode = uiState.preferredTransportMode,
+                preferredTransportMode = settingsUiState.preferredTransportMode,
                 onTransportModeChanged = settingsActions.onTransportModeChanged,
             )
 
@@ -186,12 +190,12 @@ fun SettingsScreen(
                 Text(
                     text =
                         stringResource(R.string.snooze_time_label) +
-                            ": ${uiState.snoozeTimeMinutes} min",
+                            ": ${settingsUiState.snoozeTimeMinutes} min",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Slider(
-                    value = uiState.snoozeTimeMinutes.toFloat(),
+                    value = settingsUiState.snoozeTimeMinutes.toFloat(),
                     onValueChange = { settingsActions.onSnoozeTimeChanged(it.roundToInt()) },
                     valueRange = 5f..60f,
                     steps = 10,
@@ -205,12 +209,12 @@ fun SettingsScreen(
                 Text(
                     text =
                         stringResource(R.string.auto_dismiss_label) +
-                            ": ${uiState.autoDismissMinutes} min",
+                            ": ${settingsUiState.autoDismissMinutes} min",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Slider(
-                    value = uiState.autoDismissMinutes.toFloat(),
+                    value = settingsUiState.autoDismissMinutes.toFloat(),
                     onValueChange = { settingsActions.onAutoDismissMinutesChanged(it.roundToInt()) },
                     valueRange = 1f..30f,
                     steps = 28,
@@ -251,7 +255,7 @@ fun SettingsScreen(
                     )
                 }
                 Switch(
-                    checked = uiState.isTemperatureInCelsius,
+                    checked = settingsUiState.isTemperatureInCelsius,
                     onCheckedChange = settingsActions.onTemperatureUnitToggle,
                 )
             }
@@ -259,7 +263,7 @@ fun SettingsScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
 
             IntegrationsSection(
-                isGoogleConnected = uiState.isGoogleConnected,
+                isGoogleConnected = authUiState.isGoogleConnected,
                 onGoogleSignInClick = settingsActions.onGoogleSignInClick,
                 onGoogleSignOutClick = settingsActions.onGoogleSignOutClick,
             )

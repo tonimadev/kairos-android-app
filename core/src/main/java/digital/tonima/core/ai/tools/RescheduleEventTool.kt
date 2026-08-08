@@ -2,7 +2,8 @@ package digital.tonima.core.ai.tools
 
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.RiskLevel
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.AiIntent
+import digital.tonima.core.viewmodel.BaseIntent
 import javax.inject.Inject
 
 class RescheduleEventTool
@@ -40,13 +41,13 @@ class RescheduleEventTool
                 "required" to listOf("event_id", "new_start_time", "new_end_time"),
             )
 
-        override fun parseArguments(args: Map<String, Any?>): EventIntent? {
+        override fun parseArguments(args: Map<String, Any?>): BaseIntent? {
             val eventId = args["event_id"]?.toString()
             val startTime = (args["new_start_time"] as? Number)?.toLong()
             val endTime = (args["new_end_time"] as? Number)?.toLong()
 
             return if (eventId != null && startTime != null && endTime != null) {
-                EventIntent.RescheduleEvent(
+                AiIntent.RescheduleEvent(
                     eventId = eventId,
                     newStartTime = startTime,
                     newEndTime = endTime,

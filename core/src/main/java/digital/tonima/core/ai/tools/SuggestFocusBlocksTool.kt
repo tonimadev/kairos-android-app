@@ -2,7 +2,8 @@ package digital.tonima.core.ai.tools
 
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.RiskLevel
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.AiIntent
+import digital.tonima.core.viewmodel.BaseIntent
 import javax.inject.Inject
 
 class SuggestFocusBlocksTool
@@ -35,11 +36,11 @@ class SuggestFocusBlocksTool
                 "required" to listOf("start_time", "end_time"),
             )
 
-        override fun parseArguments(args: Map<String, Any?>): EventIntent? {
+        override fun parseArguments(args: Map<String, Any?>): BaseIntent? {
             val startTime = (args["start_time"] as? Number)?.toLong() ?: return null
             val endTime = (args["end_time"] as? Number)?.toLong() ?: return null
 
-            return EventIntent.CreateFocusBlock(
+            return AiIntent.CreateFocusBlock(
                 startTime = startTime,
                 endTime = endTime,
             )

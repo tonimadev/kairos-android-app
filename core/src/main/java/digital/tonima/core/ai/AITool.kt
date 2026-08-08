@@ -1,11 +1,11 @@
 package digital.tonima.core.ai
 
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.BaseIntent
 
 /**
  * Contract for an AI-callable tool (function calling / tool use).
  *
- * Each implementation maps an LLM function call to a concrete [EventIntent]
+ * Each implementation maps an LLM function call to a concrete [BaseIntent]
  * that the MVI layer can process as if the user had triggered it directly.
  *
  * @see ActionRegistry
@@ -40,11 +40,11 @@ interface AITool {
 
     /**
      * Attempts to convert the raw argument map returned by the LLM into a valid
-     * [EventIntent].
+     * [BaseIntent].
      *
      * @param args Key-value pairs parsed from the LLM JSON response.
-     * @return A valid [EventIntent] or `null` when the arguments are invalid
+     * @return A valid [BaseIntent] or `null` when the arguments are invalid
      *         (graceful degradation — the caller should log and inform the user).
      */
-    fun parseArguments(args: Map<String, Any?>): EventIntent?
+    fun parseArguments(args: Map<String, Any?>): BaseIntent?
 }

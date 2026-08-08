@@ -1,5 +1,7 @@
 package digital.tonima.core.ai
 
+import digital.tonima.core.viewmodel.BaseIntent
+
 /**
  * Represents the result of processing an AI tool call in the [ActionRegistry].
  */
@@ -9,7 +11,7 @@ sealed class AIToolResult {
      */
     data class Success(
         val tool: AITool,
-        val intent: digital.tonima.core.viewmodel.EventIntent,
+        val intent: BaseIntent,
     ) : AIToolResult()
 
     /**

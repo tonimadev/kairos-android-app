@@ -34,6 +34,8 @@ import digital.tonima.core.model.Event
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.viewmodel.EventIntent
 import digital.tonima.core.viewmodel.EventViewModel
+import digital.tonima.core.viewmodel.SettingsIntent
+import digital.tonima.core.viewmodel.SettingsViewModel
 import digital.tonima.kairos.wear.ui.components.AppHeaderTitle
 import digital.tonima.kairos.wear.ui.components.CalendarFilterChip
 import digital.tonima.kairos.wear.ui.components.CalendarFilterHeader
@@ -53,10 +55,12 @@ import digital.tonima.kairos.wear.ui.theme.KairosTheme
 @Composable
 fun WearApp(
     viewModel: EventViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
     wearCalendarViewModel: WearCalendarViewModel = hiltViewModel(),
     permissionManager: PermissionManager,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     val next24hEvents by wearCalendarViewModel.next24hEvents.collectAsStateWithLifecycle()
     val listState = rememberScalingLazyListState()
     val context = LocalContext.current
@@ -75,11 +79,11 @@ fun WearApp(
         if (!standardPermissionState.allPermissionsGranted) {
             standardPermissionState.launchMultiplePermissionRequest()
         }
-        viewModel.handleIntent(EventIntent.CheckPermissions)
+        settingsViewModel.handleIntent(SettingsIntent.CheckPermissions)
     }
 
-    LaunchedEffect(uiState.hasCalendarPermission) {
-        if (uiState.hasCalendarPermission) {
+    LaunchedEffect(settingsState.hasCalendarPermission) {
+        if (settingsState.hasCalendarPermission) {
             viewModel.handleIntent(EventIntent.LoadCalendars)
         }
     }
@@ -89,7 +93,7 @@ fun WearApp(
         val observer =
             LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
-                    viewModel.handleIntent(EventIntent.CheckPermissions)
+                    settingsViewModel.handleIntent(SettingsIntent.CheckPermissions)
                     wearCalendarViewModel.handleIntent(WearCalendarIntent.RequestRescan)
                 }
             }
@@ -117,7 +121,7 @@ fun WearApp(
                 state = listState,
             ) {
                 val needsStandardPermissions = !standardPermissionState.allPermissionsGranted
-                val needsExactAlarmPermission = !uiState.hasExactAlarmPermission
+                val needsExactAlarmPermission = !settingsState.hasExactAlarmPermission
                 if (needsStandardPermissions) {
                     item {
                         WearOsPermissionsScreenContent(
@@ -140,19 +144,19 @@ fun WearApp(
                     item {
                         Spacer(Modifier.height(Dimensions.SpacingSmall))
                         GlobalAlarmsToggle(
-                            checked = uiState.isGlobalAlarmEnabled,
+                            checked = settingsState.isGlobalAlarmEnabled,
                             onCheckedChange = {
                                     isChecked ->
-                                viewModel.handleIntent(EventIntent.ToggleGlobalAlarms(isChecked))
+                                settingsViewModel.handleIntent(SettingsIntent.ToggleGlobalAlarms(isChecked))
                             },
                         )
                     }
                     item {
                         Spacer(Modifier.height(Dimensions.SpacingExtraSmall))
                         VibrateOnlyToggle(
-                            checked = uiState.vibrateOnly,
+                            checked = settingsState.vibrateOnly,
                             onCheckedChange = { enabled ->
-                                viewModel.handleIntent(EventIntent.ToggleVibrateOnly(enabled))
+                                settingsViewModel.handleIntent(SettingsIntent.ToggleVibrateOnly(enabled))
                             },
                         )
                     }
@@ -176,7 +180,7 @@ fun WearApp(
                         EventsListSection(
                             events = next24hEvents,
                             isRefreshing = false,
-                            isGlobalAlarmEnabled = uiState.isGlobalAlarmEnabled,
+                            isGlobalAlarmEnabled = settingsState.isGlobalAlarmEnabled,
                             onEventToggle = { event, isEnabled, applyToSeries ->
                                 viewModel.handleIntent(EventIntent.ToggleEventAlarm(event, isEnabled, applyToSeries))
                             },

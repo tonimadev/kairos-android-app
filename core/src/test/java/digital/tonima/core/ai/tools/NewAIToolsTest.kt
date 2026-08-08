@@ -1,6 +1,6 @@
 package digital.tonima.core.ai.tools
 
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.AiIntent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -17,8 +17,8 @@ class NewAIToolsTest {
             )
         val result = tool.parseArguments(args)
 
-        assertTrue(result is EventIntent.RescheduleEvent)
-        val intent = result as EventIntent.RescheduleEvent
+        assertTrue(result is AiIntent.RescheduleEvent)
+        val intent = result as AiIntent.RescheduleEvent
         assertEquals("evt123", intent.eventId)
         assertEquals(1715558400000L, intent.newStartTime)
         assertEquals(1715562000000L, intent.newEndTime)
@@ -34,8 +34,8 @@ class NewAIToolsTest {
             )
         val result = tool.parseArguments(args)
 
-        assertTrue(result is EventIntent.CategorizeEvent)
-        val intent = result as EventIntent.CategorizeEvent
+        assertTrue(result is AiIntent.CategorizeEvent)
+        val intent = result as AiIntent.CategorizeEvent
         assertEquals("evt456", intent.eventId)
         assertEquals("Work", intent.category)
     }
@@ -50,8 +50,8 @@ class NewAIToolsTest {
             )
         val result = tool.parseArguments(args)
 
-        assertTrue(result is EventIntent.CreateFocusBlock)
-        val intent = result as EventIntent.CreateFocusBlock
+        assertTrue(result is AiIntent.CreateFocusBlock)
+        val intent = result as AiIntent.CreateFocusBlock
         assertEquals(1715558400000L, intent.startTime)
         assertEquals(1715562000000L, intent.endTime)
     }

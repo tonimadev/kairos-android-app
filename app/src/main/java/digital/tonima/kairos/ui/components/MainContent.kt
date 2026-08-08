@@ -34,7 +34,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import digital.tonima.core.viewmodel.AiUiState
 import digital.tonima.core.viewmodel.EventScreenUiState
+import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.kairos.core.R.string.hide_dashboard
 import digital.tonima.kairos.core.R.string.show_dashboard
 import digital.tonima.kairos.ui.theme.Dimensions
@@ -44,6 +46,8 @@ import java.time.ZoneId
 @Composable
 fun MainContent(
     uiState: EventScreenUiState,
+    settingsUiState: SettingsUiState,
+    aiUiState: AiUiState,
     eventActions: EventActions,
     settingsActions: SettingsActions,
     aiActions: AiActions,
@@ -81,12 +85,12 @@ fun MainContent(
                 WeatherCard(
                     weather = uiState.weather,
                     weatherError = uiState.weatherError,
-                    isTemperatureInCelsius = uiState.isTemperatureInCelsius,
+                    isTemperatureInCelsius = settingsUiState.isTemperatureInCelsius,
                     onFetchWeather = eventActions.onFetchWeather,
                     modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
                 )
                 ControlPanel(
-                    uiState = uiState,
+                    settingsUiState = settingsUiState,
                     settingsActions = settingsActions,
                 )
                 CalendarView(
@@ -105,9 +109,11 @@ fun MainContent(
                         .weight(1f)
                         .padding(start = Dimensions.PaddingSmall, top = Dimensions.PaddingNormal),
                 uiState = uiState,
+                settingsUiState = settingsUiState,
                 eventsByDate = eventsByDate,
                 eventActions = eventActions,
                 aiActions = aiActions,
+                aiUiState = aiUiState,
             )
         }
     } else {
@@ -117,9 +123,11 @@ fun MainContent(
                     .fillMaxSize()
                     .padding(horizontal = Dimensions.PaddingNormal),
             uiState = uiState,
+            settingsUiState = settingsUiState,
             eventsByDate = eventsByDate,
             eventActions = eventActions,
             aiActions = aiActions,
+            aiUiState = aiUiState,
             headerContent = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TextButton(
@@ -152,12 +160,12 @@ fun MainContent(
                             WeatherCard(
                                 weather = uiState.weather,
                                 weatherError = uiState.weatherError,
-                                isTemperatureInCelsius = uiState.isTemperatureInCelsius,
+                                isTemperatureInCelsius = settingsUiState.isTemperatureInCelsius,
                                 onFetchWeather = eventActions.onFetchWeather,
                                 modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
                             )
                             ControlPanel(
-                                uiState = uiState,
+                                settingsUiState = settingsUiState,
                                 settingsActions = settingsActions,
                             )
                             CalendarView(

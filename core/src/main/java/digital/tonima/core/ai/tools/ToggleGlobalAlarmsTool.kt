@@ -2,7 +2,8 @@ package digital.tonima.core.ai.tools
 
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.RiskLevel
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.BaseIntent
+import digital.tonima.core.viewmodel.SettingsIntent
 import javax.inject.Inject
 
 /**
@@ -39,8 +40,8 @@ class ToggleGlobalAlarmsTool
                 "required" to listOf("enabled"),
             )
 
-        override fun parseArguments(args: Map<String, Any?>): EventIntent? {
+        override fun parseArguments(args: Map<String, Any?>): BaseIntent? {
             val enabled = args["enabled"] as? Boolean ?: return null
-            return EventIntent.ToggleGlobalAlarms(enabled)
+            return SettingsIntent.ToggleGlobalAlarms(enabled)
         }
     }

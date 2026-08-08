@@ -10,13 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.util.openAutostartSettings
-import digital.tonima.core.viewmodel.EventScreenUiState
+import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.kairos.ui.theme.Dimensions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ControlPanel(
-    uiState: EventScreenUiState,
+    settingsUiState: SettingsUiState,
     settingsActions: SettingsActions,
 ) {
     val context = LocalContext.current
@@ -27,15 +27,15 @@ fun ControlPanel(
     ) {
         AlarmsToggleRow(
             modifier = Modifier.padding(top = Dimensions.PaddingSmall),
-            alarmsEnabled = uiState.isGlobalAlarmEnabled,
+            alarmsEnabled = settingsUiState.isGlobalAlarmEnabled,
             onToggle = settingsActions.onToggle,
         )
 
-        if (uiState.audioWarning != AudioWarningState.NORMAL) {
-            RingerModeWarningCard(ringerMode = uiState.audioWarning)
+        if (settingsUiState.audioWarning != AudioWarningState.NORMAL) {
+            RingerModeWarningCard(ringerMode = settingsUiState.audioWarning)
         }
 
-        if (uiState.showAutostartSuggestion) {
+        if (settingsUiState.showAutostartSuggestion) {
             AutostartSuggestionCard(
                 onOpenSettings = { openAutostartSettings(context) },
                 onDismiss = settingsActions.onDismissAutostart,
