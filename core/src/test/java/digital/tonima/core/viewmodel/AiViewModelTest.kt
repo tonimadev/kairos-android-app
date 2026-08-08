@@ -39,8 +39,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -53,6 +54,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.time.Duration.Companion.milliseconds
 
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
@@ -87,7 +89,9 @@ class AiViewModelTest {
     private val isProUserFlow = MutableStateFlow(false)
     private val isAiUserFlow = MutableStateFlow(false)
     private val conversationsFlow = MutableStateFlow<List<ConversationEntity>>(emptyList())
+
     private val fakeChatHistory = mutableListOf<ChatMessage>()
+    private val fakeChatHistoryFlow = MutableStateFlow<List<ChatMessage>>(emptyList())
 
     private lateinit var viewModel: AiViewModel
 
@@ -95,20 +99,28 @@ class AiViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
 
+        fakeChatHistory.clear()
+        fakeChatHistoryFlow.value = emptyList()
+
+        coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns AIAgentResponse.Text("")
+
         every { mockProUserProvider.isProUser } returns isProUserFlow
         every { mockProUserProvider.isAiUser } returns isAiUserFlow
         every { mockObserveDailyBriefingUseCase() } returns dailyBriefingFlow
         every { mockObserveConversationsUseCase() } returns conversationsFlow
 
         coEvery { mockCreateConversationUseCase(any()) } returns 1L
-        every { mockObserveChatHistoryUseCase(any()) } answers { MutableStateFlow(fakeChatHistory.toList()) }
+
+        every { mockObserveChatHistoryUseCase(any()) } returns fakeChatHistoryFlow
         coEvery { mockGetChatHistoryUseCase(any()) } answers { fakeChatHistory.toList() }
         coEvery { mockInsertChatMessageUseCase(any(), any()) } answers {
             fakeChatHistory.add(secondArg())
+            fakeChatHistoryFlow.value = fakeChatHistory.toList()
             1L
         }
         coEvery { mockClearChatHistoryUseCase(any()) } answers {
             fakeChatHistory.clear()
+            fakeChatHistoryFlow.value = emptyList()
             1
         }
 
@@ -148,13 +160,15 @@ class AiViewModelTest {
     fun `generateDailyBriefing calls usecase and updates widget`() =
         runTest {
             isAiUserFlow.value = true
-            advanceUntilIdle()
+            runCurrent()
 
             coEvery { mockGenerateDailyBriefingUseCase(any(), any()) } returns "Briefing content"
             coEvery { mockUpdateWidgetUseCase.updateDailyBriefingWidget() } just Runs
 
             viewModel.handleIntent(AiIntent.GenerateDailyBriefing("en"))
-            advanceUntilIdle()
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
 
             coVerify { mockGenerateDailyBriefingUseCase(any(), "en") }
             coVerify { mockUpdateWidgetUseCase.updateDailyBriefingWidget() }
@@ -165,13 +179,15 @@ class AiViewModelTest {
     fun `askAi updates UI state and calls usecase`() =
         runTest {
             isAiUserFlow.value = true
-            advanceUntilIdle()
+            runCurrent()
 
             coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
                 AIAgentResponse.Text("AI Response")
 
             viewModel.handleIntent(AiIntent.AskAi("What's next?", "en"))
-            advanceUntilIdle()
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
 
             val state = viewModel.uiState.value
             assertEquals("AI Response", state.aiResponse)
@@ -182,24 +198,33 @@ class AiViewModelTest {
     fun `askAi maintains chat history`() =
         runTest {
             isAiUserFlow.value = true
-            advanceUntilIdle()
+            runCurrent()
 
             val response1 = AIAgentResponse.Text("Response 1")
             val response2 = AIAgentResponse.Text("Response 2")
 
-            coEvery { mockAskAiAgentUseCase(any(), "Q1", any(), any(), any()) } returns response1
-            coEvery { mockAskAiAgentUseCase(any(), "Q2", any(), any(), any()) } returns response2
+            coEvery {
+                mockAskAiAgentUseCase(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returnsMany listOf(response1, response2)
 
-            // First interaction
             viewModel.handleIntent(AiIntent.AskAi("Q1", "en"))
-            advanceUntilIdle()
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
 
             assertEquals("Response 1", viewModel.uiState.value.aiResponse)
             assertEquals(2, fakeChatHistory.size)
 
-            // Second interaction
             viewModel.handleIntent(AiIntent.AskAi("Q2", "en"))
-            advanceUntilIdle()
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
 
             assertEquals("Response 2", viewModel.uiState.value.aiResponse)
             assertEquals(4, fakeChatHistory.size)
@@ -211,15 +236,18 @@ class AiViewModelTest {
     fun `clearAiResponse resets UI state and clears history`() =
         runTest {
             viewModel.handleIntent(AiIntent.OpenChatDetail(1L))
-            advanceUntilIdle()
+            runCurrent()
 
             coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
                 AIAgentResponse.Text("Some response")
+
             viewModel.handleIntent(AiIntent.AskAi("Q", "en"))
-            advanceUntilIdle()
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
 
             viewModel.handleIntent(AiIntent.ClearAiResponse)
-            advanceUntilIdle()
+            runCurrent()
 
             val state = viewModel.uiState.value
             assertNull(state.aiResponse)
@@ -236,25 +264,23 @@ class AiViewModelTest {
                 }
             val intent = AiIntent.NotifyRunningLate("test_event", "Running late!")
             coEvery {
-                mockProcessAiResponseUseCase(
-                    "notify_late",
-                    any(),
-                )
+                mockProcessAiResponseUseCase("notify_late", any())
             } returns AIToolResult.Success(safeTool, intent)
 
-            viewModel.handleIntent(AiIntent.OpenChatDetail(1L))
-            advanceUntilIdle()
-
-            // We need to trigger a function call. Let's mock askAiAgent to return a FunctionCall.
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
-                AIAgentResponse.FunctionCall(
-                    "notify_late",
-                    mapOf("eventId" to "test_event", "message" to "Running late!"),
+            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+                listOf(
+                    AIAgentResponse.FunctionCall(
+                        "notify_late",
+                        mapOf("eventId" to "test_event", "message" to "Running late!"),
+                    ),
+                    AIAgentResponse.Text("Pronto, avisei que você vai se atrasar."),
                 )
+
+            viewModel.handleIntent(AiIntent.OpenChatDetail(1L))
+            runCurrent()
 
             viewModel.sideEffect.test {
                 viewModel.handleIntent(AiIntent.AskAi("Tell them I'm late", "en"))
-                advanceUntilIdle()
 
                 val effect = awaitItem()
                 assertTrue(effect is AiSideEffect.ShowSnackbar)
@@ -272,18 +298,17 @@ class AiViewModelTest {
                 }
             val createIntent = EventIntent.CreateEvent(1L, "Meeting", null, null, 1000L, 2000L, false)
             coEvery {
-                mockProcessAiResponseUseCase(
-                    "create_event",
-                    any(),
-                )
+                mockProcessAiResponseUseCase("create_event", any())
             } returns AIToolResult.Success(criticalTool, createIntent)
 
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
-                AIAgentResponse.FunctionCall("create_event", emptyMap())
+            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+                listOf(
+                    AIAgentResponse.FunctionCall("create_event", emptyMap()),
+                    AIAgentResponse.Text("Aguardando sua confirmação para criar o evento."),
+                )
 
             viewModel.sideEffect.test {
                 viewModel.handleIntent(AiIntent.AskAi("Create meeting", "en"))
-                advanceUntilIdle()
 
                 val effect = awaitItem()
                 assertTrue(effect is AiSideEffect.RequireUserConfirmation)
@@ -302,20 +327,22 @@ class AiViewModelTest {
                 }
             val createIntent = EventIntent.CreateEvent(1L, "Meeting", null, null, 1000L, 2000L, false)
             coEvery {
-                mockProcessAiResponseUseCase(
-                    "create_event",
-                    any(),
-                )
+                mockProcessAiResponseUseCase("create_event", any())
             } returns AIToolResult.Success(criticalTool, createIntent)
 
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
-                AIAgentResponse.FunctionCall("create_event", emptyMap())
+            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+                listOf(
+                    AIAgentResponse.FunctionCall("create_event", emptyMap()),
+                    AIAgentResponse.Text("Pronto."),
+                )
 
             viewModel.handleIntent(AiIntent.AskAi("Create meeting", "en"))
-            advanceUntilIdle()
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
 
             viewModel.handleIntent(AiIntent.ApprovePendingAction)
-            advanceUntilIdle()
+            runCurrent()
 
             assertNull(viewModel.uiState.value.pendingAIAction)
             coVerify { mockCreateEventUseCase(1L, "Meeting", any(), any(), 1000L, 2000L, false, any()) }
@@ -327,7 +354,7 @@ class AiViewModelTest {
             every { mockToggleFocusModeUseCase(true) } returns Result.success(Unit)
 
             viewModel.handleIntent(AiIntent.ToggleFocusMode(true))
-            advanceUntilIdle()
+            runCurrent()
 
             verify { mockToggleFocusModeUseCase(true) }
         }

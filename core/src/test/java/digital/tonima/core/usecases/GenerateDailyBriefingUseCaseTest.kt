@@ -1,9 +1,7 @@
 package digital.tonima.core.usecases
 
-import androidx.test.core.app.ApplicationProvider
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.PublicPreviewAPI
@@ -34,21 +32,14 @@ class GenerateDailyBriefingUseCaseTest {
 
     @Before
     fun setup() {
-        if (FirebaseApp.getApps(ApplicationProvider.getApplicationContext()).isEmpty()) {
-            FirebaseApp.initializeApp(
-                ApplicationProvider.getApplicationContext(),
-                FirebaseOptions.Builder()
-                    .setApplicationId("abc")
-                    .setApiKey("xyz")
-                    .setProjectId("123")
-                    .build(),
-            )
-        }
+        mockkStatic(FirebaseApp::class)
+        every { FirebaseApp.getInstance() } returns mockk(relaxed = true)
         mockkStatic("com.google.firebase.ai.FirebaseAIKt")
     }
 
     @After
     fun tearDown() {
+        unmockkStatic(FirebaseApp::class)
         unmockkStatic("com.google.firebase.ai.FirebaseAIKt")
     }
 

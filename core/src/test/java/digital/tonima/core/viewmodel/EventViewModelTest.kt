@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -178,6 +179,8 @@ class EventViewModelTest {
     @Test
     fun `onMonthChanged without calendar permission clears events`() =
         runTest {
+            runCurrent()
+
             every { mockCheckPermissionsUseCase() } returns
                 PermissionState(
                     hasCalendarPermission = false,
@@ -189,8 +192,12 @@ class EventViewModelTest {
                 )
 
             clearMocks(mockGetEventsForMonthUseCase, answers = false)
+
+            viewModel = createViewModel()
+            runCurrent()
+
             viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2024, 10)))
-            advanceUntilIdle()
+            runCurrent()
 
             assertTrue(viewModel.uiState.value.events.isEmpty())
             coVerify(exactly = 0) { mockGetEventsForMonthUseCase(any()) }
