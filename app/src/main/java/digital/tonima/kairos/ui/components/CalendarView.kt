@@ -63,6 +63,7 @@ fun CalendarView(
     val startMonth = remember { YearMonth.now().minusMonths(100) }
     val endMonth = remember { YearMonth.now().plusMonths(100) }
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
+    val today = remember { LocalDate.now() }
     val state =
         rememberCalendarState(
             startMonth = startMonth,
@@ -93,6 +94,7 @@ fun CalendarView(
                 Day(
                     day = day,
                     isSelected = selectedDate == day.date,
+                    isToday = today == day.date,
                     hasEvents = eventsByDate.containsKey(day.date),
                 ) { onDateSelected(it.date) }
             },
@@ -110,7 +112,7 @@ private fun MonthHeader(
     month: YearMonth,
     onReturnToTodayClicked: () -> Unit,
 ) {
-    val currentMonth = YearMonth.now()
+    val currentMonth = remember { YearMonth.now() }
     Row(
         modifier =
             Modifier
@@ -120,9 +122,12 @@ private fun MonthHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         val locale = LocalConfiguration.current.locales.get(0)
-        val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
+        val formatter = remember(locale) { DateTimeFormatter.ofPattern("MMMM yyyy", locale) }
         Text(
-            text = month.format(formatter).replaceFirstChar { it.titlecase(locale) },
+            text =
+                remember(month, formatter, locale) {
+                    month.format(formatter).replaceFirstChar { it.titlecase(locale) }
+                },
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -148,10 +153,11 @@ private fun DaysOfWeekHeader(daysOfWeek: List<DayOfWeek>) {
         val locale = LocalConfiguration.current.locales.get(0)
         for (dayOfWeek in daysOfWeek) {
             val isWeekend = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
+            val dayName = remember(dayOfWeek, locale) { dayOfWeek.getDisplayName(TextStyle.SHORT, locale) }
             Text(
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
-                text = dayOfWeek.getDisplayName(TextStyle.SHORT, locale),
+                text = dayName,
                 style =
                     MaterialTheme.typography.bodySmall.copy(
                         fontWeight = if (isWeekend) FontWeight.SemiBold else FontWeight.Normal,
@@ -171,10 +177,10 @@ private fun DaysOfWeekHeader(daysOfWeek: List<DayOfWeek>) {
 private fun Day(
     day: CalendarDay,
     isSelected: Boolean,
+    isToday: Boolean,
     hasEvents: Boolean,
     onClick: (CalendarDay) -> Unit,
 ) {
-    val isToday = day.date == LocalDate.now()
     val isMonthDate = day.position == DayPosition.MonthDate
 
     val targetBg =

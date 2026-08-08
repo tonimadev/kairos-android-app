@@ -1,13 +1,16 @@
 package digital.tonima.core.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class Event(
     val id: Long,
     val title: String,
     val startTime: Long,
     val endTime: Long = 0L,
-    var isAlarmEnabled: Boolean = false,
+    val isAlarmEnabled: Boolean = false,
     val isRecurring: Boolean = false,
-    var vibrateOnly: Boolean = false,
+    val vibrateOnly: Boolean = false,
     val isAllDay: Boolean = false,
     val calendarColor: Int = 0,
     val meetingUrl: String? = null,

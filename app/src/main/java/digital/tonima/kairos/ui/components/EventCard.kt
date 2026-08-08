@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,7 +41,6 @@ import digital.tonima.kairos.core.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,14 +58,17 @@ fun EventCard(
         label = "cardColor",
     )
 
-    val timeFormat = remember { SimpleDateFormat("h:mm", Locale.getDefault()) }
-    val amPmFormat = remember { SimpleDateFormat("a", Locale.getDefault()) }
+    val locale = LocalConfiguration.current.locales.get(0)
+    val timeFormat = remember(locale) { SimpleDateFormat("h:mm", locale) }
+    val amPmFormat = remember(locale) { SimpleDateFormat("a", locale) }
 
-    val timeString = timeFormat.format(Date(event.startTime))
-    val amPmString = amPmFormat.format(Date(event.startTime)).uppercase()
+    val timeString = remember(event.startTime, timeFormat) { timeFormat.format(Date(event.startTime)) }
+    val amPmString = remember(event.startTime, amPmFormat) { amPmFormat.format(Date(event.startTime)).uppercase() }
 
-    val calendar = Calendar.getInstance()
-    calendar.timeInMillis = event.startTime
+    val calendar =
+        remember(event.startTime) {
+            Calendar.getInstance().apply { timeInMillis = event.startTime }
+        }
     val eventDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
     Card(

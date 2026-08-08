@@ -1,7 +1,9 @@
 package digital.tonima.core.viewmodel
 
+import androidx.compose.runtime.Immutable
 import digital.tonima.core.repository.AudioWarningState
 
+@Immutable
 data class SettingsUiState(
     val isGlobalAlarmEnabled: Boolean = true,
     val vibrateOnly: Boolean = false,

@@ -199,6 +199,59 @@ fun EventScreen(
             )
         }
 
+    val cannotOpenEvent = stringResource(R.string.cannot_open_event)
+    val eventActions =
+        remember(eventViewModel, context, cannotOpenEvent) {
+            EventActions(
+                onRefresh = { eventViewModel.handleIntent(RefreshEvents) },
+                onEventToggle = { event, enabled, all ->
+                    eventViewModel.handleIntent(ToggleEventAlarm(event, enabled, all))
+                },
+                onEventVibrateToggle = { event, enabled ->
+                    eventViewModel.handleIntent(ToggleEventVibrate(event, enabled))
+                },
+                onMonthChanged = { eventViewModel.handleIntent(ChangeMonth(it)) },
+                onDateSelected = { eventViewModel.handleIntent(SelectDate(it)) },
+                onEventClick = { event: Event ->
+                    val uri = ContentUris.withAppendedId(CONTENT_URI, event.id)
+                    val intent =
+                        Intent(Intent.ACTION_VIEW, uri).apply {
+                            putExtra("beginTime", event.startTime)
+                        }
+                    try {
+                        context.startActivity(intent)
+                    } catch (_: Exception) {
+                        Toast.makeText(context, cannotOpenEvent, Toast.LENGTH_SHORT).show()
+                    }
+                },
+                onReturnToToday = { eventViewModel.handleIntent(ReturnToToday) },
+                onSearchQueryChanged = { eventViewModel.handleIntent(SearchQueryChanged(it)) },
+                onJoinMeeting = { url -> eventViewModel.handleIntent(JoinMeeting(url)) },
+                onCopyMeetingUrl = { url -> eventViewModel.handleIntent(CopyMeetingUrl(url)) },
+                onFetchWeather = { eventViewModel.handleIntent(FetchWeather) },
+            )
+        }
+
+    val aiActions =
+        remember(aiViewModel, eventViewModel, onSubscriptionRequest) {
+            AiActions(
+                onGenerateBriefing = { aiViewModel.handleIntent(GenerateDailyBriefing(aiInstruction)) },
+                onUpgradeToPro = { eventViewModel.handleIntent(UpgradeToProIARequest) },
+                onSubscriptionRequest = onSubscriptionRequest,
+                onVoiceCaptureClick = { aiViewModel.handleIntent(ShowAiSuggestionsDialog) },
+                onClearAiResponse = { aiViewModel.handleIntent(ClearAiResponse) },
+                onSpeakAiResponse = { aiViewModel.handleIntent(SpeakAiResponse) },
+                onStopSpeaking = { aiViewModel.handleIntent(StopSpeaking) },
+                onReply = {
+                    launchVoiceCapture(
+                        context,
+                        voiceCapturePrompt,
+                        speechRecognizerLauncher,
+                    )
+                },
+            )
+        }
+
     val showShell =
         !settingsUiState.showSettingsScreen &&
             aiUiState.selectedConversationId == null &&
@@ -281,9 +334,10 @@ fun EventScreen(
                     isProUser = isProUser,
                     standardPermissionState = standardPermissionState,
                     locationPermissionState = locationPermissionState,
-                    onSubscriptionRequest = onSubscriptionRequest,
                     windowSizeClass = windowSizeClass,
                     settingsActions = settingsActions,
+                    eventActions = eventActions,
+                    aiActions = aiActions,
                     launchVoiceCapture = {
                         launchVoiceCapture(
                             context,
@@ -319,13 +373,13 @@ private fun EventScreenContent(
     isProUser: Boolean,
     standardPermissionState: MultiplePermissionsState,
     locationPermissionState: MultiplePermissionsState,
-    onSubscriptionRequest: () -> Unit,
     windowSizeClass: WindowSizeClass?,
     settingsActions: SettingsActions,
+    eventActions: EventActions,
+    aiActions: AiActions,
     launchVoiceCapture: () -> Unit,
 ) {
     val context = LocalContext.current
-    val cannotOpenEvent = stringResource(R.string.cannot_open_event)
     val aiInstruction = stringResource(R.string.ai_briefing_instruction)
 
     if (uiState.showCreateEventDialog) {
@@ -381,47 +435,9 @@ private fun EventScreenContent(
                     MainContent(
                         uiState = uiState,
                         settingsUiState = settingsUiState,
-                        eventActions =
-                            EventActions(
-                                onRefresh = { eventViewModel.handleIntent(RefreshEvents) },
-                                onEventToggle = { event, enabled, all ->
-                                    eventViewModel.handleIntent(ToggleEventAlarm(event, enabled, all))
-                                },
-                                onEventVibrateToggle = { event, enabled ->
-                                    eventViewModel.handleIntent(ToggleEventVibrate(event, enabled))
-                                },
-                                onMonthChanged = { eventViewModel.handleIntent(ChangeMonth(it)) },
-                                onDateSelected = { eventViewModel.handleIntent(SelectDate(it)) },
-                                onEventClick = { event: Event ->
-                                    val uri = ContentUris.withAppendedId(CONTENT_URI, event.id)
-                                    val intent =
-                                        Intent(Intent.ACTION_VIEW, uri).apply {
-                                            putExtra("beginTime", event.startTime)
-                                        }
-                                    try {
-                                        context.startActivity(intent)
-                                    } catch (_: Exception) {
-                                        Toast.makeText(context, cannotOpenEvent, Toast.LENGTH_SHORT).show()
-                                    }
-                                },
-                                onReturnToToday = { eventViewModel.handleIntent(ReturnToToday) },
-                                onSearchQueryChanged = { eventViewModel.handleIntent(SearchQueryChanged(it)) },
-                                onJoinMeeting = { url -> eventViewModel.handleIntent(JoinMeeting(url)) },
-                                onCopyMeetingUrl = { url -> eventViewModel.handleIntent(CopyMeetingUrl(url)) },
-                                onFetchWeather = { eventViewModel.handleIntent(FetchWeather) },
-                            ),
+                        eventActions = eventActions,
                         settingsActions = settingsActions,
-                        aiActions =
-                            AiActions(
-                                onGenerateBriefing = { aiViewModel.handleIntent(GenerateDailyBriefing(aiInstruction)) },
-                                onUpgradeToPro = { eventViewModel.handleIntent(UpgradeToProIARequest) },
-                                onSubscriptionRequest = onSubscriptionRequest,
-                                onVoiceCaptureClick = { aiViewModel.handleIntent(ShowAiSuggestionsDialog) },
-                                onClearAiResponse = { aiViewModel.handleIntent(ClearAiResponse) },
-                                onSpeakAiResponse = { aiViewModel.handleIntent(SpeakAiResponse) },
-                                onStopSpeaking = { aiViewModel.handleIntent(StopSpeaking) },
-                                onReply = launchVoiceCapture,
-                            ),
+                        aiActions = aiActions,
                         windowSizeClass = windowSizeClass,
                         aiUiState = aiUiState,
                     )

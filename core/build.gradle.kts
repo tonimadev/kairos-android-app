@@ -86,6 +86,7 @@ dependencies {
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.appfunctions)
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.room.ktx)

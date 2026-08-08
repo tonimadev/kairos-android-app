@@ -1,5 +1,6 @@
 package digital.tonima.core.viewmodel
 
+import androidx.compose.runtime.Immutable
 import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
 import digital.tonima.core.model.InsightsPeriod
@@ -8,6 +9,7 @@ import digital.tonima.core.model.Weather
 import java.time.LocalDate
 import java.time.YearMonth
 
+@Immutable
 data class EventScreenUiState(
     val events: List<Event> = emptyList(),
     val isRefreshing: Boolean = false,

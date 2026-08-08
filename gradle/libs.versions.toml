@@ -18,6 +18,7 @@ workManager="2.11.2"
 google-services = "4.5.0"
 playServicesAdsApi = "25.4.0"
 firebase-bom = "34.17.0"
+firebase-perf = "2.0.2"
 crashlytics = "3.0.7"
 hilt = "2.60.1"
 hilt-worker="1.4.0"
@@ -70,6 +71,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -90,6 +92,7 @@ play-services-wearable = { group = "com.google.android.gms", name = "play-servic
 google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 google-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+google-firebase-perf = { group = "com.google.firebase", name = "firebase-perf" }
 google-firebase-ia = { group = "com.google.firebase", name = "firebase-ai" }
 google-firebase-ia-ondevice = { group = "com.google.firebase", name = "firebase-ai-ondevice", version = "16.0.0-beta04" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
@@ -150,6 +153,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebase-perf" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
