@@ -199,6 +199,13 @@ fun EventScreen(
             )
         }
 
+    val showShell =
+        !settingsUiState.showSettingsScreen &&
+            aiUiState.selectedConversationId == null &&
+            !aiUiState.showChatHistoryScreen &&
+            !uiState.showImportCalendarScreen &&
+            !uiState.showManageCalendarsScreen
+
     EventScreenShell(
         uiState = uiState,
         isProUser = isProUser,
@@ -213,6 +220,7 @@ fun EventScreen(
         onGenerateDailyBriefing = { aiViewModel.handleIntent(GenerateDailyBriefing(it)) },
         onShowAiSuggestions = { aiViewModel.handleIntent(ShowAiSuggestionsDialog) },
         onBottomTabChange = { eventViewModel.handleIntent(ChangeBottomTab(it)) },
+        showShell = showShell,
     ) { paddingValues ->
         EventScreenRouter(
             uiState = uiState,
