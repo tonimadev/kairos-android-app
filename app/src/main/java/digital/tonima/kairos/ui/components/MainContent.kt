@@ -80,7 +80,6 @@ fun MainContent(
             ) {
                 WeatherCard(
                     weather = uiState.weather,
-                    isWeatherLoading = uiState.isWeatherLoading,
                     weatherError = uiState.weatherError,
                     isTemperatureInCelsius = uiState.isTemperatureInCelsius,
                     onFetchWeather = eventActions.onFetchWeather,
@@ -152,7 +151,6 @@ fun MainContent(
                         Column {
                             WeatherCard(
                                 weather = uiState.weather,
-                                isWeatherLoading = uiState.isWeatherLoading,
                                 weatherError = uiState.weatherError,
                                 isTemperatureInCelsius = uiState.isTemperatureInCelsius,
                                 onFetchWeather = eventActions.onFetchWeather,

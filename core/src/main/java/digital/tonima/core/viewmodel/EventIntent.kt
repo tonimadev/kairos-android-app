@@ -87,13 +87,11 @@ sealed class EventIntent {
 
     object ClearCalendarFilter : EventIntent()
 
-    data class RateNow(val activity: android.app.Activity? = null) : EventIntent()
+    data object RateNow : EventIntent()
 
     object RateLater : EventIntent()
 
     object RateNever : EventIntent()
-
-    object DismissUpgradeConfirmation : EventIntent()
 
     object UpgradeToProRequest : EventIntent()
 

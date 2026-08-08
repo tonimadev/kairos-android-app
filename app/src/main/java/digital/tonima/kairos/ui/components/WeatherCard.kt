@@ -48,7 +48,6 @@ import digital.tonima.kairos.ui.theme.Dimensions
 @Composable
 fun WeatherCard(
     weather: Weather?,
-    isWeatherLoading: Boolean,
     weatherError: String?,
     isTemperatureInCelsius: Boolean,
     onFetchWeather: () -> Unit,
@@ -240,7 +239,6 @@ fun WeatherCardPreview() {
         )
     WeatherCard(
         weather = sampleWeather,
-        isWeatherLoading = false,
         weatherError = null,
         isTemperatureInCelsius = true,
         onFetchWeather = {},

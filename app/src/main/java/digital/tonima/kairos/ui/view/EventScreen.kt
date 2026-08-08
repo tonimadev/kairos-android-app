@@ -81,11 +81,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import digital.tonima.core.model.Event
 import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.EventIntent.RateLater
+import digital.tonima.core.viewmodel.EventIntent.RateNever
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.EventSideEffect
 import digital.tonima.core.viewmodel.EventViewModel
@@ -149,19 +152,6 @@ fun EventScreen(
         }
     val locationPermissionState = rememberMultiplePermissionsState(permissions = locationPermissionsToRequest)
 
-    LaunchedEffect(uiState.isLocationAlarmEnabled) {
-        if (uiState.isLocationAlarmEnabled && !locationPermissionState.allPermissionsGranted) {
-            locationPermissionState.launchMultiplePermissionRequest()
-        }
-    }
-
-    LaunchedEffect(standardPermissionState.allPermissionsGranted) {
-        if (!standardPermissionState.allPermissionsGranted) {
-            standardPermissionState.launchMultiplePermissionRequest()
-        }
-        viewModel.handleIntent(EventIntent.CheckPermissions)
-    }
-
     val googleSignInLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
@@ -174,6 +164,8 @@ fun EventScreen(
         snackbarHostState = snackbarHostState,
         googleSignInLauncher = googleSignInLauncher,
         onSetAiConfirmationData = { aiConfirmationData = it },
+        onSubscriptionRequest = onSubscriptionRequest,
+        onPurchaseRequest = onPurchaseRequest,
     )
 
     val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
@@ -264,7 +256,7 @@ fun EventScreen(
             ChatDetailScreen(
                 messages = uiState.chatHistory,
                 isAsking = uiState.isAskingAi,
-                isSpeaking = false, // Not perfectly tracked currently, but enough for UI state
+                isSpeaking = false,
                 onBack = { viewModel.handleIntent(EventIntent.CloseChatDetail) },
                 onSendMessage = { viewModel.handleIntent(EventIntent.AskAi(it, aiInstruction)) },
                 onSpeakToggle = {
@@ -336,6 +328,7 @@ fun EventScreen(
                         viewModel = viewModel,
                         isProUser = isProUser,
                         standardPermissionState = standardPermissionState,
+                        locationPermissionState = locationPermissionState,
                         openAppSettings = { openAppSettings(context) },
                         openExactAlarmSettings = { openExactAlarmSettings(context) },
                         openFullScreenIntentSettings = { openFullScreenIntentSettings(context) },
@@ -356,8 +349,6 @@ fun EventScreen(
             EventScreenDialogs(
                 uiState = uiState,
                 aiConfirmationData = aiConfirmationData,
-                onSubscriptionRequest = onSubscriptionRequest,
-                onPurchaseRequest = onPurchaseRequest,
                 onClearAiConfirmation = { aiConfirmationData = null },
                 viewModel = viewModel,
             )
@@ -373,6 +364,7 @@ private fun EventScreenContent(
     viewModel: EventViewModel,
     isProUser: Boolean,
     standardPermissionState: MultiplePermissionsState,
+    locationPermissionState: MultiplePermissionsState,
     openAppSettings: () -> Unit,
     openExactAlarmSettings: () -> Unit,
     openFullScreenIntentSettings: () -> Unit,
@@ -423,8 +415,6 @@ private fun EventScreenContent(
         )
     }
 
-    // SettingsActions was hoisted to EventScreen
-
     Column(
         modifier =
             Modifier
@@ -438,6 +428,13 @@ private fun EventScreenContent(
                     StandardPermissionsScreen(
                         onSettingsClick = openAppSettings,
                         onRetryClick = { standardPermissionState.launchMultiplePermissionRequest() },
+                    )
+                }
+
+                uiState.isLocationAlarmEnabled && !locationPermissionState.allPermissionsGranted -> {
+                    StandardPermissionsScreen(
+                        onSettingsClick = openAppSettings,
+                        onRetryClick = { locationPermissionState.launchMultiplePermissionRequest() },
                     )
                 }
 
@@ -495,7 +492,7 @@ private fun EventScreenContent(
                                             }
                                         try {
                                             context.startActivity(intent)
-                                        } catch (e: Exception) {
+                                        } catch (_: Exception) {
                                             Toast.makeText(
                                                 context,
                                                 cannotOpenEvent,
@@ -580,7 +577,6 @@ private fun EventBottomBar(
     onOpenCalendar: () -> Unit,
     handleIntent: (EventIntent) -> Unit,
 ) {
-    val context = LocalContext.current
     val dailyBriefingPrompt = stringResource(R.string.prompt_daily_briefing)
     NavigationBar(
         containerColor = Color(0xFF2C2C38),
@@ -718,56 +714,71 @@ private fun HandleEventSideEffects(
     snackbarHostState: SnackbarHostState,
     googleSignInLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onSetAiConfirmationData: (EventSideEffect.RequireUserConfirmation) -> Unit,
+    onSubscriptionRequest: () -> Unit,
+    onPurchaseRequest: () -> Unit,
 ) {
     val context = LocalContext.current
-    LaunchedEffect(viewModel.sideEffect) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                is EventSideEffect.RequireUserConfirmation -> {
-                    onSetAiConfirmationData(effect)
-                }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-                is EventSideEffect.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
-                }
-
-                is EventSideEffect.AIToolError -> {
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
-                }
-
-                is EventSideEffect.OpenMeetingUrl -> {
-                    try {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, effect.url.toUri()))
-                    } catch (e: Exception) {
-                        logcat { "Failed to open meeting URL: ${e.message}" }
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.sideEffect.collect { effect ->
+                when (effect) {
+                    is EventSideEffect.RequireUserConfirmation -> {
+                        onSetAiConfirmationData(effect)
                     }
-                }
 
-                is EventSideEffect.CopyToClipboard -> {
-                    val clipboard =
-                        context.getSystemService(
-                            Context.CLIPBOARD_SERVICE,
-                        ) as android.content.ClipboardManager
-                    val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
-                    clipboard.setPrimaryClip(clip)
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
-                }
+                    is EventSideEffect.ShowSnackbar -> {
+                        snackbarHostState.showSnackbar(effect.message.asString(context))
+                    }
 
-                is EventSideEffect.LaunchGoogleSignIn -> {
-                    googleSignInLauncher.launch(effect.intent)
-                }
+                    is EventSideEffect.AIToolError -> {
+                        snackbarHostState.showSnackbar(effect.message.asString(context))
+                    }
 
-                is EventSideEffect.RequestAppReview -> {
-                    val activity = context as? android.app.Activity
-                    if (activity != null) {
-                        val reviewManager = com.google.android.play.core.review.ReviewManagerFactory.create(context)
-                        reviewManager.requestReviewFlow().addOnCompleteListener { request ->
-                            if (request.isSuccessful) {
-                                val reviewInfo = request.result
-                                reviewManager.launchReviewFlow(activity, reviewInfo)
-                            }
+                    is EventSideEffect.OpenMeetingUrl -> {
+                        try {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, effect.url.toUri()))
+                        } catch (e: Exception) {
+                            logcat { "Failed to open meeting URL: ${e.message}" }
                         }
                     }
+
+                    is EventSideEffect.CopyToClipboard -> {
+                        val clipboard =
+                            context.getSystemService(
+                                Context.CLIPBOARD_SERVICE,
+                            ) as android.content.ClipboardManager
+                        val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
+                        clipboard.setPrimaryClip(clip)
+                        snackbarHostState.showSnackbar(effect.message.asString(context))
+                    }
+
+                    is EventSideEffect.LaunchGoogleSignIn -> {
+                        googleSignInLauncher.launch(effect.intent)
+                    }
+
+                    is EventSideEffect.RequestAppReview -> {
+                        val activity = context.findActivity()
+
+                        if (activity != null) {
+                            val reviewManager = com.google.android.play.core.review.ReviewManagerFactory.create(context)
+                            reviewManager.requestReviewFlow().addOnCompleteListener { request ->
+                                if (request.isSuccessful) {
+                                    val reviewInfo = request.result
+                                    reviewManager.launchReviewFlow(activity, reviewInfo)
+                                } else {
+                                    openPlayStoreFallback(context)
+                                }
+                            }
+                        } else {
+                            openPlayStoreFallback(context)
+                        }
+                    }
+
+                    is EventSideEffect.RequestSubscription -> onSubscriptionRequest()
+
+                    is EventSideEffect.RequestPurchase -> onPurchaseRequest()
                 }
             }
         }
@@ -778,45 +789,19 @@ private fun HandleEventSideEffects(
 private fun EventScreenDialogs(
     uiState: EventScreenUiState,
     aiConfirmationData: EventSideEffect.RequireUserConfirmation?,
-    onSubscriptionRequest: () -> Unit,
-    onPurchaseRequest: () -> Unit,
     onClearAiConfirmation: () -> Unit,
     viewModel: EventViewModel,
 ) {
     val context = LocalContext.current
 
-    if (uiState.showSubscriptionConfirmation) {
-        LaunchedEffect(uiState.showSubscriptionConfirmation) {
-            onSubscriptionRequest()
-            viewModel.handleIntent(EventIntent.DismissUpgradeConfirmation)
-        }
-    }
-
-    if (uiState.showPurchaseConfirmation) {
-        LaunchedEffect(uiState.showPurchaseConfirmation) {
-            onPurchaseRequest()
-            viewModel.handleIntent(EventIntent.DismissUpgradeConfirmation)
-        }
-    }
-
     if (uiState.showRatingBottomSheet) {
         RatingBottomSheet(
-            onDismissRequest = { viewModel.handleIntent(EventIntent.RateLater) },
+            onDismissRequest = { viewModel.handleIntent(RateLater) },
             onRateNow = {
-                context.findActivity()?.let { activity ->
-                    viewModel.handleIntent(EventIntent.RateNow(activity))
-                } ?: run {
-                    val intent =
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            "market://details?id=${context.packageName}".toUri(),
-                        )
-                    context.startActivity(intent)
-                    viewModel.handleIntent(EventIntent.RateNow())
-                }
+                viewModel.handleIntent(EventIntent.RateNow)
             },
-            onRateLater = { viewModel.handleIntent(EventIntent.RateLater) },
-            onRateNeverShow = { viewModel.handleIntent(EventIntent.RateNever) },
+            onRateLater = { viewModel.handleIntent(RateLater) },
+            onRateNeverShow = { viewModel.handleIntent(RateNever) },
         )
     }
 
@@ -877,6 +862,28 @@ private fun openFullScreenIntentSettings(context: Context) {
     }
 }
 
+private fun openPlayStoreFallback(context: Context) {
+    try {
+        val intent =
+            Intent(
+                Intent.ACTION_VIEW,
+                "market://details?id=${context.packageName}".toUri(),
+            ).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        context.startActivity(intent)
+    } catch (_: Exception) {
+        val webIntent =
+            Intent(
+                Intent.ACTION_VIEW,
+                "https://play.google.com/store/apps/details?id=${context.packageName}".toUri(),
+            ).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        context.startActivity(webIntent)
+    }
+}
+
 private fun launchVoiceCapture(
     context: Context,
     voiceCapturePrompt: String,
@@ -889,7 +896,7 @@ private fun launchVoiceCapture(
         }
     try {
         speechRecognizerLauncher.launch(intent)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         Toast.makeText(context, R.string.cannot_open_event, Toast.LENGTH_SHORT).show()
     }
 }

@@ -225,7 +225,6 @@ class EventViewModelTest {
             observeRingerModeUseCase = mockObserveRingerModeUseCase,
             checkPermissionsUseCase = mockCheckPermissionsUseCase,
             toggleFocusModeUseCase = mockToggleFocusModeUseCase,
-            reviewManager = mockReviewManager,
             fetchMeetingTranscriptUseCase = io.mockk.mockk(relaxed = true),
             isGoogleSignedIn = io.mockk.mockk(relaxed = true),
             getGoogleSignInIntent = io.mockk.mockk(relaxed = true),

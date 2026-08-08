@@ -16,8 +16,6 @@ data class EventScreenUiState(
     val selectedDate: LocalDate = LocalDate.now(),
     val currentMonth: YearMonth = YearMonth.now(),
     val showAutostartSuggestion: Boolean = false,
-    val showPurchaseConfirmation: Boolean = false,
-    val showSubscriptionConfirmation: Boolean = false,
     val hasCalendarPermission: Boolean = false,
     val hasPostNotificationsPermission: Boolean = false,
     val hasExactAlarmPermission: Boolean = false,

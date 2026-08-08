@@ -40,4 +40,8 @@ sealed class EventSideEffect {
     data class LaunchGoogleSignIn(val intent: android.content.Intent) : EventSideEffect()
 
     data object RequestAppReview : EventSideEffect()
+
+    data object RequestSubscription : EventSideEffect()
+
+    data object RequestPurchase : EventSideEffect()
 }

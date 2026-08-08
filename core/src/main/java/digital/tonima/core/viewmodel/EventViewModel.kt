@@ -5,13 +5,17 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.AIToolResult
+import digital.tonima.core.ai.AIToolResult.Success
 import digital.tonima.core.ai.ActionRegistry
 import digital.tonima.core.ai.RiskLevel
+import digital.tonima.core.ai.RiskLevel.CRITICAL
+import digital.tonima.core.ai.RiskLevel.MODERATE
+import digital.tonima.core.ai.RiskLevel.SAFE
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
+import digital.tonima.core.ai.model.ChatMessage.FunctionResponse
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
-import digital.tonima.core.review.ReviewManager
 import digital.tonima.core.usecases.AskAiAgentUseCase
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.usecases.CancelEventAlarmUseCase
@@ -49,8 +53,40 @@ import digital.tonima.core.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.usecases.UpdateWidgetUseCase
 import digital.tonima.core.util.toOpenWeatherLang
+import digital.tonima.core.viewmodel.EventIntent.ApprovePendingAction
+import digital.tonima.core.viewmodel.EventIntent.ChangeBottomTab
+import digital.tonima.core.viewmodel.EventIntent.ChangeInsightsPeriod
+import digital.tonima.core.viewmodel.EventIntent.CloseImportCalendarScreen
+import digital.tonima.core.viewmodel.EventIntent.CloseManageCalendarsScreen
+import digital.tonima.core.viewmodel.EventIntent.CloseSettings
+import digital.tonima.core.viewmodel.EventIntent.CreateFocusBlock
+import digital.tonima.core.viewmodel.EventIntent.DismissAiSuggestionsDialog
+import digital.tonima.core.viewmodel.EventIntent.DismissAutostartSuggestion
+import digital.tonima.core.viewmodel.EventIntent.DismissCreateEventDialog
+import digital.tonima.core.viewmodel.EventIntent.HandleGoogleSignInResult
+import digital.tonima.core.viewmodel.EventIntent.NotifyRunningLate
+import digital.tonima.core.viewmodel.EventIntent.OpenImportCalendarScreen
+import digital.tonima.core.viewmodel.EventIntent.OpenManageCalendarsScreen
+import digital.tonima.core.viewmodel.EventIntent.OpenSettings
+import digital.tonima.core.viewmodel.EventIntent.RateNever
+import digital.tonima.core.viewmodel.EventIntent.RateNow
+import digital.tonima.core.viewmodel.EventIntent.RejectPendingAction
+import digital.tonima.core.viewmodel.EventIntent.SearchQueryChanged
+import digital.tonima.core.viewmodel.EventIntent.ShowAiSuggestionsDialog
+import digital.tonima.core.viewmodel.EventIntent.ShowCreateEventDialog
+import digital.tonima.core.viewmodel.EventIntent.SignInWithGoogle
+import digital.tonima.core.viewmodel.EventIntent.SignOutFromGoogle
+import digital.tonima.core.viewmodel.EventIntent.SummarizeMeetTranscript
+import digital.tonima.core.viewmodel.EventIntent.ToggleFocusMode
+import digital.tonima.core.viewmodel.EventIntent.UpdateCustomRingtoneUri
+import digital.tonima.core.viewmodel.EventIntent.UpgradeToProIARequest
+import digital.tonima.core.viewmodel.EventIntent.UpgradeToProRequest
+import digital.tonima.core.viewmodel.EventSideEffect.AIToolError
+import digital.tonima.core.viewmodel.EventSideEffect.ShowSnackbar
+import digital.tonima.core.viewmodel.UiText.StringResource
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -66,6 +102,7 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class EventViewModel
@@ -98,7 +135,6 @@ class EventViewModel
         private val observeRingerModeUseCase: ObserveRingerModeUseCase,
         private val checkPermissionsUseCase: CheckPermissionsUseCase,
         private val toggleFocusModeUseCase: ToggleFocusModeUseCase,
-        private val reviewManager: ReviewManager,
         private val fetchMeetingTranscriptUseCase: FetchMeetingTranscriptUseCase,
         private val isGoogleSignedIn: IsGoogleSignedInUseCase,
         private val getGoogleSignInIntent: GetGoogleSignInIntentUseCase,
@@ -200,14 +236,14 @@ class EventViewModel
                     -> handlePermissionIntent(intent)
 
                     // Grouped: Special action intents
-                    EventIntent.ApprovePendingAction,
-                    EventIntent.RejectPendingAction,
-                    is EventIntent.NotifyRunningLate,
-                    is EventIntent.ToggleFocusMode,
-                    EventIntent.SignInWithGoogle,
-                    EventIntent.SignOutFromGoogle,
-                    is EventIntent.HandleGoogleSignInResult,
-                    is EventIntent.SummarizeMeetTranscript,
+                    ApprovePendingAction,
+                    RejectPendingAction,
+                    is NotifyRunningLate,
+                    is ToggleFocusMode,
+                    SignInWithGoogle,
+                    SignOutFromGoogle,
+                    is HandleGoogleSignInResult,
+                    is SummarizeMeetTranscript,
                     -> handleSpecialActionIntent(intent)
 
                     // Grouped: UI / dialog / rating intents
@@ -283,7 +319,7 @@ class EventViewModel
                     _sideEffect.send(
                         EventSideEffect.CopyToClipboard(
                             intent.meetingUrl,
-                            UiText.StringResource(R.string.link_copied),
+                            StringResource(R.string.link_copied),
                         ),
                     )
                 }
@@ -300,16 +336,16 @@ class EventViewModel
 
         private fun handleSpecialActionIntent(intent: EventIntent) {
             when (intent) {
-                EventIntent.ApprovePendingAction -> executePendingAction()
-                EventIntent.RejectPendingAction -> rejectPendingAction()
-                is EventIntent.NotifyRunningLate -> handleNotifyRunningLate(intent)
-                is EventIntent.ToggleFocusMode -> handleToggleFocusMode(intent)
-                is EventIntent.SummarizeMeetTranscript -> handleSummarizeMeetTranscript(intent)
-                EventIntent.SignInWithGoogle -> handleSignInWithGoogle()
-                EventIntent.SignOutFromGoogle -> handleSignOutFromGoogle()
-                is EventIntent.HandleGoogleSignInResult -> handleGoogleSignInResult(intent.resultData)
-                is EventIntent.CreateFocusBlock -> handleCreateFocusBlock(intent)
-                is EventIntent.AnalyzeSchedule -> handleAnalyzeSchedule(intent)
+                ApprovePendingAction -> executePendingAction()
+                RejectPendingAction -> rejectPendingAction()
+                is NotifyRunningLate -> handleNotifyRunningLate(intent)
+                is ToggleFocusMode -> handleToggleFocusMode(intent)
+                is SummarizeMeetTranscript -> handleSummarizeMeetTranscript(intent)
+                SignInWithGoogle -> handleSignInWithGoogle()
+                SignOutFromGoogle -> handleSignOutFromGoogle()
+                is HandleGoogleSignInResult -> handleGoogleSignInResult(intent.resultData)
+                is CreateFocusBlock -> handleCreateFocusBlock(intent)
+                is EventIntent.AnalyzeSchedule -> handleAnalyzeSchedule()
                 else -> Unit
             }
         }
@@ -319,16 +355,16 @@ class EventViewModel
                 val result = handleGoogleSignInResultUseCase(intent)
                 if (result.isSuccess) {
                     _uiState.update { it.copy(isGoogleConnected = true) }
-                    _sideEffect.trySend(
-                        EventSideEffect.ShowSnackbar(
-                            UiText.StringResource(
+                    _sideEffect.send(
+                        ShowSnackbar(
+                            StringResource(
                                 R.string.google_logout_title,
                             ),
                         ),
                     )
                 } else {
-                    _sideEffect.trySend(
-                        EventSideEffect.ShowSnackbar(
+                    _sideEffect.send(
+                        ShowSnackbar(
                             UiText.DynamicString("Login failed"),
                         ),
                     )
@@ -413,42 +449,37 @@ class EventViewModel
 
         private suspend fun handleUiIntent(intent: EventIntent) {
             when (intent) {
-                EventIntent.DismissAutostartSuggestion ->
+                DismissAutostartSuggestion ->
                     updateAppPreferenceUseCase.setAutostartSuggestionDismissed(true)
 
-                EventIntent.UpgradeToProRequest ->
-                    _uiState.update { it.copy(showPurchaseConfirmation = true) }
+                UpgradeToProRequest ->
+                    _sideEffect.send(EventSideEffect.RequestPurchase)
 
-                EventIntent.UpgradeToProIARequest ->
-                    _uiState.update { it.copy(showSubscriptionConfirmation = true) }
+                UpgradeToProIARequest ->
+                    _sideEffect.send(EventSideEffect.RequestSubscription)
 
-                EventIntent.DismissUpgradeConfirmation ->
-                    _uiState.update {
-                        it.copy(showSubscriptionConfirmation = false, showPurchaseConfirmation = false)
-                    }
-
-                is EventIntent.ChangeBottomTab ->
+                is ChangeBottomTab ->
                     _uiState.update { it.copy(selectedBottomTab = intent.tabIndex) }
 
-                EventIntent.OpenSettings ->
+                OpenSettings ->
                     _uiState.update { it.copy(showSettingsScreen = true) }
 
-                EventIntent.CloseSettings ->
+                CloseSettings ->
                     _uiState.update { it.copy(showSettingsScreen = false) }
 
-                EventIntent.OpenImportCalendarScreen ->
+                OpenImportCalendarScreen ->
                     _uiState.update { it.copy(showImportCalendarScreen = true) }
 
-                EventIntent.CloseImportCalendarScreen ->
+                CloseImportCalendarScreen ->
                     _uiState.update { it.copy(showImportCalendarScreen = false) }
 
-                EventIntent.OpenManageCalendarsScreen ->
+                OpenManageCalendarsScreen ->
                     _uiState.update { it.copy(showManageCalendarsScreen = true) }
 
-                EventIntent.CloseManageCalendarsScreen ->
+                CloseManageCalendarsScreen ->
                     _uiState.update { it.copy(showManageCalendarsScreen = false) }
 
-                is EventIntent.ChangeInsightsPeriod -> {
+                is ChangeInsightsPeriod -> {
                     _uiState.update { it.copy(selectedInsightsPeriod = intent.period) }
                     viewModelScope.launch {
                         val stats = getMeetingTimeStatsUseCase(intent.period)
@@ -456,31 +487,31 @@ class EventViewModel
                     }
                 }
 
-                is EventIntent.UpdateCustomRingtoneUri ->
+                is UpdateCustomRingtoneUri ->
                     _uiState.update { it.copy(customRingtoneUri = intent.uri) }
 
-                is EventIntent.SearchQueryChanged ->
+                is SearchQueryChanged ->
                     _uiState.update { it.copy(searchQuery = intent.query) }
 
-                is EventIntent.ShowCreateEventDialog ->
+                is ShowCreateEventDialog ->
                     _uiState.update {
                         it.copy(showCreateEventDialog = true, voiceEventData = intent.voiceEventData)
                     }
 
-                EventIntent.DismissCreateEventDialog ->
+                DismissCreateEventDialog ->
                     _uiState.update { it.copy(showCreateEventDialog = false, voiceEventData = null) }
 
-                EventIntent.ShowAiSuggestionsDialog ->
+                ShowAiSuggestionsDialog ->
                     _uiState.update { it.copy(showAiSuggestionsDialog = true) }
 
-                EventIntent.DismissAiSuggestionsDialog ->
+                DismissAiSuggestionsDialog ->
                     _uiState.update { it.copy(showAiSuggestionsDialog = false) }
 
-                is EventIntent.RateNow -> onRateNow(intent.activity)
+                is RateNow -> onRateNow()
                 EventIntent.RateLater ->
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
 
-                EventIntent.RateNever -> {
+                RateNever -> {
                     updateAppPreferenceUseCase.setRatingCompleted(true)
                     _uiState.update { it.copy(showRatingBottomSheet = false) }
                 }
@@ -492,8 +523,8 @@ class EventViewModel
         private fun observePreferences() {
             observeAppPreferencesUseCase().onEach { appPrefs ->
                 val prevGlobalEnabled = _uiState.value.isGlobalAlarmEnabled
-                _uiState.update {
-                    it.copy(
+                _uiState.update { state ->
+                    state.copy(
                         isGlobalAlarmEnabled = appPrefs.isGlobalAlarmEnabled,
                         vibrateOnly = appPrefs.vibrateOnly,
                         allDayAlarmsEnabled = appPrefs.allDayAlarmsEnabled,
@@ -696,7 +727,9 @@ class EventViewModel
 
         private fun onLocationAlarmToggle(enabled: Boolean) {
             if (!_uiState.value.isAiUser && enabled) {
-                _uiState.update { it.copy(showSubscriptionConfirmation = true) }
+                viewModelScope.launch {
+                    _sideEffect.send(EventSideEffect.RequestSubscription)
+                }
                 return
             }
             viewModelScope.launch { updateAppPreferenceUseCase.setLocationAlarmEnabled(enabled) }
@@ -823,7 +856,7 @@ class EventViewModel
 
             if (hasJsonStart) {
                 parseVoiceEventData(trimmedResponse)?.let { voiceEventData ->
-                    handleIntent(EventIntent.ShowCreateEventDialog(voiceEventData))
+                    handleIntent(ShowCreateEventDialog(voiceEventData))
                     return
                 }
             }
@@ -907,7 +940,7 @@ class EventViewModel
                 if (result != null) {
                     logcat { "Evento criado com sucesso, ID: $result" }
                     logEventUseCase.logEventCreated()
-                    handleIntent(EventIntent.DismissCreateEventDialog)
+                    handleIntent(DismissCreateEventDialog)
 
                     // Navigate to the event date so the user can see it
                     val eventDate =
@@ -927,30 +960,30 @@ class EventViewModel
                     }
 
                     // Small delay to allow ContentProvider/Instances table to sync
-                    kotlinx.coroutines.delay(500)
+                    delay(500.milliseconds)
                     refreshEvents()
 
                     _sideEffect.send(
-                        EventSideEffect.ShowSnackbar(
-                            UiText.StringResource(R.string.ai_agent_event_created),
+                        ShowSnackbar(
+                            StringResource(R.string.ai_agent_event_created),
                         ),
                     )
                 } else {
                     logcat { "Falha ao criar evento: createEvent retornou null" }
                     _sideEffect.send(
-                        EventSideEffect.AIToolError(
-                            UiText.StringResource(R.string.ai_agent_event_creation_error),
+                        AIToolError(
+                            StringResource(R.string.ai_agent_event_creation_error),
                         ),
                     )
                 }
             }
         }
 
-        private fun onRateNow(activity: android.app.Activity?) {
+        private fun onRateNow() {
             viewModelScope.launch {
                 updateAppPreferenceUseCase.setRatingCompleted(true)
                 _uiState.update { it.copy(showRatingBottomSheet = false) }
-                activity?.let { reviewManager.requestReview(it) {} }
+                _sideEffect.send(EventSideEffect.RequestAppReview)
             }
         }
 
@@ -1015,26 +1048,25 @@ class EventViewModel
                     observeChatHistory(convId)
                 }
                 when (val result = processAiResponseUseCase(toolName, args)) {
-                    is AIToolResult.Success -> {
+                    is Success -> {
                         routeByRiskLevel(result)
                         val responseMsg =
-                            ChatMessage
-                                .FunctionResponse(
-                                    toolName,
-                                    mapOf("status" to "success", "message" to "Intent gerado e processado"),
-                                )
+                            FunctionResponse(
+                                toolName,
+                                mapOf("status" to "success", "message" to "Intent gerado e processado"),
+                            )
                         insertChatMessageUseCase(convId, responseMsg)
                         askAi(null)
                     }
 
                     is AIToolResult.ToolNotFound -> {
                         logcat { "AI Agent: tool '${result.toolName}' not found" }
-                        val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Tool not found"))
+                        val responseMsg = FunctionResponse(toolName, mapOf("error" to "Tool not found"))
                         insertChatMessageUseCase(convId, responseMsg)
                         askAi(null)
-                        _sideEffect.trySend(
-                            EventSideEffect.AIToolError(
-                                UiText.StringResource(
+                        _sideEffect.send(
+                            AIToolError(
+                                StringResource(
                                     R.string.ai_agent_tool_not_found,
                                     listOf(result.toolName),
                                 ),
@@ -1044,12 +1076,12 @@ class EventViewModel
 
                     is AIToolResult.InvalidArguments -> {
                         logcat { "AI Agent: invalid args for '${result.toolName}': ${result.args}" }
-                        val responseMsg = ChatMessage.FunctionResponse(toolName, mapOf("error" to "Invalid arguments"))
+                        val responseMsg = FunctionResponse(toolName, mapOf("error" to "Invalid arguments"))
                         insertChatMessageUseCase(convId, responseMsg)
                         askAi(null)
-                        _sideEffect.trySend(
-                            EventSideEffect.AIToolError(
-                                UiText.StringResource(
+                        _sideEffect.send(
+                            AIToolError(
+                                StringResource(
                                     R.string.ai_agent_invalid_args,
                                     listOf(result.toolName),
                                 ),
@@ -1060,22 +1092,22 @@ class EventViewModel
             }
         }
 
-        private fun routeByRiskLevel(result: AIToolResult.Success) {
+        private fun routeByRiskLevel(result: Success) {
             val tool = result.tool
             val intent = result.intent
 
             when (tool.riskLevel) {
-                RiskLevel.SAFE -> {
+                SAFE -> {
                     logcat { "AI Agent [SAFE]: dispatching ${intent::class.simpleName}" }
                     handleIntent(intent)
                 }
 
-                RiskLevel.MODERATE -> {
+                MODERATE -> {
                     logcat { "AI Agent [MODERATE]: dispatching ${intent::class.simpleName} + snackbar" }
                     handleIntent(intent)
                     _sideEffect.trySend(
-                        EventSideEffect.ShowSnackbar(
-                            UiText.StringResource(
+                        ShowSnackbar(
+                            StringResource(
                                 R.string.ai_agent_snackbar_executed,
                                 listOf(tool.name),
                             ),
@@ -1083,12 +1115,12 @@ class EventViewModel
                     )
                 }
 
-                RiskLevel.CRITICAL -> {
+                CRITICAL -> {
                     logcat { "AI Agent [CRITICAL]: pausing for confirmation — ${intent::class.simpleName}" }
                     _uiState.update { it.copy(pendingAIAction = intent) }
                     _sideEffect.trySend(
                         EventSideEffect.RequireUserConfirmation(
-                            title = UiText.StringResource(R.string.ai_agent_confirmation_title),
+                            title = StringResource(R.string.ai_agent_confirmation_title),
                             message = formatConfirmationMessage(tool, intent),
                         ),
                     )
@@ -1104,7 +1136,7 @@ class EventViewModel
 
             if (pending is EventIntent.CreateEvent) {
                 handleIntent(
-                    EventIntent.ShowCreateEventDialog(
+                    ShowCreateEventDialog(
                         voiceEventData =
                             VoiceEventData(
                                 title = pending.title,
@@ -1125,23 +1157,21 @@ class EventViewModel
             _uiState.update { it.copy(pendingAIAction = null) }
         }
 
-        private fun handleNotifyRunningLate(intent: EventIntent.NotifyRunningLate) {
+        private fun handleNotifyRunningLate(intent: NotifyRunningLate) {
             logcat { "AI Agent: Notifying running late for event ${intent.eventId}: ${intent.message}" }
-            // In a real implementation, this would trigger a message sending service.
-            // For now, we show a side effect to inform the user.
             _sideEffect.trySend(
-                EventSideEffect.ShowSnackbar(
-                    UiText.StringResource(R.string.ai_suggested_late_notification, listOf(intent.message)),
+                ShowSnackbar(
+                    StringResource(R.string.ai_suggested_late_notification, listOf(intent.message)),
                 ),
             )
         }
 
-        private fun handleToggleFocusMode(intent: EventIntent.ToggleFocusMode) {
+        private fun handleToggleFocusMode(intent: ToggleFocusMode) {
             toggleFocusModeUseCase(intent.enabled).onSuccess {
                 val msgRes = R.string.ai_agent_snackbar_executed
                 _sideEffect.trySend(
-                    EventSideEffect.ShowSnackbar(
-                        UiText.StringResource(
+                    ShowSnackbar(
+                        StringResource(
                             msgRes,
                             listOf("DND " + (if (intent.enabled) "enabled" else "disabled")),
                         ),
@@ -1149,7 +1179,7 @@ class EventViewModel
                 )
             }.onFailure {
                 _sideEffect.trySend(
-                    EventSideEffect.AIToolError(
+                    AIToolError(
                         UiText.DynamicString(
                             "Permission for DND access required. Please enable it in system settings.",
                         ),
@@ -1158,7 +1188,7 @@ class EventViewModel
             }
         }
 
-        private fun handleSummarizeMeetTranscript(intent: EventIntent.SummarizeMeetTranscript) {
+        private fun handleSummarizeMeetTranscript(intent: SummarizeMeetTranscript) {
             viewModelScope.launch {
                 val result = fetchMeetingTranscriptUseCase(intent.meetingUrl)
                 result.onSuccess { transcript ->
@@ -1178,7 +1208,7 @@ class EventViewModel
                     askAi(null)
                 }.onFailure { e ->
                     _sideEffect.trySend(
-                        EventSideEffect.AIToolError(
+                        AIToolError(
                             UiText.DynamicString(
                                 "Falha ao baixar transcrição: ${e.message}",
                             ),
@@ -1198,25 +1228,25 @@ class EventViewModel
             when (intent) {
                 is EventIntent.CreateEvent ->
                     if (intent.location != null) {
-                        UiText.StringResource(
+                        StringResource(
                             R.string.ai_agent_create_event_with_location_confirmation,
                             listOf(intent.title, intent.location),
                         )
                     } else {
-                        UiText.StringResource(
+                        StringResource(
                             R.string.ai_agent_create_event_confirmation,
                             listOf(intent.title),
                         )
                     }
 
                 else ->
-                    UiText.StringResource(
+                    StringResource(
                         R.string.ai_agent_generic_confirmation,
                         listOf(tool.name),
                     )
             }
 
-        private fun handleCreateFocusBlock(intent: EventIntent.CreateFocusBlock) {
+        private fun handleCreateFocusBlock(intent: CreateFocusBlock) {
             viewModelScope.launch {
                 val defaultCalendar = _uiState.value.availableCalendars.firstOrNull() ?: return@launch
                 createEventUseCase(
@@ -1233,7 +1263,7 @@ class EventViewModel
             }
         }
 
-        private fun handleAnalyzeSchedule(intent: EventIntent.AnalyzeSchedule) {
-            _sideEffect.trySend(EventSideEffect.ShowSnackbar(UiText.DynamicString("Analysing schedule...")))
+        private fun handleAnalyzeSchedule() {
+            _sideEffect.trySend(ShowSnackbar(UiText.DynamicString("Analysing schedule...")))
         }
     }

@@ -1,7 +1,7 @@
 package digital.tonima.core.viewmodel
 
 import android.content.Context
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,7 +74,7 @@ class ImportCalendarViewModel
                     val content =
                         withContext(Dispatchers.IO) {
                             if (state.fileUri != null) {
-                                val uri = Uri.parse(state.fileUri)
+                                val uri = state.fileUri.toUri()
                                 context.contentResolver.openInputStream(uri)?.bufferedReader()?.use {
                                     it.readText()
                                 } ?: throw IllegalStateException("Não foi possível ler o arquivo selecionado.")
