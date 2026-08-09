@@ -17,6 +17,17 @@ data class EventActions(
     val onJoinMeeting: (String) -> Unit = {},
     val onCopyMeetingUrl: (String) -> Unit = {},
     val onFetchWeather: () -> Unit = {},
+    val onCreateEvent: (
+        calendarId: Long,
+        title: String,
+        description: String?,
+        location: String?,
+        startTime: Long,
+        endTime: Long,
+        isAllDay: Boolean,
+    ) -> Unit = { _, _, _, _, _, _, _ -> },
+    val onDismissCreateEvent: () -> Unit = {},
+    val onInsightsPeriodChange: (digital.tonima.core.model.InsightsPeriod) -> Unit = {},
 )
 
 data class SettingsActions(
@@ -37,6 +48,9 @@ data class SettingsActions(
     val onGoogleSignOutClick: () -> Unit = {},
     val onCloseSettings: () -> Unit = {},
     val onCustomRingtoneSelected: (String?) -> Unit = {},
+    val onCheckPermissions: () -> Unit = {},
+    val onSkipExactAlarmPermission: () -> Unit = {},
+    val onSkipFullScreenIntentPermission: () -> Unit = {},
 )
 
 data class AiActions(
@@ -48,4 +62,6 @@ data class AiActions(
     val onSpeakAiResponse: () -> Unit = {},
     val onStopSpeaking: () -> Unit = {},
     val onReply: () -> Unit = {},
+    val onDismissSuggestions: () -> Unit = {},
+    val onSuggestionClick: (String) -> Unit = {},
 )

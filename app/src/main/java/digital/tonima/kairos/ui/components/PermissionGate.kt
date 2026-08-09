@@ -3,15 +3,15 @@ package digital.tonima.kairos.ui.components
 import androidx.compose.runtime.Composable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
-import digital.tonima.core.viewmodel.SettingsIntent
 import digital.tonima.core.viewmodel.SettingsUiState
-import digital.tonima.core.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PermissionGate(
     settingsUiState: SettingsUiState,
-    settingsViewModel: SettingsViewModel,
+    onCheckPermissions: () -> Unit,
+    onSkipExactAlarmPermission: () -> Unit,
+    onSkipFullScreenIntentPermission: () -> Unit,
     standardPermissionState: MultiplePermissionsState,
     locationPermissionState: MultiplePermissionsState,
     openAppSettings: () -> Unit,
@@ -36,17 +36,17 @@ fun PermissionGate(
 
         !settingsUiState.hasExactAlarmPermission -> {
             ExactAlarmPermissionScreen(
-                onAlreadyAuthorizedClick = { settingsViewModel.handleIntent(SettingsIntent.CheckPermissions) },
+                onAlreadyAuthorizedClick = onCheckPermissions,
                 onProvidePermissionClick = openExactAlarmSettings,
-                onSkipClick = { settingsViewModel.handleIntent(SettingsIntent.SkipExactAlarmPermission) },
+                onSkipClick = onSkipExactAlarmPermission,
             )
         }
 
         !settingsUiState.hasFullScreenIntentPermission -> {
             FullScreenIntentPermissionScreen(
-                onAlreadyAuthorizedClick = { settingsViewModel.handleIntent(SettingsIntent.CheckPermissions) },
+                onAlreadyAuthorizedClick = onCheckPermissions,
                 onOpenSettingsClick = openFullScreenIntentSettings,
-                onSkipClick = { settingsViewModel.handleIntent(SettingsIntent.SkipFullScreenIntentPermission) },
+                onSkipClick = onSkipFullScreenIntentPermission,
             )
         }
 

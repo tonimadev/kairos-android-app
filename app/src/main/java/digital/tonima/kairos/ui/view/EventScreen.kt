@@ -58,6 +58,7 @@ import digital.tonima.core.viewmodel.AuthIntent.SignInWithGoogle
 import digital.tonima.core.viewmodel.AuthIntent.SignOutFromGoogle
 import digital.tonima.core.viewmodel.AuthViewModel
 import digital.tonima.core.viewmodel.EventIntent.ChangeBottomTab
+import digital.tonima.core.viewmodel.EventIntent.ChangeInsightsPeriod
 import digital.tonima.core.viewmodel.EventIntent.ChangeMonth
 import digital.tonima.core.viewmodel.EventIntent.CloseImportCalendarScreen
 import digital.tonima.core.viewmodel.EventIntent.CloseManageCalendarsScreen
@@ -81,9 +82,12 @@ import digital.tonima.core.viewmodel.EventIntent.UpgradeToProRequest
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.core.viewmodel.SettingsIntent.ChangeTransportMode
+import digital.tonima.core.viewmodel.SettingsIntent.CheckPermissions
 import digital.tonima.core.viewmodel.SettingsIntent.CloseSettings
 import digital.tonima.core.viewmodel.SettingsIntent.DismissAutostartSuggestion
 import digital.tonima.core.viewmodel.SettingsIntent.OpenSettings
+import digital.tonima.core.viewmodel.SettingsIntent.SkipExactAlarmPermission
+import digital.tonima.core.viewmodel.SettingsIntent.SkipFullScreenIntentPermission
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAllDayAlarms
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleGlobalAlarms
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleLocationAlarm
@@ -196,6 +200,9 @@ fun EventScreen(
                 onGoogleSignOutClick = { authViewModel.handleIntent(SignOutFromGoogle) },
                 onCloseSettings = { settingsViewModel.handleIntent(CloseSettings) },
                 onCustomRingtoneSelected = { settingsViewModel.handleIntent(UpdateCustomRingtoneUri(it)) },
+                onCheckPermissions = { settingsViewModel.handleIntent(CheckPermissions) },
+                onSkipExactAlarmPermission = { settingsViewModel.handleIntent(SkipExactAlarmPermission) },
+                onSkipFullScreenIntentPermission = { settingsViewModel.handleIntent(SkipFullScreenIntentPermission) },
             )
         }
 
@@ -229,6 +236,13 @@ fun EventScreen(
                 onJoinMeeting = { url -> eventViewModel.handleIntent(JoinMeeting(url)) },
                 onCopyMeetingUrl = { url -> eventViewModel.handleIntent(CopyMeetingUrl(url)) },
                 onFetchWeather = { eventViewModel.handleIntent(FetchWeather) },
+                onCreateEvent = { calendarId, title, desc, loc, start, end, allDay ->
+                    eventViewModel.handleIntent(
+                        CreateEvent(calendarId, title, desc, loc, start, end, allDay),
+                    )
+                },
+                onDismissCreateEvent = { eventViewModel.handleIntent(DismissCreateEventDialog) },
+                onInsightsPeriodChange = { eventViewModel.handleIntent(ChangeInsightsPeriod(it)) },
             )
         }
 
@@ -248,6 +262,10 @@ fun EventScreen(
                         voiceCapturePrompt,
                         speechRecognizerLauncher,
                     )
+                },
+                onDismissSuggestions = { aiViewModel.handleIntent(DismissAiSuggestionsDialog) },
+                onSuggestionClick = { suggestion ->
+                    aiViewModel.handleIntent(AskAi(suggestion, aiInstruction))
                 },
             )
         }
@@ -328,9 +346,6 @@ fun EventScreen(
                     uiState = uiState,
                     aiUiState = aiUiState,
                     settingsUiState = settingsUiState,
-                    eventViewModel = eventViewModel,
-                    aiViewModel = aiViewModel,
-                    settingsViewModel = settingsViewModel,
                     isProUser = isProUser,
                     standardPermissionState = standardPermissionState,
                     locationPermissionState = locationPermissionState,
@@ -367,9 +382,6 @@ private fun EventScreenContent(
     uiState: EventScreenUiState,
     aiUiState: AiUiState,
     settingsUiState: SettingsUiState,
-    eventViewModel: EventViewModel,
-    aiViewModel: AiViewModel,
-    settingsViewModel: SettingsViewModel,
     isProUser: Boolean,
     standardPermissionState: MultiplePermissionsState,
     locationPermissionState: MultiplePermissionsState,
@@ -380,16 +392,11 @@ private fun EventScreenContent(
     launchVoiceCapture: () -> Unit,
 ) {
     val context = LocalContext.current
-    val aiInstruction = stringResource(R.string.ai_briefing_instruction)
 
     if (uiState.showCreateEventDialog) {
         CreateEventDialog(
-            onDismiss = { eventViewModel.handleIntent(DismissCreateEventDialog) },
-            onCreate = { calendarId, title, desc, loc, start, end, allDay ->
-                eventViewModel.handleIntent(
-                    CreateEvent(calendarId, title, desc, loc, start, end, allDay),
-                )
-            },
+            onDismiss = eventActions.onDismissCreateEvent,
+            onCreate = eventActions.onCreateEvent,
             availableCalendars = uiState.availableCalendars,
             initialDate = uiState.selectedDate,
             voiceEventData = aiUiState.voiceEventData,
@@ -398,12 +405,10 @@ private fun EventScreenContent(
 
     if (aiUiState.showAiSuggestionsDialog) {
         AiSuggestionsDialog(
-            onDismiss = { aiViewModel.handleIntent(DismissAiSuggestionsDialog) },
-            onSuggestionClick = { suggestion ->
-                aiViewModel.handleIntent(AskAi(suggestion, aiInstruction))
-            },
+            onDismiss = aiActions.onDismissSuggestions,
+            onSuggestionClick = aiActions.onSuggestionClick,
             onVoiceClick = {
-                aiViewModel.handleIntent(DismissAiSuggestionsDialog)
+                aiActions.onDismissSuggestions()
                 launchVoiceCapture()
             },
         )
@@ -419,7 +424,9 @@ private fun EventScreenContent(
         Box(modifier = Modifier.weight(1f)) {
             PermissionGate(
                 settingsUiState = settingsUiState,
-                settingsViewModel = settingsViewModel,
+                onCheckPermissions = settingsActions.onCheckPermissions,
+                onSkipExactAlarmPermission = settingsActions.onSkipExactAlarmPermission,
+                onSkipFullScreenIntentPermission = settingsActions.onSkipFullScreenIntentPermission,
                 standardPermissionState = standardPermissionState,
                 locationPermissionState = locationPermissionState,
                 openAppSettings = { openAppSettings(context) },
@@ -429,7 +436,7 @@ private fun EventScreenContent(
                 if (uiState.selectedBottomTab == 1) {
                     InsightsContent(
                         uiState = uiState,
-                        onIntent = eventViewModel::handleIntent,
+                        onPeriodChange = eventActions.onInsightsPeriodChange,
                     )
                 } else {
                     MainContent(

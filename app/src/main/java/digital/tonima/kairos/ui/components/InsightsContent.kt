@@ -41,14 +41,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.model.InsightsPeriod
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.kairos.core.R
 
 @Composable
 fun InsightsContent(
     uiState: EventScreenUiState,
-    onIntent: (EventIntent) -> Unit,
+    onPeriodChange: (InsightsPeriod) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
@@ -98,7 +98,7 @@ fun InsightsContent(
         MeetingTimeChart(
             meetingStats = uiState.meetingStats,
             selectedPeriod = uiState.selectedInsightsPeriod,
-            onPeriodChange = { onIntent(EventIntent.ChangeInsightsPeriod(it)) },
+            onPeriodChange = onPeriodChange,
         )
 
         PunctualityCard(score = uiState.punctualityScore)

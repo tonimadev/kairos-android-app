@@ -61,25 +61,29 @@ fun CreateEventDialog(
     initialDate: LocalDate = LocalDate.now(),
     voiceEventData: digital.tonima.core.viewmodel.VoiceEventData? = null,
 ) {
-    var title by remember { mutableStateOf(voiceEventData?.title ?: "") }
-    var description by remember { mutableStateOf(voiceEventData?.description ?: "") }
-    var location by remember { mutableStateOf(voiceEventData?.location ?: "") }
+    var title by remember(voiceEventData) { mutableStateOf(voiceEventData?.title ?: "") }
+    var description by remember(voiceEventData) { mutableStateOf(voiceEventData?.description ?: "") }
+    var location by remember(voiceEventData) { mutableStateOf(voiceEventData?.location ?: "") }
 
     val initialStartDateTime =
-        voiceEventData?.startTime?.let {
-            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDateTime()
-        } ?: LocalDateTime.of(initialDate, LocalTime.now().plusHours(1).withMinute(0))
+        remember(voiceEventData, initialDate) {
+            voiceEventData?.startTime?.let {
+                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDateTime()
+            } ?: LocalDateTime.of(initialDate, LocalTime.now().plusHours(1).withMinute(0))
+        }
 
     val initialEndDateTime =
-        voiceEventData?.endTime?.let {
-            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDateTime()
-        } ?: initialStartDateTime.plusHours(1)
+        remember(voiceEventData, initialStartDateTime) {
+            voiceEventData?.endTime?.let {
+                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDateTime()
+            } ?: initialStartDateTime.plusHours(1)
+        }
 
-    var startDate by remember { mutableStateOf(initialStartDateTime.toLocalDate()) }
-    var startTime by remember { mutableStateOf(initialStartDateTime.toLocalTime()) }
-    var endDate by remember { mutableStateOf(initialEndDateTime.toLocalDate()) }
-    var endTime by remember { mutableStateOf(initialEndDateTime.toLocalTime()) }
-    var isAllDay by remember { mutableStateOf(voiceEventData?.isAllDay ?: false) }
+    var startDate by remember(initialStartDateTime) { mutableStateOf(initialStartDateTime.toLocalDate()) }
+    var startTime by remember(initialStartDateTime) { mutableStateOf(initialStartDateTime.toLocalTime()) }
+    var endDate by remember(initialEndDateTime) { mutableStateOf(initialEndDateTime.toLocalDate()) }
+    var endTime by remember(initialEndDateTime) { mutableStateOf(initialEndDateTime.toLocalTime()) }
+    var isAllDay by remember(voiceEventData) { mutableStateOf(voiceEventData?.isAllDay ?: false) }
     var selectedCalendar by remember { mutableStateOf(availableCalendars.firstOrNull()) }
     var calendarExpanded by remember { mutableStateOf(false) }
 
