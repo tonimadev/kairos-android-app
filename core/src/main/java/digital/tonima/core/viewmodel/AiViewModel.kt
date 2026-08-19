@@ -67,12 +67,10 @@ import digital.tonima.kairos.core.R.string.ai_agent_invalid_args
 import digital.tonima.kairos.core.R.string.ai_agent_snackbar_executed
 import digital.tonima.kairos.core.R.string.ai_agent_tool_not_found
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import logcat.logcat
@@ -112,10 +110,11 @@ class AiViewModel
         private val _uiState = MutableStateFlow(AiUiState())
         val uiState = _uiState.asStateFlow()
 
-        private val _sideEffect = Channel<AiSideEffect>(Channel.BUFFERED)
-        val sideEffect = _sideEffect.receiveAsFlow()
-
         private var chatHistoryJob: Job? = null
+
+        fun onSideEffectConsumed(effect: AiSideEffect) {
+            _uiState.update { it.copy(sideEffects = it.sideEffects - effect) }
+        }
 
         init {
             observeDailyBriefing()
@@ -381,14 +380,18 @@ class AiViewModel
                             )
                         insertChatMessageUseCase(convId, responseMsg)
                         askAi(null)
-                        _sideEffect.send(
-                            AIToolError(
-                                StringResource(
-                                    ai_agent_tool_not_found,
-                                    listOf(result.toolName),
-                                ),
-                            ),
-                        )
+                        _uiState.update {
+                            it.copy(
+                                sideEffects =
+                                    it.sideEffects +
+                                        AIToolError(
+                                            StringResource(
+                                                ai_agent_tool_not_found,
+                                                listOf(result.toolName),
+                                            ),
+                                        ),
+                            )
+                        }
                     }
                     is InvalidArguments -> {
                         val responseMsg =
@@ -398,14 +401,18 @@ class AiViewModel
                             )
                         insertChatMessageUseCase(convId, responseMsg)
                         askAi(null)
-                        _sideEffect.send(
-                            AIToolError(
-                                StringResource(
-                                    ai_agent_invalid_args,
-                                    listOf(result.toolName),
-                                ),
-                            ),
-                        )
+                        _uiState.update {
+                            it.copy(
+                                sideEffects =
+                                    it.sideEffects +
+                                        AIToolError(
+                                            StringResource(
+                                                ai_agent_invalid_args,
+                                                listOf(result.toolName),
+                                            ),
+                                        ),
+                            )
+                        }
                     }
                 }
             }
@@ -419,23 +426,31 @@ class AiViewModel
                 RiskLevel.SAFE -> handleMappedIntent(intent)
                 RiskLevel.MODERATE -> {
                     handleMappedIntent(intent)
-                    _sideEffect.trySend(
-                        ShowSnackbar(
-                            StringResource(
-                                ai_agent_snackbar_executed,
-                                listOf(tool.name),
-                            ),
-                        ),
-                    )
+                    _uiState.update {
+                        it.copy(
+                            sideEffects =
+                                it.sideEffects +
+                                    ShowSnackbar(
+                                        StringResource(
+                                            ai_agent_snackbar_executed,
+                                            listOf(tool.name),
+                                        ),
+                                    ),
+                        )
+                    }
                 }
                 RiskLevel.CRITICAL -> {
-                    _uiState.update { it.copy(pendingAIAction = intent) }
-                    _sideEffect.trySend(
-                        RequireUserConfirmation(
-                            title = StringResource(R.string.ai_agent_confirmation_title),
-                            message = formatConfirmationMessage(tool, intent),
-                        ),
-                    )
+                    _uiState.update {
+                        it.copy(
+                            pendingAIAction = intent,
+                            sideEffects =
+                                it.sideEffects +
+                                    RequireUserConfirmation(
+                                        title = StringResource(R.string.ai_agent_confirmation_title),
+                                        message = formatConfirmationMessage(tool, intent),
+                                    ),
+                        )
+                    }
                 }
             }
         }
@@ -447,25 +462,37 @@ class AiViewModel
                 is ToggleFocusMode -> handleToggleFocusMode(intent)
                 is CreateFocusBlock -> handleCreateFocusBlock(intent)
                 is AnalyzeSchedule -> {
-                    _sideEffect.trySend(
-                        ShowSnackbar(
-                            DynamicString(
-                                "Analysing schedule for ${intent.timeframe}...",
-                            ),
-                        ),
-                    )
+                    _uiState.update {
+                        it.copy(
+                            sideEffects =
+                                it.sideEffects +
+                                    ShowSnackbar(
+                                        DynamicString(
+                                            "Analysing schedule for ${intent.timeframe}...",
+                                        ),
+                                    ),
+                        )
+                    }
                 }
                 is CategorizeEvent -> {
-                    _sideEffect.trySend(
-                        ShowSnackbar(
-                            DynamicString(
-                                "Event categorized: ${intent.category}",
-                            ),
-                        ),
-                    )
+                    _uiState.update {
+                        it.copy(
+                            sideEffects =
+                                it.sideEffects +
+                                    ShowSnackbar(
+                                        DynamicString(
+                                            "Event categorized: ${intent.category}",
+                                        ),
+                                    ),
+                        )
+                    }
                 }
                 is RescheduleEvent -> {
-                    _sideEffect.trySend(ShowSnackbar(DynamicString("Event rescheduled.")))
+                    _uiState.update {
+                        it.copy(
+                            sideEffects = it.sideEffects + ShowSnackbar(DynamicString("Event rescheduled.")),
+                        )
+                    }
                 }
                 is SummarizeMeetTranscript -> handleSummarizeMeetTranscript(intent)
                 is EventIntent.CreateEvent -> {
@@ -483,11 +510,18 @@ class AiViewModel
                     }
                 }
                 is ToggleGlobalAlarms -> {
-                    _sideEffect.trySend(
-                        ShowSnackbar(
-                            DynamicString("Global alarms ${if (intent.enabled) "enabled" else "disabled"} by AI"),
-                        ),
-                    )
+                    _uiState.update {
+                        it.copy(
+                            sideEffects =
+                                it.sideEffects +
+                                    ShowSnackbar(
+                                        DynamicString(
+                                            "Global alarms ${if (intent.enabled) "enabled" else "disabled"} " +
+                                                "by AI",
+                                        ),
+                                    ),
+                        )
+                    }
                 }
                 else -> {
                     logcat { "AI Agent generated unhandled intent: ${intent::class.simpleName}" }
@@ -506,33 +540,48 @@ class AiViewModel
         }
 
         private fun handleNotifyRunningLate(intent: NotifyRunningLate) {
-            _sideEffect.trySend(
-                ShowSnackbar(
-                    StringResource(
-                        R.string.ai_suggested_late_notification,
-                        listOf(intent.message),
-                    ),
-                ),
-            )
+            _uiState.update {
+                it.copy(
+                    sideEffects =
+                        it.sideEffects +
+                            ShowSnackbar(
+                                StringResource(
+                                    R.string.ai_suggested_late_notification,
+                                    listOf(intent.message),
+                                ),
+                            ),
+                )
+            }
         }
 
         private fun handleToggleFocusMode(intent: ToggleFocusMode) {
             toggleFocusModeUseCase(intent.enabled).onSuccess {
                 val status = if (intent.enabled) "enabled" else "disabled"
-                _sideEffect.trySend(
-                    ShowSnackbar(
-                        StringResource(
-                            ai_agent_snackbar_executed,
-                            listOf("DND $status"),
-                        ),
-                    ),
-                )
+                _uiState.update {
+                    it.copy(
+                        sideEffects =
+                            it.sideEffects +
+                                ShowSnackbar(
+                                    StringResource(
+                                        ai_agent_snackbar_executed,
+                                        listOf("DND $status"),
+                                    ),
+                                ),
+                    )
+                }
             }.onFailure {
-                _sideEffect.trySend(
-                    AIToolError(
-                        DynamicString("Permission for DND access required. Please enable it in system settings."),
-                    ),
-                )
+                _uiState.update {
+                    it.copy(
+                        sideEffects =
+                            it.sideEffects +
+                                AIToolError(
+                                    DynamicString(
+                                        "Permission for DND access required. " +
+                                            "Please enable it in system settings.",
+                                    ),
+                                ),
+                    )
+                }
             }
         }
 
@@ -550,7 +599,11 @@ class AiViewModel
                     isAllDay = false,
                     requestMeetLink = false,
                 )
-                _sideEffect.trySend(ShowSnackbar(StringResource(R.string.ai_agent_event_created)))
+                _uiState.update {
+                    it.copy(
+                        sideEffects = it.sideEffects + ShowSnackbar(StringResource(R.string.ai_agent_event_created)),
+                    )
+                }
             }
         }
 
@@ -574,7 +627,11 @@ class AiViewModel
                     askAi(null)
                 }.onFailure { e ->
                     val errorMsg = "Falha ao baixar transcrição: ${e.message}"
-                    _sideEffect.trySend(AIToolError(DynamicString(errorMsg)))
+                    _uiState.update {
+                        it.copy(
+                            sideEffects = it.sideEffects + AIToolError(DynamicString(errorMsg)),
+                        )
+                    }
                 }
             }
         }

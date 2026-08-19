@@ -71,13 +71,12 @@ View (Compose) ──EventIntent──▶ ViewModel ──▶ UseCases / Reposit
        ▲                            │
        │                            ▼
        └──── UiState (StateFlow) ───┘
-             SideEffect (Channel)
-```
+             (Includes SideEffects)
 
 - **`EventIntent`** — sealed class representing every user action.
 - **`EventScreenUiState`** — single immutable state driving the UI.
-- **`EventSideEffect`** — one-shot events (snackbar, navigation, confirmation dialogs).
-- **`EventViewModel`** — processes intents, delegates to UseCases, emits state & effects.
+- **`Side Effects`** — one-shot events (snackbar, navigation, confirmation dialogs) now modeled as part of `UiState` to survive configuration changes.
+- **`EventViewModel`** — processes intents, delegates to UseCases, emits state updates.
 
 ### Core Module Packages
 

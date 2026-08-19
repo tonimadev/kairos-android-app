@@ -34,4 +34,5 @@ data class EventScreenUiState(
     val punctualityScore: Int = 100,
     val aiUsageCount: Int = 0,
     val snoozeCount: Int = 0,
+    val sideEffects: List<EventSideEffect> = emptyList(),
 )

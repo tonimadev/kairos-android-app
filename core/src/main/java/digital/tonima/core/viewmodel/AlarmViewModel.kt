@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.sync.WearMessagingHelper
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,12 +21,13 @@ class AlarmViewModel
         private val _uiState = MutableStateFlow(AlarmUiState())
         val uiState = _uiState.asStateFlow()
 
-        private val _sideEffect = Channel<AlarmSideEffect>(Channel.BUFFERED)
-        val sideEffect = _sideEffect.receiveAsFlow()
-
         private var userStoppedAlarm = false
 
         val didUserStopAlarm: Boolean get() = userStoppedAlarm
+
+        fun onSideEffectConsumed(effect: AlarmSideEffect) {
+            _uiState.update { it.copy(sideEffects = it.sideEffects - effect) }
+        }
 
         fun handleIntent(intent: AlarmIntent) {
             when (intent) {
@@ -70,16 +69,22 @@ class AlarmViewModel
                 )
             }
 
-            _sideEffect.trySend(
-                AlarmSideEffect.SendSnoozeBroadcast(
-                    eventTitle = state.eventTitle,
-                    uniqueId = state.uniqueId,
-                    eventId = state.eventId,
-                    startTime = state.startTime,
-                    meetingUrl = state.meetingUrl,
-                ),
-            )
-            _sideEffect.trySend(AlarmSideEffect.FinishScreen)
+            _uiState.update {
+                it.copy(
+                    sideEffects =
+                        it.sideEffects +
+                            listOf(
+                                AlarmSideEffect.SendSnoozeBroadcast(
+                                    eventTitle = state.eventTitle,
+                                    uniqueId = state.uniqueId,
+                                    eventId = state.eventId,
+                                    startTime = state.startTime,
+                                    meetingUrl = state.meetingUrl,
+                                ),
+                                AlarmSideEffect.FinishScreen,
+                            ),
+                )
+            }
         }
 
         private fun onStop() {
@@ -95,7 +100,7 @@ class AlarmViewModel
                 wearMessagingHelper.sendDismissAlarm(state.uniqueId)
             }
 
-            _sideEffect.trySend(AlarmSideEffect.FinishScreen)
+            _uiState.update { it.copy(sideEffects = it.sideEffects + AlarmSideEffect.FinishScreen) }
         }
 
         private fun onJoinMeeting() {
@@ -116,9 +121,9 @@ class AlarmViewModel
             }
 
             state.meetingUrl?.let { url ->
-                _sideEffect.trySend(AlarmSideEffect.OpenMeetingUrl(url))
+                _uiState.update { it.copy(sideEffects = it.sideEffects + AlarmSideEffect.OpenMeetingUrl(url)) }
             }
-            _sideEffect.trySend(AlarmSideEffect.FinishScreen)
+            _uiState.update { it.copy(sideEffects = it.sideEffects + AlarmSideEffect.FinishScreen) }
         }
 
         private fun onOpenMap() {
@@ -138,8 +143,8 @@ class AlarmViewModel
             }
 
             state.eventLocation?.let { location ->
-                _sideEffect.trySend(AlarmSideEffect.OpenMapUrl(location))
+                _uiState.update { it.copy(sideEffects = it.sideEffects + AlarmSideEffect.OpenMapUrl(location)) }
             }
-            _sideEffect.trySend(AlarmSideEffect.FinishScreen)
+            _uiState.update { it.copy(sideEffects = it.sideEffects + AlarmSideEffect.FinishScreen) }
         }
     }

@@ -252,54 +252,60 @@ class AlarmActivity : ComponentActivity() {
 
     private fun collectSideEffects() {
         lifecycleScope.launch {
-            viewModel.sideEffect.collect { effect ->
-                when (effect) {
-                    AlarmSideEffect.FinishScreen -> {
-                        AlarmSoundAndVibrateService.stopAlarm(
-                            this@AlarmActivity,
-                            Analytics.SOURCE_ACTIVITY,
-                        )
-                        finish()
-                    }
-                    is AlarmSideEffect.OpenMeetingUrl -> {
-                        try {
-                            startActivity(
-                                Intent(Intent.ACTION_VIEW, effect.url.toUri()),
+            viewModel.uiState.collect { state ->
+                state.sideEffects.forEach { effect ->
+                    when (effect) {
+                        AlarmSideEffect.FinishScreen -> {
+                            AlarmSoundAndVibrateService.stopAlarm(
+                                this@AlarmActivity,
+                                Analytics.SOURCE_ACTIVITY,
                             )
-                        } catch (e: Exception) {
-                            logcat { "Failed to open meeting URL: ${e.message}" }
+                            viewModel.onSideEffectConsumed(effect)
+                            finish()
                         }
-                    }
-                    is AlarmSideEffect.OpenMapUrl -> {
-                        try {
-                            val uri = "google.navigation:q=${Uri.encode(effect.location)}".toUri()
-                            val mapIntent =
-                                Intent(Intent.ACTION_VIEW, uri).apply {
-                                    setPackage("com.google.android.apps.maps")
-                                }
-                            startActivity(mapIntent)
-                        } catch (e: Exception) {
-                            logcat { "Failed to open navigation intent: ${e.message}" }
+                        is AlarmSideEffect.OpenMeetingUrl -> {
                             try {
                                 startActivity(
-                                    Intent(Intent.ACTION_VIEW, "geo:0,0?q=${Uri.encode(effect.location)}".toUri()),
+                                    Intent(Intent.ACTION_VIEW, effect.url.toUri()),
                                 )
-                            } catch (inner: Exception) {
-                                logcat { "Failed to open geo intent: ${inner.message}" }
+                            } catch (e: Exception) {
+                                logcat { "Failed to open meeting URL: ${e.message}" }
                             }
+                            viewModel.onSideEffectConsumed(effect)
                         }
-                    }
-                    is AlarmSideEffect.SendSnoozeBroadcast -> {
-                        val snoozeIntent =
-                            Intent(this@AlarmActivity, AlarmReceiver::class.java).apply {
-                                action = AlarmReceiver.ACTION_SNOOZE
-                                putExtra(AlarmReceiver.EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
-                                putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, effect.eventTitle)
-                                putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, effect.uniqueId)
-                                putExtra(AlarmReceiver.EXTRA_EVENT_ID, effect.eventId)
-                                putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, effect.startTime)
+                        is AlarmSideEffect.OpenMapUrl -> {
+                            try {
+                                val uri = "google.navigation:q=${Uri.encode(effect.location)}".toUri()
+                                val mapIntent =
+                                    Intent(Intent.ACTION_VIEW, uri).apply {
+                                        setPackage("com.google.android.apps.maps")
+                                    }
+                                startActivity(mapIntent)
+                            } catch (e: Exception) {
+                                logcat { "Failed to open navigation intent: ${e.message}" }
+                                try {
+                                    startActivity(
+                                        Intent(Intent.ACTION_VIEW, "geo:0,0?q=${Uri.encode(effect.location)}".toUri()),
+                                    )
+                                } catch (inner: Exception) {
+                                    logcat { "Failed to open geo intent: ${inner.message}" }
+                                }
                             }
-                        sendBroadcast(snoozeIntent)
+                            viewModel.onSideEffectConsumed(effect)
+                        }
+                        is AlarmSideEffect.SendSnoozeBroadcast -> {
+                            val snoozeIntent =
+                                Intent(this@AlarmActivity, AlarmReceiver::class.java).apply {
+                                    action = AlarmReceiver.ACTION_SNOOZE
+                                    putExtra(AlarmReceiver.EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
+                                    putExtra(AlarmReceiver.EXTRA_EVENT_TITLE, effect.eventTitle)
+                                    putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, effect.uniqueId)
+                                    putExtra(AlarmReceiver.EXTRA_EVENT_ID, effect.eventId)
+                                    putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, effect.startTime)
+                                }
+                            sendBroadcast(snoozeIntent)
+                            viewModel.onSideEffectConsumed(effect)
+                        }
                     }
                 }
             }

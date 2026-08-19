@@ -110,60 +110,66 @@ class WearAlarmActivity : ComponentActivity() {
 
     private fun collectSideEffects() {
         lifecycleScope.launch {
-            viewModel.sideEffect.collect { effect ->
-                when (effect) {
-                    AlarmSideEffect.FinishScreen -> {
-                        AlarmSoundAndVibrateService.stopAlarm(
-                            this@WearAlarmActivity,
-                            Analytics.SOURCE_ACTIVITY,
-                        )
-                        finish()
-                    }
-                    is AlarmSideEffect.OpenMeetingUrl -> {
-                        try {
-                            val meetingIntent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
-                            meetingIntent.addCategory(Intent.CATEGORY_BROWSABLE)
-                            startActivity(meetingIntent)
-                        } catch (e: Exception) {
-                            logcat { "Failed to open meeting URL: ${e.message}" }
-                        }
-                    }
-                    is AlarmSideEffect.OpenMapUrl -> {
-                        try {
-                            val uri = "google.navigation:q=${Uri.encode(effect.location)}".toUri()
-                            val mapIntent =
-                                Intent(Intent.ACTION_VIEW, uri).apply {
-                                    setPackage("com.google.android.apps.maps")
-                                }
-                            startActivity(mapIntent)
-                        } catch (e: Exception) {
-                            logcat { "Failed to open navigation intent: ${e.message}" }
-                            try {
-                                val fallbackUri = "geo:0,0?q=${Uri.encode(effect.location)}".toUri()
-                                val geoIntent =
-                                    Intent(Intent.ACTION_VIEW, fallbackUri).apply {
-                                    }
-                                startActivity(geoIntent)
-                            } catch (inner: Exception) {
-                                logcat { "Failed to open fallback geo intent: ${inner.message}" }
-                            }
-                        }
-                    }
-                    is AlarmSideEffect.SendSnoozeBroadcast -> {
-                        val snoozeIntent =
-                            Intent(
+            viewModel.uiState.collect { state ->
+                state.sideEffects.forEach { effect ->
+                    when (effect) {
+                        AlarmSideEffect.FinishScreen -> {
+                            AlarmSoundAndVibrateService.stopAlarm(
                                 this@WearAlarmActivity,
-                                AlarmReceiver::class.java,
-                            ).apply {
-                                action = AlarmReceiver.ACTION_SNOOZE
-                                putExtra(EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
-                                putExtra(EXTRA_EVENT_TITLE, effect.eventTitle)
-                                putExtra(EXTRA_UNIQUE_ID, effect.uniqueId)
-                                putExtra(EXTRA_EVENT_ID, effect.eventId)
-                                putExtra(EXTRA_EVENT_START_TIME, effect.startTime)
-                                putExtra(EXTRA_MEETING_URL, effect.meetingUrl)
+                                Analytics.SOURCE_ACTIVITY,
+                            )
+                            viewModel.onSideEffectConsumed(effect)
+                            finish()
+                        }
+                        is AlarmSideEffect.OpenMeetingUrl -> {
+                            try {
+                                val meetingIntent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
+                                meetingIntent.addCategory(Intent.CATEGORY_BROWSABLE)
+                                startActivity(meetingIntent)
+                            } catch (e: Exception) {
+                                logcat { "Failed to open meeting URL: ${e.message}" }
                             }
-                        sendBroadcast(snoozeIntent)
+                            viewModel.onSideEffectConsumed(effect)
+                        }
+                        is AlarmSideEffect.OpenMapUrl -> {
+                            try {
+                                val uri = "google.navigation:q=${Uri.encode(effect.location)}".toUri()
+                                val mapIntent =
+                                    Intent(Intent.ACTION_VIEW, uri).apply {
+                                        setPackage("com.google.android.apps.maps")
+                                    }
+                                startActivity(mapIntent)
+                            } catch (e: Exception) {
+                                logcat { "Failed to open navigation intent: ${e.message}" }
+                                try {
+                                    val fallbackUri = "geo:0,0?q=${Uri.encode(effect.location)}".toUri()
+                                    val geoIntent =
+                                        Intent(Intent.ACTION_VIEW, fallbackUri).apply {
+                                        }
+                                    startActivity(geoIntent)
+                                } catch (inner: Exception) {
+                                    logcat { "Failed to open fallback geo intent: ${inner.message}" }
+                                }
+                            }
+                            viewModel.onSideEffectConsumed(effect)
+                        }
+                        is AlarmSideEffect.SendSnoozeBroadcast -> {
+                            val snoozeIntent =
+                                Intent(
+                                    this@WearAlarmActivity,
+                                    AlarmReceiver::class.java,
+                                ).apply {
+                                    action = AlarmReceiver.ACTION_SNOOZE
+                                    putExtra(EXTRA_SOURCE, Analytics.SOURCE_ACTIVITY)
+                                    putExtra(EXTRA_EVENT_TITLE, effect.eventTitle)
+                                    putExtra(EXTRA_UNIQUE_ID, effect.uniqueId)
+                                    putExtra(EXTRA_EVENT_ID, effect.eventId)
+                                    putExtra(EXTRA_EVENT_START_TIME, effect.startTime)
+                                    putExtra(EXTRA_MEETING_URL, effect.meetingUrl)
+                                }
+                            sendBroadcast(snoozeIntent)
+                            viewModel.onSideEffectConsumed(effect)
+                        }
                     }
                 }
             }

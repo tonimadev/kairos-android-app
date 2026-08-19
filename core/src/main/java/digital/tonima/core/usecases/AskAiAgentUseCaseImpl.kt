@@ -10,6 +10,7 @@ import com.google.firebase.ai.type.Schema
 import com.google.firebase.ai.type.Tool
 import com.google.firebase.ai.type.content
 import com.paulrybitskyi.hiltbinder.BindType
+import com.paulrybitskyi.hiltbinder.BindType.Component.SINGLETON
 import digital.tonima.core.ai.AIConfig
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.model.AIAgentResponse
@@ -26,7 +27,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-@BindType(installIn = BindType.Component.SINGLETON, to = AskAiAgentUseCase::class)
+@BindType(installIn = SINGLETON, to = AskAiAgentUseCase::class)
 class AskAiAgentUseCaseImpl
     @Inject
     constructor() : AskAiAgentUseCase {

@@ -145,7 +145,6 @@ class EventViewModelTest {
             scheduleEventAlarmUseCase = mockScheduleEventAlarmUseCase,
             cancelEventAlarmUseCase = mockCancelEventAlarmUseCase,
             calculateDepartureTimeUseCase = mockCalculateDepartureTimeUseCase,
-            updateWidgetUseCase = mockUpdateWidgetUseCase,
             logEventUseCase = mockLogEventUseCase,
             checkPermissionsUseCase = mockCheckPermissionsUseCase,
             getCurrentLocationUseCase = mockGetCurrentLocationUseCase,

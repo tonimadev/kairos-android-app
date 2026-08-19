@@ -15,10 +15,8 @@ import digital.tonima.core.viewmodel.AuthSideEffect.ShowSnackbar
 import digital.tonima.core.viewmodel.UiText.DynamicString
 import digital.tonima.core.viewmodel.UiText.StringResource
 import digital.tonima.kairos.core.R
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,8 +33,9 @@ class AuthViewModel
         private val _uiState = MutableStateFlow(AuthUiState())
         val uiState = _uiState.asStateFlow()
 
-        private val _sideEffect = Channel<AuthSideEffect>(Channel.BUFFERED)
-        val sideEffect = _sideEffect.receiveAsFlow()
+        fun onSideEffectConsumed(effect: AuthSideEffect) {
+            _uiState.update { it.copy(sideEffects = it.sideEffects - effect) }
+        }
 
         init {
             _uiState.update { it.copy(isGoogleConnected = isGoogleSignedIn()) }
@@ -47,7 +46,11 @@ class AuthViewModel
                 when (intent) {
                     SignInWithGoogle -> {
                         val signInIntent = getGoogleSignInIntent()
-                        _sideEffect.send(LaunchGoogleSignIn(signInIntent))
+                        _uiState.update {
+                            it.copy(
+                                sideEffects = it.sideEffects + LaunchGoogleSignIn(signInIntent),
+                            )
+                        }
                     }
                     SignOutFromGoogle -> {
                         signOutFromGoogle()
@@ -56,10 +59,22 @@ class AuthViewModel
                     is HandleGoogleSignInResult -> {
                         val result = handleGoogleSignInResultUseCase(intent.resultData)
                         if (result.isSuccess) {
-                            _uiState.update { it.copy(isGoogleConnected = true) }
-                            _sideEffect.send(ShowSnackbar(StringResource(R.string.google_logout_title)))
+                            _uiState.update {
+                                it.copy(
+                                    isGoogleConnected = true,
+                                    sideEffects =
+                                        it.sideEffects +
+                                            ShowSnackbar(
+                                                StringResource(R.string.google_logout_title),
+                                            ),
+                                )
+                            }
                         } else {
-                            _sideEffect.send(ShowSnackbar(DynamicString("Login failed")))
+                            _uiState.update {
+                                it.copy(
+                                    sideEffects = it.sideEffects + ShowSnackbar(DynamicString("Login failed")),
+                                )
+                            }
                         }
                     }
                 }

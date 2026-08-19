@@ -27,12 +27,10 @@ import digital.tonima.core.viewmodel.SettingsIntent.UpdateAllDayAlarmHour
 import digital.tonima.core.viewmodel.SettingsIntent.UpdateAutoDismissMinutes
 import digital.tonima.core.viewmodel.SettingsIntent.UpdateCustomRingtoneUri
 import digital.tonima.core.viewmodel.SettingsIntent.UpdateSnoozeTime
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,9 +46,6 @@ class SettingsViewModel
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(SettingsUiState())
         val uiState = _uiState.asStateFlow()
-
-        private val _sideEffect = Channel<SettingsSideEffect>(Channel.BUFFERED)
-        val sideEffect = _sideEffect.receiveAsFlow()
 
         init {
             observePreferences()
