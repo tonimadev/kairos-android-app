@@ -57,7 +57,7 @@ kotlinxSerializationJson = "1.11.0"
 retrofitKotlinxSerializationConverter = "1.0.0"
 splashscreen = "1.2.0"
 playServicesAuth = "21.6.0"
-vico = "3.2.3"
+vico = "3.3.0"
 androidx-appfunctions = "1.0.0-alpha10"
 
 [libraries]
