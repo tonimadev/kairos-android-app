@@ -1,7 +1,6 @@
 package digital.tonima.core.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import app.cash.turbine.test
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
@@ -221,24 +220,21 @@ class EventViewModelTest {
                 mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any(), any())
             } returns 123L
 
-            viewModel.sideEffect.test {
-                viewModel.handleIntent(
-                    EventIntent.CreateEvent(
-                        calendarId = 1,
-                        title = "New Event",
-                        description = "Desc",
-                        location = "Loc",
-                        startTime = 1000L,
-                        endTime = 2000L,
-                        isAllDay = false,
-                    ),
-                )
-                advanceUntilIdle()
+            viewModel.handleIntent(
+                EventIntent.CreateEvent(
+                    calendarId = 1,
+                    title = "New Event",
+                    description = "Desc",
+                    location = "Loc",
+                    startTime = 1000L,
+                    endTime = 2000L,
+                    isAllDay = false,
+                ),
+            )
+            advanceUntilIdle()
 
-                val effect = awaitItem()
-                assertTrue(effect is EventSideEffect.ShowSnackbar)
-                cancelAndConsumeRemainingEvents()
-            }
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.any { it is EventSideEffect.ShowSnackbar })
 
             coVerify {
                 mockCreateEventUseCase(1, "New Event", "Desc", "Loc", 1000L, 2000L, false, any())

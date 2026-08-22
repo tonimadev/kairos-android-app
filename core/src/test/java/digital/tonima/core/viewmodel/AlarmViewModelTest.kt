@@ -1,8 +1,9 @@
 package digital.tonima.core.viewmodel
 
-import app.cash.turbine.test
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.sync.WearMessagingHelper
+import digital.tonima.core.viewmodel.AlarmIntent.Init
+import digital.tonima.core.viewmodel.AlarmSideEffect.SendSnoozeBroadcast
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +45,7 @@ class AlarmViewModelTest {
     fun `init populates ui state correctly`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init(
+                Init(
                     eventTitle = "Team Standup",
                     uniqueId = 42,
                     eventId = 100L,
@@ -67,7 +68,7 @@ class AlarmViewModelTest {
     fun `init with no meeting url sets hasMeetingUrl false`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Event", 1, 1L, 1L, null, null),
+                Init("Event", 1, 1L, 1L, null, null),
             )
 
             assertFalse(viewModel.uiState.value.hasMeetingUrl)
@@ -77,25 +78,20 @@ class AlarmViewModelTest {
     fun `snooze logs analytics and emits side effects`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Daily", 10, 50L, 800L, null, null),
+                Init("Daily", 10, 50L, 800L, null, null),
             )
 
-            viewModel.sideEffect.test {
-                viewModel.handleIntent(AlarmIntent.Snooze)
+            viewModel.handleIntent(AlarmIntent.Snooze)
 
-                val broadcast = awaitItem()
-                assertTrue(broadcast is AlarmSideEffect.SendSnoozeBroadcast)
-                val snooze = broadcast as AlarmSideEffect.SendSnoozeBroadcast
-                assertEquals("Daily", snooze.eventTitle)
-                assertEquals(10, snooze.uniqueId)
-                assertEquals(50L, snooze.eventId)
-                assertEquals(800L, snooze.startTime)
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.any { it is SendSnoozeBroadcast })
+            val snooze = effects.first { it is SendSnoozeBroadcast } as SendSnoozeBroadcast
+            assertEquals("Daily", snooze.eventTitle)
+            assertEquals(10, snooze.uniqueId)
+            assertEquals(50L, snooze.eventId)
+            assertEquals(800L, snooze.startTime)
 
-                val finish = awaitItem()
-                assertTrue(finish is AlarmSideEffect.FinishScreen)
-
-                cancelAndConsumeRemainingEvents()
-            }
+            assertTrue(effects.any { it is AlarmSideEffect.FinishScreen })
 
             verify {
                 mockAnalytics.logEvent(
@@ -110,17 +106,13 @@ class AlarmViewModelTest {
     fun `stop logs analytics and emits finish`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Meeting", 5, 20L, 500L, null, null),
+                Init("Meeting", 5, 20L, 500L, null, null),
             )
 
-            viewModel.sideEffect.test {
-                viewModel.handleIntent(AlarmIntent.Stop)
+            viewModel.handleIntent(AlarmIntent.Stop)
 
-                val finish = awaitItem()
-                assertTrue(finish is AlarmSideEffect.FinishScreen)
-
-                cancelAndConsumeRemainingEvents()
-            }
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.any { it is AlarmSideEffect.FinishScreen })
 
             verify {
                 mockAnalytics.logEvent(
@@ -135,7 +127,7 @@ class AlarmViewModelTest {
     fun `joinMeeting logs both analytics events and emits url and finish`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init(
+                Init(
                     "Sprint Review",
                     7,
                     30L,
@@ -145,21 +137,16 @@ class AlarmViewModelTest {
                 ),
             )
 
-            viewModel.sideEffect.test {
-                viewModel.handleIntent(AlarmIntent.JoinMeeting)
+            viewModel.handleIntent(AlarmIntent.JoinMeeting)
 
-                val urlEffect = awaitItem()
-                assertTrue(urlEffect is AlarmSideEffect.OpenMeetingUrl)
-                assertEquals(
-                    "https://meet.google.com/xyz",
-                    (urlEffect as AlarmSideEffect.OpenMeetingUrl).url,
-                )
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.any { it is AlarmSideEffect.OpenMeetingUrl })
+            assertEquals(
+                "https://meet.google.com/xyz",
+                (effects.first { it is AlarmSideEffect.OpenMeetingUrl } as AlarmSideEffect.OpenMeetingUrl).url,
+            )
 
-                val finish = awaitItem()
-                assertTrue(finish is AlarmSideEffect.FinishScreen)
-
-                cancelAndConsumeRemainingEvents()
-            }
+            assertTrue(effects.any { it is AlarmSideEffect.FinishScreen })
 
             verify {
                 mockAnalytics.logEvent(
@@ -177,16 +164,13 @@ class AlarmViewModelTest {
     fun `joinMeeting without meeting url does not emit OpenMeetingUrl`() =
         runTest {
             viewModel.handleIntent(
-                AlarmIntent.Init("Event", 1, 1L, 1L, null, null),
+                Init("Event", 1, 1L, 1L, null, null),
             )
 
-            viewModel.sideEffect.test {
-                viewModel.handleIntent(AlarmIntent.JoinMeeting)
+            viewModel.handleIntent(AlarmIntent.JoinMeeting)
 
-                val finish = awaitItem()
-                assertTrue(finish is AlarmSideEffect.FinishScreen)
-
-                cancelAndConsumeRemainingEvents()
-            }
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.any { it is AlarmSideEffect.FinishScreen })
+            assertFalse(effects.any { it is AlarmSideEffect.OpenMeetingUrl })
         }
 }

@@ -2,7 +2,6 @@ package digital.tonima.core.viewmodel
 
 import android.content.Intent
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import app.cash.turbine.test
 import digital.tonima.core.usecases.GetGoogleSignInIntentUseCase
 import digital.tonima.core.usecases.HandleGoogleSignInResultUseCase
 import digital.tonima.core.usecases.IsGoogleSignedInUseCase
@@ -71,14 +70,19 @@ class AuthViewModelTest {
             val mockIntent = mockk<Intent>()
             every { mockGetGoogleSignInIntent() } returns mockIntent
 
-            viewModel.sideEffect.test {
-                viewModel.handleIntent(AuthIntent.SignInWithGoogle)
+            viewModel.handleIntent(AuthIntent.SignInWithGoogle)
+            advanceUntilIdle()
 
-                val effect = awaitItem()
-                assertTrue(effect is AuthSideEffect.LaunchGoogleSignIn)
-                assertEquals(mockIntent, (effect as AuthSideEffect.LaunchGoogleSignIn).intent)
-                cancelAndConsumeRemainingEvents()
-            }
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.any { it is AuthSideEffect.LaunchGoogleSignIn })
+            assertEquals(
+                mockIntent,
+                (
+                    effects.first {
+                        it is AuthSideEffect.LaunchGoogleSignIn
+                    } as AuthSideEffect.LaunchGoogleSignIn
+                ).intent,
+            )
         }
 
     @Test
@@ -114,12 +118,4 @@ class AuthViewModelTest {
 
             assertTrue(viewModel.uiState.value.isGoogleConnected)
         }
-}
-
-// Helper to avoid import issues if not available in classpath during generation
-private fun assertEquals(
-    expected: Any?,
-    actual: Any?,
-) {
-    assertEquals(expected, actual)
 }

@@ -1,7 +1,6 @@
 package digital.tonima.core.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import app.cash.turbine.test
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.AIToolResult
 import digital.tonima.core.ai.RiskLevel
@@ -279,13 +278,13 @@ class AiViewModelTest {
             viewModel.handleIntent(AiIntent.OpenChatDetail(1L))
             runCurrent()
 
-            viewModel.sideEffect.test {
-                viewModel.handleIntent(AiIntent.AskAi("Tell them I'm late", "en"))
+            viewModel.handleIntent(AiIntent.AskAi("Tell them I'm late", "en"))
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
 
-                val effect = awaitItem()
-                assertTrue(effect is AiSideEffect.ShowSnackbar)
-                cancelAndConsumeRemainingEvents()
-            }
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.any { it is AiSideEffect.ShowSnackbar })
         }
 
     @Test
@@ -307,14 +306,14 @@ class AiViewModelTest {
                     AIAgentResponse.Text("Aguardando sua confirmação para criar o evento."),
                 )
 
-            viewModel.sideEffect.test {
-                viewModel.handleIntent(AiIntent.AskAi("Create meeting", "en"))
+            viewModel.handleIntent(AiIntent.AskAi("Create meeting", "en"))
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
 
-                val effect = awaitItem()
-                assertTrue(effect is AiSideEffect.RequireUserConfirmation)
-                assertEquals(createIntent, viewModel.uiState.value.pendingAIAction)
-                cancelAndConsumeRemainingEvents()
-            }
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.any { it is AiSideEffect.RequireUserConfirmation })
+            assertEquals(createIntent, viewModel.uiState.value.pendingAIAction)
         }
 
     @Test
