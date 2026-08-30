@@ -10,6 +10,7 @@ import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.viewmodel.SettingsIntent.ChangeTransportMode
 import digital.tonima.core.viewmodel.SettingsIntent.CheckPermissions
 import digital.tonima.core.viewmodel.SettingsIntent.CloseSettings
+import digital.tonima.core.viewmodel.SettingsIntent.ConsumeEffect
 import digital.tonima.core.viewmodel.SettingsIntent.DismissAutostartSuggestion
 import digital.tonima.core.viewmodel.SettingsIntent.OpenSettings
 import digital.tonima.core.viewmodel.SettingsIntent.SkipExactAlarmPermission
@@ -29,7 +30,9 @@ import digital.tonima.core.viewmodel.SettingsIntent.UpdateCustomRingtoneUri
 import digital.tonima.core.viewmodel.SettingsIntent.UpdateSnoozeTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -47,6 +50,8 @@ class SettingsViewModel
         private val _uiState = MutableStateFlow(SettingsUiState())
         val uiState = _uiState.asStateFlow()
 
+        val effect = uiState.map { it.effect }.distinctUntilChanged()
+
         init {
             observePreferences()
             observeRingerMode()
@@ -56,6 +61,7 @@ class SettingsViewModel
         fun handleIntent(intent: SettingsIntent) {
             viewModelScope.launch {
                 when (intent) {
+                    is ConsumeEffect -> _uiState.update { it.copy(effect = null) }
                     is ToggleGlobalAlarms -> updateAppPreferenceUseCase.setGlobalAlarmEnabled(intent.enabled)
                     is ToggleVibrateOnly -> updateAppPreferenceUseCase.setVibrateOnly(intent.enabled)
                     is ToggleAllDayAlarms -> updateAppPreferenceUseCase.setAllDayAlarmsEnabled(intent.enabled)

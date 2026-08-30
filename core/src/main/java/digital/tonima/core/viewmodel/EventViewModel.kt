@@ -2,6 +2,7 @@ package digital.tonima.core.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.common.collect.ImmutableList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.model.Event
@@ -27,6 +28,7 @@ import digital.tonima.core.viewmodel.EventIntent.ChangeMonth
 import digital.tonima.core.viewmodel.EventIntent.ClearCalendarFilter
 import digital.tonima.core.viewmodel.EventIntent.CloseImportCalendarScreen
 import digital.tonima.core.viewmodel.EventIntent.CloseManageCalendarsScreen
+import digital.tonima.core.viewmodel.EventIntent.ConsumeEffect
 import digital.tonima.core.viewmodel.EventIntent.CopyMeetingUrl
 import digital.tonima.core.viewmodel.EventIntent.CreateEvent
 import digital.tonima.core.viewmodel.EventIntent.DismissCreateEventDialog
@@ -55,12 +57,15 @@ import digital.tonima.core.viewmodel.EventSideEffect.RequestPurchase
 import digital.tonima.core.viewmodel.EventSideEffect.RequestSubscription
 import digital.tonima.core.viewmodel.EventSideEffect.ShowSnackbar
 import digital.tonima.core.viewmodel.UiText.StringResource
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -97,12 +102,10 @@ class EventViewModel
         private val _uiState = MutableStateFlow(EventScreenUiState())
         val uiState = _uiState.asStateFlow()
 
+        val effect = uiState.map { it.effect }.distinctUntilChanged()
+
         private var isGlobalAlarmEnabled = true
         private var alarmOffsetMinutes = 0L
-
-        fun onSideEffectConsumed(effect: EventSideEffect) {
-            _uiState.update { it.copy(sideEffects = it.sideEffects - effect) }
-        }
 
         init {
             observePreferences()
@@ -122,10 +125,12 @@ class EventViewModel
             }
         }
 
+        @Suppress("CyclomaticComplexMethod")
         fun handleIntent(intent: EventIntent) {
             logEventUseCase(intent)
             viewModelScope.launch {
                 when (intent) {
+                    is ConsumeEffect -> _uiState.update { it.copy(effect = null) }
                     is RefreshEvents -> refreshEvents()
                     is ChangeMonth -> onMonthChanged(intent.yearMonth)
                     is SelectDate -> _uiState.update { it.copy(selectedDate = intent.date) }
@@ -136,36 +141,33 @@ class EventViewModel
                     is CreateEvent -> createEvent(intent)
                     is JoinMeeting ->
                         _uiState.update {
-                            it.copy(
-                                sideEffects = it.sideEffects + OpenMeetingUrl(intent.meetingUrl),
-                            )
+                            it.copy(effect = OpenMeetingUrl(intent.meetingUrl))
                         }
                     is CopyMeetingUrl ->
                         _uiState.update {
                             it.copy(
-                                sideEffects =
-                                    it.sideEffects +
-                                        CopyToClipboard(
-                                            intent.meetingUrl,
-                                            StringResource(R.string.link_copied),
-                                        ),
+                                effect =
+                                    CopyToClipboard(
+                                        intent.meetingUrl,
+                                        StringResource(R.string.link_copied),
+                                    ),
                             )
                         }
                     is ToggleEventAlarm ->
                         toggleEventAlarmUseCase(
-                            intent.event,
+                            intent.event.toDomainModel(),
                             intent.enabled,
                             intent.allOccurrences,
                         )
-                    is ToggleEventVibrate -> toggleEventVibrateUseCase(intent.event, intent.enabled)
+                    is ToggleEventVibrate -> toggleEventVibrateUseCase(intent.event.toDomainModel(), intent.enabled)
                     FetchWeather -> fetchWeather()
                     UpgradeToProRequest ->
                         _uiState.update {
-                            it.copy(sideEffects = it.sideEffects + RequestPurchase)
+                            it.copy(effect = RequestPurchase)
                         }
                     UpgradeToProIARequest ->
                         _uiState.update {
-                            it.copy(sideEffects = it.sideEffects + RequestSubscription)
+                            it.copy(effect = RequestSubscription)
                         }
                     is ChangeBottomTab -> _uiState.update { it.copy(selectedBottomTab = intent.tabIndex) }
                     OpenImportCalendarScreen -> _uiState.update { it.copy(showImportCalendarScreen = true) }
@@ -204,7 +206,7 @@ class EventViewModel
                 }
 
                 if (prevGlobalEnabled && !appPrefs.isGlobalAlarmEnabled) {
-                    _uiState.value.events.forEach { cancelEventAlarmUseCase(it) }
+                    _uiState.value.events.forEach { cancelEventAlarmUseCase(it.toDomainModel()) }
                 }
 
                 refreshEvents()
@@ -217,7 +219,9 @@ class EventViewModel
 
             viewModelScope.launch {
                 _uiState.update { it.copy(isRefreshing = true) }
+
                 val calendarEvents = getEventsForMonthUseCase(_uiState.value.currentMonth)
+
                 val appPrefs = observeAppPreferencesUseCase().first()
 
                 val updatedEvents =
@@ -244,7 +248,12 @@ class EventViewModel
                         )
                     }
                 val enrichedEvents = detectConflictsAndBuffers(updatedEvents)
-                _uiState.update { it.copy(events = enrichedEvents, isRefreshing = false) }
+                _uiState.update { state ->
+                    state.copy(
+                        events = ImmutableList.copyOf(enrichedEvents.map { it.toUiModel() }),
+                        isRefreshing = false,
+                    )
+                }
 
                 if (isGlobalAlarmEnabled) {
                     scheduleImmediateEvents(enrichedEvents)
@@ -273,6 +282,7 @@ class EventViewModel
                     }
                 }
             }
+
             return events.map { event ->
                 event.copy(hasConflict = event.id in conflictIds, isBackToBack = event.id in backToBackIds)
             }
@@ -301,13 +311,22 @@ class EventViewModel
             }
         }
 
-        private fun onMonthChanged(yearMonth: YearMonth) {
-            _uiState.update { it.copy(currentMonth = yearMonth, isRefreshing = true) }
+        private fun onMonthChanged(yearMonthEpoch: Long) {
+            _uiState.update { it.copy(currentMonth = yearMonthEpoch, isRefreshing = true) }
             refreshEvents()
         }
 
         private fun returnToToday() {
-            _uiState.update { it.copy(selectedDate = LocalDate.now(), currentMonth = YearMonth.now()) }
+            // CORREÇÃO: Usar Epoch Day correto para representar o currentMonth
+            val today = LocalDate.now()
+            val firstDayOfMonthEpoch = YearMonth.from(today).atDay(1).toEpochDay()
+
+            _uiState.update {
+                it.copy(
+                    selectedDate = today.toEpochDay(),
+                    currentMonth = firstDayOfMonthEpoch,
+                )
+            }
         }
 
         private fun loadAvailableCalendars() {
@@ -353,11 +372,12 @@ class EventViewModel
                     handleIntent(DismissCreateEventDialog)
 
                     val eventDate = Instant.ofEpochMilli(intent.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
-                    val eventMonth = YearMonth.from(eventDate)
 
-                    _uiState.update { it.copy(selectedDate = eventDate) }
-                    if (eventMonth != _uiState.value.currentMonth) {
-                        onMonthChanged(eventMonth)
+                    val eventMonthEpoch = YearMonth.from(eventDate).atDay(1).toEpochDay()
+
+                    _uiState.update { it.copy(selectedDate = eventDate.toEpochDay()) }
+                    if (eventMonthEpoch != _uiState.value.currentMonth) {
+                        onMonthChanged(eventMonthEpoch)
                     }
 
                     if (!_uiState.value.enabledCalendarIds.contains(intent.calendarId)) {
@@ -367,21 +387,11 @@ class EventViewModel
                     delay(500.milliseconds)
                     refreshEvents()
                     _uiState.update {
-                        it.copy(
-                            sideEffects =
-                                it.sideEffects +
-                                    ShowSnackbar(
-                                        StringResource(R.string.ai_agent_event_created),
-                                    ),
-                        )
+                        it.copy(effect = ShowSnackbar(StringResource(R.string.ai_agent_event_created)))
                     }
                 } else {
                     _uiState.update {
-                        it.copy(
-                            sideEffects =
-                                it.sideEffects +
-                                    AIToolError(StringResource(R.string.ai_agent_event_creation_error)),
-                        )
+                        it.copy(effect = AIToolError(StringResource(R.string.ai_agent_event_creation_error)))
                     }
                 }
             }
@@ -393,7 +403,7 @@ class EventViewModel
                 _uiState.update {
                     it.copy(
                         showRatingBottomSheet = false,
-                        sideEffects = it.sideEffects + EventSideEffect.RequestAppReview,
+                        effect = EventSideEffect.RequestAppReview,
                     )
                 }
             }
@@ -436,3 +446,43 @@ class EventViewModel
             }
         }
     }
+
+private fun Event.toUiModel(): EventUiModel =
+    EventUiModel(
+        id = id,
+        title = title,
+        startTime = startTime,
+        endTime = endTime,
+        isAlarmEnabled = isAlarmEnabled,
+        isRecurring = isRecurring,
+        vibrateOnly = vibrateOnly,
+        isAllDay = isAllDay,
+        calendarColor = calendarColor,
+        meetingUrl = meetingUrl,
+        location = location,
+        departureTime = departureTime,
+        travelTimeMinutes = travelTimeMinutes,
+        category = category,
+        hasConflict = hasConflict,
+        isBackToBack = isBackToBack,
+    )
+
+private fun EventUiModel.toDomainModel(): Event =
+    Event(
+        id = id,
+        title = title,
+        startTime = startTime,
+        endTime = endTime,
+        isAlarmEnabled = isAlarmEnabled,
+        isRecurring = isRecurring,
+        vibrateOnly = vibrateOnly,
+        isAllDay = isAllDay,
+        calendarColor = calendarColor,
+        meetingUrl = meetingUrl,
+        location = location,
+        departureTime = departureTime,
+        travelTimeMinutes = travelTimeMinutes,
+        category = category,
+        hasConflict = hasConflict,
+        isBackToBack = isBackToBack,
+    )

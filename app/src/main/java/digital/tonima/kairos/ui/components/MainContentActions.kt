@@ -1,17 +1,16 @@
 package digital.tonima.kairos.ui.components
 
 import digital.tonima.core.model.AlarmOffset
-import digital.tonima.core.model.Event
-import java.time.LocalDate
-import java.time.YearMonth
+import digital.tonima.core.model.InsightsPeriod
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 
 data class EventActions(
     val onRefresh: () -> Unit,
-    val onEventToggle: (event: Event, isEnabled: Boolean, disableAllOccurrences: Boolean) -> Unit,
-    val onEventVibrateToggle: (event: Event, vibrateOnly: Boolean) -> Unit,
-    val onMonthChanged: (YearMonth) -> Unit,
-    val onDateSelected: (LocalDate) -> Unit,
-    val onEventClick: (Event) -> Unit,
+    val onEventToggle: (event: EventUiModel, isEnabled: Boolean, disableAllOccurrences: Boolean) -> Unit,
+    val onEventVibrateToggle: (event: EventUiModel, vibrateOnly: Boolean) -> Unit,
+    val onMonthChanged: (Long) -> Unit,
+    val onDateSelected: (Long) -> Unit,
+    val onEventClick: (EventUiModel) -> Unit,
     val onReturnToToday: () -> Unit,
     val onSearchQueryChanged: (String) -> Unit = {},
     val onJoinMeeting: (String) -> Unit = {},
@@ -27,7 +26,7 @@ data class EventActions(
         isAllDay: Boolean,
     ) -> Unit = { _, _, _, _, _, _, _ -> },
     val onDismissCreateEvent: () -> Unit = {},
-    val onInsightsPeriodChange: (digital.tonima.core.model.InsightsPeriod) -> Unit = {},
+    val onInsightsPeriodChange: (InsightsPeriod) -> Unit = {},
 )
 
 data class SettingsActions(

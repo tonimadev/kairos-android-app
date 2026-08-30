@@ -24,15 +24,15 @@ import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Dialog
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
-import digital.tonima.core.model.Event
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R as coreR
 
 @Composable
 fun EventsListSection(
-    events: List<Event>,
+    events: List<EventUiModel>,
     isRefreshing: Boolean,
     isGlobalAlarmEnabled: Boolean,
-    onEventToggle: (event: Event, isEnabled: Boolean, applyToSeries: Boolean) -> Unit,
+    onEventToggle: (event: EventUiModel, isEnabled: Boolean, applyToSeries: Boolean) -> Unit,
 ) {
     if (events.isEmpty() && !isRefreshing) {
         Text(text = stringResource(coreR.string.no_events_found_for_this_day))
@@ -42,7 +42,7 @@ fun EventsListSection(
     val sorted = events.sortedBy { it.startTime }
 
     for (event in sorted) {
-        val pendingToggle = remember(event.id, event.startTime) { mutableStateOf<Pair<Event, Boolean>?>(null) }
+        val pendingToggle = remember(event.id, event.startTime) { mutableStateOf<Pair<EventUiModel, Boolean>?>(null) }
 
         EventCard(
             event = event,

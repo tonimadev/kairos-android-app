@@ -1,6 +1,8 @@
 package digital.tonima.core.viewmodel
 
 sealed class AiIntent : BaseIntent {
+    data object ConsumeEffect : AiIntent()
+
     data class AskAi(val question: String, val language: String) : AiIntent()
 
     data class GenerateDailyBriefing(val language: String) : AiIntent()

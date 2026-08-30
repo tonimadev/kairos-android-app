@@ -1,18 +1,18 @@
 package digital.tonima.core.repository
 
+import com.google.common.collect.ImmutableList
 import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.model.Event
-import java.time.YearMonth
 
 interface CalendarRepository {
-    suspend fun getAvailableCalendars(): List<DeviceCalendar>
+    suspend fun getAvailableCalendars(): ImmutableList<DeviceCalendar>
 
     suspend fun getEventsForMonth(
-        yearMonth: YearMonth,
-        allowedCalendarIds: List<Long> = emptyList(),
-    ): List<Event>
+        yearMonth: Long,
+        allowedCalendarIds: ImmutableList<Long> = ImmutableList.of(),
+    ): ImmutableList<Event>
 
-    suspend fun getNextUpcomingEvent(allowedCalendarIds: List<Long> = emptyList()): Event?
+    suspend fun getNextUpcomingEvent(allowedCalendarIds: ImmutableList<Long> = ImmutableList.of()): Event?
 
     suspend fun isRecurring(eventId: Long): Boolean
 

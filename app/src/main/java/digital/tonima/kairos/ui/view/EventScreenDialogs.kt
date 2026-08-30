@@ -21,35 +21,30 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import digital.tonima.core.viewmodel.AiIntent
-import digital.tonima.core.viewmodel.AiSideEffect
-import digital.tonima.core.viewmodel.AiUiState
-import digital.tonima.core.viewmodel.AiViewModel
-import digital.tonima.core.viewmodel.EventIntent
+import digital.tonima.core.viewmodel.AiSideEffect.RequireUserConfirmation
 import digital.tonima.core.viewmodel.EventScreenUiState
-import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.Dimensions
 
 @Composable
 fun EventScreenDialogs(
     uiState: EventScreenUiState,
-    aiUiState: AiUiState,
-    aiConfirmationData: AiSideEffect.RequireUserConfirmation?,
+    aiConfirmationData: RequireUserConfirmation?,
     onClearAiConfirmation: () -> Unit,
-    eventViewModel: EventViewModel,
-    aiViewModel: AiViewModel,
+    onRateNow: () -> Unit,
+    onRateLater: () -> Unit,
+    onRateNeverShow: () -> Unit,
+    onApproveAiAction: () -> Unit,
+    onRejectAiAction: () -> Unit,
 ) {
     val context = LocalContext.current
 
     if (uiState.showRatingBottomSheet) {
         RatingBottomSheet(
-            onDismissRequest = { eventViewModel.handleIntent(EventIntent.RateLater) },
-            onRateNow = {
-                eventViewModel.handleIntent(EventIntent.RateNow)
-            },
-            onRateLater = { eventViewModel.handleIntent(EventIntent.RateLater) },
-            onRateNeverShow = { eventViewModel.handleIntent(EventIntent.RateNever) },
+            onDismissRequest = onRateLater,
+            onRateNow = onRateNow,
+            onRateLater = onRateLater,
+            onRateNeverShow = onRateNeverShow,
         )
     }
 
@@ -57,14 +52,14 @@ fun EventScreenDialogs(
         AlertDialog(
             onDismissRequest = {
                 onClearAiConfirmation()
-                aiViewModel.handleIntent(AiIntent.RejectPendingAction)
+                onRejectAiAction()
             },
             title = { Text(text = data.title.asString(context)) },
             text = { Text(text = data.message.asString(context)) },
             confirmButton = {
                 TextButton(onClick = {
                     onClearAiConfirmation()
-                    aiViewModel.handleIntent(AiIntent.ApprovePendingAction)
+                    onApproveAiAction()
                 }) {
                     Text(text = stringResource(R.string.confirm))
                 }
@@ -72,7 +67,7 @@ fun EventScreenDialogs(
             dismissButton = {
                 TextButton(onClick = {
                     onClearAiConfirmation()
-                    aiViewModel.handleIntent(AiIntent.RejectPendingAction)
+                    onRejectAiAction()
                 }) {
                     Text(text = stringResource(R.string.cancel))
                 }
@@ -116,7 +111,9 @@ private fun RatingBottomSheet(
                 textAlign = TextAlign.Center,
             )
             Spacer(modifier = Modifier.height(Dimensions.PaddingLarge))
-            Button(onClick = onRateNow, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.rate_now)) }
+            Button(onClick = onRateNow, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.rate_now))
+            }
             Spacer(modifier = Modifier.height(Dimensions.SpacingSmall))
             TextButton(
                 onClick = onRateLater,

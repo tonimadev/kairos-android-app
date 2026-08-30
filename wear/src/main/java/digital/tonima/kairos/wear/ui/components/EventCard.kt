@@ -22,7 +22,7 @@ import androidx.wear.compose.material.SwitchDefaults
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
-import digital.tonima.core.model.Event
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.wear.ui.theme.Dimensions
 import java.time.Instant
@@ -32,7 +32,7 @@ import java.time.format.FormatStyle
 
 @Composable
 fun EventCard(
-    event: Event,
+    event: EventUiModel,
     isGloballyEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
 ) {

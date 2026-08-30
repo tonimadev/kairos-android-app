@@ -68,8 +68,14 @@ class AlarmSchedulingWorker
                     val allDayAlarmsEnabled = appPreferencesRepository.isAllDayAlarmsEnabled().firstOrNull() ?: true
                     val allDayAlarmHour = appPreferencesRepository.getAllDayAlarmHour().firstOrNull() ?: 9
 
-                    val currentMonthEvents = getEventsForMonthUseCase.invoke(YearMonth.now())
-                    val nextMonthEvents = getEventsForMonthUseCase.invoke(YearMonth.now().plusMonths(1))
+                    val currentMonthEvents =
+                        getEventsForMonthUseCase.invoke(
+                            YearMonth.now().atDay(1).toEpochDay(),
+                        )
+                    val nextMonthEvents =
+                        getEventsForMonthUseCase.invoke(
+                            YearMonth.now().plusMonths(1).atDay(1).toEpochDay(),
+                        )
                     val allUpcomingEvents = currentMonthEvents + nextMonthEvents
 
                     logcat { "Encontrados ${allUpcomingEvents.size} eventos no total para os próximos 2 meses." }

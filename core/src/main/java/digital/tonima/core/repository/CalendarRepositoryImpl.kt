@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.CalendarContract
 import androidx.core.content.ContextCompat
+import com.google.common.collect.ImmutableList
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.model.DeviceCalendar
@@ -15,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import logcat.logcat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
@@ -61,11 +63,11 @@ class CalendarRepositoryImpl
             ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) ==
                 PackageManager.PERMISSION_GRANTED
 
-        override suspend fun getAvailableCalendars(): List<DeviceCalendar> =
+        override suspend fun getAvailableCalendars(): ImmutableList<DeviceCalendar> =
             withContext(Dispatchers.IO) {
                 if (!hasCalendarPermission()) {
                     logcat { "Tentativa de aceder aos calendários sem a permissão READ_CALENDAR." }
-                    return@withContext emptyList()
+                    return@withContext ImmutableList.of()
                 }
 
                 val calendars = mutableListOf<DeviceCalendar>()
@@ -99,27 +101,30 @@ class CalendarRepositoryImpl
                         calendars.add(DeviceCalendar(id, displayName, accountName, color))
                     }
                 }
-                return@withContext calendars
+                return@withContext ImmutableList.copyOf(calendars)
             }
 
         override suspend fun getEventsForMonth(
-            yearMonth: YearMonth,
-            allowedCalendarIds: List<Long>,
-        ): List<Event> =
+            yearMonth: Long,
+            allowedCalendarIds: ImmutableList<Long>,
+        ): ImmutableList<Event> =
             withContext(Dispatchers.IO) {
                 if (!hasCalendarPermission()) {
                     logcat { "Tentativa de aceder ao calendário sem a permissão READ_CALENDAR." }
-                    return@withContext emptyList()
+                    return@withContext ImmutableList.of()
                 }
                 val events = mutableListOf<Event>()
 
+                val parsedYearMonth = YearMonth.from(LocalDate.ofEpochDay(yearMonth))
+
                 val startMillis =
-                    yearMonth.atDay(1)
+                    parsedYearMonth.atDay(1)
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()
                         .toEpochMilli()
+
                 val endMillis =
-                    yearMonth.atEndOfMonth()
+                    parsedYearMonth.atEndOfMonth()
                         .atTime(23, 59, 59)
                         .atZone(ZoneId.systemDefault())
                         .toInstant()
@@ -180,10 +185,10 @@ class CalendarRepositoryImpl
                     }
                 }
 
-                return@withContext events.sortedBy { it.startTime }
+                return@withContext ImmutableList.copyOf(events.sortedBy { it.startTime })
             }
 
-        override suspend fun getNextUpcomingEvent(allowedCalendarIds: List<Long>): Event? =
+        override suspend fun getNextUpcomingEvent(allowedCalendarIds: ImmutableList<Long>): Event? =
             withContext(Dispatchers.IO) {
                 if (!hasCalendarPermission()) {
                     logcat { "Tentativa de aceder ao calendário sem a permissão READ_CALENDAR." }

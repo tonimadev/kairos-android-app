@@ -36,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.model.DeviceCalendar
+import digital.tonima.core.viewmodel.VoiceEventData
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -58,18 +59,21 @@ fun CreateEventDialog(
         isAllDay: Boolean,
     ) -> Unit,
     availableCalendars: List<DeviceCalendar>,
-    initialDate: LocalDate = LocalDate.now(),
-    voiceEventData: digital.tonima.core.viewmodel.VoiceEventData? = null,
+    initialDateEpochDays: Long = LocalDate.now().toEpochDay(),
+    voiceEventData: VoiceEventData? = null,
 ) {
     var title by remember(voiceEventData) { mutableStateOf(voiceEventData?.title ?: "") }
     var description by remember(voiceEventData) { mutableStateOf(voiceEventData?.description ?: "") }
     var location by remember(voiceEventData) { mutableStateOf(voiceEventData?.location ?: "") }
 
     val initialStartDateTime =
-        remember(voiceEventData, initialDate) {
+        remember(voiceEventData, initialDateEpochDays) {
             voiceEventData?.startTime?.let {
                 Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDateTime()
-            } ?: LocalDateTime.of(initialDate, LocalTime.now().plusHours(1).withMinute(0))
+            } ?: LocalDateTime.of(
+                LocalDate.ofEpochDay(initialDateEpochDays),
+                LocalTime.now().plusHours(1).withMinute(0),
+            )
         }
 
     val initialEndDateTime =

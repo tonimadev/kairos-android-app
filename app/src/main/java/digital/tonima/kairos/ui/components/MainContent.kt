@@ -34,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.common.collect.ImmutableList // Adicionado para manter a imutabilidade
+import com.google.common.collect.ImmutableMap
 import digital.tonima.core.viewmodel.AiUiState
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.SettingsUiState
@@ -62,9 +64,17 @@ fun MainContent(
 
     val eventsByDate =
         remember(uiState.events) {
-            uiState.events.groupBy {
-                Instant.ofEpochMilli(it.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
-            }
+            val groupedMap =
+                uiState.events.groupBy { event ->
+                    Instant.ofEpochMilli(event.startTime)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .toEpochDay()
+                }.mapValues { (_, eventsList) ->
+                    ImmutableList.copyOf(eventsList)
+                }
+
+            ImmutableMap.copyOf(groupedMap)
         }
 
     var showDashboard by remember { mutableStateOf(false) }

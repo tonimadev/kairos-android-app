@@ -19,5 +19,5 @@ data class AiUiState(
     val voiceEventData: VoiceEventData? = null,
     val showAiSuggestionsDialog: Boolean = false,
     val pendingAIAction: BaseIntent? = null,
-    val sideEffects: List<AiSideEffect> = emptyList(),
+    val effect: AiSideEffect? = null,
 )

@@ -9,13 +9,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.android.play.core.review.ReviewManagerFactory.create
+import digital.tonima.core.util.LaunchedUiEffectHandler
+import digital.tonima.core.viewmodel.AiIntent
 import digital.tonima.core.viewmodel.AiSideEffect
 import digital.tonima.core.viewmodel.AiSideEffect.RequireUserConfirmation
 import digital.tonima.core.viewmodel.AiViewModel
@@ -72,6 +74,7 @@ fun EventScreenInfrastructure(
         eventViewModel = eventViewModel,
         aiViewModel = aiViewModel,
         authViewModel = authViewModel,
+        settingsViewModel = settingsViewModel,
         snackbarHostState = snackbarHostState,
         googleSignInLauncher = googleSignInLauncher,
         onSetAiConfirmationData = onSetAiConfirmationData,
@@ -85,6 +88,7 @@ private fun HandleSideEffects(
     eventViewModel: EventViewModel,
     aiViewModel: AiViewModel,
     authViewModel: AuthViewModel,
+    settingsViewModel: SettingsViewModel,
     snackbarHostState: SnackbarHostState,
     googleSignInLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onSetAiConfirmationData: (RequireUserConfirmation) -> Unit,
@@ -92,87 +96,107 @@ private fun HandleSideEffects(
     onPurchaseRequest: () -> Unit,
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(eventViewModel.uiState) {
-        eventViewModel.uiState.collect { state ->
-            state.sideEffects.forEach { effect ->
-                when (effect) {
-                    is ShowSnackbar ->
-                        snackbarHostState.showSnackbar(
-                            effect.message.asString(context),
-                        )
-                    is AIToolError ->
-                        snackbarHostState.showSnackbar(
-                            effect.message.asString(context),
-                        )
-                    is OpenMeetingUrl -> {
-                        try {
-                            context.startActivity(Intent(Intent.ACTION_VIEW, effect.url.toUri()))
-                        } catch (e: Exception) {
-                            logcat { "Failed to open meeting URL: ${e.message}" }
-                        }
-                    }
-                    is CopyToClipboard -> {
-                        val clipboard =
-                            context.getSystemService(
-                                Context.CLIPBOARD_SERVICE,
-                            ) as android.content.ClipboardManager
-                        val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
-                        clipboard.setPrimaryClip(clip)
-                        snackbarHostState.showSnackbar(effect.message.asString(context))
-                    }
-                    RequestAppReview -> {
-                        val activity = context.findActivity()
-                        if (activity != null) {
-                            val reviewManager =
-                                create(
-                                    context,
-                                )
-                            reviewManager.requestReviewFlow().addOnCompleteListener { request ->
-                                if (request.isSuccessful) {
-                                    val reviewInfo = request.result
-                                    reviewManager.launchReviewFlow(activity, reviewInfo)
-                                } else {
-                                    openPlayStoreFallback(context)
-                                }
-                            }
+    LaunchedUiEffectHandler(
+        effectFlow = eventViewModel.effect,
+        onConsume = { eventViewModel.handleIntent(EventIntent.ConsumeEffect) },
+    ) { effect ->
+        when (effect) {
+            is ShowSnackbar ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        effect.message.asString(context),
+                    )
+                }
+            is AIToolError ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        effect.message.asString(context),
+                    )
+                }
+            is OpenMeetingUrl -> {
+                try {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, effect.url.toUri()))
+                } catch (e: Exception) {
+                    logcat("EventScreen") { "Failed to open meeting URL: ${e.message}" }
+                }
+            }
+            is CopyToClipboard -> {
+                val clipboard =
+                    context.getSystemService(
+                        Context.CLIPBOARD_SERVICE,
+                    ) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
+                clipboard.setPrimaryClip(clip)
+                scope.launch {
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
+            }
+            RequestAppReview -> {
+                val activity = context.findActivity()
+                if (activity != null) {
+                    val reviewManager = create(context)
+                    reviewManager.requestReviewFlow().addOnCompleteListener { request ->
+                        if (request.isSuccessful) {
+                            val reviewInfo = request.result
+                            reviewManager.launchReviewFlow(activity, reviewInfo)
                         } else {
                             openPlayStoreFallback(context)
                         }
                     }
-                    RequestSubscription -> onSubscriptionRequest()
-                    RequestPurchase -> onPurchaseRequest()
+                } else {
+                    openPlayStoreFallback(context)
                 }
-                eventViewModel.onSideEffectConsumed(effect)
             }
+            RequestSubscription -> onSubscriptionRequest()
+            RequestPurchase -> onPurchaseRequest()
         }
     }
 
-    LaunchedEffect(aiViewModel.uiState) {
-        aiViewModel.uiState.collect { state ->
-            state.sideEffects.forEach { effect ->
-                when (effect) {
-                    is RequireUserConfirmation -> onSetAiConfirmationData(effect)
-                    is AiSideEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
-                    is AiSideEffect.AIToolError -> snackbarHostState.showSnackbar(effect.message.asString(context))
+    LaunchedUiEffectHandler(
+        effectFlow = aiViewModel.effect,
+        onConsume = { aiViewModel.handleIntent(AiIntent.ConsumeEffect) },
+    ) { effect ->
+        when (effect) {
+            is RequireUserConfirmation -> onSetAiConfirmationData(effect)
+            is AiSideEffect.ShowSnackbar ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
                 }
-                aiViewModel.onSideEffectConsumed(effect)
-            }
+            is AiSideEffect.AIToolError ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(effect.message.asString(context))
+                }
         }
     }
 
-    LaunchedEffect(authViewModel.uiState) {
-        authViewModel.uiState.collect { state ->
-            state.sideEffects.forEach { effect ->
-                when (effect) {
-                    is LaunchGoogleSignIn -> googleSignInLauncher.launch(effect.intent)
-                    is AuthSideEffect.ShowSnackbar ->
-                        snackbarHostState.showSnackbar(
-                            effect.message.asString(context),
-                        )
+    LaunchedUiEffectHandler(
+        effectFlow = authViewModel.effect,
+        onConsume = { authViewModel.handleIntent(AuthIntent.ConsumeEffect) },
+    ) { effect ->
+        when (effect) {
+            is LaunchGoogleSignIn -> googleSignInLauncher.launch(effect.intent)
+            is AuthSideEffect.ShowSnackbar ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        effect.message.asString(context),
+                    )
                 }
-                authViewModel.onSideEffectConsumed(effect)
-            }
+        }
+    }
+
+    LaunchedUiEffectHandler(
+        effectFlow = settingsViewModel.effect,
+        onConsume = { settingsViewModel.handleIntent(SettingsIntent.ConsumeEffect) },
+    ) { effect ->
+        when (effect) {
+            is digital.tonima.core.viewmodel.SettingsSideEffect.ShowSnackbar ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        effect.message.asString(context),
+                    )
+                }
         }
     }
 }

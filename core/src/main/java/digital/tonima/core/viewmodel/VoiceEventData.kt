@@ -1,5 +1,8 @@
 package digital.tonima.core.viewmodel
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class VoiceEventData(
     val title: String,
     val description: String? = null,

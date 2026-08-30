@@ -1,6 +1,7 @@
 package digital.tonima.core.usecases
 
 import android.content.Context
+import com.google.common.collect.ImmutableList
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.model.InsightsPeriod
@@ -23,17 +24,20 @@ class GetMeetingTimeStatsUseCaseImpl
         private val appPreferencesRepository: AppPreferencesRepository,
         @ApplicationContext private val context: Context,
     ) : GetMeetingTimeStatsUseCase {
-        override suspend operator fun invoke(period: InsightsPeriod): List<Pair<String, Float>> {
+        override suspend operator fun invoke(period: InsightsPeriod): ImmutableList<Pair<String, Float>> {
             val enabledCalendarIdStrings = appPreferencesRepository.getEnabledCalendarIds().firstOrNull() ?: emptySet()
-            val allowedCalendarIds = enabledCalendarIdStrings.mapNotNull { it.toLongOrNull() }
+            val allowedCalendarIds = ImmutableList.copyOf(enabledCalendarIdStrings.mapNotNull { it.toLongOrNull() })
 
             val now = LocalDate.now()
+
+            val currentMonthEpoch = YearMonth.from(now).atDay(1).toEpochDay()
+
             val result = mutableListOf<Pair<String, Float>>()
 
             when (period) {
                 InsightsPeriod.WEEK -> {
                     // Fetch events for current month (covers most of the week)
-                    val events = calendarRepository.getEventsForMonth(YearMonth.from(now), allowedCalendarIds)
+                    val events = calendarRepository.getEventsForMonth(currentMonthEpoch, allowedCalendarIds)
 
                     val startOfWeek = now.minusDays(now.dayOfWeek.value.toLong() - 1) // Monday
                     val formatter = DateTimeFormatter.ofPattern("EEE")
@@ -56,11 +60,8 @@ class GetMeetingTimeStatsUseCaseImpl
                     }
                 }
                 InsightsPeriod.DAY -> {
-                    val events = calendarRepository.getEventsForMonth(YearMonth.from(now), allowedCalendarIds)
+                    val events = calendarRepository.getEventsForMonth(currentMonthEpoch, allowedCalendarIds)
 
-                    val formatter = DateTimeFormatter.ofPattern("HH:mm")
-
-                    // Break day into morning, afternoon, evening
                     val dayEvents =
                         events.filter { event ->
                             val eventDate =
@@ -87,7 +88,7 @@ class GetMeetingTimeStatsUseCaseImpl
                     result.add(Pair(context.getString(R.string.insights_evening), evening))
                 }
                 InsightsPeriod.MONTH -> {
-                    val events = calendarRepository.getEventsForMonth(YearMonth.from(now), allowedCalendarIds)
+                    val events = calendarRepository.getEventsForMonth(currentMonthEpoch, allowedCalendarIds)
 
                     var week1 = 0f
                     var week2 = 0f
@@ -123,6 +124,6 @@ class GetMeetingTimeStatsUseCaseImpl
                 }
             }
 
-            return result
+            return ImmutableList.copyOf(result)
         }
     }

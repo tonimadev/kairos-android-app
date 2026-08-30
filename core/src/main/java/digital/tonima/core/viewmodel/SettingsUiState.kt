@@ -30,4 +30,5 @@ data class SettingsUiState(
     val skippedExactAlarmPermission: Boolean = false,
     val skippedFullScreenIntentPermission: Boolean = false,
     val audioWarning: AudioWarningState = AudioWarningState.NORMAL,
+    val effect: SettingsSideEffect? = null,
 )

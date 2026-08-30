@@ -31,7 +31,6 @@ fun DailyBriefingCard(
     isGenerating: Boolean,
     onGenerateClick: () -> Unit,
     onInteractClick: () -> Unit,
-    onUpgradeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -110,6 +109,5 @@ fun DailyBriefingCardPreview() {
         isGenerating = false,
         onGenerateClick = {},
         onInteractClick = {},
-        onUpgradeClick = {},
     )
 }

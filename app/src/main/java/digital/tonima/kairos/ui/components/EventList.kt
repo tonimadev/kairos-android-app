@@ -36,10 +36,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import digital.tonima.core.model.Event
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import digital.tonima.core.viewmodel.AiUiState
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.SettingsUiState
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.theme.Dimensions
 import java.time.LocalDate
@@ -51,14 +53,14 @@ fun EventList(
     uiState: EventScreenUiState,
     aiUiState: AiUiState,
     settingsUiState: SettingsUiState,
-    eventsByDate: Map<LocalDate, List<Event>>,
+    eventsByDate: ImmutableMap<Long, ImmutableList<EventUiModel>>,
     eventActions: EventActions,
     aiActions: AiActions,
     headerContent: (@Composable () -> Unit)? = null,
 ) {
     val pullRefreshState =
         rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = eventActions.onRefresh)
-    val today = remember { LocalDate.now() }
+    val today = remember { LocalDate.now().toEpochDay() }
 
     val allEvents =
         remember(eventsByDate, uiState.selectedDate, uiState.searchQuery) {
@@ -70,7 +72,7 @@ fun EventList(
             }
         }
 
-    val pendingToggle = remember { mutableStateOf<Pair<Event, Boolean>?>(null) }
+    val pendingToggle = remember { mutableStateOf<Pair<EventUiModel, Boolean>?>(null) }
 
     Box(modifier = modifier.pullRefresh(pullRefreshState)) {
         LazyVerticalGrid(
@@ -135,7 +137,6 @@ fun EventList(
                             isGenerating = aiUiState.isGeneratingBriefing,
                             onGenerateClick = aiActions.onGenerateBriefing,
                             onInteractClick = aiActions.onReply,
-                            onUpgradeClick = aiActions.onSubscriptionRequest,
                             modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
                         )
                     }

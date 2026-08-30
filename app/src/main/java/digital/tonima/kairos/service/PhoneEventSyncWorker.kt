@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import logcat.LogPriority
 import logcat.logcat
+import java.time.YearMonth.now
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -51,11 +52,14 @@ class PhoneEventSyncWorker
                 val isAiUser = proUserProvider.isAiUser.first()
                 val now = System.currentTimeMillis()
                 val end = now + TimeUnit.HOURS.toMillis(24)
-                val ymNow = java.time.YearMonth.now()
+                val ymNow = now()
                 val ymNext = ymNow.plusMonths(1)
                 val monthEvents =
                     (
-                        calendarRepository.getEventsForMonth(ymNow) + calendarRepository.getEventsForMonth(ymNext)
+                        calendarRepository.getEventsForMonth(
+                            ymNow.atDay(1).toEpochDay(),
+                        ) +
+                            calendarRepository.getEventsForMonth(ymNext.atDay(1).toEpochDay())
                     ).filter { it.startTime in now..end }
                         .sortedBy { it.startTime }
                 logcat { "Phone→Wear sync: sending ${monthEvents.size} events (Pro: $isAiUser)." }

@@ -1,16 +1,16 @@
 package digital.tonima.core.viewmodel
 
-import digital.tonima.core.model.Event
 import digital.tonima.core.model.InsightsPeriod
-import java.time.LocalDate
-import java.time.YearMonth
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 
 sealed class EventIntent : BaseIntent {
+    data object ConsumeEffect : EventIntent()
+
     object RefreshEvents : EventIntent()
 
-    data class ChangeMonth(val yearMonth: YearMonth) : EventIntent()
+    data class ChangeMonth(val yearMonth: Long) : EventIntent()
 
-    data class SelectDate(val date: LocalDate) : EventIntent()
+    data class SelectDate(val date: Long) : EventIntent()
 
     data class JoinMeeting(val meetingUrl: String) : EventIntent()
 
@@ -19,12 +19,12 @@ sealed class EventIntent : BaseIntent {
     object ReturnToToday : EventIntent()
 
     data class ToggleEventAlarm(
-        val event: Event,
+        val event: EventUiModel,
         val enabled: Boolean,
         val allOccurrences: Boolean = false,
     ) : EventIntent()
 
-    data class ToggleEventVibrate(val event: Event, val enabled: Boolean) : EventIntent()
+    data class ToggleEventVibrate(val event: EventUiModel, val enabled: Boolean) : EventIntent()
 
     object FetchWeather : EventIntent()
 

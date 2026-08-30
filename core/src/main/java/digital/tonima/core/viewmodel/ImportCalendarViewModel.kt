@@ -9,7 +9,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.usecases.ImportIcsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,10 +26,13 @@ class ImportCalendarViewModel
         @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(ImportCalendarUiState())
-        val uiState: StateFlow<ImportCalendarUiState> = _uiState
+        val uiState = _uiState.asStateFlow()
+
+        val effect = uiState.map { it.effect }.distinctUntilChanged()
 
         fun handleIntent(intent: ImportCalendarIntent) {
             when (intent) {
+                is ImportCalendarIntent.ConsumeEffect -> _uiState.update { it.copy(effect = null) }
                 is ImportCalendarIntent.UpdateUrl -> {
                     _uiState.update { it.copy(url = intent.url, fileUri = null) }
                 }

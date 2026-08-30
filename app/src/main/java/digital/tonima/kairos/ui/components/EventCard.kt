@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import digital.tonima.core.model.Event
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -45,7 +45,7 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventCard(
-    event: Event,
+    event: EventUiModel,
     isGloballyEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
     onEventClick: () -> Unit,
@@ -193,7 +193,7 @@ fun EventCard(
 @Composable
 fun EventCardPreview() {
     val sampleEvent =
-        Event(
+        EventUiModel(
             id = 1L,
             title = "Wake up",
             startTime = System.currentTimeMillis() + 3600000,

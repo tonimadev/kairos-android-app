@@ -1,5 +1,6 @@
 package digital.tonima.core.database.mapper
 
+import com.google.common.collect.ImmutableMap
 import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.database.entity.ChatHistoryEntity
 import kotlinx.serialization.json.Json
@@ -32,10 +33,10 @@ fun ChatHistoryEntity.toChatMessage(): ChatMessage? {
                             }
                     }
                     map
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     emptyMap()
                 }
-            ChatMessage.FunctionCall(name, args)
+            ChatMessage.FunctionCall(name, args as ImmutableMap<String, Any?>)
         }
         "FUNCTION_RESPONSE" -> {
             val name = functionName ?: return null
@@ -57,10 +58,10 @@ fun ChatHistoryEntity.toChatMessage(): ChatMessage? {
                             }
                     }
                     map
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     emptyMap()
                 }
-            ChatMessage.FunctionResponse(name, resp)
+            ChatMessage.FunctionResponse(name, resp as ImmutableMap<String, Any?>)
         }
         else -> null
     }

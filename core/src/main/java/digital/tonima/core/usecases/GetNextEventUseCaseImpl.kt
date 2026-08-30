@@ -1,5 +1,6 @@
 package digital.tonima.core.usecases
 
+import com.google.common.collect.ImmutableList
 import com.paulrybitskyi.hiltbinder.BindType
 import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
@@ -16,7 +17,7 @@ class GetNextEventUseCaseImpl
     ) : GetNextEventUseCase {
         override suspend fun invoke(): Event? {
             val enabledCalendarIdStrings = appPreferencesRepository.getEnabledCalendarIds().firstOrNull() ?: emptySet()
-            val allowedCalendarIds = enabledCalendarIdStrings.mapNotNull { it.toLongOrNull() }
+            val allowedCalendarIds = ImmutableList.copyOf(enabledCalendarIdStrings.mapNotNull { it.toLongOrNull() })
             return eventsRepository.getNextUpcomingEvent(allowedCalendarIds)
         }
     }

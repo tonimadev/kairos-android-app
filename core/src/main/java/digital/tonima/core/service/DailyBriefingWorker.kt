@@ -10,7 +10,6 @@ import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.usecases.GenerateDailyBriefingUseCase
-import digital.tonima.core.usecases.PredictWakeUpTimeUseCase
 import digital.tonima.core.utils.NotificationHelper
 import digital.tonima.core.utils.WidgetUpdater
 import digital.tonima.kairos.core.R
@@ -21,6 +20,8 @@ import logcat.LogPriority
 import logcat.logcat
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId.systemDefault
+import java.time.format.DateTimeFormatter.ofPattern
 
 @HiltWorker
 class DailyBriefingWorker
@@ -33,7 +34,6 @@ class DailyBriefingWorker
         private val dailyBriefingRepository: DailyBriefingRepository,
         private val widgetUpdater: WidgetUpdater,
         private val proUserProvider: ProUserProvider,
-        private val predictWakeUpTimeUseCase: PredictWakeUpTimeUseCase,
     ) : CoroutineWorker(appContext, workerParams) {
         override suspend fun doWork(): Result =
             withContext(Dispatchers.IO) {
@@ -50,11 +50,13 @@ class DailyBriefingWorker
                     // Buscar eventos de hoje
                     val today = LocalDate.now()
                     val events =
-                        calendarRepository.getEventsForMonth(YearMonth.from(today))
+                        calendarRepository.getEventsForMonth(
+                            YearMonth.from(today).atDay(1).toEpochDay(),
+                        )
                             .filter { event ->
                                 val eventDate =
                                     java.time.Instant.ofEpochMilli(event.startTime)
-                                        .atZone(java.time.ZoneId.systemDefault())
+                                        .atZone(systemDefault())
                                         .toLocalDate()
                                 eventDate == today
                             }
@@ -67,7 +69,7 @@ class DailyBriefingWorker
                     // Gerar resumo via IA
                     val languageInstruction = appContext.getString(R.string.ai_briefing_instruction)
                     val wakeUpTime = java.time.LocalTime.now()
-                    val wakeUpTimeStr = wakeUpTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                    val wakeUpTimeStr = wakeUpTime.format(ofPattern("HH:mm"))
 
                     val briefing = generateDailyBriefingUseCase.invoke(events, languageInstruction, wakeUpTimeStr)
 

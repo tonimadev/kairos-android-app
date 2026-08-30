@@ -1,5 +1,5 @@
 [versions]
-agp = "9.3.1"
+agp = "9.3.2"
 kotlin = "2.4.10"
 coreKtx = "1.19.0"
 junit = "4.13.2"
@@ -7,26 +7,26 @@ junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
-composeBom = "2026.06.01"
+composeBom = "2026.08.00"
 accompanist="0.37.3"
 detekt = "1.23.8"
-spotless = "8.9.0"
-material1 = "1.11.4"
+spotless = "8.10.0"
+material1 = "1.12.0"
 compose-calendar = "2.10.1"
 wear = "1.4.0"
 workManager="2.11.2"
 google-services = "4.5.0"
 playServicesAdsApi = "25.4.0"
-firebase-bom = "34.17.0"
+firebase-bom = "34.18.0"
 firebase-perf = "2.0.2"
-crashlytics = "3.0.7"
+crashlytics = "3.0.8"
 hilt = "2.60.1"
 hilt-worker="1.4.0"
 hilt-binder = "1.1.4"
 hilt-navigations-compose = "1.4.0"
 ksp = "2.3.11"
 billingKtx = "9.1.0"
-appcompat = "1.7.1"
+appcompat = "1.8.0"
 wear-compose = "1.6.2"
 wearToolingPreview = "1.0.0"
 logcat = "0.4"
@@ -52,13 +52,15 @@ playServicesLocation = "21.4.0"
 wearRemoteInteractions = "1.2.0"
 androix-test-core = "1.7.0"
 retrofit = "3.0.0"
-okhttp = "5.4.0"
+okhttp = "5.5.0"
 kotlinxSerializationJson = "1.11.0"
 retrofitKotlinxSerializationConverter = "1.0.0"
 splashscreen = "1.2.0"
 playServicesAuth = "21.6.0"
-vico = "3.2.3"
+vico = "3.3.0"
 androidx-appfunctions = "1.0.0-alpha10"
+stabilityAnalyzer= "0.13.0"
+firebaseAiOnDevice = "16.0.0-beta05"
 
 [libraries]
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
@@ -94,7 +96,7 @@ google-firebase-analytics = { group = "com.google.firebase", name = "firebase-an
 google-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 google-firebase-perf = { group = "com.google.firebase", name = "firebase-perf" }
 google-firebase-ia = { group = "com.google.firebase", name = "firebase-ai" }
-google-firebase-ia-ondevice = { group = "com.google.firebase", name = "firebase-ai-ondevice", version = "16.0.0-beta04" }
+google-firebase-ia-ondevice = { group = "com.google.firebase", name = "firebase-ai-ondevice", version.ref = "firebaseAiOnDevice" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-binder = { group = "com.paulrybitskyi", name = "hilt-binder", version.ref = "hilt-binder" }
@@ -163,3 +165,4 @@ jacoco-convention = { id = "jacoco-convention" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stabilityAnalyzer" }

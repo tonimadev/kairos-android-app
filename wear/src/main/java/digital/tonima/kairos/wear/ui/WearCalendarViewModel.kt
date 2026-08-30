@@ -18,6 +18,7 @@ import digital.tonima.core.model.Event
 import digital.tonima.core.sync.WearSyncSchema.PATH_REQUEST_SYNC
 import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.wear.WorkNames
 import digital.tonima.kairos.wear.sync.CachedEventSchedulingWorker
 import digital.tonima.kairos.wear.sync.SyncActions
@@ -42,8 +43,8 @@ class WearCalendarViewModel
         private val observeAppPreferencesUseCase: ObserveAppPreferencesUseCase,
         private val updateAppPreferenceUseCase: UpdateAppPreferenceUseCase,
     ) : ViewModel() {
-        private val _next24hEvents = MutableStateFlow<List<Event>>(emptyList())
-        val next24hEvents: StateFlow<List<Event>> = _next24hEvents.asStateFlow()
+        private val _next24hEvents = MutableStateFlow<List<EventUiModel>>(emptyList())
+        val next24hEvents: StateFlow<List<EventUiModel>> = _next24hEvents.asStateFlow()
 
         private val _lastUpdated = MutableStateFlow(System.currentTimeMillis())
         val lastUpdated: StateFlow<Long> = _lastUpdated.asStateFlow()
@@ -180,7 +181,13 @@ class WearCalendarViewModel
                     events.map { e ->
                         val instanceDisabled = prefs.disabledEventIds.contains(e.uniqueIntentId.toString())
                         val seriesDisabled = prefs.disabledSeriesIds.contains(e.id.toString())
-                        e.copy(isAlarmEnabled = prefs.isGlobalAlarmEnabled && !(instanceDisabled || seriesDisabled))
+                        e.copy(
+                            isAlarmEnabled =
+                                prefs.isGlobalAlarmEnabled &&
+                                    !(
+                                        instanceDisabled || seriesDisabled
+                                    ),
+                        ).toUiModel()
                     }
                 _next24hEvents.value = mapped
                 _lastUpdated.value = System.currentTimeMillis()
@@ -188,7 +195,6 @@ class WearCalendarViewModel
         }
 
         override fun onCleared() {
-            super.onCleared()
             try {
                 appContext.unregisterReceiver(eventsUpdatedReceiver)
             } catch (e: Exception) {
@@ -198,3 +204,23 @@ class WearCalendarViewModel
             }
         }
     }
+
+private fun Event.toUiModel(): EventUiModel =
+    EventUiModel(
+        id = id,
+        title = title,
+        startTime = startTime,
+        endTime = endTime,
+        isAlarmEnabled = isAlarmEnabled,
+        isRecurring = isRecurring,
+        vibrateOnly = vibrateOnly,
+        isAllDay = isAllDay,
+        calendarColor = calendarColor,
+        meetingUrl = meetingUrl,
+        location = location,
+        departureTime = departureTime,
+        travelTimeMinutes = travelTimeMinutes,
+        category = category,
+        hasConflict = hasConflict,
+        isBackToBack = isBackToBack,
+    )

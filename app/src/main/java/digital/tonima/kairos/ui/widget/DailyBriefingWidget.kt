@@ -37,6 +37,7 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.google.common.collect.ImmutableList
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -47,8 +48,10 @@ import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.kairos.MainActivity
 import digital.tonima.kairos.core.R
+import java.time.Instant.ofEpochMilli
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId.systemDefault
 import java.time.format.DateTimeFormatter
 import androidx.glance.appwidget.action.actionStartActivity as actionStartAppWidgetActivity
 
@@ -80,18 +83,20 @@ class DailyBriefingWidget : GlanceAppWidget() {
         val today = LocalDate.now()
         val events =
             try {
-                calendarRepo.getEventsForMonth(YearMonth.from(today))
-                    .filter { event ->
-                        val eventDate =
-                            java.time.Instant.ofEpochMilli(event.startTime)
-                                .atZone(java.time.ZoneId.systemDefault())
-                                .toLocalDate()
-                        eventDate == today && event.startTime > System.currentTimeMillis()
-                    }
-                    .sortedBy { it.startTime }
-                    .take(3)
-            } catch (e: Exception) {
-                emptyList()
+                val filteredList =
+                    calendarRepo.getEventsForMonth(YearMonth.from(today).atDay(1).toEpochDay())
+                        .filter { event ->
+                            val eventDate =
+                                ofEpochMilli(event.startTime)
+                                    .atZone(systemDefault())
+                                    .toLocalDate()
+                            eventDate == today && event.startTime > System.currentTimeMillis()
+                        }
+                        .sortedBy { it.startTime }
+                        .take(3)
+                ImmutableList.copyOf(filteredList)
+            } catch (_: Exception) {
+                ImmutableList.of()
             }
 
         provideContent {
@@ -107,7 +112,7 @@ class DailyBriefingWidget : GlanceAppWidget() {
     @Composable
     private fun WidgetContent(
         briefing: String?,
-        events: List<Event>,
+        events: ImmutableList<Event>,
         isPro: Boolean,
     ) {
         val context = LocalContext.current
@@ -207,8 +212,8 @@ class DailyBriefingWidget : GlanceAppWidget() {
         val context = LocalContext.current
         val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
         val startTime =
-            java.time.Instant.ofEpochMilli(event.startTime)
-                .atZone(java.time.ZoneId.systemDefault())
+            ofEpochMilli(event.startTime)
+                .atZone(systemDefault())
                 .toLocalTime()
         val timeStr =
             if (event.isAllDay) {

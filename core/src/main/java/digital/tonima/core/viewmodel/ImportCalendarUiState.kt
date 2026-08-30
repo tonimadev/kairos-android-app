@@ -1,5 +1,8 @@
 package digital.tonima.core.viewmodel
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class ImportCalendarUiState(
     val url: String = "",
     val fileUri: String? = null,
@@ -9,4 +12,5 @@ data class ImportCalendarUiState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val error: String? = null,
+    val effect: ImportCalendarSideEffect? = null,
 )

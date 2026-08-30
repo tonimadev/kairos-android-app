@@ -74,7 +74,9 @@ class KairosAppFunctions
             withContext(Dispatchers.IO) {
                 val today = LocalDate.now()
                 val events =
-                    calendarRepository.getEventsForMonth(YearMonth.from(today))
+                    calendarRepository.getEventsForMonth(
+                        YearMonth.from(today).atDay(1).toEpochDay(),
+                    )
                         .filter {
                             val eventDate =
                                 java.time.Instant.ofEpochMilli(it.startTime)

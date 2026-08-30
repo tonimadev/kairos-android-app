@@ -7,6 +7,7 @@ import digital.tonima.core.usecases.GetGoogleSignInIntentUseCase
 import digital.tonima.core.usecases.HandleGoogleSignInResultUseCase
 import digital.tonima.core.usecases.IsGoogleSignedInUseCase
 import digital.tonima.core.usecases.SignOutFromGoogleUseCase
+import digital.tonima.core.viewmodel.AuthIntent.ConsumeEffect
 import digital.tonima.core.viewmodel.AuthIntent.HandleGoogleSignInResult
 import digital.tonima.core.viewmodel.AuthIntent.SignInWithGoogle
 import digital.tonima.core.viewmodel.AuthIntent.SignOutFromGoogle
@@ -17,6 +18,8 @@ import digital.tonima.core.viewmodel.UiText.StringResource
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,9 +36,7 @@ class AuthViewModel
         private val _uiState = MutableStateFlow(AuthUiState())
         val uiState = _uiState.asStateFlow()
 
-        fun onSideEffectConsumed(effect: AuthSideEffect) {
-            _uiState.update { it.copy(sideEffects = it.sideEffects - effect) }
-        }
+        val effect = uiState.map { it.effect }.distinctUntilChanged()
 
         init {
             _uiState.update { it.copy(isGoogleConnected = isGoogleSignedIn()) }
@@ -44,12 +45,11 @@ class AuthViewModel
         fun handleIntent(intent: AuthIntent) {
             viewModelScope.launch {
                 when (intent) {
+                    is ConsumeEffect -> _uiState.update { it.copy(effect = null) }
                     SignInWithGoogle -> {
                         val signInIntent = getGoogleSignInIntent()
                         _uiState.update {
-                            it.copy(
-                                sideEffects = it.sideEffects + LaunchGoogleSignIn(signInIntent),
-                            )
+                            it.copy(effect = LaunchGoogleSignIn(signInIntent))
                         }
                     }
                     SignOutFromGoogle -> {
@@ -62,18 +62,15 @@ class AuthViewModel
                             _uiState.update {
                                 it.copy(
                                     isGoogleConnected = true,
-                                    sideEffects =
-                                        it.sideEffects +
-                                            ShowSnackbar(
-                                                StringResource(R.string.google_logout_title),
-                                            ),
+                                    effect =
+                                        ShowSnackbar(
+                                            StringResource(R.string.google_logout_title),
+                                        ),
                                 )
                             }
                         } else {
                             _uiState.update {
-                                it.copy(
-                                    sideEffects = it.sideEffects + ShowSnackbar(DynamicString("Login failed")),
-                                )
+                                it.copy(effect = ShowSnackbar(DynamicString("Login failed")))
                             }
                         }
                     }

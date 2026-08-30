@@ -1,5 +1,9 @@
 package digital.tonima.core.ai.model
 
+import androidx.compose.runtime.Immutable
+import com.google.common.collect.ImmutableMap
+
+@Immutable
 sealed interface ChatMessage {
     val role: Role
 
@@ -9,14 +13,14 @@ sealed interface ChatMessage {
 
     data class FunctionCall(
         val name: String,
-        val args: Map<String, Any?>,
+        val args: ImmutableMap<String, Any?>,
     ) : ChatMessage {
         override val role = Role.ASSISTANT
     }
 
     data class FunctionResponse(
         val name: String,
-        val response: Map<String, Any?>,
+        val response: ImmutableMap<String, Any?>,
     ) : ChatMessage {
         override val role = Role.USER
     }

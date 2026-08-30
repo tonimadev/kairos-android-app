@@ -32,12 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import digital.tonima.core.model.Event
+import digital.tonima.core.viewmodel.AiIntent
 import digital.tonima.core.viewmodel.AiIntent.AskAi
 import digital.tonima.core.viewmodel.AiIntent.ClearAiResponse
 import digital.tonima.core.viewmodel.AiIntent.CloseChatDetail
@@ -57,6 +59,7 @@ import digital.tonima.core.viewmodel.AiViewModel
 import digital.tonima.core.viewmodel.AuthIntent.SignInWithGoogle
 import digital.tonima.core.viewmodel.AuthIntent.SignOutFromGoogle
 import digital.tonima.core.viewmodel.AuthViewModel
+import digital.tonima.core.viewmodel.EventIntent
 import digital.tonima.core.viewmodel.EventIntent.ChangeBottomTab
 import digital.tonima.core.viewmodel.EventIntent.ChangeInsightsPeriod
 import digital.tonima.core.viewmodel.EventIntent.ChangeMonth
@@ -101,6 +104,7 @@ import digital.tonima.core.viewmodel.SettingsIntent.UpdateCustomRingtoneUri
 import digital.tonima.core.viewmodel.SettingsIntent.UpdateSnoozeTime
 import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.core.viewmodel.SettingsViewModel
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_HOME
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.components.AdBannerView
@@ -219,7 +223,7 @@ fun EventScreen(
                 },
                 onMonthChanged = { eventViewModel.handleIntent(ChangeMonth(it)) },
                 onDateSelected = { eventViewModel.handleIntent(SelectDate(it)) },
-                onEventClick = { event: Event ->
+                onEventClick = { event: EventUiModel ->
                     val uri = ContentUris.withAppendedId(CONTENT_URI, event.id)
                     val intent =
                         Intent(Intent.ACTION_VIEW, uri).apply {
@@ -238,7 +242,15 @@ fun EventScreen(
                 onFetchWeather = { eventViewModel.handleIntent(FetchWeather) },
                 onCreateEvent = { calendarId, title, desc, loc, start, end, allDay ->
                     eventViewModel.handleIntent(
-                        CreateEvent(calendarId, title, desc, loc, start, end, allDay),
+                        CreateEvent(
+                            calendarId,
+                            title,
+                            desc,
+                            loc,
+                            start,
+                            end,
+                            allDay,
+                        ),
                     )
                 },
                 onDismissCreateEvent = { eventViewModel.handleIntent(DismissCreateEventDialog) },
@@ -367,11 +379,13 @@ fun EventScreen(
 
     EventScreenDialogs(
         uiState = uiState,
-        aiUiState = aiUiState,
         aiConfirmationData = aiConfirmationData,
         onClearAiConfirmation = { aiConfirmationData = null },
-        eventViewModel = eventViewModel,
-        aiViewModel = aiViewModel,
+        onRateNow = { eventViewModel.handleIntent(EventIntent.RateNow) },
+        onRateLater = { eventViewModel.handleIntent(EventIntent.RateLater) },
+        onRateNeverShow = { eventViewModel.handleIntent(EventIntent.RateNever) },
+        onApproveAiAction = { aiViewModel.handleIntent(AiIntent.ApprovePendingAction) },
+        onRejectAiAction = { aiViewModel.handleIntent(AiIntent.RejectPendingAction) },
     )
 }
 
@@ -383,8 +397,8 @@ private fun EventScreenContent(
     aiUiState: AiUiState,
     settingsUiState: SettingsUiState,
     isProUser: Boolean,
-    standardPermissionState: MultiplePermissionsState,
-    locationPermissionState: MultiplePermissionsState,
+    standardPermissionState: MultiplePermissionsState?,
+    locationPermissionState: MultiplePermissionsState?,
     windowSizeClass: WindowSizeClass?,
     settingsActions: SettingsActions,
     eventActions: EventActions,
@@ -398,7 +412,7 @@ private fun EventScreenContent(
             onDismiss = eventActions.onDismissCreateEvent,
             onCreate = eventActions.onCreateEvent,
             availableCalendars = uiState.availableCalendars,
-            initialDate = uiState.selectedDate,
+            initialDateEpochDays = uiState.selectedDate,
             voiceEventData = aiUiState.voiceEventData,
         )
     }
@@ -421,35 +435,140 @@ private fun EventScreenContent(
                 .padding(paddingValues),
     ) {
         AdBannerView(adId = ADMOB_BANNER_AD_UNIT_HOME, isProUser = isProUser)
+
         Box(modifier = Modifier.weight(1f)) {
-            PermissionGate(
-                settingsUiState = settingsUiState,
-                onCheckPermissions = settingsActions.onCheckPermissions,
-                onSkipExactAlarmPermission = settingsActions.onSkipExactAlarmPermission,
-                onSkipFullScreenIntentPermission = settingsActions.onSkipFullScreenIntentPermission,
-                standardPermissionState = standardPermissionState,
-                locationPermissionState = locationPermissionState,
-                openAppSettings = { openAppSettings(context) },
-                openExactAlarmSettings = { openExactAlarmSettings(context) },
-                openFullScreenIntentSettings = { openFullScreenIntentSettings(context) },
-            ) {
-                if (uiState.selectedBottomTab == 1) {
-                    InsightsContent(
-                        uiState = uiState,
-                        onPeriodChange = eventActions.onInsightsPeriodChange,
-                    )
-                } else {
-                    MainContent(
-                        uiState = uiState,
-                        settingsUiState = settingsUiState,
-                        eventActions = eventActions,
-                        settingsActions = settingsActions,
-                        aiActions = aiActions,
-                        windowSizeClass = windowSizeClass,
-                        aiUiState = aiUiState,
+            if (standardPermissionState != null && locationPermissionState != null) {
+                PermissionGate(
+                    settingsUiState = settingsUiState,
+                    onCheckPermissions = settingsActions.onCheckPermissions,
+                    onSkipExactAlarmPermission = settingsActions.onSkipExactAlarmPermission,
+                    onSkipFullScreenIntentPermission = settingsActions.onSkipFullScreenIntentPermission,
+                    standardPermissionState = standardPermissionState,
+                    locationPermissionState = locationPermissionState,
+                    openAppSettings = { openAppSettings(context) },
+                    openExactAlarmSettings = { openExactAlarmSettings(context) },
+                    openFullScreenIntentSettings = { openFullScreenIntentSettings(context) },
+                ) {
+                    EventScreenTabContent(
+                        uiState,
+                        settingsUiState,
+                        aiUiState,
+                        windowSizeClass,
+                        eventActions,
+                        settingsActions,
+                        aiActions,
                     )
                 }
+            } else {
+                // Modo Preview: exibe o conteúdo direto, ignorando a verificação de permissões
+                EventScreenTabContent(
+                    uiState,
+                    settingsUiState,
+                    aiUiState,
+                    windowSizeClass,
+                    eventActions,
+                    settingsActions,
+                    aiActions,
+                )
             }
         }
     }
+}
+
+@Composable
+private fun EventScreenTabContent(
+    uiState: EventScreenUiState,
+    settingsUiState: SettingsUiState,
+    aiUiState: AiUiState,
+    windowSizeClass: WindowSizeClass?,
+    eventActions: EventActions,
+    settingsActions: SettingsActions,
+    aiActions: AiActions,
+) {
+    if (uiState.selectedBottomTab == 1) {
+        InsightsContent(
+            uiState = uiState,
+            onPeriodChange = eventActions.onInsightsPeriodChange,
+        )
+    } else {
+        MainContent(
+            uiState = uiState,
+            settingsUiState = settingsUiState,
+            eventActions = eventActions,
+            settingsActions = settingsActions,
+            aiActions = aiActions,
+            windowSizeClass = windowSizeClass,
+            aiUiState = aiUiState,
+        )
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Preview(showBackground = true)
+@Composable
+fun EventScreenContentPreview() {
+    EventScreenContent(
+        paddingValues = PaddingValues(0.dp),
+        uiState = EventScreenUiState(),
+        aiUiState = AiUiState(),
+        settingsUiState = SettingsUiState(),
+        isProUser = true,
+        standardPermissionState = null,
+        locationPermissionState = null,
+        windowSizeClass = null,
+        settingsActions =
+            SettingsActions(
+                onToggle = {},
+                onDismissAutostart = {},
+                onVibrateToggle = {},
+                onAllDayAlarmsToggle = {},
+                onAllDayAlarmHourChanged = {},
+                onAlarmOffsetChanged = {},
+                onSnoozeTimeChanged = {},
+                onSkipWeekendsToggle = {},
+                onAutoDismissMinutesChanged = {},
+                onCalendarFilterToggle = { _, _ -> },
+                onLocationAlarmToggle = {},
+                onTransportModeChanged = {},
+                onTemperatureUnitToggle = {},
+                onGoogleSignInClick = {},
+                onGoogleSignOutClick = {},
+                onCloseSettings = {},
+                onCustomRingtoneSelected = {},
+                onCheckPermissions = {},
+                onSkipExactAlarmPermission = {},
+                onSkipFullScreenIntentPermission = {},
+            ),
+        eventActions =
+            EventActions(
+                onRefresh = {},
+                onEventToggle = { _, _, _ -> },
+                onEventVibrateToggle = { _, _ -> },
+                onMonthChanged = {},
+                onDateSelected = {},
+                onEventClick = {},
+                onReturnToToday = {},
+                onSearchQueryChanged = {},
+                onJoinMeeting = {},
+                onCopyMeetingUrl = {},
+                onFetchWeather = {},
+                onCreateEvent = { _, _, _, _, _, _, _ -> },
+                onDismissCreateEvent = {},
+                onInsightsPeriodChange = {},
+            ),
+        aiActions =
+            AiActions(
+                onGenerateBriefing = {},
+                onUpgradeToPro = {},
+                onSubscriptionRequest = {},
+                onVoiceCaptureClick = {},
+                onClearAiResponse = {},
+                onSpeakAiResponse = {},
+                onStopSpeaking = {},
+                onReply = {},
+                onDismissSuggestions = {},
+                onSuggestionClick = {},
+            ),
+        launchVoiceCapture = {},
+    )
 }

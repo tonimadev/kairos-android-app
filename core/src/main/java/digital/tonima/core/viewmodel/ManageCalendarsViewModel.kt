@@ -7,7 +7,9 @@ import digital.tonima.core.usecases.DeleteCalendarUseCase
 import digital.tonima.core.usecases.GetAvailableCalendarsUseCase
 import digital.tonima.core.usecases.UpdateCalendarUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,7 +23,9 @@ class ManageCalendarsViewModel
         private val deleteCalendarUseCase: DeleteCalendarUseCase,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(ManageCalendarsUiState())
-        val uiState: StateFlow<ManageCalendarsUiState> = _uiState
+        val uiState = _uiState.asStateFlow()
+
+        val effect = uiState.map { it.effect }.distinctUntilChanged()
 
         init {
             handleIntent(ManageCalendarsIntent.LoadCalendars)
@@ -29,6 +33,7 @@ class ManageCalendarsViewModel
 
         fun handleIntent(intent: ManageCalendarsIntent) {
             when (intent) {
+                is ManageCalendarsIntent.ConsumeEffect -> _uiState.update { it.copy(effect = null) }
                 ManageCalendarsIntent.LoadCalendars -> loadCalendars()
                 is ManageCalendarsIntent.OpenEditDialog -> {
                     _uiState.update {

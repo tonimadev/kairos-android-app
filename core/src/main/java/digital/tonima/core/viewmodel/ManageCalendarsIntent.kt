@@ -2,7 +2,9 @@ package digital.tonima.core.viewmodel
 
 import digital.tonima.core.model.DeviceCalendar
 
-sealed class ManageCalendarsIntent {
+sealed class ManageCalendarsIntent : BaseIntent {
+    data object ConsumeEffect : ManageCalendarsIntent()
+
     object LoadCalendars : ManageCalendarsIntent()
 
     data class OpenEditDialog(val calendar: DeviceCalendar) : ManageCalendarsIntent()

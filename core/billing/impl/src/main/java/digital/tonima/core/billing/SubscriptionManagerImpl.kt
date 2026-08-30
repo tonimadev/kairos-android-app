@@ -37,6 +37,8 @@ class SubscriptionManagerImpl
         private val _isProUser = MutableStateFlow(false)
         override val isProUser = _isProUser.asStateFlow()
 
+        private var isConnecting = false
+
         private val purchasesUpdatedListener =
             PurchasesUpdatedListener { billingResult, purchases ->
                 if (billingResult.responseCode == OK && purchases != null) {
@@ -66,10 +68,16 @@ class SubscriptionManagerImpl
                 onConnected?.invoke()
                 return
             }
+            if (isConnecting) {
+                logcat { "Subscription client connection already in progress." }
+                return
+            }
 
+            isConnecting = true
             billingClient.startConnection(
                 object : BillingClientStateListener {
                     override fun onBillingSetupFinished(billingResult: BillingResult) {
+                        isConnecting = false
                         if (billingResult.responseCode == OK) {
                             logcat { "Subscription client setup finished." }
                             queryPurchases()
@@ -82,6 +90,7 @@ class SubscriptionManagerImpl
                     }
 
                     override fun onBillingServiceDisconnected() {
+                        isConnecting = false
                         logcat(LogPriority.WARN) { "Subscription service disconnected. Retrying..." }
                         // Evitamos reconexão automática recursiva aqui para evitar loops
                     }

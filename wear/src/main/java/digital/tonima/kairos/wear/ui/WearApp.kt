@@ -30,12 +30,12 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.TimeText
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import digital.tonima.core.model.Event
 import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.viewmodel.EventIntent
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.core.viewmodel.SettingsIntent
 import digital.tonima.core.viewmodel.SettingsViewModel
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.wear.ui.components.AppHeaderTitle
 import digital.tonima.kairos.wear.ui.components.CalendarFilterChip
 import digital.tonima.kairos.wear.ui.components.CalendarFilterHeader
@@ -207,14 +207,14 @@ fun WearAppPreview() {
         val listState = rememberScalingLazyListState()
         val sampleEvents =
             listOf(
-                Event(
+                EventUiModel(
                     id = 1L,
                     title = "Reunião de projeto",
                     startTime = System.currentTimeMillis() + 60 * 60 * 1000,
                     isAlarmEnabled = true,
                     isRecurring = false,
                 ),
-                Event(
+                EventUiModel(
                     id = 2L,
                     title = "Aula de Yoga",
                     startTime = System.currentTimeMillis() + 2 * 60 * 60 * 1000,

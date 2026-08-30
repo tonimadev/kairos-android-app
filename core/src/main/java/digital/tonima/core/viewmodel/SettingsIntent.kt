@@ -3,6 +3,8 @@ package digital.tonima.core.viewmodel
 import digital.tonima.core.model.AlarmOffset
 
 sealed class SettingsIntent : BaseIntent {
+    data object ConsumeEffect : SettingsIntent()
+
     data class ToggleGlobalAlarms(val enabled: Boolean) : SettingsIntent()
 
     data class ToggleVibrateOnly(val enabled: Boolean) : SettingsIntent()

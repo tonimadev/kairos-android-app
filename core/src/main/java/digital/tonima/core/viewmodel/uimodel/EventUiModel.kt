@@ -1,6 +1,9 @@
-package digital.tonima.core.model
+package digital.tonima.core.viewmodel.uimodel
 
-data class Event(
+import androidx.compose.runtime.Immutable
+
+@Immutable
+data class EventUiModel(
     val id: Long,
     val title: String,
     val startTime: Long,
@@ -20,12 +23,4 @@ data class Event(
 ) {
     val uniqueIntentId: Int
         get() = (id.toString() + startTime.toString()).hashCode()
-
-    /** Duration in minutes. Returns 0 if endTime is not set. */
-    val durationMinutes: Int
-        get() = if (endTime > startTime) ((endTime - startTime) / 60_000).toInt() else 0
-
-    /** Whether this event has a Google Meet / video call link. */
-    val hasMeetingUrl: Boolean
-        get() = !meetingUrl.isNullOrBlank()
 }

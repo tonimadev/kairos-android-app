@@ -36,12 +36,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
-import digital.tonima.core.model.Event
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -53,34 +55,43 @@ import java.time.format.TextStyle
 @Composable
 fun CalendarView(
     modifier: Modifier = Modifier,
-    currentMonth: YearMonth,
-    selectedDate: LocalDate,
-    eventsByDate: Map<LocalDate, List<Event>>,
-    onMonthChanged: (YearMonth) -> Unit,
-    onDateSelected: (LocalDate) -> Unit,
+    currentMonth: Long,
+    selectedDate: Long,
+    eventsByDate: ImmutableMap<Long, ImmutableList<EventUiModel>>,
+    onMonthChanged: (Long) -> Unit,
+    onDateSelected: (Long) -> Unit,
     onReturnToToday: () -> Unit,
 ) {
+    val currentYearMonth =
+        remember(currentMonth) {
+            YearMonth.from(LocalDate.ofEpochDay(currentMonth))
+        }
+
     val startMonth = remember { YearMonth.now().minusMonths(100) }
     val endMonth = remember { YearMonth.now().plusMonths(100) }
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
-    val today = remember { LocalDate.now() }
+    val todayEpoch = remember { LocalDate.now().toEpochDay() }
+
     val state =
         rememberCalendarState(
             startMonth = startMonth,
             endMonth = endMonth,
-            firstVisibleMonth = currentMonth,
+            firstVisibleMonth = currentYearMonth,
             firstDayOfWeek = firstDayOfWeek,
         )
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(currentMonth) {
-        if (state.firstVisibleMonth.yearMonth != currentMonth) {
-            scope.launch { state.animateScrollToMonth(currentMonth) }
+    LaunchedEffect(currentYearMonth) {
+        if (state.firstVisibleMonth.yearMonth != currentYearMonth) {
+            scope.launch { state.animateScrollToMonth(currentYearMonth) }
         }
     }
 
     LaunchedEffect(state.firstVisibleMonth.yearMonth) {
-        onMonthChanged(state.firstVisibleMonth.yearMonth)
+        val visibleMonthEpochDay = state.firstVisibleMonth.yearMonth.atDay(1).toEpochDay()
+        if (visibleMonthEpochDay != currentMonth) {
+            onMonthChanged(visibleMonthEpochDay)
+        }
     }
 
     Column(modifier = modifier) {
@@ -91,16 +102,19 @@ fun CalendarView(
         HorizontalCalendar(
             state = state,
             dayContent = { day ->
+                val dayEpoch = day.date.toEpochDay()
                 Day(
                     day = day,
-                    isSelected = selectedDate == day.date,
-                    isToday = today == day.date,
-                    hasEvents = eventsByDate.containsKey(day.date),
-                ) { onDateSelected(it.date) }
+                    isSelected = selectedDate == dayEpoch,
+                    isToday = todayEpoch == dayEpoch,
+                    hasEvents = eventsByDate.containsKey(dayEpoch),
+                ) { clickedDay ->
+                    onDateSelected(clickedDay.date.toEpochDay())
+                }
             },
             monthHeader = { month ->
                 DaysOfWeekHeader(
-                    daysOfWeek = month.weekDays.first().map { it.date.dayOfWeek },
+                    daysOfWeek = ImmutableList.copyOf(month.weekDays.first().map { it.date.dayOfWeek }),
                 )
             },
         )
@@ -123,6 +137,7 @@ private fun MonthHeader(
     ) {
         val locale = LocalConfiguration.current.locales.get(0)
         val formatter = remember(locale) { DateTimeFormatter.ofPattern("MMMM yyyy", locale) }
+
         Text(
             text =
                 remember(month, formatter, locale) {
@@ -148,7 +163,7 @@ private fun MonthHeader(
 }
 
 @Composable
-private fun DaysOfWeekHeader(daysOfWeek: List<DayOfWeek>) {
+private fun DaysOfWeekHeader(daysOfWeek: ImmutableList<DayOfWeek>) {
     Row(modifier = Modifier.fillMaxWidth()) {
         val locale = LocalConfiguration.current.locales.get(0)
         for (dayOfWeek in daysOfWeek) {
@@ -262,27 +277,28 @@ private fun Day(
 fun CalendarViewPreview() {
     val sampleEvents =
         listOf(
-            Event(
+            EventUiModel(
                 id = 1L,
                 title = "Meeting with Team",
                 startTime = System.currentTimeMillis() + 3600000,
             ),
-            Event(
+            EventUiModel(
                 id = 2L,
                 title = "Doctor Appointment",
                 startTime = System.currentTimeMillis() + 7200000,
             ),
-            Event(
-                id = 3L,
-                title = "Lunch with Sarah",
-                startTime = System.currentTimeMillis() + 10800000,
-            ),
         )
-    val eventsByDate = sampleEvents.groupBy { LocalDate.now() }
+
+    val todayEpoch = LocalDate.now().toEpochDay()
+    val eventsByDate =
+        mapOf(
+            todayEpoch to ImmutableList.copyOf(sampleEvents),
+        )
+
     CalendarView(
-        currentMonth = YearMonth.now(),
-        selectedDate = LocalDate.now(),
-        eventsByDate = eventsByDate,
+        currentMonth = YearMonth.now().atDay(1).toEpochDay(),
+        selectedDate = todayEpoch,
+        eventsByDate = ImmutableMap.copyOf(eventsByDate),
         onMonthChanged = {},
         onDateSelected = {},
         onReturnToToday = {},
