@@ -1,5 +1,6 @@
 package digital.tonima.core.usecases
 
+import com.google.common.collect.ImmutableList
 import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
@@ -52,11 +53,11 @@ class GetNextEventUseCaseImplTest {
                     startTime = toEpochMillis(LocalDate.of(2023, 10, 26), LocalTime.of(10, 0)),
                     isAlarmEnabled = true,
                 )
-            coEvery { mockEventsRepository.getNextUpcomingEvent(emptyList()) } returns expectedEvent
+            coEvery { mockEventsRepository.getNextUpcomingEvent(ImmutableList.of()) } returns expectedEvent
 
             val result = getNextEventUseCase.invoke()
 
             assertEquals(expectedEvent, result)
-            coVerify(exactly = 1) { mockEventsRepository.getNextUpcomingEvent(emptyList()) }
+            coVerify(exactly = 1) { mockEventsRepository.getNextUpcomingEvent(ImmutableList.of()) }
         }
 }

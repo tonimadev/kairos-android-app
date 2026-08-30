@@ -1,5 +1,6 @@
 package digital.tonima.core.usecases
 
+import com.google.common.collect.ImmutableList
 import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
@@ -40,6 +41,7 @@ class GetEventsForMonthUseCaseImplTest {
     fun `invoke calls repository and returns list of events`() =
         runTest {
             val yearMonth = YearMonth.of(2023, 10)
+            val yearMonthLong = yearMonth.atDay(1).toEpochDay()
 
             fun toEpochMillis(
                 date: LocalDate,
@@ -49,7 +51,7 @@ class GetEventsForMonthUseCaseImplTest {
             }
 
             val expectedEvents =
-                listOf(
+                ImmutableList.of(
                     Event(
                         id = 1L,
                         title = "Test Event 1",
@@ -63,11 +65,11 @@ class GetEventsForMonthUseCaseImplTest {
                         isAlarmEnabled = false,
                     ),
                 )
-            coEvery { mockEventsRepository.getEventsForMonth(yearMonth, emptyList()) } returns expectedEvents
+            coEvery { mockEventsRepository.getEventsForMonth(yearMonthLong, ImmutableList.of()) } returns expectedEvents
 
-            val result = getEventsForMonthUseCase.invoke(yearMonth)
+            val result = getEventsForMonthUseCase.invoke(yearMonthLong)
 
             assertEquals(expectedEvents, result)
-            coVerify(exactly = 1) { mockEventsRepository.getEventsForMonth(yearMonth, emptyList()) }
+            coVerify(exactly = 1) { mockEventsRepository.getEventsForMonth(yearMonthLong, ImmutableList.of()) }
         }
 }

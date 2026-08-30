@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.database.MatrixCursor
 import android.provider.CalendarContract
+import com.google.common.collect.ImmutableList
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -134,7 +135,11 @@ class CalendarRepositoryImplTest {
                 )
             } returns recurringCursor
 
-            val events = repository.getEventsForMonth(YearMonth.of(2024, 5), listOf(1L))
+            val events =
+                repository.getEventsForMonth(
+                    YearMonth.of(2024, 5).atDay(1).toEpochDay(),
+                    ImmutableList.of(1L),
+                )
 
             assertEquals(1, events.size)
             assertEquals("Meeting", events[0].title)

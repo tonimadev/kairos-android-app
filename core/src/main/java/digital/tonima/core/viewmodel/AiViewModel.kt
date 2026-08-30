@@ -249,7 +249,7 @@ class AiViewModel
                         val callMsg =
                             ChatMessage.FunctionCall(
                                 agentResponse.name,
-                                agentResponse.args as ImmutableMap<String, Any?>,
+                                ImmutableMap.copyOf(agentResponse.args),
                             )
                         insertChatMessageUseCase(convId, callMsg)
                         onAIFunctionCalled(agentResponse.name, agentResponse.args)

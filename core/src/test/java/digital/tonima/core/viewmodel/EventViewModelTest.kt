@@ -21,7 +21,6 @@ import digital.tonima.core.usecases.ScheduleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
-import digital.tonima.core.usecases.UpdateWidgetUseCase
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -67,7 +66,6 @@ class EventViewModelTest {
     private val mockScheduleEventAlarmUseCase: ScheduleEventAlarmUseCase = mockk(relaxed = true)
     private val mockCancelEventAlarmUseCase: CancelEventAlarmUseCase = mockk(relaxed = true)
     private val mockCalculateDepartureTimeUseCase: CalculateDepartureTimeUseCase = mockk(relaxed = true)
-    private val mockUpdateWidgetUseCase: UpdateWidgetUseCase = mockk(relaxed = true)
     private val mockLogEventUseCase: LogEventUseCase = mockk(relaxed = true)
     private val mockCheckPermissionsUseCase: CheckPermissionsUseCase = mockk(relaxed = true)
     private val mockGetCurrentLocationUseCase: GetCurrentLocationUseCase = mockk(relaxed = true)
@@ -155,23 +153,27 @@ class EventViewModelTest {
     fun `onDateSelected updates selectedDate in UI state`() =
         runTest {
             val newDate = LocalDate.of(2023, 10, 26)
-            viewModel.handleIntent(EventIntent.SelectDate(newDate))
+            val newDateEpoch = newDate.toEpochDay()
+            viewModel.handleIntent(EventIntent.SelectDate(newDateEpoch))
             advanceUntilIdle()
 
-            assertEquals(newDate, viewModel.uiState.value.selectedDate)
+            assertEquals(newDateEpoch, viewModel.uiState.value.selectedDate)
         }
 
     @Test
     fun `returnToToday updates selectedDate and currentMonth`() =
         runTest {
-            viewModel.handleIntent(EventIntent.SelectDate(LocalDate.of(2000, 1, 1)))
+            val oldDate = LocalDate.of(2000, 1, 1).toEpochDay()
+            viewModel.handleIntent(EventIntent.SelectDate(oldDate))
             advanceUntilIdle()
 
             viewModel.handleIntent(EventIntent.ReturnToToday)
             advanceUntilIdle()
 
-            assertEquals(LocalDate.now(), viewModel.uiState.value.selectedDate)
-            assertEquals(YearMonth.now(), viewModel.uiState.value.currentMonth)
+            val today = LocalDate.now().toEpochDay()
+            val currentMonth = YearMonth.now().atDay(1).toEpochDay()
+            assertEquals(today, viewModel.uiState.value.selectedDate)
+            assertEquals(currentMonth, viewModel.uiState.value.currentMonth)
         }
 
     @Test
@@ -194,7 +196,8 @@ class EventViewModelTest {
             viewModel = createViewModel()
             runCurrent()
 
-            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.of(2024, 10)))
+            val targetMonth = YearMonth.of(2024, 10).atDay(1).toEpochDay()
+            viewModel.handleIntent(EventIntent.ChangeMonth(targetMonth))
             runCurrent()
 
             assertTrue(viewModel.uiState.value.events.isEmpty())
@@ -233,8 +236,8 @@ class EventViewModelTest {
             )
             advanceUntilIdle()
 
-            val effects = viewModel.uiState.value.sideEffects
-            assertTrue(effects.any { it is EventSideEffect.ShowSnackbar })
+            val effect = viewModel.uiState.value.effect
+            assertTrue(effect is EventSideEffect.ShowSnackbar)
 
             coVerify {
                 mockCreateEventUseCase(1, "New Event", "Desc", "Loc", 1000L, 2000L, false, any())
@@ -249,7 +252,7 @@ class EventViewModelTest {
             val e2 = Event(id = 302, title = "B", startTime = now + 6 * 60 * 1000L)
             coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(e1, e2)
 
-            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.now()))
+            viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.now().atDay(1).toEpochDay()))
             advanceUntilIdle()
 
             appPreferencesFlow.value = defaultAppPreferences().copy(isGlobalAlarmEnabled = false)

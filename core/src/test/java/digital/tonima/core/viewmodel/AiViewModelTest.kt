@@ -283,8 +283,8 @@ class AiViewModelTest {
             advanceTimeBy(1000.milliseconds)
             runCurrent()
 
-            val effects = viewModel.uiState.value.sideEffects
-            assertTrue(effects.any { it is AiSideEffect.ShowSnackbar })
+            val effect = viewModel.uiState.value.effect
+            assertTrue(effect is AiSideEffect.ShowSnackbar)
         }
 
     @Test
@@ -311,8 +311,8 @@ class AiViewModelTest {
             advanceTimeBy(1000.milliseconds)
             runCurrent()
 
-            val effects = viewModel.uiState.value.sideEffects
-            assertTrue(effects.any { it is AiSideEffect.RequireUserConfirmation })
+            val effect = viewModel.uiState.value.effect
+            assertTrue(effect is AiSideEffect.RequireUserConfirmation)
             assertEquals(createIntent, viewModel.uiState.value.pendingAIAction)
         }
 

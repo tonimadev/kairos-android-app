@@ -9,6 +9,7 @@ import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.wear.sync.SyncActions
 import digital.tonima.kairos.wear.sync.WearEventCache
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -272,8 +273,29 @@ class WearCalendarViewModelTest {
 
         val vm = createVm(FakePrefsRepo())
 
-        assertEquals(initial.map { it.copy(isAlarmEnabled = true) }, vm.next24hEvents.value)
+        val expected = initial.map { it.toUiModel().copy(isAlarmEnabled = true) }
+        assertEquals(expected, vm.next24hEvents.value)
     }
+
+    private fun Event.toUiModel(): EventUiModel =
+        EventUiModel(
+            id = id,
+            title = title,
+            startTime = startTime,
+            endTime = endTime,
+            isAlarmEnabled = isAlarmEnabled,
+            isRecurring = isRecurring,
+            vibrateOnly = vibrateOnly,
+            isAllDay = isAllDay,
+            calendarColor = calendarColor,
+            meetingUrl = meetingUrl,
+            location = location,
+            departureTime = departureTime,
+            travelTimeMinutes = travelTimeMinutes,
+            category = category,
+            hasConflict = hasConflict,
+            isBackToBack = isBackToBack,
+        )
 
     @Test
     fun `updates when ACTION_EVENTS_UPDATED is broadcast`() {

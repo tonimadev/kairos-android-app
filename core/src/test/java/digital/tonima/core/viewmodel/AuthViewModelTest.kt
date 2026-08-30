@@ -73,15 +73,11 @@ class AuthViewModelTest {
             viewModel.handleIntent(AuthIntent.SignInWithGoogle)
             advanceUntilIdle()
 
-            val effects = viewModel.uiState.value.sideEffects
-            assertTrue(effects.any { it is AuthSideEffect.LaunchGoogleSignIn })
+            val effect = viewModel.uiState.value.effect
+            assertTrue(effect is AuthSideEffect.LaunchGoogleSignIn)
             assertEquals(
                 mockIntent,
-                (
-                    effects.first {
-                        it is AuthSideEffect.LaunchGoogleSignIn
-                    } as AuthSideEffect.LaunchGoogleSignIn
-                ).intent,
+                (effect as AuthSideEffect.LaunchGoogleSignIn).intent,
             )
         }
 
