@@ -16,7 +16,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.android.play.core.review.ReviewManagerFactory.create
-import digital.tonima.core.util.LaunchedUiEffectHandler
+import digital.tonima.core.util.MviEffectHandler
 import digital.tonima.core.viewmodel.AiIntent
 import digital.tonima.core.viewmodel.AiSideEffect
 import digital.tonima.core.viewmodel.AiSideEffect.RequireUserConfirmation
@@ -98,7 +98,7 @@ private fun HandleSideEffects(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    LaunchedUiEffectHandler(
+    MviEffectHandler(
         effectFlow = eventViewModel.effect,
         onConsume = { eventViewModel.handleIntent(EventIntent.ConsumeEffect) },
     ) { effect ->
@@ -154,7 +154,7 @@ private fun HandleSideEffects(
         }
     }
 
-    LaunchedUiEffectHandler(
+    MviEffectHandler(
         effectFlow = aiViewModel.effect,
         onConsume = { aiViewModel.handleIntent(AiIntent.ConsumeEffect) },
     ) { effect ->
@@ -171,7 +171,7 @@ private fun HandleSideEffects(
         }
     }
 
-    LaunchedUiEffectHandler(
+    MviEffectHandler(
         effectFlow = authViewModel.effect,
         onConsume = { authViewModel.handleIntent(AuthIntent.ConsumeEffect) },
     ) { effect ->
@@ -186,7 +186,7 @@ private fun HandleSideEffects(
         }
     }
 
-    LaunchedUiEffectHandler(
+    MviEffectHandler(
         effectFlow = settingsViewModel.effect,
         onConsume = { settingsViewModel.handleIntent(SettingsIntent.ConsumeEffect) },
     ) { effect ->

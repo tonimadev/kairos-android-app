@@ -7,7 +7,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun <T> LaunchedUiEffectHandler(
+fun <T> MviEffectHandler(
     effectFlow: Flow<T?>,
     onConsume: () -> Unit,
     onEffect: (T) -> Unit,
