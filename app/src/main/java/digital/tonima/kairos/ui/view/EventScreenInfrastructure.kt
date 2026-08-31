@@ -9,14 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.android.play.core.review.ReviewManagerFactory.create
-import digital.tonima.core.util.MviEffectHandler
 import digital.tonima.core.viewmodel.AiIntent
 import digital.tonima.core.viewmodel.AiSideEffect
 import digital.tonima.core.viewmodel.AiSideEffect.RequireUserConfirmation
@@ -36,7 +35,7 @@ import digital.tonima.core.viewmodel.EventSideEffect.ShowSnackbar
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.core.viewmodel.SettingsIntent
 import digital.tonima.core.viewmodel.SettingsViewModel
-import kotlinx.coroutines.launch
+import logcat.LogPriority
 import logcat.logcat
 
 @Composable
@@ -96,107 +95,98 @@ private fun HandleSideEffects(
     onPurchaseRequest: () -> Unit,
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
-    MviEffectHandler(
-        effectFlow = eventViewModel.effect,
-        onConsume = { eventViewModel.handleIntent(EventIntent.ConsumeEffect) },
-    ) { effect ->
-        when (effect) {
-            is ShowSnackbar ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        effect.message.asString(context),
-                    )
-                }
-            is AIToolError ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        effect.message.asString(context),
-                    )
-                }
-            is OpenMeetingUrl -> {
-                try {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, effect.url.toUri()))
-                } catch (e: Exception) {
-                    logcat("EventScreen") { "Failed to open meeting URL: ${e.message}" }
-                }
-            }
-            is CopyToClipboard -> {
-                val clipboard =
-                    context.getSystemService(
-                        Context.CLIPBOARD_SERVICE,
-                    ) as android.content.ClipboardManager
-                val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
-                clipboard.setPrimaryClip(clip)
-                scope.launch {
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
-                }
-            }
-            RequestAppReview -> {
-                val activity = context.findActivity()
-                if (activity != null) {
-                    val reviewManager = create(context)
-                    reviewManager.requestReviewFlow().addOnCompleteListener { request ->
-                        if (request.isSuccessful) {
-                            val reviewInfo = request.result
-                            reviewManager.launchReviewFlow(activity, reviewInfo)
+    LaunchedEffect(eventViewModel.effect) {
+        eventViewModel.effect.collect { effect ->
+            if (effect != null) {
+                when (effect) {
+                    is ShowSnackbar ->
+                        snackbarHostState.showSnackbar(
+                            effect.message.asString(context),
+                        )
+                    is AIToolError ->
+                        snackbarHostState.showSnackbar(
+                            effect.message.asString(context),
+                        )
+                    is OpenMeetingUrl -> {
+                        try {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, effect.url.toUri()))
+                        } catch (e: Exception) {
+                            logcat("EventScreen") { "Failed to open meeting URL: ${e.message}" }
+                        }
+                    }
+                    is CopyToClipboard -> {
+                        val clipboard =
+                            context.getSystemService(
+                                Context.CLIPBOARD_SERVICE,
+                            ) as android.content.ClipboardManager
+                        val clip = android.content.ClipData.newPlainText("Meeting Link", effect.text)
+                        clipboard.setPrimaryClip(clip)
+                        snackbarHostState.showSnackbar(effect.message.asString(context))
+                    }
+                    RequestAppReview -> {
+                        val activity = context.findActivity()
+                        if (activity != null) {
+                            val reviewManager = create(context)
+                            reviewManager.requestReviewFlow().addOnCompleteListener { request ->
+                                if (request.isSuccessful) {
+                                    val reviewInfo = request.result
+                                    reviewManager.launchReviewFlow(activity, reviewInfo)
+                                } else {
+                                    openPlayStoreFallback(context)
+                                }
+                            }
                         } else {
                             openPlayStoreFallback(context)
                         }
                     }
-                } else {
-                    openPlayStoreFallback(context)
+                    RequestSubscription -> onSubscriptionRequest()
+                    RequestPurchase -> onPurchaseRequest()
                 }
+                eventViewModel.handleIntent(EventIntent.ConsumeEffect)
             }
-            RequestSubscription -> onSubscriptionRequest()
-            RequestPurchase -> onPurchaseRequest()
         }
     }
 
-    MviEffectHandler(
-        effectFlow = aiViewModel.effect,
-        onConsume = { aiViewModel.handleIntent(AiIntent.ConsumeEffect) },
-    ) { effect ->
-        when (effect) {
-            is RequireUserConfirmation -> onSetAiConfirmationData(effect)
-            is AiSideEffect.ShowSnackbar ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
+    LaunchedEffect(aiViewModel.effect) {
+        aiViewModel.effect.collect { effect ->
+            if (effect != null) {
+                when (effect) {
+                    is RequireUserConfirmation -> onSetAiConfirmationData(effect)
+                    is AiSideEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
+                    is AiSideEffect.AIToolError -> snackbarHostState.showSnackbar(effect.message.asString(context))
                 }
-            is AiSideEffect.AIToolError ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(effect.message.asString(context))
-                }
+                aiViewModel.handleIntent(AiIntent.ConsumeEffect)
+            }
         }
     }
 
-    MviEffectHandler(
-        effectFlow = authViewModel.effect,
-        onConsume = { authViewModel.handleIntent(AuthIntent.ConsumeEffect) },
-    ) { effect ->
-        when (effect) {
-            is LaunchGoogleSignIn -> googleSignInLauncher.launch(effect.intent)
-            is AuthSideEffect.ShowSnackbar ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        effect.message.asString(context),
-                    )
+    LaunchedEffect(authViewModel.effect) {
+        authViewModel.effect.collect { effect ->
+            if (effect != null) {
+                when (effect) {
+                    is LaunchGoogleSignIn -> googleSignInLauncher.launch(effect.intent)
+                    is AuthSideEffect.ShowSnackbar ->
+                        snackbarHostState.showSnackbar(
+                            effect.message.asString(context),
+                        )
                 }
+                authViewModel.handleIntent(AuthIntent.ConsumeEffect)
+            }
         }
     }
 
-    MviEffectHandler(
-        effectFlow = settingsViewModel.effect,
-        onConsume = { settingsViewModel.handleIntent(SettingsIntent.ConsumeEffect) },
-    ) { effect ->
-        when (effect) {
-            is digital.tonima.core.viewmodel.SettingsSideEffect.ShowSnackbar ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        effect.message.asString(context),
-                    )
+    LaunchedEffect(settingsViewModel.effect) {
+        settingsViewModel.effect.collect { effect ->
+            if (effect != null) {
+                when (effect) {
+                    is digital.tonima.core.viewmodel.SettingsSideEffect.ShowSnackbar ->
+                        snackbarHostState.showSnackbar(
+                            effect.message.asString(context),
+                        )
                 }
+                settingsViewModel.handleIntent(SettingsIntent.ConsumeEffect)
+            }
         }
     }
 }
