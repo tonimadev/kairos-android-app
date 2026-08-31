@@ -35,7 +35,6 @@ import digital.tonima.core.viewmodel.EventSideEffect.ShowSnackbar
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.core.viewmodel.SettingsIntent
 import digital.tonima.core.viewmodel.SettingsViewModel
-import logcat.LogPriority
 import logcat.logcat
 
 @Composable
