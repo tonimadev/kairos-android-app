@@ -58,7 +58,7 @@ retrofitKotlinxSerializationConverter = "1.0.0"
 splashscreen = "1.2.0"
 playServicesAuth = "21.6.0"
 vico = "3.3.0"
-androidx-appfunctions = "1.0.0-alpha10"
+androidx-appfunctions = "1.0.0-alpha11"
 stabilityAnalyzer= "0.13.0"
 firebaseAiOnDevice = "16.0.0-beta05"
 
