@@ -94,6 +94,8 @@ class CalendarRepositoryImplTest {
                         CalendarContract.Instances.EVENT_LOCATION,
                         CalendarContract.Events.RRULE,
                         CalendarContract.Events.RDATE,
+                        CalendarContract.Instances.AVAILABILITY,
+                        "event_type",
                     ),
                 )
             cursor.addRow(
@@ -109,6 +111,8 @@ class CalendarRepositoryImplTest {
                     "Loc",
                     null,
                     null,
+                    0, // AVAILABILITY_BUSY
+                    0, // Regular event
                 ),
             )
 
@@ -144,5 +148,175 @@ class CalendarRepositoryImplTest {
             assertEquals(1, events.size)
             assertEquals("Meeting", events[0].title)
             assertEquals(101L, events[0].id)
+        }
+
+    @Test
+    fun `when getEventsForMonth finds free or work location events then they are filtered out`() =
+        runTest {
+            val cursor =
+                MatrixCursor(
+                    arrayOf(
+                        CalendarContract.Instances.EVENT_ID,
+                        CalendarContract.Instances.TITLE,
+                        CalendarContract.Instances.BEGIN,
+                        CalendarContract.Instances.END,
+                        CalendarContract.Instances.ALL_DAY,
+                        CalendarContract.Instances.CALENDAR_ID,
+                        CalendarContract.Instances.CALENDAR_COLOR,
+                        CalendarContract.Instances.DESCRIPTION,
+                        CalendarContract.Instances.EVENT_LOCATION,
+                        CalendarContract.Events.RRULE,
+                        CalendarContract.Events.RDATE,
+                        CalendarContract.Instances.AVAILABILITY,
+                        "event_type",
+                    ),
+                )
+            // Event 1: Busy (Normal)
+            cursor.addRow(
+                arrayOf<Any?>(
+                    101L,
+                    "Meeting",
+                    1715760000000L,
+                    1715763600000L,
+                    0,
+                    1L,
+                    0xFF0000,
+                    "Desc",
+                    "Loc",
+                    null,
+                    null,
+                    0,
+                    0,
+                ),
+            )
+            // Event 2: Free
+            cursor.addRow(
+                arrayOf<Any?>(
+                    102L,
+                    "Free Event",
+                    1715760000000L,
+                    1715763600000L,
+                    0,
+                    1L,
+                    0xFF0000,
+                    "Desc",
+                    "Loc",
+                    null,
+                    null,
+                    1,
+                    0,
+                ),
+            )
+            // Event 3: Work Location (TYPE_WORK_LOCATION = 2)
+            cursor.addRow(
+                arrayOf<Any?>(
+                    103L,
+                    "Work Location",
+                    1715760000000L,
+                    1715763600000L,
+                    0,
+                    1L,
+                    0xFF0000,
+                    "Desc",
+                    "Loc",
+                    null,
+                    null,
+                    0,
+                    2,
+                ),
+            )
+
+            every {
+                mockContentResolver.query(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns cursor
+
+            val events =
+                repository.getEventsForMonth(
+                    YearMonth.of(2024, 5).atDay(1).toEpochDay(),
+                    ImmutableList.of(1L),
+                )
+
+            assertEquals(1, events.size)
+            assertEquals("Meeting", events[0].title)
+        }
+
+    @Test
+    fun `when getNextUpcomingEvent finds free event then it skips to next busy event`() =
+        runTest {
+            val cursor =
+                MatrixCursor(
+                    arrayOf(
+                        CalendarContract.Instances.EVENT_ID,
+                        CalendarContract.Instances.TITLE,
+                        CalendarContract.Instances.BEGIN,
+                        CalendarContract.Instances.END,
+                        CalendarContract.Instances.ALL_DAY,
+                        CalendarContract.Instances.CALENDAR_ID,
+                        CalendarContract.Instances.CALENDAR_COLOR,
+                        CalendarContract.Instances.DESCRIPTION,
+                        CalendarContract.Instances.EVENT_LOCATION,
+                        CalendarContract.Events.RRULE,
+                        CalendarContract.Events.RDATE,
+                        CalendarContract.Instances.AVAILABILITY,
+                        "event_type",
+                    ),
+                )
+            // Event 1: Free
+            cursor.addRow(
+                arrayOf<Any?>(
+                    101L,
+                    "Free Event",
+                    1715760000000L,
+                    1715763600000L,
+                    0,
+                    1L,
+                    0xFF0000,
+                    "Desc",
+                    "Loc",
+                    null,
+                    null,
+                    1,
+                    0,
+                ),
+            )
+            // Event 2: Busy
+            cursor.addRow(
+                arrayOf<Any?>(
+                    102L,
+                    "Busy Meeting",
+                    1715770000000L,
+                    1715773600000L,
+                    0,
+                    1L,
+                    0xFF0000,
+                    "Desc",
+                    "Loc",
+                    null,
+                    null,
+                    0,
+                    0,
+                ),
+            )
+
+            every {
+                mockContentResolver.query(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns cursor
+
+            val nextEvent = repository.getNextUpcomingEvent(ImmutableList.of(1L))
+
+            assertEquals("Busy Meeting", nextEvent?.title)
+            assertEquals(102L, nextEvent?.id)
         }
 }

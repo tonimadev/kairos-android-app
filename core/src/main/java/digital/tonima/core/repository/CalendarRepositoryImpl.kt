@@ -5,6 +5,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.CalendarContract
 import androidx.core.content.ContextCompat
 import com.google.common.collect.ImmutableList
@@ -29,31 +30,27 @@ class CalendarRepositoryImpl
         @ApplicationContext private val context: Context,
     ) :
     CalendarRepository {
-        private val eventProjection: Array<String> =
-            arrayOf(
-                CalendarContract.Instances.EVENT_ID,
-                CalendarContract.Instances.TITLE,
-                CalendarContract.Instances.BEGIN,
-                CalendarContract.Instances.END,
-                CalendarContract.Instances.ALL_DAY,
-                CalendarContract.Instances.CALENDAR_ID,
-                CalendarContract.Instances.CALENDAR_COLOR,
-                CalendarContract.Instances.DESCRIPTION,
-                CalendarContract.Instances.EVENT_LOCATION,
-                CalendarContract.Events.RRULE,
-                CalendarContract.Events.RDATE,
-            )
-
-        private val projectionIdIndex = 0
-        private val projectionTitleIndex = 1
-        private val projectionBeginIndex = 2
-        private val projectionEndIndex = 3
-        private val projectionAllDayIndex = 4
-        private val projectionCalendarColorIndex = 6
-        private val projectionDescriptionIndex = 7
-        private val projectionLocationIndex = 8
-        private val projectionRruleIndex = 9
-        private val projectionRdateIndex = 10
+        private fun getEventProjection(): Array<String> {
+            val projection =
+                mutableListOf(
+                    CalendarContract.Instances.EVENT_ID,
+                    CalendarContract.Instances.TITLE,
+                    CalendarContract.Instances.BEGIN,
+                    CalendarContract.Instances.END,
+                    CalendarContract.Instances.ALL_DAY,
+                    CalendarContract.Instances.CALENDAR_ID,
+                    CalendarContract.Instances.CALENDAR_COLOR,
+                    CalendarContract.Instances.DESCRIPTION,
+                    CalendarContract.Instances.EVENT_LOCATION,
+                    CalendarContract.Events.RRULE,
+                    CalendarContract.Events.RDATE,
+                    CalendarContract.Instances.AVAILABILITY,
+                )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                projection.add("event_type")
+            }
+            return projection.toTypedArray()
+        }
 
         private fun hasCalendarPermission() =
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
@@ -146,28 +143,60 @@ class CalendarRepositoryImpl
                     selectionArgs = null
                 }
 
+                val projection = getEventProjection()
                 val cursor =
                     context.contentResolver.query(
                         uri,
-                        eventProjection,
+                        projection,
                         selection,
                         selectionArgs,
                         null,
                     )
 
                 cursor?.use {
+                    val idIdx = it.getColumnIndex(CalendarContract.Instances.EVENT_ID)
+                    val titleIdx = it.getColumnIndex(CalendarContract.Instances.TITLE)
+                    val beginIdx = it.getColumnIndex(CalendarContract.Instances.BEGIN)
+                    val endIdx = it.getColumnIndex(CalendarContract.Instances.END)
+                    val allDayIdx = it.getColumnIndex(CalendarContract.Instances.ALL_DAY)
+                    val colorIdx = it.getColumnIndex(CalendarContract.Instances.CALENDAR_COLOR)
+                    val descIdx = it.getColumnIndex(CalendarContract.Instances.DESCRIPTION)
+                    val locIdx = it.getColumnIndex(CalendarContract.Instances.EVENT_LOCATION)
+                    val rruleIdx = it.getColumnIndex(CalendarContract.Events.RRULE)
+                    val rdateIdx = it.getColumnIndex(CalendarContract.Events.RDATE)
+                    val availIdx = it.getColumnIndex(CalendarContract.Instances.AVAILABILITY)
+                    val typeIdx =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            it.getColumnIndex("event_type")
+                        } else {
+                            -1
+                        }
+
                     while (it.moveToNext()) {
-                        val eventId = it.getLong(projectionIdIndex)
-                        val title = it.getString(projectionTitleIndex)
-                        val begin = it.getLong(projectionBeginIndex)
-                        val end = it.getLong(projectionEndIndex)
-                        val isAllDay = it.getInt(projectionAllDayIndex) == 1
-                        val color = it.getInt(projectionCalendarColorIndex)
-                        val description = it.getString(projectionDescriptionIndex)
-                        val location = it.getString(projectionLocationIndex)
-                        val rrule = it.getString(projectionRruleIndex)
-                        val rdate = it.getString(projectionRdateIndex)
+                        val eventId = it.getLong(idIdx)
+                        val title = it.getString(titleIdx)
+                        val begin = it.getLong(beginIdx)
+                        val end = it.getLong(endIdx)
+                        val isAllDay = it.getInt(allDayIdx) == 1
+                        val color = it.getInt(colorIdx)
+                        val description = it.getString(descIdx)
+                        val location = it.getString(locIdx)
+                        val rrule = it.getString(rruleIdx)
+                        val rdate = it.getString(rdateIdx)
+                        val availability = it.getInt(availIdx)
+                        val eventType = if (typeIdx != -1) it.getInt(typeIdx) else 0
+
                         val isRecurring = !rrule.isNullOrBlank() || !rdate.isNullOrBlank()
+
+                        // Filter out "Free" events and special Google Calendar types (Work Location, Focus Time, etc.)
+                        if (availability == CalendarContract.Instances.AVAILABILITY_FREE) {
+                            continue
+                        }
+
+                        // event_type values (API 34+): 2 = TYPE_WORK_LOCATION, 3 = TYPE_FOCUS_TIME
+                        if (typeIdx != -1 && (eventType == 2 || eventType == 3)) {
+                            continue
+                        }
 
                         events.add(
                             Event(
@@ -180,6 +209,8 @@ class CalendarRepositoryImpl
                                 calendarColor = color,
                                 meetingUrl = extractMeetLink(description, location),
                                 location = location,
+                                availability = availability,
+                                eventType = eventType,
                             ),
                         )
                     }
@@ -218,10 +249,11 @@ class CalendarRepositoryImpl
                     selectionArgs = arrayOf(now.toEpochMilli().toString())
                 }
 
+                val projection = getEventProjection()
                 val cursor =
                     context.contentResolver.query(
                         uri,
-                        eventProjection,
+                        projection,
                         selection,
                         selectionArgs,
                         null,
@@ -229,30 +261,66 @@ class CalendarRepositoryImpl
 
                 var nextEvent: Event? = null
                 cursor?.use {
+                    val idIdx = it.getColumnIndex(CalendarContract.Instances.EVENT_ID)
+                    val titleIdx = it.getColumnIndex(CalendarContract.Instances.TITLE)
+                    val beginIdx = it.getColumnIndex(CalendarContract.Instances.BEGIN)
+                    val endIdx = it.getColumnIndex(CalendarContract.Instances.END)
+                    val allDayIdx = it.getColumnIndex(CalendarContract.Instances.ALL_DAY)
+                    val colorIdx = it.getColumnIndex(CalendarContract.Instances.CALENDAR_COLOR)
+                    val descIdx = it.getColumnIndex(CalendarContract.Instances.DESCRIPTION)
+                    val locIdx = it.getColumnIndex(CalendarContract.Instances.EVENT_LOCATION)
+                    val rruleIdx = it.getColumnIndex(CalendarContract.Events.RRULE)
+                    val rdateIdx = it.getColumnIndex(CalendarContract.Events.RDATE)
+                    val availIdx = it.getColumnIndex(CalendarContract.Instances.AVAILABILITY)
+                    val typeIdx =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            it.getColumnIndex("event_type")
+                        } else {
+                            -1
+                        }
+
                     if (it.moveToFirst()) {
-                        val eventId = it.getLong(projectionIdIndex)
-                        val title = it.getString(projectionTitleIndex)
-                        val begin = it.getLong(projectionBeginIndex)
-                        val end = it.getLong(projectionEndIndex)
-                        val isAllDay = it.getInt(projectionAllDayIndex) == 1
-                        val color = it.getInt(projectionCalendarColorIndex)
-                        val description = it.getString(projectionDescriptionIndex)
-                        val location = it.getString(projectionLocationIndex)
-                        val rrule = it.getString(projectionRruleIndex)
-                        val rdate = it.getString(projectionRdateIndex)
-                        val isRecurring = !rrule.isNullOrBlank() || !rdate.isNullOrBlank()
-                        nextEvent =
-                            Event(
-                                id = eventId,
-                                title = title,
-                                startTime = begin,
-                                endTime = end,
-                                isAllDay = isAllDay,
-                                isRecurring = isRecurring,
-                                calendarColor = color,
-                                meetingUrl = extractMeetLink(description, location),
-                                location = location,
-                            )
+                        do {
+                            val eventId = it.getLong(idIdx)
+                            val title = it.getString(titleIdx)
+                            val begin = it.getLong(beginIdx)
+                            val end = it.getLong(endIdx)
+                            val isAllDay = it.getInt(allDayIdx) == 1
+                            val color = it.getInt(colorIdx)
+                            val description = it.getString(descIdx)
+                            val location = it.getString(locIdx)
+                            val rrule = it.getString(rruleIdx)
+                            val rdate = it.getString(rdateIdx)
+                            val availability = it.getInt(availIdx)
+                            val eventType = if (typeIdx != -1) it.getInt(typeIdx) else 0
+
+                            val isRecurring = !rrule.isNullOrBlank() || !rdate.isNullOrBlank()
+
+                            // Filter out "Free" events and special Google
+                            // Calendar types (Work Location, Focus Time, etc.)
+                            if (availability == CalendarContract.Instances.AVAILABILITY_FREE) {
+                                continue
+                            }
+                            if (typeIdx != -1 && (eventType == 2 || eventType == 3)) {
+                                continue
+                            }
+
+                            nextEvent =
+                                Event(
+                                    id = eventId,
+                                    title = title,
+                                    startTime = begin,
+                                    endTime = end,
+                                    isAllDay = isAllDay,
+                                    isRecurring = isRecurring,
+                                    calendarColor = color,
+                                    meetingUrl = extractMeetLink(description, location),
+                                    location = location,
+                                    availability = availability,
+                                    eventType = eventType,
+                                )
+                            break
+                        } while (it.moveToNext())
                     }
                 }
                 return@withContext nextEvent

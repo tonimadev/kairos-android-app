@@ -17,6 +17,8 @@ data class Event(
     val category: String? = null,
     val hasConflict: Boolean = false,
     val isBackToBack: Boolean = false,
+    val availability: Int = 0, // CalendarContract.Instances.AVAILABILITY
+    val eventType: Int = 0, // CalendarContract.Events.EVENT_TYPE (API 34+)
 ) {
     val uniqueIntentId: Int
         get() = (id.toString() + startTime.toString()).hashCode()
