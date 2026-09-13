@@ -37,8 +37,6 @@ import digital.tonima.core.viewmodel.SettingsIntent
 import digital.tonima.core.viewmodel.SettingsViewModel
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.wear.ui.components.AppHeaderTitle
-import digital.tonima.kairos.wear.ui.components.CalendarFilterChip
-import digital.tonima.kairos.wear.ui.components.CalendarFilterHeader
 import digital.tonima.kairos.wear.ui.components.EventCard
 import digital.tonima.kairos.wear.ui.components.EventsListSection
 import digital.tonima.kairos.wear.ui.components.EventsSectionHeader
@@ -59,17 +57,17 @@ fun WearApp(
     wearCalendarViewModel: WearCalendarViewModel = hiltViewModel(),
     permissionManager: PermissionManager,
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     val next24hEvents by wearCalendarViewModel.next24hEvents.collectAsStateWithLifecycle()
     val listState = rememberScalingLazyListState()
     val context = LocalContext.current
 
+    // Only notification permission is requested here: the watch never reads the calendar
+    // provider directly (events arrive already filtered from the phone via WearEventCache/
+    // PhoneEventSyncWorker), so requesting READ_CALENDAR on this device had no consumer.
     val standardPermissionsToRequest =
         remember {
-            permissionManager.calendarPermissions.toMutableList().apply {
-                addAll(permissionManager.notificationPermissions)
-            }
+            permissionManager.notificationPermissions.toList()
         }
 
     val standardPermissionState =
@@ -80,12 +78,6 @@ fun WearApp(
             standardPermissionState.launchMultiplePermissionRequest()
         }
         settingsViewModel.handleIntent(SettingsIntent.CheckPermissions)
-    }
-
-    LaunchedEffect(settingsState.hasCalendarPermission) {
-        if (settingsState.hasCalendarPermission) {
-            viewModel.handleIntent(EventIntent.LoadCalendars)
-        }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -159,20 +151,6 @@ fun WearApp(
                                 settingsViewModel.handleIntent(SettingsIntent.ToggleVibrateOnly(enabled))
                             },
                         )
-                    }
-                    if (uiState.availableCalendars.isNotEmpty()) {
-                        item { CalendarFilterHeader() }
-                        items(uiState.availableCalendars) { calendar ->
-                            CalendarFilterChip(
-                                calendar = calendar,
-                                enabledCalendarIds = uiState.enabledCalendarIds,
-                                onToggle = { calendarId, enabled ->
-                                    viewModel.handleIntent(
-                                        EventIntent.ToggleCalendarFilter(calendarId, enabled),
-                                    )
-                                },
-                            )
-                        }
                     }
                     item { Spacer(Modifier.height(Dimensions.SpacingSmall)) }
                     item { EventsSectionHeader() }
