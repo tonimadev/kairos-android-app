@@ -14,6 +14,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.YearMonth
 
 @RunWith(RobolectricTestRunner::class)
@@ -235,6 +236,78 @@ class CalendarRepositoryImplTest {
                     any(),
                 )
             } returns cursor
+
+            val events =
+                repository.getEventsForMonth(
+                    YearMonth.of(2024, 5).atDay(1).toEpochDay(),
+                    ImmutableList.of(1L),
+                )
+
+            assertEquals(1, events.size)
+            assertEquals("Meeting", events[0].title)
+        }
+
+    @Test
+    @Config(sdk = [34])
+    fun `when CalendarProvider rejects the event_type column then getEventsForMonth falls back`() =
+        runTest {
+            // Some OEM/ROM CalendarProvider implementations reject the "event_type" projection
+            // column with IllegalArgumentException even on API 34+ (SDK_INT alone isn't a
+            // reliable signal of column support). The repository must retry without it instead
+            // of letting the exception propagate and crash the caller.
+            val fallbackCursor =
+                MatrixCursor(
+                    arrayOf(
+                        CalendarContract.Instances.EVENT_ID,
+                        CalendarContract.Instances.TITLE,
+                        CalendarContract.Instances.BEGIN,
+                        CalendarContract.Instances.END,
+                        CalendarContract.Instances.ALL_DAY,
+                        CalendarContract.Instances.CALENDAR_ID,
+                        CalendarContract.Instances.CALENDAR_COLOR,
+                        CalendarContract.Instances.DESCRIPTION,
+                        CalendarContract.Instances.EVENT_LOCATION,
+                        CalendarContract.Events.RRULE,
+                        CalendarContract.Events.RDATE,
+                        CalendarContract.Instances.AVAILABILITY,
+                    ),
+                )
+            fallbackCursor.addRow(
+                arrayOf<Any?>(
+                    101L,
+                    "Meeting",
+                    1715760000000L,
+                    1715763600000L,
+                    0,
+                    1L,
+                    0xFF0000,
+                    "Desc",
+                    "Loc",
+                    null,
+                    null,
+                    0,
+                ),
+            )
+
+            every {
+                mockContentResolver.query(
+                    any(),
+                    match<Array<String>> { projection -> projection.contains("event_type") },
+                    any(),
+                    any(),
+                    any(),
+                )
+            } throws IllegalArgumentException("Invalid column event_type")
+
+            every {
+                mockContentResolver.query(
+                    any(),
+                    match<Array<String>> { projection -> !projection.contains("event_type") },
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns fallbackCursor
 
             val events =
                 repository.getEventsForMonth(

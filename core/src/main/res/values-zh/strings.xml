@@ -40,6 +40,7 @@
     <string name="not_applicable_on_this_android_version">不适用于此安卓版本</string>
     <string name="complication_label">即将发生的事件</string>
     <string name="no_events">无事件</string>
+    <string name="event_untitled">（无标题）</string>
     <string name="no_upcoming_events">无即将发生的事件</string>
     <string name="next_event">下一个事件</string>
     <string name="global_alarms">全局闹钟</string>

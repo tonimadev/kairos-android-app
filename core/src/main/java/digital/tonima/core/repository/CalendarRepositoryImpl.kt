@@ -30,7 +30,18 @@ class CalendarRepositoryImpl
         @ApplicationContext private val context: Context,
     ) :
     CalendarRepository {
-        private fun getEventProjection(): Array<String> {
+        // Whether querying the "event_type" projection column is currently believed to work.
+        // SDK_INT >= 34 is necessary but NOT sufficient: some OEM/ROM CalendarProvider
+        // implementations (and some emulator images) don't expose this column even on
+        // Android 14+, and requesting an unknown column makes ContentResolver.query() throw
+        // IllegalArgumentException synchronously (crashing the caller), rather than simply
+        // omitting it from the result like a missing *value* would. We optimistically try it
+        // once and permanently fall back for this process if the provider rejects it.
+        @Volatile
+        private var supportsEventTypeColumn: Boolean =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+
+        private fun getEventProjection(includeEventType: Boolean): Array<String> {
             val projection =
                 mutableListOf(
                     CalendarContract.Instances.EVENT_ID,
@@ -46,10 +57,46 @@ class CalendarRepositoryImpl
                     CalendarContract.Events.RDATE,
                     CalendarContract.Instances.AVAILABILITY,
                 )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            if (includeEventType) {
                 projection.add("event_type")
             }
             return projection.toTypedArray()
+        }
+
+        /**
+         * Queries [CalendarContract.Instances] defensively: tries the projection including
+         * "event_type" first (when believed supported), and transparently retries without it
+         * if the provider rejects that column, instead of letting the caller crash.
+         */
+        private fun queryInstances(
+            uri: Uri,
+            selection: String?,
+            selectionArgs: Array<String>?,
+        ): android.database.Cursor? {
+            if (supportsEventTypeColumn) {
+                try {
+                    return context.contentResolver.query(
+                        uri,
+                        getEventProjection(includeEventType = true),
+                        selection,
+                        selectionArgs,
+                        null,
+                    )
+                } catch (e: IllegalArgumentException) {
+                    logcat {
+                        "CalendarProvider rejected the 'event_type' column on this device; " +
+                            "falling back permanently for this session. ${e.message}"
+                    }
+                    supportsEventTypeColumn = false
+                }
+            }
+            return context.contentResolver.query(
+                uri,
+                getEventProjection(includeEventType = false),
+                selection,
+                selectionArgs,
+                null,
+            )
         }
 
         private fun hasCalendarPermission() =
@@ -143,15 +190,7 @@ class CalendarRepositoryImpl
                     selectionArgs = null
                 }
 
-                val projection = getEventProjection()
-                val cursor =
-                    context.contentResolver.query(
-                        uri,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                    )
+                val cursor = queryInstances(uri, selection, selectionArgs)
 
                 cursor?.use {
                     val idIdx = it.getColumnIndex(CalendarContract.Instances.EVENT_ID)
@@ -165,12 +204,8 @@ class CalendarRepositoryImpl
                     val rruleIdx = it.getColumnIndex(CalendarContract.Events.RRULE)
                     val rdateIdx = it.getColumnIndex(CalendarContract.Events.RDATE)
                     val availIdx = it.getColumnIndex(CalendarContract.Instances.AVAILABILITY)
-                    val typeIdx =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                            it.getColumnIndex("event_type")
-                        } else {
-                            -1
-                        }
+                    // Absent (unsupported/omitted) column safely yields -1 here, no exception.
+                    val typeIdx = it.getColumnIndex("event_type")
 
                     while (it.moveToNext()) {
                         val eventId = it.getLong(idIdx)
@@ -249,15 +284,7 @@ class CalendarRepositoryImpl
                     selectionArgs = arrayOf(now.toEpochMilli().toString())
                 }
 
-                val projection = getEventProjection()
-                val cursor =
-                    context.contentResolver.query(
-                        uri,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                    )
+                val cursor = queryInstances(uri, selection, selectionArgs)
 
                 var nextEvent: Event? = null
                 cursor?.use {
@@ -272,12 +299,8 @@ class CalendarRepositoryImpl
                     val rruleIdx = it.getColumnIndex(CalendarContract.Events.RRULE)
                     val rdateIdx = it.getColumnIndex(CalendarContract.Events.RDATE)
                     val availIdx = it.getColumnIndex(CalendarContract.Instances.AVAILABILITY)
-                    val typeIdx =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                            it.getColumnIndex("event_type")
-                        } else {
-                            -1
-                        }
+                    // Absent (unsupported/omitted) column safely yields -1 here, no exception.
+                    val typeIdx = it.getColumnIndex("event_type")
 
                     if (it.moveToFirst()) {
                         do {

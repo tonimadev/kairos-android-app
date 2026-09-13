@@ -43,6 +43,7 @@
     <string name="not_applicable_on_this_android_version">غير قابل للتطبيق في هذا الإصدار من أندرويد</string>
     <string name="complication_label">الأحداث القادمة</string>
     <string name="no_events">لا توجد أحداث</string>
+    <string name="event_untitled">(بدون عنوان)</string>
     <string name="no_upcoming_events">لا توجد أحداث قادمة</string>
     <string name="next_event">الحدث التالي</string>
     <string name="global_alarms">المنبهات الشاملة</string>

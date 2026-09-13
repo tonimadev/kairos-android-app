@@ -43,6 +43,7 @@
     <string name="not_applicable_on_this_android_version">इस Android संस्करण पर लागू नहीं</string>
     <string name="complication_label">आगामी कार्यक्रम</string>
     <string name="no_events">कोई कार्यक्रम नहीं</string>
+    <string name="event_untitled">(शीर्षक रहित)</string>
     <string name="no_upcoming_events">कोई आगामी कार्यक्रम नहीं</string>
     <string name="next_event">अगला कार्यक्रम</string>
     <string name="global_alarms">वैश्विक अलार्म</string>

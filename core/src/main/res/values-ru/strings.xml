@@ -44,6 +44,7 @@
     <string name="not_applicable_on_this_android_version">Не применимо к этой версии Android</string>
     <string name="complication_label">Предстоящие события</string>
     <string name="no_events">Нет событий</string>
+    <string name="event_untitled">(без названия)</string>
     <string name="no_upcoming_events">Нет предстоящих событий</string>
     <string name="next_event">Следующее событие</string>
     <string name="global_alarms">Глобальные будильники</string>

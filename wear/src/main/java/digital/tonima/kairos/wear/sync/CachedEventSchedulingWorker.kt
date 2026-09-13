@@ -45,7 +45,11 @@ class CachedEventSchedulingWorker
                 val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
 
                 val now = System.currentTimeMillis()
-                val scheduleWindowEnd = now + TimeUnit.DAYS.toMillis(7)
+                // PhoneEventSyncWorker only ever sends events starting within the next 24h
+                // (PATH_EVENTS_24H), so the cache never holds anything further out than that.
+                // Keep this window aligned with that sender-side cutoff — a longer window here
+                // is dead code that can never match anything in the cache.
+                val scheduleWindowEnd = now + TimeUnit.HOURS.toMillis(24)
                 val sdf = SimpleDateFormat("dd/MM HH:mm:ss", Locale.getDefault())
 
                 logcat {

@@ -88,7 +88,8 @@ class KairosComplicationService : ComplicationDataSourceService() {
                 ShortTextComplicationData
                     .Builder(
                         text = PlainComplicationText.Builder("10:30").build(),
-                        contentDescription = PlainComplicationText.Builder("Evento").build(),
+                        contentDescription =
+                            PlainComplicationText.Builder(getString(coreR.string.next_event_title_placeholder)).build(),
                     ).setMonochromaticImage(
                         MonochromaticImage
                             .Builder(
@@ -102,10 +103,11 @@ class KairosComplicationService : ComplicationDataSourceService() {
             }
 
             ComplicationType.LONG_TEXT -> {
+                val nextLabel = getString(coreR.string.next_event_title_placeholder)
                 LongTextComplicationData
                     .Builder(
-                        text = PlainComplicationText.Builder("Reunião - 10:30").build(),
-                        contentDescription = PlainComplicationText.Builder("Próximo").build(),
+                        text = PlainComplicationText.Builder("$nextLabel - 10:30").build(),
+                        contentDescription = PlainComplicationText.Builder(nextLabel).build(),
                     ).setMonochromaticImage(
                         MonochromaticImage
                             .Builder(
@@ -124,9 +126,14 @@ class KairosComplicationService : ComplicationDataSourceService() {
                         value = 50f,
                         min = 0f,
                         max = 100f,
-                        contentDescription = PlainComplicationText.Builder("Tempo para evento").build(),
+                        contentDescription =
+                            PlainComplicationText.Builder(
+                                getString(coreR.string.complication_long_text_description_event),
+                            ).build(),
                     ).setText(PlainComplicationText.Builder("50m").build())
-                    .setTitle(PlainComplicationText.Builder("Prox. Evento").build())
+                    .setTitle(
+                        PlainComplicationText.Builder(getString(coreR.string.next_event_title_placeholder)).build(),
+                    )
                     .build()
             }
 
@@ -165,7 +172,8 @@ class KairosComplicationService : ComplicationDataSourceService() {
         return ShortTextComplicationData
             .Builder(
                 text = text,
-                contentDescription = PlainComplicationText.Builder("Próximo").build(),
+                contentDescription =
+                    PlainComplicationText.Builder(getString(coreR.string.next_event_title_placeholder)).build(),
             ).setTapAction(tapAction)
             .setMonochromaticImage(icon)
             .build()
@@ -253,7 +261,10 @@ class KairosComplicationService : ComplicationDataSourceService() {
                     value = value,
                     min = minRange,
                     max = maxRange,
-                    contentDescription = PlainComplicationText.Builder("Tempo para o próximo evento").build(),
+                    contentDescription =
+                        PlainComplicationText
+                            .Builder(getString(coreR.string.complication_long_text_description_event))
+                            .build(),
                 ).setText(PlainComplicationText.Builder("${minutesUntil}m").build())
                 .setTitle(PlainComplicationText.Builder(nextEvent.title).build())
                 .setTapAction(tapAction)

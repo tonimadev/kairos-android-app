@@ -17,7 +17,6 @@ import com.google.android.gms.wearable.Wearable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import digital.tonima.core.delegates.ProUserProvider
-import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
 import digital.tonima.core.sync.WearSyncSchema.KEY_EVENTS
@@ -30,6 +29,7 @@ import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
 import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
 import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
+import digital.tonima.core.usecases.GetEventsForMonthUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import logcat.LogPriority
@@ -43,7 +43,7 @@ class PhoneEventSyncWorker
     constructor(
         @Assisted appContext: Context,
         @Assisted workerParams: WorkerParameters,
-        private val calendarRepository: CalendarRepository,
+        private val getEventsForMonthUseCase: GetEventsForMonthUseCase,
         private val proUserProvider: ProUserProvider,
         private val calculateDepartureTimeUseCase: CalculateDepartureTimeUseCase,
     ) : CoroutineWorker(appContext, workerParams) {
@@ -54,12 +54,14 @@ class PhoneEventSyncWorker
                 val end = now + TimeUnit.HOURS.toMillis(24)
                 val ymNow = now()
                 val ymNext = ymNow.plusMonths(1)
+                // Use the same use case as the phone's own AlarmSchedulingWorker so the
+                // user's calendar filter (enabledCalendarIds) is respected on the Wear sync
+                // path too — otherwise events from calendars disabled on the phone would
+                // still be sent to, shown on, and alarmed by the watch.
                 val monthEvents =
                     (
-                        calendarRepository.getEventsForMonth(
-                            ymNow.atDay(1).toEpochDay(),
-                        ) +
-                            calendarRepository.getEventsForMonth(ymNext.atDay(1).toEpochDay())
+                        getEventsForMonthUseCase(ymNow.atDay(1).toEpochDay()) +
+                            getEventsForMonthUseCase(ymNext.atDay(1).toEpochDay())
                     ).filter { it.startTime in now..end }
                         .sortedBy { it.startTime }
                 logcat { "Phone→Wear sync: sending ${monthEvents.size} events (Pro: $isAiUser)." }
