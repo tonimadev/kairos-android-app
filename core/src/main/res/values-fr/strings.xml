@@ -46,6 +46,7 @@
     <string name="not_applicable_on_this_android_version">Non applicable sur cette version d\'Android</string>
     <string name="complication_label">Événements à venir</string>
     <string name="no_events">Aucun événement</string>
+    <string name="event_untitled">(sans titre)</string>
     <string name="no_upcoming_events">Aucun événement à venir</string>
     <string name="next_event">Prochain événement</string>
     <string name="global_alarms">Alarmes globales</string>

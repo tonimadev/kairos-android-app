@@ -40,6 +40,7 @@
     <string name="not_applicable_on_this_android_version">このAndroidバージョンには適用されません</string>
     <string name="complication_label">今後のイベント</string>
     <string name="no_events">イベントなし</string>
+    <string name="event_untitled">（タイトルなし）</string>
     <string name="no_upcoming_events">今後のイベントなし</string>
     <string name="next_event">次のイベント</string>
     <string name="global_alarms">グローバルアラーム</string>

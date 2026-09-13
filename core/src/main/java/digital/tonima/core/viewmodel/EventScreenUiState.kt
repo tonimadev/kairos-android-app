@@ -15,7 +15,13 @@ data class EventScreenUiState(
     val events: ImmutableList<EventUiModel> = ImmutableList.copyOf(emptyList()),
     val isRefreshing: Boolean = false,
     val selectedDate: Long = LocalDate.now().toEpochDay(),
-    val currentMonth: Long = YearMonth.now().monthValue.toLong(),
+    // Epoch day of the 1st of the current month — NOT YearMonth.monthValue (1-12). Every other
+    // writer of this field (onMonthChanged/ChangeMonth, returnToToday) uses this same
+    // representation; CalendarView and getEventsForMonthUseCase both expect it. A month-number
+    // default here made CalendarRepositoryImpl.getEventsForMonth() resolve it via
+    // LocalDate.ofEpochDay(1..12), i.e. early January 1970, so on cold start (before the first
+    // ReturnToToday/ChangeMonth) the app queried and rendered the wrong month instead of today.
+    val currentMonth: Long = YearMonth.now().atDay(1).toEpochDay(),
     val availableCalendars: List<DeviceCalendar> = emptyList(),
     val enabledCalendarIds: Set<Long> = emptySet(),
     val searchQuery: String = "",

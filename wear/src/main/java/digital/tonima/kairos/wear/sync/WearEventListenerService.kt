@@ -25,6 +25,7 @@ import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
 import digital.tonima.core.sync.WearSyncSchema.PATH_SNOOZE_ALARM
 import digital.tonima.kairos.wear.WorkNames
 import logcat.logcat
+import digital.tonima.kairos.core.R as coreR
 
 class WearEventListenerService : WearableListenerService() {
     override fun onCreate() {
@@ -46,7 +47,7 @@ class WearEventListenerService : WearableListenerService() {
                                 val list = dataMap.getDataMapArrayList(KEY_EVENTS)
                                 list?.forEach { dm ->
                                     val id = dm.getLong(KEY_ID)
-                                    val title = dm.getString(KEY_TITLE) ?: "(sem título)"
+                                    val title = dm.getString(KEY_TITLE) ?: getString(coreR.string.event_untitled)
                                     val start = dm.getLong(KEY_START)
                                     val rec = dm.getBoolean(KEY_RECUR)
                                     val allDay = dm.getBoolean(KEY_ALL_DAY)
