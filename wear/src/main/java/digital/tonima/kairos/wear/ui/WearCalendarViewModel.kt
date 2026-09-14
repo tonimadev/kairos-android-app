@@ -14,11 +14,11 @@ import com.google.android.gms.wearable.Wearable.getMessageClient
 import com.google.android.gms.wearable.Wearable.getNodeClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import digital.tonima.core.model.Event
 import digital.tonima.core.sync.WearSyncSchema.PATH_REQUEST_SYNC
 import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
+import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.WorkNames
 import digital.tonima.kairos.wear.sync.CachedEventSchedulingWorker
 import digital.tonima.kairos.wear.sync.SyncActions

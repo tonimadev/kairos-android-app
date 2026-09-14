@@ -12,8 +12,8 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CalendarMonth
-import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.SmartToy
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -59,7 +59,6 @@ fun EventScreenShell(
     onImportCalendarClick: () -> Unit,
     onManageCalendarsClick: () -> Unit,
     onCreateEventClick: () -> Unit,
-    onGenerateDailyBriefing: (String) -> Unit,
     onShowAiSuggestions: () -> Unit,
     onBottomTabChange: (Int) -> Unit,
     showShell: Boolean = true,
@@ -69,7 +68,6 @@ fun EventScreenShell(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
-    val dailyBriefingPrompt = stringResource(R.string.prompt_daily_briefing)
 
     if (!showShell) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -123,7 +121,6 @@ fun EventScreenShell(
                         }
                     },
                     onBottomTabChange = onBottomTabChange,
-                    onGenerateDailyBriefing = { onGenerateDailyBriefing(dailyBriefingPrompt) },
                     onShowAiSuggestions = onShowAiSuggestions,
                 )
             },
@@ -186,7 +183,6 @@ private fun EventBottomBar(
     isAiUser: Boolean,
     onOpenCalendar: () -> Unit,
     onBottomTabChange: (Int) -> Unit,
-    onGenerateDailyBriefing: () -> Unit,
     onShowAiSuggestions: () -> Unit,
 ) {
     NavigationBar(
@@ -224,35 +220,23 @@ private fun EventBottomBar(
             colors = navItemColors,
         )
 
-        if (isAiUser) {
-            NavigationBarItem(
-                selected = false,
-                onClick = onOpenCalendar,
-                icon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
-                label = { Text(stringResource(R.string.calendar)) },
-                colors = navItemColors,
-            )
+        NavigationBarItem(
+            selected = false,
+            onClick = onOpenCalendar,
+            icon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
+            label = { Text(stringResource(R.string.calendar)) },
+            colors = navItemColors,
+        )
 
-            NavigationBarItem(
-                selected = false,
-                onClick = onGenerateDailyBriefing,
-                icon = { Icon(Icons.Rounded.AutoAwesome, contentDescription = stringResource(R.string.ai_briefing)) },
-                label = { Text(stringResource(R.string.briefing)) },
-                colors = navItemColors,
-            )
+        if (isAiUser) {
+            // Single AI entry point: opens a bottom sheet with chat, voice and daily-briefing
+            // actions, instead of spreading them across separate nav items (each of which used
+            // to trigger a side effect rather than switch destinations, like this one still does).
             NavigationBarItem(
                 selected = false,
                 onClick = onShowAiSuggestions,
-                icon = { Icon(Icons.Rounded.Mic, contentDescription = stringResource(R.string.voice)) },
-                label = { Text(stringResource(R.string.voice)) },
-                colors = navItemColors,
-            )
-        } else {
-            NavigationBarItem(
-                selected = false,
-                onClick = onOpenCalendar,
-                icon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
-                label = { Text(stringResource(R.string.calendar)) },
+                icon = { Icon(Icons.Rounded.SmartToy, contentDescription = stringResource(R.string.ask_ai_label)) },
+                label = { Text(stringResource(R.string.ai_tab_label)) },
                 colors = navItemColors,
             )
         }

@@ -131,6 +131,7 @@
     <string name="ai_suggestion_reminder">提醒我今天买牛奶</string>
     <string name="ai_suggestion_agenda">我今天的日程安排是什么？</string>
     <string name="manage_subscription">管理订阅</string>
+    <string name="billing_store_unavailable">无法连接到应用商店，请检查网络连接后重试。</string>
     <string name="widget_daily_briefing_name">每日摘要 (AI)</string>
     <string name="widget_daily_briefing_description">显示由 AI 生成的每日智能摘要。</string>
     <string name="widget_no_briefing">暂无摘要。请打开应用生成！</string>
@@ -186,6 +187,12 @@
     <string name="battery_low_warning">电池电量低 (%1$d%%)。请为手机充电，以免错过 %2$s 会议。</string>
     <string name="silent_mode_warning">静音模式已开启。您的 %1$s 闹钟可能不会响。</string>
     <string name="ask_ai_label">与 AI 对话</string>
+    <string name="ai_tab_label">AI</string>
+    <string name="cd_send_message">发送</string>
+    <string name="chat_input_placeholder">输入消息…</string>
+    <string name="new_conversation_title">新对话</string>
+    <string name="no_conversations_yet">暂无对话</string>
+    <string name="cd_delete_conversation">删除对话</string>
 
 
     <string name="auto_join_title">自动加入会议</string>

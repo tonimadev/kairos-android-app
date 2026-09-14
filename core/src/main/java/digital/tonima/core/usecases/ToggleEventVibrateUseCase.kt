@@ -1,7 +1,7 @@
 package digital.tonima.core.usecases
 
-import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.kairos.core.model.Event
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton

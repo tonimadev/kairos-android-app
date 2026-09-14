@@ -1,11 +1,11 @@
 package digital.tonima.core.usecases
 
-import digital.tonima.core.model.Event
-import digital.tonima.core.model.Weather
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.DirectionsRepository
 import digital.tonima.core.repository.LocationRepository
 import digital.tonima.core.repository.WeatherRepository
+import digital.tonima.kairos.core.model.Event
+import digital.tonima.kairos.core.model.Weather
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf

@@ -1,6 +1,7 @@
 package digital.tonima.core.viewmodel
 
-import digital.tonima.core.model.DeviceCalendar
+import digital.tonima.kairos.core.model.DeviceCalendar
+import digital.tonima.kairos.core.navigation.BaseIntent
 
 sealed class ManageCalendarsIntent : BaseIntent {
     data object ConsumeEffect : ManageCalendarsIntent()

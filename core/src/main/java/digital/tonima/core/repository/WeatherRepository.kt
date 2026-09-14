@@ -1,7 +1,7 @@
 package digital.tonima.core.repository
 
-import digital.tonima.core.model.OpenWeatherResponse
-import digital.tonima.core.model.Weather
+import digital.tonima.kairos.core.model.OpenWeatherResponse
+import digital.tonima.kairos.core.model.Weather
 import retrofit2.http.GET
 import retrofit2.http.Query
 

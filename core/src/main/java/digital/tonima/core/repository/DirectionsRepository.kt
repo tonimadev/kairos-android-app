@@ -1,6 +1,6 @@
 package digital.tonima.core.repository
 
-import digital.tonima.core.model.DistanceMatrixResponse
+import digital.tonima.kairos.core.model.DistanceMatrixResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

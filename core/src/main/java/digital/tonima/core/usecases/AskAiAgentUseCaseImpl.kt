@@ -16,7 +16,7 @@ import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.ai.model.ChatMessage.FunctionResponse
-import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.model.Event
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject

@@ -8,7 +8,6 @@ import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
-import digital.tonima.core.model.Event
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.sync.WearSyncSchema.EXTRA_UNIQUE_ID
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
@@ -23,6 +22,7 @@ import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
 import digital.tonima.core.sync.WearSyncSchema.PATH_DISMISS_ALARM
 import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
 import digital.tonima.core.sync.WearSyncSchema.PATH_SNOOZE_ALARM
+import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.WorkNames
 import logcat.logcat
 import digital.tonima.kairos.core.R as coreR

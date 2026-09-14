@@ -107,7 +107,7 @@ import digital.tonima.core.viewmodel.SettingsViewModel
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_HOME
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.ui.components.AdBannerView
+import digital.tonima.kairos.core.ui.components.AdBannerView
 import digital.tonima.kairos.ui.components.AiActions
 import digital.tonima.kairos.ui.components.AiSuggestionsDialog
 import digital.tonima.kairos.ui.components.CreateEventDialog
@@ -158,6 +158,7 @@ fun EventScreen(
 
     val aiInstruction = stringResource(R.string.ai_briefing_instruction)
     val voiceCapturePrompt = stringResource(R.string.cd_voice_capture)
+    val newConversationTitle = stringResource(R.string.new_conversation_title)
 
     val speechRecognizerLauncher =
         rememberLauncherForActivityResult(
@@ -275,6 +276,7 @@ fun EventScreen(
                         speechRecognizerLauncher,
                     )
                 },
+                onOpenChat = { aiViewModel.handleIntent(CreateNewChat(newConversationTitle)) },
                 onDismissSuggestions = { aiViewModel.handleIntent(DismissAiSuggestionsDialog) },
                 onSuggestionClick = { suggestion ->
                     aiViewModel.handleIntent(AskAi(suggestion, aiInstruction))
@@ -300,7 +302,6 @@ fun EventScreen(
         onImportCalendarClick = { eventViewModel.handleIntent(OpenImportCalendarScreen) },
         onManageCalendarsClick = { eventViewModel.handleIntent(OpenManageCalendarsScreen) },
         onCreateEventClick = { eventViewModel.handleIntent(ShowCreateEventDialog()) },
-        onGenerateDailyBriefing = { aiViewModel.handleIntent(GenerateDailyBriefing(it)) },
         onShowAiSuggestions = { aiViewModel.handleIntent(ShowAiSuggestionsDialog) },
         onBottomTabChange = { eventViewModel.handleIntent(ChangeBottomTab(it)) },
         showShell = showShell,
@@ -425,6 +426,8 @@ private fun EventScreenContent(
                 aiActions.onDismissSuggestions()
                 launchVoiceCapture()
             },
+            onOpenChat = aiActions.onOpenChat,
+            onGenerateBriefing = aiActions.onGenerateBriefing,
         )
     }
 

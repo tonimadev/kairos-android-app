@@ -1,6 +1,6 @@
 package digital.tonima.core.ai
 
-import digital.tonima.core.viewmodel.BaseIntent
+import digital.tonima.kairos.core.navigation.BaseIntent
 
 /**
  * Represents the result of processing an AI tool call in the [ActionRegistry].

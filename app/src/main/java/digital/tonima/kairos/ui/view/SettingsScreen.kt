@@ -56,14 +56,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import digital.tonima.core.model.AlarmOffset
-import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.viewmodel.AuthUiState
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.model.AlarmOffset
+import digital.tonima.kairos.core.model.DeviceCalendar
+import digital.tonima.kairos.core.ui.theme.Dimensions
 import digital.tonima.kairos.ui.components.SettingsActions
-import digital.tonima.kairos.ui.theme.Dimensions
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -68,6 +68,7 @@ import digital.tonima.kairos.core.R.string.ai_agent_create_event_with_location_c
 import digital.tonima.kairos.core.R.string.ai_agent_invalid_args
 import digital.tonima.kairos.core.R.string.ai_agent_snackbar_executed
 import digital.tonima.kairos.core.R.string.ai_agent_tool_not_found
+import digital.tonima.kairos.core.navigation.BaseIntent
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

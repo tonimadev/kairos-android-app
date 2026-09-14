@@ -3,7 +3,7 @@ package digital.tonima.core.usecases
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
-import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.model.Event
 
 /**
  * Sends a question to the LLM **with function-calling support**.

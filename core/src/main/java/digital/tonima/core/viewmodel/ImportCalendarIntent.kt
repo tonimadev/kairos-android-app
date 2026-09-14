@@ -1,5 +1,7 @@
 package digital.tonima.core.viewmodel
 
+import digital.tonima.kairos.core.navigation.BaseIntent
+
 sealed class ImportCalendarIntent : BaseIntent {
     data object ConsumeEffect : ImportCalendarIntent()
 

@@ -11,8 +11,8 @@ import androidx.core.content.ContextCompat
 import com.google.common.collect.ImmutableList
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
-import digital.tonima.core.model.DeviceCalendar
-import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.model.DeviceCalendar
+import digital.tonima.kairos.core.model.Event
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import logcat.logcat

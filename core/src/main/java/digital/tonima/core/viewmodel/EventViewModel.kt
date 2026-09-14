@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.common.collect.ImmutableList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import digital.tonima.core.delegates.ProUserProvider
-import digital.tonima.core.model.Event
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.usecases.CancelEventAlarmUseCase
 import digital.tonima.core.usecases.CheckPermissionsUseCase
@@ -59,6 +58,7 @@ import digital.tonima.core.viewmodel.EventSideEffect.ShowSnackbar
 import digital.tonima.core.viewmodel.UiText.StringResource
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.model.Event
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -3,8 +3,8 @@ package digital.tonima.core.service
 import android.app.AlarmManager
 import android.content.Context
 import android.os.Build
-import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.kairos.core.model.Event
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf

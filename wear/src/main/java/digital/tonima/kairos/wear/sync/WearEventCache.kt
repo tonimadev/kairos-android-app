@@ -2,7 +2,6 @@ package digital.tonima.kairos.wear.sync
 
 import android.content.Context
 import androidx.core.content.edit
-import digital.tonima.core.model.Event
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
 import digital.tonima.core.sync.WearSyncSchema.KEY_ID
@@ -11,6 +10,7 @@ import digital.tonima.core.sync.WearSyncSchema.KEY_RECUR
 import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
 import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
+import digital.tonima.kairos.core.model.Event
 import org.json.JSONArray
 import org.json.JSONObject
 

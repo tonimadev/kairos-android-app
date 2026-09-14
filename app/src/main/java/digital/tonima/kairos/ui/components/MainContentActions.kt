@@ -1,8 +1,8 @@
 package digital.tonima.kairos.ui.components
 
-import digital.tonima.core.model.AlarmOffset
-import digital.tonima.core.model.InsightsPeriod
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
+import digital.tonima.kairos.core.model.AlarmOffset
+import digital.tonima.kairos.core.model.InsightsPeriod
 
 data class EventActions(
     val onRefresh: () -> Unit,
@@ -61,6 +61,7 @@ data class AiActions(
     val onSpeakAiResponse: () -> Unit = {},
     val onStopSpeaking: () -> Unit = {},
     val onReply: () -> Unit = {},
+    val onOpenChat: () -> Unit = {},
     val onDismissSuggestions: () -> Unit = {},
     val onSuggestionClick: (String) -> Unit = {},
 )

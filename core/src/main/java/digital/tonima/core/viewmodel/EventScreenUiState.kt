@@ -2,11 +2,11 @@ package digital.tonima.core.viewmodel
 
 import androidx.compose.runtime.Immutable
 import com.google.common.collect.ImmutableList
-import digital.tonima.core.model.DeviceCalendar
-import digital.tonima.core.model.InsightsPeriod
-import digital.tonima.core.model.InsightsPeriod.WEEK
-import digital.tonima.core.model.Weather
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
+import digital.tonima.kairos.core.model.DeviceCalendar
+import digital.tonima.kairos.core.model.InsightsPeriod
+import digital.tonima.kairos.core.model.InsightsPeriod.WEEK
+import digital.tonima.kairos.core.model.Weather
 import java.time.LocalDate
 import java.time.YearMonth
 

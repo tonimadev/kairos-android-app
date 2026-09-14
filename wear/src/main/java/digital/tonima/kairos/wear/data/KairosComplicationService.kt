@@ -14,7 +14,7 @@ import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import dagger.hilt.android.AndroidEntryPoint
-import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.MainActivity
 import logcat.LogPriority
 import logcat.logcat

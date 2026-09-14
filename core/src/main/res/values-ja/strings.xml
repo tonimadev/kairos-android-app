@@ -131,6 +131,7 @@
     <string name="ai_suggestion_reminder">今日、牛乳を買うのを忘れないようにする</string>
     <string name="ai_suggestion_agenda">今日の予定はどうなっていますか？</string>
     <string name="manage_subscription">サブスクリプションの管理</string>
+    <string name="billing_store_unavailable">ストアに接続できませんでした。接続を確認してもう一度お試しください。</string>
     <string name="widget_daily_briefing_name">今日の要約 (AI)</string>
     <string name="widget_daily_briefing_description">AIによって生成された今日のスマートな要約を表示します。</string>
     <string name="widget_no_briefing">要約がありません。アプリを開いて生成してください！</string>
@@ -186,6 +187,12 @@
     <string name="battery_low_warning">バッテリー残量が少なくなっています (%1$d%%)。%2$sの会議に遅れないよう、スマートフォンを充電してください。</string>
     <string name="silent_mode_warning">マナーモードがオンになっています。%1$sのアラームが鳴らない可能性があります。</string>
     <string name="ask_ai_label">AIと話す</string>
+    <string name="ai_tab_label">AI</string>
+    <string name="cd_send_message">送信</string>
+    <string name="chat_input_placeholder">メッセージを入力…</string>
+    <string name="new_conversation_title">新しい会話</string>
+    <string name="no_conversations_yet">会話はまだありません</string>
+    <string name="cd_delete_conversation">会話を削除</string>
 
 
     <string name="auto_join_title">ミーティングに自動参加</string>

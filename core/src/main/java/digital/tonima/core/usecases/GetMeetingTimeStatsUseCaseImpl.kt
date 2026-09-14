@@ -4,10 +4,10 @@ import android.content.Context
 import com.google.common.collect.ImmutableList
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
-import digital.tonima.core.model.InsightsPeriod
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.model.InsightsPeriod
 import kotlinx.coroutines.flow.firstOrNull
 import java.time.Instant
 import java.time.LocalDate
