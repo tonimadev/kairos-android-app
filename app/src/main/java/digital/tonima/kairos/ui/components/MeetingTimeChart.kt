@@ -33,8 +33,8 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesian
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
 import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
-import digital.tonima.core.model.InsightsPeriod
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.model.InsightsPeriod
 
 @Composable
 fun MeetingTimeChart(

@@ -3,7 +3,6 @@ package digital.tonima.core.analytics
 import digital.tonima.core.viewmodel.AiIntent.AskAi
 import digital.tonima.core.viewmodel.AiIntent.GenerateDailyBriefing
 import digital.tonima.core.viewmodel.AiIntent.SpeakAiResponse
-import digital.tonima.core.viewmodel.BaseIntent
 import digital.tonima.core.viewmodel.EventIntent.JoinMeeting
 import digital.tonima.core.viewmodel.EventIntent.RateLater
 import digital.tonima.core.viewmodel.EventIntent.RateNever
@@ -21,6 +20,7 @@ import digital.tonima.core.viewmodel.SettingsIntent.ToggleVibrateOnly
 import digital.tonima.core.viewmodel.SettingsIntent.UpdateAlarmOffset
 import digital.tonima.core.viewmodel.SettingsIntent.UpdateAutoDismissMinutes
 import digital.tonima.core.viewmodel.SettingsIntent.UpdateSnoozeTime
+import digital.tonima.kairos.core.navigation.BaseIntent
 import javax.inject.Inject
 import javax.inject.Singleton
 

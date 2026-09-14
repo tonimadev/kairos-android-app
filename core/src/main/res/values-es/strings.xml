@@ -136,6 +136,7 @@
     <string name="ai_suggestion_reminder">Recordarme comprar leche hoy</string>
     <string name="ai_suggestion_agenda">¿Cómo está mi agenda de hoy?</string>
     <string name="manage_subscription">Gestionar suscripción</string>
+    <string name="billing_store_unavailable">No se pudo conectar con la tienda. Verifica tu conexión e inténtalo de nuevo.</string>
     <string name="widget_daily_briefing_name">Resumen del día (IA)</string>
     <string name="widget_daily_briefing_description">Muestra el resumen inteligente de tu día generado por la IA.</string>
     <string name="widget_no_briefing">No hay resumen disponible. ¡Abre la aplicación para generarlo!</string>
@@ -191,6 +192,12 @@
     <string name="battery_low_warning">Batería baja (%1$d%%). Carga tu teléfono para no perderte tu reunión de %2$s.</string>
     <string name="silent_mode_warning">Modo silencio activado. Es posible que tu alarma de %1$s no suene.</string>
     <string name="ask_ai_label">Hablar con la IA</string>
+    <string name="ai_tab_label">IA</string>
+    <string name="cd_send_message">Enviar</string>
+    <string name="chat_input_placeholder">Escribe tu mensaje…</string>
+    <string name="new_conversation_title">Nueva conversación</string>
+    <string name="no_conversations_yet">Aún no hay conversaciones</string>
+    <string name="cd_delete_conversation">Eliminar conversación</string>
 
 
     <string name="auto_join_title">Unirse automáticamente a reuniones</string>

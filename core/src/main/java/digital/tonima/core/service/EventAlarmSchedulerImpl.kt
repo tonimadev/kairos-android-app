@@ -9,8 +9,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.net.toUri
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
-import digital.tonima.core.model.AlarmOffset
-import digital.tonima.core.model.Event
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.receiver.AlarmReceiver.Companion.ACTION_ALARM_TRIGGERED
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_ID
@@ -19,6 +17,8 @@ import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_MEETING_URL
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.kairos.core.model.AlarmOffset
+import digital.tonima.kairos.core.model.Event
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import logcat.logcat

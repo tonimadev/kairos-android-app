@@ -1,6 +1,7 @@
 package digital.tonima.core.viewmodel
 
-import digital.tonima.core.model.AlarmOffset
+import digital.tonima.kairos.core.model.AlarmOffset
+import digital.tonima.kairos.core.navigation.BaseIntent
 
 sealed class SettingsIntent : BaseIntent {
     data object ConsumeEffect : SettingsIntent()

@@ -41,7 +41,7 @@ import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.kairos.core.R.string.hide_dashboard
 import digital.tonima.kairos.core.R.string.show_dashboard
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 import java.time.Instant
 import java.time.ZoneId
 

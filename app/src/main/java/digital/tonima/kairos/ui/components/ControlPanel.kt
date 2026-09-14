@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.util.openAutostartSettings
 import digital.tonima.core.viewmodel.SettingsUiState
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

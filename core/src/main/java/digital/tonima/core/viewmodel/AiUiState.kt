@@ -3,6 +3,7 @@ package digital.tonima.core.viewmodel
 import androidx.compose.runtime.Immutable
 import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.database.entity.ConversationEntity
+import digital.tonima.kairos.core.navigation.BaseIntent
 
 @Immutable
 data class AiUiState(

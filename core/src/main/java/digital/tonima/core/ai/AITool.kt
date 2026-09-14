@@ -1,6 +1,6 @@
 package digital.tonima.core.ai
 
-import digital.tonima.core.viewmodel.BaseIntent
+import digital.tonima.kairos.core.navigation.BaseIntent
 
 /**
  * Contract for an AI-callable tool (function calling / tool use).

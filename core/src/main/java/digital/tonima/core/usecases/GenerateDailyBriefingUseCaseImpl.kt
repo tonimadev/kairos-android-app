@@ -8,11 +8,11 @@ import com.google.firebase.ai.type.GenerativeBackend
 import com.google.firebase.ai.type.PublicPreviewAPI
 import com.paulrybitskyi.hiltbinder.BindType
 import digital.tonima.core.ai.AIConfig
-import digital.tonima.core.model.Event
-import digital.tonima.core.model.Weather
 import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.WeatherRepository
 import digital.tonima.core.util.toOpenWeatherLang
+import digital.tonima.kairos.core.model.Event
+import digital.tonima.kairos.core.model.Weather
 import logcat.logcat
 import java.time.Instant
 import java.time.ZoneId

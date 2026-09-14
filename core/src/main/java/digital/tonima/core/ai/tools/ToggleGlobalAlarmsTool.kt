@@ -2,8 +2,8 @@ package digital.tonima.core.ai.tools
 
 import digital.tonima.core.ai.AITool
 import digital.tonima.core.ai.RiskLevel
-import digital.tonima.core.viewmodel.BaseIntent
 import digital.tonima.core.viewmodel.SettingsIntent
+import digital.tonima.kairos.core.navigation.BaseIntent
 import javax.inject.Inject
 
 /**

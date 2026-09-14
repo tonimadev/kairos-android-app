@@ -83,6 +83,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 
     api(project(":core:billing:bridge"))
+    api(project(":core:model"))
+    api(project(":core:navigation"))
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.appfunctions)

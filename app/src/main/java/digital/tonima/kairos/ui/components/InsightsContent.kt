@@ -41,9 +41,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import digital.tonima.core.model.InsightsPeriod
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.model.InsightsPeriod
 
 @Composable
 fun InsightsContent(
