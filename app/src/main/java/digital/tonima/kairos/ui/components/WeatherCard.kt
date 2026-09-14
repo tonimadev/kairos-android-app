@@ -40,10 +40,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import digital.tonima.core.model.Weather
 import digital.tonima.kairos.core.R.string.location_permission_weather_desc
 import digital.tonima.kairos.core.R.string.provide_permission
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.model.Weather
+import digital.tonima.kairos.core.ui.theme.Dimensions
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable

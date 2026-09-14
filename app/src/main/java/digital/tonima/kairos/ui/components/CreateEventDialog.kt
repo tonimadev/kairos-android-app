@@ -35,8 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.viewmodel.VoiceEventData
+import digital.tonima.kairos.core.model.DeviceCalendar
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

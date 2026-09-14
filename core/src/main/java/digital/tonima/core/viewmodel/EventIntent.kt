@@ -1,7 +1,8 @@
 package digital.tonima.core.viewmodel
 
-import digital.tonima.core.model.InsightsPeriod
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
+import digital.tonima.kairos.core.model.InsightsPeriod
+import digital.tonima.kairos.core.navigation.BaseIntent
 
 sealed class EventIntent : BaseIntent {
     data object ConsumeEffect : EventIntent()

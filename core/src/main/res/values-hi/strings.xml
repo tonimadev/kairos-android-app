@@ -134,6 +134,7 @@
     <string name="ai_suggestion_reminder">आज दूध खरीदने के लिए याद दिलाएं</string>
     <string name="ai_suggestion_agenda">आज मेरा एजेंडा कैसा है?</string>
     <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
+    <string name="billing_store_unavailable">स्टोर से कनेक्ट नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें।</string>
     <string name="widget_daily_briefing_name">दैनिक सारांश (IA)</string>
     <string name="widget_daily_briefing_description">AI द्वारा जेनरेट किया गया आपके दिन का स्मार्ट सारांश दिखाता है।</string>
     <string name="widget_no_briefing">कोई सारांश उपलब्ध नहीं है। जेनरेट करने के लिए ऐप खोलें!</string>
@@ -189,6 +190,12 @@
     <string name="battery_low_warning">बैटरी कम है (%1$d%%)। अपना फ़ोन चार्ज करें ताकि आप अपनी %2$s मीटिंग मिस न करें।</string>
     <string name="silent_mode_warning">साइलेंट मोड सक्रिय है। आपका %1$s अलार्म शायद न बजे।</string>
     <string name="ask_ai_label">AI से बात करें</string>
+    <string name="ai_tab_label">एआई</string>
+    <string name="cd_send_message">भेजें</string>
+    <string name="chat_input_placeholder">अपना संदेश लिखें…</string>
+    <string name="new_conversation_title">नई बातचीत</string>
+    <string name="no_conversations_yet">अभी तक कोई बातचीत नहीं</string>
+    <string name="cd_delete_conversation">बातचीत मिटाएं</string>
 
 
     <string name="auto_join_title">मीटिंग में स्वतः शामिल हों</string>

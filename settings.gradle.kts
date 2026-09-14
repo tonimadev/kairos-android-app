@@ -19,6 +19,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 includeBuild("build-logic")
@@ -26,6 +27,9 @@ includeBuild("build-logic")
 rootProject.name = "Kairos"
 include(":app")
 include(":core")
+include(":core:model")
+include(":core:navigation")
+include(":core:ui")
 include(":core:billing:bridge")
 include(":core:billing:impl")
 include(":wear")

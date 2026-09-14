@@ -21,7 +21,7 @@ import digital.tonima.kairos.R.drawable.vibration
 import digital.tonima.kairos.R.drawable.volume_off
 import digital.tonima.kairos.core.R.string.ringer_mode_silent_warning
 import digital.tonima.kairos.core.R.string.ringer_mode_vibrate_warning
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 
 @Composable
 fun RingerModeWarningCard(ringerMode: AudioWarningState) {

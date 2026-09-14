@@ -137,6 +137,7 @@
     <string name="ai_suggestion_reminder">Lembrar de comprar leite hoje</string>
     <string name="ai_suggestion_agenda">Como está minha agenda de hoje?</string>
     <string name="manage_subscription">Gerenciar assinatura</string>
+    <string name="billing_store_unavailable">Não foi possível conectar à loja. Verifique sua conexão e tente novamente.</string>
     <string name="ai_briefing_instruction">O resumo deve ser em Português.</string>
     <string name="widget_daily_briefing_name">Resumo do Dia (IA)</string>
     <string name="widget_daily_briefing_description">Exibe o resumo inteligente do seu dia gerado pela IA.</string>
@@ -191,6 +192,12 @@
     <string name="ai_suggested_late_notification">A IA sugeriu: %1$s</string>
     <string name="ai_prepping_meeting">IA está preparando o resumo da reunião…</string>
     <string name="ask_ai_label">Conversar com IA</string>
+    <string name="ai_tab_label">IA</string>
+    <string name="cd_send_message">Enviar</string>
+    <string name="chat_input_placeholder">Digite sua mensagem…</string>
+    <string name="new_conversation_title">Nova Conversa</string>
+    <string name="no_conversations_yet">Nenhuma conversa ainda</string>
+    <string name="cd_delete_conversation">Apagar conversa</string>
     <string name="battery_low_warning">Bateria fraca (%1$d%%). Carregue seu celular para não perder o compromisso das %2$s.</string>
     <string name="silent_mode_warning">Modo silencioso ativo. Seu alarme das %1$s pode não tocar som.</string>
 

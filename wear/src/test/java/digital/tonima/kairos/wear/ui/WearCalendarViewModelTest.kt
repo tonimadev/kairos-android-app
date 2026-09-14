@@ -5,11 +5,11 @@ import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
+import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.sync.SyncActions
 import digital.tonima.kairos.wear.sync.WearEventCache
 import kotlinx.coroutines.ExperimentalCoroutinesApi

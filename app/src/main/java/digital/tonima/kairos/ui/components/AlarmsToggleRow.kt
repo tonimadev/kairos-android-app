@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.string.status_active
 import digital.tonima.kairos.core.R.string.status_disabled
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 
 @Composable
 fun AlarmsToggleRow(

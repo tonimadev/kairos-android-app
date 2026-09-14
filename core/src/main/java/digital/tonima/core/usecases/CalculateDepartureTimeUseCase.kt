@@ -1,12 +1,12 @@
 package digital.tonima.core.usecases
 
 import com.paulrybitskyi.hiltbinder.BindType
-import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.DirectionsRepository
 import digital.tonima.core.repository.LocationRepository
 import digital.tonima.core.repository.WeatherRepository
 import digital.tonima.core.util.toOpenWeatherLang
+import digital.tonima.kairos.core.model.Event
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton

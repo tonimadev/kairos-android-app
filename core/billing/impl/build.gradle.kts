@@ -21,10 +21,10 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.billing.ktx)
     implementation(libs.hilt.android)
     implementation(libs.hilt.binder)
-    implementation(libs.logcat)
+    implementation(libs.paywall.core)
+    implementation(libs.paywall.play)
     implementation(project(":core:billing:bridge"))
 
     ksp(libs.hilt.binder.compiler)

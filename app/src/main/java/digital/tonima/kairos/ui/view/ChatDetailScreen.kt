@@ -49,8 +49,8 @@ import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.kairos.R.drawable.volume_off
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.ic_mic
-import digital.tonima.kairos.ui.components.parseMarkdownToAnnotatedString
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.components.parseMarkdownToAnnotatedString
+import digital.tonima.kairos.core.ui.theme.Dimensions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,7 +105,7 @@ fun ChatDetailScreen(
                         value = textInput,
                         onValueChange = { textInput = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Digite sua mensagem...") },
+                        placeholder = { Text(stringResource(R.string.chat_input_placeholder)) },
                         shape = RoundedCornerShape(24.dp),
                         maxLines = 4,
                     )
@@ -123,7 +123,10 @@ fun ChatDetailScreen(
                                     contentColor = MaterialTheme.colorScheme.onPrimary,
                                 ),
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Enviar")
+                            Icon(
+                                Icons.AutoMirrored.Filled.Send,
+                                contentDescription = stringResource(R.string.cd_send_message),
+                            )
                         }
                     } else {
                         IconButton(
@@ -143,7 +146,7 @@ fun ChatDetailScreen(
                                             ic_mic
                                         },
                                     ),
-                                contentDescription = "Falar",
+                                contentDescription = stringResource(R.string.cd_voice_capture),
                             )
                         }
                     }

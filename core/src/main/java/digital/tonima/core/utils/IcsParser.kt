@@ -1,6 +1,6 @@
 package digital.tonima.core.utils
 
-import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.model.Event
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone

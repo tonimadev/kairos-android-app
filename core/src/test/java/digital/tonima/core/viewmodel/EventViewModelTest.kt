@@ -2,8 +2,6 @@ package digital.tonima.core.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import digital.tonima.core.delegates.ProUserProvider
-import digital.tonima.core.model.DeviceCalendar
-import digital.tonima.core.model.Event
 import digital.tonima.core.usecases.AppPreferences
 import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.usecases.CancelEventAlarmUseCase
@@ -21,6 +19,8 @@ import digital.tonima.core.usecases.ScheduleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
+import digital.tonima.kairos.core.model.DeviceCalendar
+import digital.tonima.kairos.core.model.Event
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify

@@ -1,9 +1,9 @@
 package digital.tonima.core.usecases
 
 import com.google.common.collect.ImmutableList
-import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.CalendarRepository
+import digital.tonima.kairos.core.model.Event
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

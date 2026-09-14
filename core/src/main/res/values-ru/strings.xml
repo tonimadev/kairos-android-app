@@ -135,6 +135,7 @@
     <string name="ai_suggestion_reminder">Напомнить купить молоко сегодня</string>
     <string name="ai_suggestion_agenda">Как выглядит мой график на сегодня?</string>
     <string name="manage_subscription">Управление подпиской</string>
+    <string name="billing_store_unavailable">Не удалось подключиться к магазину. Проверьте подключение и повторите попытку.</string>
     <string name="widget_daily_briefing_name">Сводка дня (ИИ)</string>
     <string name="widget_daily_briefing_description">Отображает интеллектуальную сводку вашего дня, созданную ИИ.</string>
     <string name="widget_no_briefing">Сводка недоступна. Откройте приложение, чтобы создать ее!</string>
@@ -190,6 +191,12 @@
     <string name="battery_low_warning">Низкий заряд батареи (%1$d%%). Зарядите телефон, чтобы не пропустить встречу в %2$s.</string>
     <string name="silent_mode_warning">Включен беззвучный режим. Ваш будильник на %1$s может не прозвучать.</string>
     <string name="ask_ai_label">Говорить с ИИ</string>
+    <string name="ai_tab_label">ИИ</string>
+    <string name="cd_send_message">Отправить</string>
+    <string name="chat_input_placeholder">Введите сообщение…</string>
+    <string name="new_conversation_title">Новый разговор</string>
+    <string name="no_conversations_yet">Пока нет разговоров</string>
+    <string name="cd_delete_conversation">Удалить разговор</string>
 
 
     <string name="auto_join_title">Автоподключение к встречам</string>

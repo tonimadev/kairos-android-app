@@ -1,7 +1,7 @@
 package digital.tonima.core.usecases
 
-import digital.tonima.core.model.DeviceCalendar
 import digital.tonima.core.repository.CalendarRepository
+import digital.tonima.kairos.core.model.DeviceCalendar
 import javax.inject.Inject
 import javax.inject.Singleton
 

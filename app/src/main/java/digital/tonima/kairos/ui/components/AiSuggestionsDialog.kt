@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Chat
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -17,19 +20,22 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 
 @Composable
 fun AiSuggestionsDialog(
     onDismiss: () -> Unit,
     onSuggestionClick: (String) -> Unit,
     onVoiceClick: () -> Unit,
+    onOpenChat: () -> Unit,
+    onGenerateBriefing: () -> Unit,
 ) {
     val suggestions =
         listOf(
@@ -69,6 +75,30 @@ fun AiSuggestionsDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
                 )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingSmall),
+                    modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
+                ) {
+                    QuickActionButton(
+                        icon = Icons.AutoMirrored.Rounded.Chat,
+                        label = stringResource(R.string.ask_ai_label),
+                        onClick = {
+                            onOpenChat()
+                            onDismiss()
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                    QuickActionButton(
+                        icon = Icons.Rounded.AutoAwesome,
+                        label = stringResource(R.string.ai_briefing),
+                        onClick = {
+                            onGenerateBriefing()
+                            onDismiss()
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingSmall),
@@ -119,6 +149,39 @@ fun AiSuggestionsDialog(
             }
         },
     )
+}
+
+@Composable
+private fun QuickActionButton(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        modifier = modifier,
+    ) {
+        Column(
+            modifier = Modifier.padding(Dimensions.PaddingNormal),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.padding(top = Dimensions.PaddingSmall),
+            )
+        }
+    }
 }
 
 @Composable

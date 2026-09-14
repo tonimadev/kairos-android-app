@@ -134,6 +134,7 @@
     <string name="ai_suggestion_reminder">ذكرني بشراء الحليب اليوم</string>
     <string name="ai_suggestion_agenda">كيف هو جدول أعمالي اليوم؟</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
+    <string name="billing_store_unavailable">تعذّر الاتصال بالمتجر. تحقق من اتصالك وحاول مرة أخرى.</string>
     <string name="widget_daily_briefing_name">ملخص اليوم (IA)</string>
     <string name="widget_daily_briefing_description">يعرض ملخصًا ذكيًا ليومك تم إنشاؤه بواسطة الذكاء الاصطناعي.</string>
     <string name="widget_no_briefing">لا يوجد ملخص متاح. افتح التطبيق لإنشائه!</string>
@@ -189,6 +190,12 @@
     <string name="battery_low_warning">البطارية منخفضة (%1$d%%). اشحن هاتفك لكي لا يفوتك اجتماع %2$s.</string>
     <string name="silent_mode_warning">وضع الصامت نشط. قد لا يصدر صوت منبه %1$s الخاص بك.</string>
     <string name="ask_ai_label">تحدث مع الذكاء الاصطناعي</string>
+    <string name="ai_tab_label">المساعد</string>
+    <string name="cd_send_message">إرسال</string>
+    <string name="chat_input_placeholder">اكتب رسالتك…</string>
+    <string name="new_conversation_title">محادثة جديدة</string>
+    <string name="no_conversations_yet">لا توجد محادثات بعد</string>
+    <string name="cd_delete_conversation">حذف المحادثة</string>
 
 
     <string name="auto_join_title">الانضمام التلقائي للاجتماعات</string>

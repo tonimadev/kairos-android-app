@@ -172,6 +172,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(platform(libs.google.firebase.bom))
     implementation(project(":core"))
+    implementation(project(":core:ui"))
 
     ksp(libs.androidx.hilt.compiler)
     ksp(libs.hilt.binder.compiler)

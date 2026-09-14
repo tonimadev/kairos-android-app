@@ -165,7 +165,7 @@ class AlarmSchedulingWorker
 
         private fun checkDeviceHealth(
             isAiUser: Boolean,
-            nextEvent: digital.tonima.core.model.Event,
+            nextEvent: digital.tonima.kairos.core.model.Event,
         ) {
             if (!isAiUser) return
 

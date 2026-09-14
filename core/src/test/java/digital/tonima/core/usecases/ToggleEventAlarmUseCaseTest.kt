@@ -1,8 +1,8 @@
 package digital.tonima.core.usecases
 
-import digital.tonima.core.model.Event
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.EventAlarmScheduler
+import digital.tonima.kairos.core.model.Event
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

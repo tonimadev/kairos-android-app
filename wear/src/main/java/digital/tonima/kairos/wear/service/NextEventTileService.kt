@@ -28,8 +28,8 @@ import androidx.wear.tiles.TileBuilders
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.tiles.SuspendingTileService
 import dagger.hilt.android.AndroidEntryPoint
-import digital.tonima.core.model.Event
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.sync.WearEventCache.load
 import logcat.LogPriority
 import logcat.logcat

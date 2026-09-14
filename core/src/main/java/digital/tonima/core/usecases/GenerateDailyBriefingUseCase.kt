@@ -1,6 +1,6 @@
 package digital.tonima.core.usecases
 
-import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.model.Event
 
 interface GenerateDailyBriefingUseCase {
     suspend operator fun invoke(

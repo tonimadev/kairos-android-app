@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
@@ -43,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.ic_k_monochrome
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 
 @Composable
 fun DrawerContent(
@@ -159,7 +160,7 @@ fun DrawerContent(
                 NavigationDrawerItem(
                     icon = {
                         Icon(
-                            imageVector = Icons.Rounded.Favorite, // Just a placeholder, better would be Chat
+                            imageVector = Icons.Rounded.AutoAwesome,
                             contentDescription = stringResource(R.string.drawer_ai_assistant),
                             tint = MaterialTheme.colorScheme.primary,
                         )

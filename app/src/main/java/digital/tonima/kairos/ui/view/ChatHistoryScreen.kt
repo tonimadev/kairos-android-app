@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.database.entity.ConversationEntity
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -66,15 +66,16 @@ fun ChatHistoryScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onCreateNewChat("Nova Conversa") }) {
-                Icon(Icons.Default.Add, contentDescription = "Nova Conversa")
+            val newConversationTitle = stringResource(R.string.new_conversation_title)
+            FloatingActionButton(onClick = { onCreateNewChat(newConversationTitle) }) {
+                Icon(Icons.Default.Add, contentDescription = newConversationTitle)
             }
         },
     ) { padding ->
         if (conversations.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Text(
-                    text = "Nenhuma conversa ainda",
+                    text = stringResource(R.string.no_conversations_yet),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -140,7 +141,11 @@ private fun ConversationItem(
                 )
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Apagar", tint = MaterialTheme.colorScheme.error)
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.cd_delete_conversation),
+                    tint = MaterialTheme.colorScheme.error,
+                )
             }
         }
     }

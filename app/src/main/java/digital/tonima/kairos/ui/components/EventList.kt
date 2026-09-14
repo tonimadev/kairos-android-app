@@ -43,7 +43,7 @@ import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -127,16 +127,14 @@ fun EventList(
                         ProUpgradeCard(
                             onUpgradeClick = aiActions.onSubscriptionRequest,
                         )
-                    } else if (showBriefingCard && (
-                            aiUiState.isGeneratingBriefing ||
-                                aiUiState.dailyBriefing != null
-                        )
-                    ) {
+                    } else if (showBriefingCard) {
+                        // Always shown (not just after a briefing is generated) so the AI
+                        // entry point is discoverable without depending on the bottom bar.
                         DailyBriefingCard(
                             briefing = aiUiState.dailyBriefing,
                             isGenerating = aiUiState.isGeneratingBriefing,
                             onGenerateClick = aiActions.onGenerateBriefing,
-                            onInteractClick = aiActions.onReply,
+                            onInteractClick = aiActions.onOpenChat,
                             modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
                         )
                     }

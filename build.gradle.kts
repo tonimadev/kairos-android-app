@@ -16,7 +16,11 @@ extra.set("COMPILE_SDK_VERSION", compileSdkVersion)
 
 plugins {
     alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.compose.convention) apply false
+    alias(libs.plugins.android.feature.bridge.convention) apply false
+    alias(libs.plugins.android.feature.impl.convention) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.library.convention) apply false
     alias(libs.plugins.crashlytics) apply false
     alias(libs.plugins.detekt)
     alias(libs.plugins.firebase.perf) apply false
@@ -26,6 +30,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.jvm.convention) apply false
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.stability.analyzer) apply false

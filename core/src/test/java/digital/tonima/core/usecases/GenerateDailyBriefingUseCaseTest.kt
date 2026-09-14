@@ -5,9 +5,9 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.PublicPreviewAPI
-import digital.tonima.core.model.Event
 import digital.tonima.core.repository.DailyBriefingRepository
 import digital.tonima.core.repository.WeatherRepository
+import digital.tonima.kairos.core.model.Event
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

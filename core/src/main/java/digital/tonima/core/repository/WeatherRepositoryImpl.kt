@@ -1,8 +1,8 @@
 package digital.tonima.core.repository
 
 import com.paulrybitskyi.hiltbinder.BindType
-import digital.tonima.core.model.Weather
 import digital.tonima.kairos.core.BuildConfig
+import digital.tonima.kairos.core.model.Weather
 import javax.inject.Inject
 import javax.inject.Singleton
 

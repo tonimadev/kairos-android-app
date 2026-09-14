@@ -1,7 +1,7 @@
 package digital.tonima.core.viewmodel
 
 import androidx.compose.runtime.Immutable
-import digital.tonima.core.model.DeviceCalendar
+import digital.tonima.kairos.core.model.DeviceCalendar
 
 @Immutable
 data class ManageCalendarsUiState(

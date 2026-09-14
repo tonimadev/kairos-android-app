@@ -1,6 +1,6 @@
 package digital.tonima.core.service
 
-import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.model.Event
 
 interface EventAlarmScheduler {
     fun schedule(

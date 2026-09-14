@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import digital.tonima.core.viewmodel.AiSideEffect.RequireUserConfirmation
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.ui.theme.Dimensions
+import digital.tonima.kairos.core.ui.theme.Dimensions
 
 @Composable
 fun EventScreenDialogs(

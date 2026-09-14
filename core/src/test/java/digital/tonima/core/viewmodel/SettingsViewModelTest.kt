@@ -1,7 +1,6 @@
 package digital.tonima.core.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import digital.tonima.core.model.AlarmOffset
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.usecases.AppPreferences
 import digital.tonima.core.usecases.CheckPermissionsUseCase
@@ -9,6 +8,7 @@ import digital.tonima.core.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.usecases.PermissionState
 import digital.tonima.core.usecases.UpdateAppPreferenceUseCase
+import digital.tonima.kairos.core.model.AlarmOffset
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify

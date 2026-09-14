@@ -1,8 +1,8 @@
 package digital.tonima.core.repository
 
 import com.google.common.collect.ImmutableList
-import digital.tonima.core.model.DeviceCalendar
-import digital.tonima.core.model.Event
+import digital.tonima.kairos.core.model.DeviceCalendar
+import digital.tonima.kairos.core.model.Event
 
 interface CalendarRepository {
     suspend fun getAvailableCalendars(): ImmutableList<DeviceCalendar>
