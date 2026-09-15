@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Kairos" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- KairosTheme (Compose) is dark-only — there's no light variant — so the base Android
+         theme must be dark too. Otherwise the system status/navigation bar keeps the light
+         theme's white default while the Compose content below it renders dark. -->
+    <style name="Theme.Kairos" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/kairos_dark_surface</item>
+        <item name="android:statusBarColor">@color/kairos_dark_surface</item>
+        <item name="android:navigationBarColor">@color/kairos_dark_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
 </resources>

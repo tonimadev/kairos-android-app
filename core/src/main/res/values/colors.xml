@@ -7,4 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Matches core/ui's Color.kt SurfaceDark — KairosTheme is dark-only (no light variant),
+         so the Activity's base XML theme must match or the system status/navigation bar shows
+         its light-theme default (white) while the Compose content underneath is dark. -->
+    <color name="kairos_dark_surface">#FF25252D</color>
 </resources>
