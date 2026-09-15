@@ -38,7 +38,8 @@ This project follows modern Android development principles with MVVM + MVI archi
 
 - **Language**: 100% Kotlin
 - **UI**: Jetpack Compose (Phone & Wear OS)
-- **Architecture**: MVVM + MVI, Clean Architecture, Multi-module
+- **Architecture**: MVVM + MVI, Clean Architecture, Multi-module (feature `bridge`/`impl` pairs)
+- **Navigation**: Navigation 3 (`NavDisplay` + `NavBackStack`), via an `AppNavigator` seam every feature depends on
 - **Async**: Kotlin Coroutines + Flow
 - **Persistence & Background**: DataStore, Room, WorkManager, AlarmManager
 - **DI**: Hilt
@@ -55,12 +56,29 @@ This project follows modern Android development principles with MVVM + MVI archi
 
 ```
 kairos-android-app/
-├── app/          → Phone UI (Compose), Activity, Receivers
-├── core/         → Shared business logic, ViewModels, UseCases, Repositories
-├── wear/         → Wear OS UI, Tiles, Complications
-├── build-logic/  → Convention plugins (Jacoco, etc.)
-└── gradle/       → Version catalog (libs.versions.toml)
+├── app/                        → Composition root: MainActivity, AppNavigator impl (Navigation 3),
+│                                  Activity/Receivers/Workers, cross-feature screen wiring
+├── core/                       → Foundation: analytics, permissions, alarm scheduling/sound,
+│                                  wear sync, review, in-app update — depended on by everything
+├── core/data/                  → Shared domain/data layer: repositories + usecases used by 2+
+│                                  features (calendar data, weather/directions, focus mode, etc.)
+├── core/model/                 → Pure Kotlin domain models (Event, Weather, AlarmOffset, …)
+├── core/navigation/            → The `AppNavigator` / `FeatureNavKey` / `BaseIntent` contracts
+├── core/ui/                    → Shared design system (KairosTheme, Dimensions, AdBannerView, …)
+├── core/billing/{bridge,impl}/ → Billing/subscription contract + implementation
+├── feature/calendar/{bridge,impl}/ → Home screen, event CRUD, import/manage calendars, auth
+├── feature/settings/{bridge,impl}/ → Settings screen, permission gating
+├── feature/ai/{bridge,impl}/       → AI agent, chat history, daily briefing
+├── feature/alarm/impl/             → Alarm MVI (screen itself lives in `app/`, shared with `wear/`)
+├── wear/                       → Wear OS UI, Tiles, Complications
+├── build-logic/                → Convention plugins (android-library/-compose/-feature-*, Jacoco)
+└── gradle/                     → Version catalog (libs.versions.toml)
 ```
+
+Each `:feature:*:bridge` module holds only contracts (NavKeys, MVI `Intent` sealed classes) with
+no Hilt/Compose — it's the one seam a feature's `:impl` is allowed to depend on across features.
+`:feature:*:impl` holds the ViewModel + screens and depends on `:core`, `:core:data`, and its own
+`:bridge`. `:app` is the only module allowed to depend on every feature `:impl`.
 
 ### MVVM + MVI Pattern
 
@@ -72,23 +90,24 @@ View (Compose) ──EventIntent──▶ ViewModel ──▶ UseCases / Reposit
        │                            ▼
        └──── UiState (StateFlow) ───┘
              (Includes SideEffects)
+```
 
 - **`EventIntent`** — sealed class representing every user action.
 - **`EventScreenUiState`** — single immutable state driving the UI.
-- **`Side Effects`** — one-shot events (snackbar, navigation, confirmation dialogs) now modeled as part of `UiState` to survive configuration changes.
+- **`Side Effects`** — one-shot events (snackbar, confirmation dialogs) modeled as part of `UiState` to survive configuration changes. Actual screen navigation goes through `AppNavigator` (Navigation 3) instead of a `UiState` flag.
 - **`EventViewModel`** — processes intents, delegates to UseCases, emits state updates.
 
-### Core Module Packages
+### Where Things Live
 
-| Package | Responsibility |
-|---|---|
-| `viewmodel` | ViewModels, Intents, UiState, SideEffects, UiText |
-| `usecases` | Business logic (one class per action) |
-| `repository` | Data access (Calendar, Weather, Preferences, etc.) |
-| `model` | Domain entities (Event, AlarmOffset, Weather, etc.) |
-| `service` | AlarmScheduler, Workers |
-| `ai` | AI Agent architecture (see below) |
-| `analytics` | Firebase Analytics abstraction |
+| Concern | Module | Package |
+|---|---|---|
+| ViewModels, Intents, UiState, SideEffects | `feature/<name>/impl` | `digital.tonima.core.viewmodel` |
+| Navigation contracts (`NavKey`, `Intent`) shared across features | `feature/<name>/bridge` | `digital.tonima.core.viewmodel` / `digital.tonima.feature.<name>.bridge` |
+| Shared usecases + repositories (2+ features) | `core/data` | `digital.tonima.core.data.usecases` / `.repository` |
+| Domain entities (Event, AlarmOffset, Weather, …) | `core/model` | `digital.tonima.kairos.core.model` |
+| Alarm scheduling/sound, wear sync, permissions, analytics | `core` | `digital.tonima.core.*` |
+| AI Agent architecture (tools, ActionRegistry, chat DB) | `feature/ai/impl` | `digital.tonima.core.ai.*` |
+| `AppNavigator` / `FeatureNavKey` contracts | `core/navigation` | `digital.tonima.kairos.core.navigation` |
 
 ---
 
@@ -153,7 +172,7 @@ User question ──▶ DB (ChatHistoryDao) ──▶ AskAiAgentUseCase (Gemini 
 
 ### How to Create a New AI Tool
 
-**Step 1 —** Create a class implementing `AITool` in `core/.../ai/tools/`:
+**Step 1 —** Create a class implementing `AITool` in `feature/ai/impl/.../ai/tools/`:
 
 ```kotlin
 class MyNewTool @Inject constructor() : AITool {
@@ -179,7 +198,7 @@ class MyNewTool @Inject constructor() : AITool {
 }
 ```
 
-**Step 2 —** Register it in `AIToolsModule` (`core/.../ai/di/`):
+**Step 2 —** Register it in `AIToolsModule` (`feature/ai/impl/.../ai/di/`):
 
 ```kotlin
 @Provides @IntoSet @Singleton
