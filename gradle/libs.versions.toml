@@ -57,11 +57,11 @@ okhttp = "5.5.0"
 kotlinxSerializationJson = "1.11.0"
 retrofitKotlinxSerializationConverter = "1.0.0"
 splashscreen = "1.2.0"
-playServicesAuth = "22.0.0"
 vico = "3.3.1"
 androidx-appfunctions = "1.0.0-alpha11"
 stabilityAnalyzer= "0.13.0"
 firebaseAiOnDevice = "16.0.0-beta05"
+guava = "33.7.1-android"
 
 [libraries]
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
@@ -117,6 +117,7 @@ androidx-glance-material3 = { group = "androidx.glance", name = "glance-material
 datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastoreCore" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
 core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "core-testing" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 google-inapp-update = { group = "com.google.android.play", name = "app-update", version.ref = "inapp-update" }
@@ -131,7 +132,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 

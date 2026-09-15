@@ -36,6 +36,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -56,9 +58,6 @@ import digital.tonima.core.viewmodel.AiIntent.StopSpeaking
 import digital.tonima.core.viewmodel.AiSideEffect
 import digital.tonima.core.viewmodel.AiUiState
 import digital.tonima.core.viewmodel.AiViewModel
-import digital.tonima.core.viewmodel.AuthIntent.SignInWithGoogle
-import digital.tonima.core.viewmodel.AuthIntent.SignOutFromGoogle
-import digital.tonima.core.viewmodel.AuthViewModel
 import digital.tonima.core.viewmodel.EventIntent
 import digital.tonima.core.viewmodel.EventIntent.ChangeBottomTab
 import digital.tonima.core.viewmodel.EventIntent.ChangeInsightsPeriod
@@ -105,9 +104,13 @@ import digital.tonima.core.viewmodel.SettingsIntent.UpdateSnoozeTime
 import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.core.viewmodel.SettingsViewModel
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
+import digital.tonima.feature.ai.bridge.AiNavKey
+import digital.tonima.feature.calendar.bridge.CalendarNavKey
+import digital.tonima.feature.settings.bridge.SettingsNavKey
 import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_HOME
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.ui.components.AdBannerView
+import digital.tonima.kairos.navigation.AppNavHostViewModel
 import digital.tonima.kairos.ui.components.AiActions
 import digital.tonima.kairos.ui.components.AiSuggestionsDialog
 import digital.tonima.kairos.ui.components.CreateEventDialog
@@ -123,7 +126,6 @@ fun EventScreen(
     eventViewModel: EventViewModel = hiltViewModel(),
     aiViewModel: AiViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState,
     onPurchaseRequest: () -> Unit,
     onSubscriptionRequest: () -> Unit,
@@ -132,7 +134,6 @@ fun EventScreen(
     val uiState by eventViewModel.uiState.collectAsStateWithLifecycle()
     val aiUiState by aiViewModel.uiState.collectAsStateWithLifecycle()
     val settingsUiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val authUiState by authViewModel.uiState.collectAsStateWithLifecycle()
 
     val isProUser by eventViewModel.isProUser.collectAsStateWithLifecycle()
     val isAiUser by eventViewModel.isAiUser.collectAsStateWithLifecycle()
@@ -176,7 +177,6 @@ fun EventScreen(
         eventViewModel = eventViewModel,
         aiViewModel = aiViewModel,
         settingsViewModel = settingsViewModel,
-        authViewModel = authViewModel,
         snackbarHostState = snackbarHostState,
         onSubscriptionRequest = onSubscriptionRequest,
         onPurchaseRequest = onPurchaseRequest,
@@ -184,7 +184,7 @@ fun EventScreen(
     )
 
     val settingsActions =
-        remember(eventViewModel, settingsViewModel, authViewModel) {
+        remember(eventViewModel, settingsViewModel) {
             SettingsActions(
                 onToggle = { settingsViewModel.handleIntent(ToggleGlobalAlarms(it)) },
                 onDismissAutostart = { settingsViewModel.handleIntent(DismissAutostartSuggestion) },
@@ -201,8 +201,6 @@ fun EventScreen(
                 onLocationAlarmToggle = { settingsViewModel.handleIntent(ToggleLocationAlarm(it)) },
                 onTransportModeChanged = { settingsViewModel.handleIntent(ChangeTransportMode(it)) },
                 onTemperatureUnitToggle = { settingsViewModel.handleIntent(ToggleTemperatureUnit(it)) },
-                onGoogleSignInClick = { authViewModel.handleIntent(SignInWithGoogle) },
-                onGoogleSignOutClick = { authViewModel.handleIntent(SignOutFromGoogle) },
                 onCloseSettings = { settingsViewModel.handleIntent(CloseSettings) },
                 onCustomRingtoneSelected = { settingsViewModel.handleIntent(UpdateCustomRingtoneUri(it)) },
                 onCheckPermissions = { settingsViewModel.handleIntent(CheckPermissions) },
@@ -284,99 +282,94 @@ fun EventScreen(
             )
         }
 
-    val showShell =
-        !settingsUiState.showSettingsScreen &&
-            aiUiState.selectedConversationId == null &&
-            !aiUiState.showChatHistoryScreen &&
-            !uiState.showImportCalendarScreen &&
-            !uiState.showManageCalendarsScreen
+    val navHostViewModel: AppNavHostViewModel = hiltViewModel()
 
-    EventScreenShell(
-        uiState = uiState,
-        isProUser = isProUser,
-        isAiUser = isAiUser,
-        snackbarHostState = snackbarHostState,
-        onUpgradeToPro = { eventViewModel.handleIntent(UpgradeToProRequest) },
-        onSettingsClick = { settingsViewModel.handleIntent(OpenSettings) },
-        onChatHistoryClick = { aiViewModel.handleIntent(OpenChatHistoryScreen) },
-        onImportCalendarClick = { eventViewModel.handleIntent(OpenImportCalendarScreen) },
-        onManageCalendarsClick = { eventViewModel.handleIntent(OpenManageCalendarsScreen) },
-        onCreateEventClick = { eventViewModel.handleIntent(ShowCreateEventDialog()) },
-        onShowAiSuggestions = { aiViewModel.handleIntent(ShowAiSuggestionsDialog) },
-        onBottomTabChange = { eventViewModel.handleIntent(ChangeBottomTab(it)) },
-        showShell = showShell,
-    ) { paddingValues ->
-        EventScreenRouter(
-            uiState = uiState,
-            settingsUiState = settingsUiState,
-            aiUiState = aiUiState,
-            settingsScreen = {
-                SettingsScreen(
-                    uiState = uiState,
-                    settingsUiState = settingsUiState,
-                    authUiState = authUiState,
-                    settingsActions = settingsActions,
-                )
-            },
-            chatDetailScreen = {
-                ChatDetailScreen(
-                    messages = aiUiState.chatHistory,
-                    isAsking = aiUiState.isAskingAi,
-                    isSpeaking = aiUiState.isSpeaking,
-                    onBack = { aiViewModel.handleIntent(CloseChatDetail) },
-                    onSendMessage = { aiViewModel.handleIntent(AskAi(it, aiInstruction)) },
-                    onSpeakToggle = {
-                        launchVoiceCapture(
-                            context,
-                            voiceCapturePrompt,
-                            speechRecognizerLauncher,
+    NavDisplay(
+        backStack = navHostViewModel.backStack,
+        onBack = { navHostViewModel.backStack.removeLastOrNull() },
+        entryProvider =
+            entryProvider {
+                entry<CalendarNavKey.Main> {
+                    EventScreenShell(
+                        uiState = uiState,
+                        isProUser = isProUser,
+                        isAiUser = isAiUser,
+                        snackbarHostState = snackbarHostState,
+                        onUpgradeToPro = { eventViewModel.handleIntent(UpgradeToProRequest) },
+                        onSettingsClick = { settingsViewModel.handleIntent(OpenSettings) },
+                        onChatHistoryClick = { aiViewModel.handleIntent(OpenChatHistoryScreen) },
+                        onImportCalendarClick = { eventViewModel.handleIntent(OpenImportCalendarScreen) },
+                        onManageCalendarsClick = { eventViewModel.handleIntent(OpenManageCalendarsScreen) },
+                        onCreateEventClick = { eventViewModel.handleIntent(ShowCreateEventDialog()) },
+                        onShowAiSuggestions = { aiViewModel.handleIntent(ShowAiSuggestionsDialog) },
+                        onBottomTabChange = { eventViewModel.handleIntent(ChangeBottomTab(it)) },
+                    ) { paddingValues ->
+                        EventScreenContent(
+                            paddingValues = paddingValues,
+                            uiState = uiState,
+                            aiUiState = aiUiState,
+                            settingsUiState = settingsUiState,
+                            isProUser = isProUser,
+                            standardPermissionState = standardPermissionState,
+                            locationPermissionState = locationPermissionState,
+                            windowSizeClass = windowSizeClass,
+                            settingsActions = settingsActions,
+                            eventActions = eventActions,
+                            aiActions = aiActions,
+                            launchVoiceCapture = {
+                                launchVoiceCapture(
+                                    context,
+                                    voiceCapturePrompt,
+                                    speechRecognizerLauncher,
+                                )
+                            },
                         )
-                    },
-                )
+                    }
+                }
+                entry<SettingsNavKey.Root> {
+                    SettingsScreen(
+                        uiState = uiState,
+                        settingsUiState = settingsUiState,
+                        settingsActions = settingsActions,
+                    )
+                }
+                entry<AiNavKey.ChatHistory> {
+                    ChatHistoryScreen(
+                        conversations = aiUiState.conversations,
+                        onBack = { aiViewModel.handleIntent(CloseChatHistoryScreen) },
+                        onConversationClick = { aiViewModel.handleIntent(OpenChatDetail(it)) },
+                        onCreateNewChat = { aiViewModel.handleIntent(CreateNewChat(it)) },
+                        onDeleteConversation = { aiViewModel.handleIntent(DeleteChat(it)) },
+                    )
+                }
+                entry<AiNavKey.ChatDetail> {
+                    ChatDetailScreen(
+                        messages = aiUiState.chatHistory,
+                        isAsking = aiUiState.isAskingAi,
+                        isSpeaking = aiUiState.isSpeaking,
+                        onBack = { aiViewModel.handleIntent(CloseChatDetail) },
+                        onSendMessage = { aiViewModel.handleIntent(AskAi(it, aiInstruction)) },
+                        onSpeakToggle = {
+                            launchVoiceCapture(
+                                context,
+                                voiceCapturePrompt,
+                                speechRecognizerLauncher,
+                            )
+                        },
+                    )
+                }
+                entry<CalendarNavKey.ImportCalendar> {
+                    ImportCalendarScreen(
+                        onNavigateBack = { eventViewModel.handleIntent(CloseImportCalendarScreen) },
+                    )
+                }
+                entry<CalendarNavKey.ManageCalendars> {
+                    ManageCalendarsScreen(
+                        onNavigateBack = { eventViewModel.handleIntent(CloseManageCalendarsScreen) },
+                    )
+                }
             },
-            chatHistoryScreen = {
-                ChatHistoryScreen(
-                    conversations = aiUiState.conversations,
-                    onBack = { aiViewModel.handleIntent(CloseChatHistoryScreen) },
-                    onConversationClick = { aiViewModel.handleIntent(OpenChatDetail(it)) },
-                    onCreateNewChat = { aiViewModel.handleIntent(CreateNewChat(it)) },
-                    onDeleteConversation = { aiViewModel.handleIntent(DeleteChat(it)) },
-                )
-            },
-            importCalendarScreen = {
-                ImportCalendarScreen(
-                    onNavigateBack = { eventViewModel.handleIntent(CloseImportCalendarScreen) },
-                )
-            },
-            manageCalendarsScreen = {
-                ManageCalendarsScreen(
-                    onNavigateBack = { eventViewModel.handleIntent(CloseManageCalendarsScreen) },
-                )
-            },
-            mainContent = {
-                EventScreenContent(
-                    paddingValues = paddingValues,
-                    uiState = uiState,
-                    aiUiState = aiUiState,
-                    settingsUiState = settingsUiState,
-                    isProUser = isProUser,
-                    standardPermissionState = standardPermissionState,
-                    locationPermissionState = locationPermissionState,
-                    windowSizeClass = windowSizeClass,
-                    settingsActions = settingsActions,
-                    eventActions = eventActions,
-                    aiActions = aiActions,
-                    launchVoiceCapture = {
-                        launchVoiceCapture(
-                            context,
-                            voiceCapturePrompt,
-                            speechRecognizerLauncher,
-                        )
-                    },
-                )
-            },
-        )
-    }
+    )
 
     EventScreenDialogs(
         uiState = uiState,
@@ -534,8 +527,6 @@ fun EventScreenContentPreview() {
                 onLocationAlarmToggle = {},
                 onTransportModeChanged = {},
                 onTemperatureUnitToggle = {},
-                onGoogleSignInClick = {},
-                onGoogleSignOutClick = {},
                 onCloseSettings = {},
                 onCustomRingtoneSelected = {},
                 onCheckPermissions = {},

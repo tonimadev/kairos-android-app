@@ -43,8 +43,6 @@ data class SettingsActions(
     val onLocationAlarmToggle: (Boolean) -> Unit = {},
     val onTransportModeChanged: (String) -> Unit = {},
     val onTemperatureUnitToggle: (Boolean) -> Unit = {},
-    val onGoogleSignInClick: () -> Unit = {},
-    val onGoogleSignOutClick: () -> Unit = {},
     val onCloseSettings: () -> Unit = {},
     val onCustomRingtoneSelected: (String?) -> Unit = {},
     val onCheckPermissions: () -> Unit = {},

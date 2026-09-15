@@ -2,10 +2,6 @@ package digital.tonima.kairos.ui.view
 
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -20,10 +16,6 @@ import digital.tonima.core.viewmodel.AiIntent
 import digital.tonima.core.viewmodel.AiSideEffect
 import digital.tonima.core.viewmodel.AiSideEffect.RequireUserConfirmation
 import digital.tonima.core.viewmodel.AiViewModel
-import digital.tonima.core.viewmodel.AuthIntent
-import digital.tonima.core.viewmodel.AuthSideEffect
-import digital.tonima.core.viewmodel.AuthSideEffect.LaunchGoogleSignIn
-import digital.tonima.core.viewmodel.AuthViewModel
 import digital.tonima.core.viewmodel.EventIntent
 import digital.tonima.core.viewmodel.EventSideEffect.AIToolError
 import digital.tonima.core.viewmodel.EventSideEffect.CopyToClipboard
@@ -42,19 +34,11 @@ fun EventScreenInfrastructure(
     eventViewModel: EventViewModel,
     aiViewModel: AiViewModel,
     settingsViewModel: SettingsViewModel,
-    authViewModel: AuthViewModel,
     snackbarHostState: SnackbarHostState,
     onSubscriptionRequest: () -> Unit,
     onPurchaseRequest: () -> Unit,
     onSetAiConfirmationData: (RequireUserConfirmation) -> Unit,
 ) {
-    val googleSignInLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) { result ->
-            authViewModel.handleIntent(AuthIntent.HandleGoogleSignInResult(result.data))
-        }
-
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer =
@@ -71,10 +55,8 @@ fun EventScreenInfrastructure(
     HandleSideEffects(
         eventViewModel = eventViewModel,
         aiViewModel = aiViewModel,
-        authViewModel = authViewModel,
         settingsViewModel = settingsViewModel,
         snackbarHostState = snackbarHostState,
-        googleSignInLauncher = googleSignInLauncher,
         onSetAiConfirmationData = onSetAiConfirmationData,
         onSubscriptionRequest = onSubscriptionRequest,
         onPurchaseRequest = onPurchaseRequest,
@@ -85,10 +67,8 @@ fun EventScreenInfrastructure(
 private fun HandleSideEffects(
     eventViewModel: EventViewModel,
     aiViewModel: AiViewModel,
-    authViewModel: AuthViewModel,
     settingsViewModel: SettingsViewModel,
     snackbarHostState: SnackbarHostState,
-    googleSignInLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onSetAiConfirmationData: (RequireUserConfirmation) -> Unit,
     onSubscriptionRequest: () -> Unit,
     onPurchaseRequest: () -> Unit,
@@ -156,21 +136,6 @@ private fun HandleSideEffects(
                     is AiSideEffect.AIToolError -> snackbarHostState.showSnackbar(effect.message.asString(context))
                 }
                 aiViewModel.handleIntent(AiIntent.ConsumeEffect)
-            }
-        }
-    }
-
-    LaunchedEffect(authViewModel.effect) {
-        authViewModel.effect.collect { effect ->
-            if (effect != null) {
-                when (effect) {
-                    is LaunchGoogleSignIn -> googleSignInLauncher.launch(effect.intent)
-                    is AuthSideEffect.ShowSnackbar ->
-                        snackbarHostState.showSnackbar(
-                            effect.message.asString(context),
-                        )
-                }
-                authViewModel.handleIntent(AuthIntent.ConsumeEffect)
             }
         }
     }

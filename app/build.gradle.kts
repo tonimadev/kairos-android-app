@@ -114,6 +114,9 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
 
+    ksp {
+        arg("appfunctions:aggregateAppFunctions", "true")
+    }
     lint {
         baseline = file("lint-baseline.xml")
         abortOnError = true
@@ -150,6 +153,8 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.compose.icons.extended)
     implementation(libs.google.firebase.analytics)
@@ -157,6 +162,7 @@ dependencies {
     implementation(libs.google.firebase.perf)
     implementation(libs.google.inapp.update)
     implementation(libs.google.inapp.update.ktx)
+    implementation(libs.guava)
     implementation(libs.hilt.android)
     implementation(libs.hilt.binder)
     implementation(libs.hilt.navigation.compose)
@@ -165,15 +171,26 @@ dependencies {
     implementation(libs.play.review)
     implementation(libs.play.review.ktx)
     implementation(libs.play.services.ads.api)
-    implementation(libs.play.services.auth)
     implementation(libs.play.services.wearable)
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
     implementation(platform(libs.androidx.compose.bom))
     implementation(platform(libs.google.firebase.bom))
     implementation(project(":core"))
+    implementation(project(":core:billing:bridge"))
+    implementation(project(":core:billing:impl"))
+    implementation(project(":core:data"))
+    implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
+    implementation(project(":feature:ai:bridge"))
+    implementation(project(":feature:ai:impl"))
+    implementation(project(":feature:alarm:impl"))
+    implementation(project(":feature:calendar:bridge"))
+    implementation(project(":feature:calendar:impl"))
+    implementation(project(":feature:settings:bridge"))
+    implementation(project(":feature:settings:impl"))
 
+    ksp(libs.androidx.appfunctions.compiler)
     ksp(libs.androidx.hilt.compiler)
     ksp(libs.hilt.binder.compiler)
     ksp(libs.hilt.compiler)
