@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.jacoco.convention)
     alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.spotless)
 }
 
@@ -38,16 +37,10 @@ android {
         ?: localProperties.getProperty("google.maps.api.key")
         ?: ""
 
-    val webClientId = System.getenv("GOOGLE_WEB_CLIENT_ID")
-        ?: localProperties.getProperty("GOOGLE_WEB_CLIENT_ID")
-        ?: localProperties.getProperty("google.web.client.id")
-        ?: ""
-
     buildTypes {
         debug {
             buildConfigField("String", "OPENWEATHER_API_KEY", "\"$openWeatherApiKey\"")
             buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
-            buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
         }
         release {
             isMinifyEnabled = false
@@ -57,7 +50,6 @@ android {
             )
             buildConfigField("String", "OPENWEATHER_API_KEY", "\"$openWeatherApiKey\"")
             buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
-            buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
         }
     }
     compileOptions {
@@ -66,9 +58,6 @@ android {
     }
     buildFeatures {
         buildConfig = true
-    }
-    ksp {
-        arg("appfunctions:aggregateAppFunctions", "true")
     }
     lint {
         baseline = file("lint-baseline.xml")
@@ -86,42 +75,24 @@ dependencies {
     api(project(":core:model"))
     api(project(":core:navigation"))
 
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.appfunctions)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.core)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.wear)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.datastore.preferences.core)
     implementation(libs.google.firebase.analytics)
     implementation(libs.google.firebase.crashlytics)
-    implementation(libs.google.firebase.ia)
-    implementation(libs.google.firebase.ia.ondevice)
     implementation(libs.google.inapp.update)
     implementation(libs.google.inapp.update.ktx)
     implementation(libs.hilt.android)
     implementation(libs.hilt.binder)
-    implementation(libs.hilt.navigation.compose)
-    implementation(libs.hilt.worker)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.location.play.services)
     implementation(libs.logcat)
-    implementation(libs.okhttp.logging)
     implementation(libs.play.review)
     implementation(libs.play.review.ktx)
-    implementation(libs.play.services.auth)
     implementation(libs.play.services.wearable)
-    implementation(libs.retrofit.core)
-    implementation(libs.retrofit.kotlin.serialization)
     implementation(platform(libs.google.firebase.bom))
     implementation(project(":core:billing:impl"))
 
-    ksp(libs.androidx.appfunctions.compiler)
-    ksp(libs.androidx.hilt.compiler)
-    ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.binder.compiler)
     ksp(libs.hilt.compiler)
 

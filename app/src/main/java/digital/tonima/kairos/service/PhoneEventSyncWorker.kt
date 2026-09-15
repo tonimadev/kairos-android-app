@@ -16,6 +16,8 @@ import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import digital.tonima.core.data.usecases.CalculateDepartureTimeUseCase
+import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
@@ -28,8 +30,6 @@ import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
 import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
 import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
-import digital.tonima.core.usecases.CalculateDepartureTimeUseCase
-import digital.tonima.core.usecases.GetEventsForMonthUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import logcat.LogPriority

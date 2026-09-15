@@ -38,12 +38,12 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.delegates.ProUserProvider
+import digital.tonima.core.di.AlarmBannerAdUnitId
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.viewmodel.AlarmIntent
 import digital.tonima.core.viewmodel.AlarmSideEffect
 import digital.tonima.core.viewmodel.AlarmViewModel
-import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.ui.components.AdBannerView
 import digital.tonima.kairos.core.ui.theme.KairosTheme
@@ -55,6 +55,10 @@ import javax.inject.Inject
 class AlarmActivity : ComponentActivity() {
     @Inject
     lateinit var proUserProvider: ProUserProvider
+
+    @Inject
+    @AlarmBannerAdUnitId
+    lateinit var alarmBannerAdUnitId: String
 
     private val viewModel: AlarmViewModel by viewModels()
 
@@ -107,7 +111,7 @@ class AlarmActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         AdBannerView(
-                            adId = ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY,
+                            adId = alarmBannerAdUnitId,
                             isProUser = isProUser,
                         )
                         Column(

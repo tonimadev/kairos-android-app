@@ -33,7 +33,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -61,24 +60,12 @@ fun EventScreenShell(
     onCreateEventClick: () -> Unit,
     onShowAiSuggestions: () -> Unit,
     onBottomTabChange: (Int) -> Unit,
-    showShell: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
-
-    if (!showShell) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            content(PaddingValues(0.dp))
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.align(Alignment.BottomCenter),
-            )
-        }
-        return
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,

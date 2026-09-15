@@ -113,6 +113,12 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(platform(libs.google.firebase.bom))
     implementation(project(":core"))
+    implementation(project(":core:data"))
+    implementation(project(":feature:alarm:impl"))
+    implementation(project(":feature:calendar:bridge"))
+    implementation(project(":feature:calendar:impl"))
+    implementation(project(":feature:settings:bridge"))
+    implementation(project(":feature:settings:impl"))
 
     ksp(libs.androidx.hilt.compiler)
     ksp(libs.hilt.binder.compiler)

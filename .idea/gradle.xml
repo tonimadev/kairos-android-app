@@ -26,9 +26,22 @@
             <option value="$PROJECT_DIR$/core/billing" />
             <option value="$PROJECT_DIR$/core/billing/bridge" />
             <option value="$PROJECT_DIR$/core/billing/impl" />
+            <option value="$PROJECT_DIR$/core/data" />
             <option value="$PROJECT_DIR$/core/model" />
             <option value="$PROJECT_DIR$/core/navigation" />
             <option value="$PROJECT_DIR$/core/ui" />
+            <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/ai" />
+            <option value="$PROJECT_DIR$/feature/ai/bridge" />
+            <option value="$PROJECT_DIR$/feature/ai/impl" />
+            <option value="$PROJECT_DIR$/feature/alarm" />
+            <option value="$PROJECT_DIR$/feature/alarm/impl" />
+            <option value="$PROJECT_DIR$/feature/calendar" />
+            <option value="$PROJECT_DIR$/feature/calendar/bridge" />
+            <option value="$PROJECT_DIR$/feature/calendar/impl" />
+            <option value="$PROJECT_DIR$/feature/settings" />
+            <option value="$PROJECT_DIR$/feature/settings/bridge" />
+            <option value="$PROJECT_DIR$/feature/settings/impl" />
             <option value="$PROJECT_DIR$/wear" />
           </set>
         </option>

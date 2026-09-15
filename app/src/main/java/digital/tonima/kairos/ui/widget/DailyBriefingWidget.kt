@@ -42,9 +42,9 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import digital.tonima.core.ai.repository.DailyBriefingRepository
 import digital.tonima.core.billing.SubscriptionManager
-import digital.tonima.core.repository.CalendarRepository
-import digital.tonima.core.repository.DailyBriefingRepository
+import digital.tonima.core.data.repository.CalendarRepository
 import digital.tonima.kairos.MainActivity
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.model.Event

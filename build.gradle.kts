@@ -41,6 +41,18 @@ apply(from = "spotless.gradle")
 
 subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
+
+    // Robolectric on JDK 17+ needs reflective access to java.io.FileDescriptor internals that are
+    // module-encapsulated by default; without this every Robolectric test fails at startup with
+    // "Failed to interact with raw FileDescriptor internals; perhaps JRE has changed?" regardless
+    // of which module runs it.
+    tasks.withType<Test>().configureEach {
+        jvmArgs(
+            "--add-opens=java.base/java.io=ALL-UNNAMED",
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "--add-opens=java.base/java.util=ALL-UNNAMED",
+        )
+    }
 }
 
 val sortDependencies by tasks.registering {
