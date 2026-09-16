@@ -8,8 +8,8 @@ import digital.tonima.core.sync.WearSyncSchema.EXTRA_EVENT_ID
 import digital.tonima.core.sync.WearSyncSchema.EXTRA_EVENT_START_TIME
 import digital.tonima.core.sync.WearSyncSchema.EXTRA_EVENT_TITLE
 import digital.tonima.core.sync.WearSyncSchema.EXTRA_UNIQUE_ID
-import digital.tonima.core.sync.WearSyncSchema.PATH_DISMISS_ALARM
-import digital.tonima.core.sync.WearSyncSchema.PATH_SNOOZE_ALARM
+import digital.tonima.core.sync.WearSyncSchema.dismissAlarmPath
+import digital.tonima.core.sync.WearSyncSchema.snoozeAlarmPath
 import kotlinx.coroutines.tasks.await
 import logcat.logcat
 import javax.inject.Inject
@@ -32,7 +32,7 @@ class WearMessagingHelper
             logcat { "Sending dismiss alarm message for uniqueId: $uniqueId" }
             // Use DataItem to ensure it reaches even if app is not in foreground/active immediately
             val putDataMapReq =
-                PutDataMapRequest.create(PATH_DISMISS_ALARM).apply {
+                PutDataMapRequest.create(dismissAlarmPath(uniqueId)).apply {
                     dataMap.putInt(EXTRA_UNIQUE_ID, uniqueId)
                     dataMap.putLong("timestamp", System.currentTimeMillis())
                 }
@@ -53,7 +53,7 @@ class WearMessagingHelper
         ) {
             logcat { "Sending snooze alarm message for uniqueId: $uniqueId" }
             val putDataMapReq =
-                PutDataMapRequest.create(PATH_SNOOZE_ALARM).apply {
+                PutDataMapRequest.create(snoozeAlarmPath(uniqueId)).apply {
                     dataMap.putInt(EXTRA_UNIQUE_ID, uniqueId)
                     dataMap.putLong(EXTRA_EVENT_ID, eventId)
                     dataMap.putString(EXTRA_EVENT_TITLE, eventTitle)

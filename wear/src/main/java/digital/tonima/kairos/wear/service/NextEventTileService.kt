@@ -61,8 +61,9 @@ class NextEventTileService : SuspendingTileService() {
         val deviceParameters = requestParams.deviceConfiguration
         val nextEvent =
             try {
+                val now = System.currentTimeMillis()
                 val cached = load(this@NextEventTileService)
-                cached.minByOrNull { it.startTime }
+                cached.filter { it.startTime >= now }.minByOrNull { it.startTime }
             } catch (t: Throwable) {
                 logcat(LogPriority.ERROR) { "Erro ao obter o próximo evento: ${t.localizedMessage}" }
                 null

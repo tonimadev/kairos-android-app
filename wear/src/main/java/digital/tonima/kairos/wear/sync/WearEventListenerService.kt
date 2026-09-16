@@ -7,6 +7,7 @@ import androidx.work.WorkManager
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
+import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.sync.WearSyncSchema.EXTRA_UNIQUE_ID
@@ -81,7 +82,7 @@ class WearEventListenerService : WearableListenerService() {
                                 logcat { "Wear listener parse error: ${t.localizedMessage}" }
                             }
                         }
-                        path == PATH_DISMISS_ALARM -> {
+                        path.startsWith(PATH_DISMISS_ALARM) -> {
                             val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
                             val uniqueId = dataMap.getInt(EXTRA_UNIQUE_ID, -1)
                             logcat { "Wear: Received dismiss alarm sync for uniqueId: $uniqueId" }
@@ -90,8 +91,9 @@ class WearEventListenerService : WearableListenerService() {
                                 source = "PHONE_SYNC",
                                 uniqueId = uniqueId,
                             )
+                            deleteConsumedDataItem(event.dataItem.uri)
                         }
-                        path == PATH_SNOOZE_ALARM -> {
+                        path.startsWith(PATH_SNOOZE_ALARM) -> {
                             val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
                             val uniqueId = dataMap.getInt(EXTRA_UNIQUE_ID, -1)
                             logcat { "Wear: Received snooze alarm sync for uniqueId: $uniqueId. Stopping local alarm." }
@@ -100,6 +102,7 @@ class WearEventListenerService : WearableListenerService() {
                                 source = "PHONE_SYNC",
                                 uniqueId = uniqueId,
                             )
+                            deleteConsumedDataItem(event.dataItem.uri)
                         }
                     }
                 }
@@ -114,6 +117,14 @@ class WearEventListenerService : WearableListenerService() {
             triggerScheduling(this)
         } else {
             logcat { "Wear received data change but no events found." }
+        }
+    }
+
+    private fun deleteConsumedDataItem(uri: android.net.Uri) {
+        // Each dismiss/snooze now gets its own uniqueId-scoped path, so nothing else will ever
+        // read this item again; clean it up to avoid piling up one DataItem per alarm forever.
+        Wearable.getDataClient(applicationContext).deleteDataItems(uri).addOnFailureListener { t ->
+            logcat { "Wear: Failed to delete consumed DataItem $uri: ${t.localizedMessage}" }
         }
     }
 
