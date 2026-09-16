@@ -23,7 +23,11 @@ sealed class AiIntent : BaseIntent {
 
     object CloseChatDetail : AiIntent()
 
-    data class CreateNewChat(val title: String) : AiIntent()
+    data class CreateNewChat(
+        val title: String,
+        val initialQuestion: String? = null,
+        val language: String = "",
+    ) : AiIntent()
 
     data class DeleteChat(val conversationId: Long) : AiIntent()
 

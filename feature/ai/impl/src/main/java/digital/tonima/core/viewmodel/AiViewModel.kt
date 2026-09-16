@@ -152,7 +152,12 @@ class AiViewModel
                     }
                     is CreateNewChat -> {
                         val id = createConversationUseCase(intent.title)
-                        handleIntent(OpenChatDetail(id))
+                        _uiState.update { it.copy(selectedConversationId = id) }
+                        observeChatHistory(id)
+                        appNavigator.navigateTo(AiNavKey.ChatDetail(id))
+                        if (!intent.initialQuestion.isNullOrBlank()) {
+                            askAi(intent.initialQuestion, intent.language)
+                        }
                     }
                     is DeleteChat -> {
                         deleteConversationUseCase(intent.conversationId)
