@@ -177,6 +177,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(platform(libs.google.firebase.bom))
     implementation(project(":core"))
+    implementation(project(":core:ads"))
     implementation(project(":core:billing:bridge"))
     implementation(project(":core:billing:impl"))
     implementation(project(":core:data"))

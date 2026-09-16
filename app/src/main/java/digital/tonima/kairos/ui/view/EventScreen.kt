@@ -109,7 +109,7 @@ import digital.tonima.feature.calendar.bridge.CalendarNavKey
 import digital.tonima.feature.settings.bridge.SettingsNavKey
 import digital.tonima.kairos.BuildConfig.ADMOB_BANNER_AD_UNIT_HOME
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.core.ui.components.AdBannerView
+import digital.tonima.kairos.core.ads.components.AdBannerView
 import digital.tonima.kairos.navigation.AppNavHostViewModel
 import digital.tonima.kairos.ui.components.AiActions
 import digital.tonima.kairos.ui.components.AiSuggestionsDialog
