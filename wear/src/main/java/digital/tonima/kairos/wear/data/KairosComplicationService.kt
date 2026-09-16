@@ -48,10 +48,11 @@ class KairosComplicationService : ComplicationDataSourceService() {
 
         val nextEvent: Event? =
             try {
+                val now = System.currentTimeMillis()
                 val cached =
                     digital.tonima.kairos.wear.sync.WearEventCache
                         .load(this)
-                cached.minByOrNull { it.startTime }
+                cached.filter { it.startTime >= now }.minByOrNull { it.startTime }
             } catch (t: Throwable) {
                 logcat(LogPriority.ERROR) { "Erro ao obter o próximo evento: ${t.localizedMessage}" }
                 null

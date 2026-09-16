@@ -19,4 +19,11 @@ object WearSyncSchema {
     const val EXTRA_EVENT_ID = "event_id"
     const val EXTRA_EVENT_TITLE = "event_title"
     const val EXTRA_EVENT_START_TIME = "event_start_time"
+
+    // DataItems are last-write-wins per path: without the uniqueId in the path, dismissing or
+    // snoozing two alarms in quick succession could overwrite the first DataItem before the
+    // other device's onDataChanged() ever fires for it, silently dropping that sync.
+    fun dismissAlarmPath(uniqueId: Int): String = "$PATH_DISMISS_ALARM/$uniqueId"
+
+    fun snoozeAlarmPath(uniqueId: Int): String = "$PATH_SNOOZE_ALARM/$uniqueId"
 }

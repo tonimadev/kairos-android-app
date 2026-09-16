@@ -30,8 +30,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".wear.service.WearAlarmActionReceiver" android:exported="false" />
-
         <receiver android:name=".wear.service.WearBootReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
