@@ -277,7 +277,13 @@ fun EventScreen(
                 onOpenChat = { aiViewModel.handleIntent(CreateNewChat(newConversationTitle)) },
                 onDismissSuggestions = { aiViewModel.handleIntent(DismissAiSuggestionsDialog) },
                 onSuggestionClick = { suggestion ->
-                    aiViewModel.handleIntent(AskAi(suggestion, aiInstruction))
+                    aiViewModel.handleIntent(
+                        CreateNewChat(
+                            title = suggestion,
+                            initialQuestion = suggestion,
+                            language = aiInstruction,
+                        ),
+                    )
                 },
             )
         }
