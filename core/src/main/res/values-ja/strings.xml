@@ -104,6 +104,7 @@
     <string name="daily_briefing_trial_invite">AIが一日をどう整理するか体験しましょう。今すぐ月間プランを試してください！</string>
     <string name="subscribe_now">今すぐ購読</string>
     <string name="generate_briefing">要約を生成</string>
+    <string name="cd_refresh_briefing">要約を更新</string>
     <string name="ai_briefing_instruction">要約は日本語である必要があります。</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
