@@ -21,6 +21,9 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.longOrNull
 import logcat.logcat
 import java.time.Instant
 import java.time.ZoneId
@@ -31,7 +34,12 @@ import javax.inject.Inject
 class AskAiAgentUseCaseImpl
     @Inject
     constructor() : AskAiAgentUseCase {
-        private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        // ISO-8601 (yyyy-MM-dd) on purpose: "dd/MM/yyyy" is ambiguous to an LLM that may assume
+        // US ordering (MM/dd/yyyy), which was causing the model to distrust the current date
+        // entirely and ask the user clarifying questions like "which year?" instead of computing
+        // relative dates ("amanhã", "próxima segunda") itself.
+        private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        private val isoDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
         override suspend fun invoke(
             events: List<Event>,
@@ -124,7 +132,7 @@ class AskAiAgentUseCaseImpl
                     logcat { "AskAiAgent: LLM invoked tool '${functionCall.name}'" }
                     val args: Map<String, Any?> =
                         functionCall.args.mapValues { (_, element) ->
-                            element.toString() // We will parse back in the tool
+                            element.toKotlinValue()
                         }
                     AIAgentResponse.FunctionCall(
                         name = functionCall.name,
@@ -139,6 +147,26 @@ class AskAiAgentUseCaseImpl
                 AIAgentResponse.Empty
             }
         }
+
+        /**
+         * The Gemini SDK returns function-call arguments as [JsonElement]s, but every
+         * [AITool.parseArguments] implementation casts them back to plain Kotlin types
+         * (`as? Number`, `as? Boolean`, `.toString()`). A numeric [JsonPrimitive] stringifies
+         * to unquoted digits, so blindly calling `.toString()` here used to produce a `String`
+         * that then failed every `as? Number` cast downstream (parseArguments returning null
+         * for tools like CreateEventTool, RescheduleEventTool, SuggestFocusBlocksTool).
+         */
+        private fun JsonElement.toKotlinValue(): Any? =
+            when (this) {
+                is JsonNull -> null
+                is JsonPrimitive ->
+                    if (isString) {
+                        content
+                    } else {
+                        booleanOrNull ?: longOrNull ?: doubleOrNull ?: content
+                    }
+                else -> toString()
+            }
 
         private fun Map<String, Any?>.toJsonElementMap(): Map<String, JsonElement> {
             return this.mapValues { (_, value) ->
@@ -198,17 +226,20 @@ class AskAiAgentUseCaseImpl
             events: List<Event>,
             languageInstruction: String,
         ): String {
-            val now = java.time.LocalDateTime.now()
-            val nowStr = dateTimeFormatter.format(now)
+            val zone = ZoneId.systemDefault()
+            val nowZoned = java.time.ZonedDateTime.now(zone)
+            val nowStr = dateTimeFormatter.format(nowZoned)
+            val nowEpochMillis = nowZoned.toInstant().toEpochMilli()
+            val zoneOffset = nowZoned.offset.id
 
             val groupedEvents =
                 events.groupBy {
-                    Instant.ofEpochMilli(it.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
+                    Instant.ofEpochMilli(it.startTime).atZone(zone).toLocalDate()
                 }.toSortedMap()
 
             val eventsStr =
                 groupedEvents.entries.joinToString("\n\n") { (date, dayEvents) ->
-                    "Data: ${date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}\n" +
+                    "Data: ${date.format(isoDateFormatter)}\n" +
                         dayEvents.joinToString("\n") { event ->
                             val start =
                                 Instant.ofEpochMilli(event.startTime)
@@ -232,7 +263,12 @@ class AskAiAgentUseCaseImpl
                 Responda APENAS perguntas relacionadas à agenda, alarmes, reuniões, eventos, ou sobre o clima/previsão do tempo. Se o usuário perguntar qualquer outra coisa não relacionada, diga gentilmente que você só pode ajudar com calendário e clima e não responda ao assunto.
                 Responda de forma direta, útil e amigável.
 
-                Data e Hora atual: $nowStr
+                Data e Hora atual: $nowStr (formato yyyy-MM-dd HH:mm, fuso horário $zoneOffset)
+                Equivalente em epoch millis (UTC) deste instante: $nowEpochMillis
+                Ao calcular start_time/end_time para a ferramenta create_event (ou qualquer outra
+                que peça epoch millis), derive o valor você mesmo a partir da Data e Hora atual e
+                do fuso horário acima — nunca pergunte ao usuário o ano, mês ou fuso horário de
+                datas relativas como "amanhã", "hoje à noite" ou "próxima segunda".
 
                 Contexto do Calendário:
                 $eventsStr
