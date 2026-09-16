@@ -45,7 +45,7 @@ import digital.tonima.core.viewmodel.AlarmIntent
 import digital.tonima.core.viewmodel.AlarmSideEffect
 import digital.tonima.core.viewmodel.AlarmViewModel
 import digital.tonima.kairos.core.R
-import digital.tonima.kairos.core.ui.components.AdBannerView
+import digital.tonima.kairos.core.ads.components.AdBannerView
 import digital.tonima.kairos.core.ui.theme.KairosTheme
 import kotlinx.coroutines.launch
 import logcat.logcat

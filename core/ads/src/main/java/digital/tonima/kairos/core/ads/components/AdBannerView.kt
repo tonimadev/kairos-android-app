@@ -1,4 +1,4 @@
-package digital.tonima.kairos.core.ui.components
+package digital.tonima.kairos.core.ads.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
