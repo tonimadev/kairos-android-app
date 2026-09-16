@@ -20,3 +20,21 @@ android {
 
     kotlin { jvmToolchain(21) }
 }
+
+// Robolectric 4.17 reflects into JDK internals (jdk.internal.access.SharedSecrets and friends)
+// to bootstrap ApplicationSharedMemory; on JDK 17+ that throws IllegalAccessException unless
+// these packages are explicitly opened to the test JVM. See
+// https://github.com/robolectric/robolectric/releases/tag/robolectric-4.17.
+tasks.withType<Test>().configureEach {
+    jvmArgs(
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--add-opens=java.base/java.util=ALL-UNNAMED",
+        "--add-opens=java.base/java.io=ALL-UNNAMED",
+        "--add-opens=java.base/java.net=ALL-UNNAMED",
+        "--add-opens=java.base/java.security=ALL-UNNAMED",
+        "--add-opens=java.base/java.text=ALL-UNNAMED",
+        "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
+        "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED",
+        "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+    )
+}
