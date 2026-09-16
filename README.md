@@ -32,6 +32,16 @@ Kairós is a modern application that transforms your calendar appointments into 
 
 ---
 
+## 📱 Screenshots
+
+<p align="center">
+  <img src="/images/screenshot-home.webp" width="220">
+  <img src="/images/screenshot-ai-chat.webp" width="220">
+  <img src="/images/screenshot-alarm.webp" width="220">
+</p>
+
+---
+
 ## 🛠 Tech Stack
 
 This project follows modern Android development principles with MVVM + MVI architecture.
