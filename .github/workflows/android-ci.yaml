@@ -9,13 +9,17 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   check-style:
     name: Check Style
-    if: "!contains(github.event.head_commit.message, 'ci: Bump version')"
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, 'ci: Bump version')"
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -40,8 +44,9 @@ jobs:
 
   static-analysis:
     name: Static Analysis
-    if: "!contains(github.event.head_commit.message, 'ci: Bump version')"
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, 'ci: Bump version')"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
 
@@ -78,8 +83,9 @@ jobs:
 
   unit-tests:
     name: Unit Tests
-    if: "!contains(github.event.head_commit.message, 'ci: Bump version')"
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, 'ci: Bump version')"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
 
@@ -123,9 +129,12 @@ jobs:
 
   version_bumper:
     name: Bump Version
-    if: "!contains(github.event.head_commit.message, 'ci: Bump version') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'"
+    if: "(github.event_name != 'push' || !contains(github.event.head_commit.message, 'ci: Bump version')) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'"
     needs: [ check-style, static-analysis, unit-tests ]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
     outputs:
       phone_version_code: ${{ steps.version_bumper_script.outputs.phone_version_code }}
       wear_version_code: ${{ steps.version_bumper_script.outputs.wear_version_code }}
@@ -172,6 +181,7 @@ jobs:
     needs: version_bumper
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
@@ -217,6 +227,7 @@ jobs:
     needs: version_bumper
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
@@ -259,6 +270,7 @@ jobs:
     needs: [ version_bumper, deploy_phone, deploy_wear ]
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:

@@ -6,10 +6,6 @@ plugins {
 
 android {
     namespace = "digital.tonima.kairos.feature.ai.impl"
-
-    ksp {
-        arg("appfunctions:aggregateAppFunctions", "true")
-    }
 }
 
 dependencies {
