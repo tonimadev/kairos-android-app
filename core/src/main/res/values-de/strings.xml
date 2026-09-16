@@ -109,6 +109,7 @@
     <string name="daily_briefing_trial_invite">Entdecken Sie, wie KI Ihren Tag organisieren kann. Probieren Sie jetzt den Monatsplan aus!</string>
     <string name="subscribe_now">Jetzt abonnieren</string>
     <string name="generate_briefing">Zusammenfassung erstellen</string>
+    <string name="cd_refresh_briefing">Zusammenfassung aktualisieren</string>
     <string name="ai_briefing_instruction">Die Zusammenfassung muss in Deutsch sein.</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + KI ✨</string>
