@@ -60,4 +60,37 @@ class IcsParserTest {
         val expectedAllDayStart = formatAllDay.parse("20260604")?.time
         assertEquals(expectedAllDayStart, event2.startTime)
     }
+
+    @Test
+    fun `parseIcs should honor the TZID timezone on DTSTART and DTEND instead of the device timezone`() {
+        // Asia/Tokyo (+09:00, no DST) is deliberately different from any plausible
+        // CI/dev machine default timezone so this test can't pass by coincidence.
+        val icsContent =
+            """
+            BEGIN:VCALENDAR
+            VERSION:2.0
+            BEGIN:VEVENT
+            UID:event3@kairos
+            DTSTART;TZID=Asia/Tokyo:20260603T103000
+            DTEND;TZID=Asia/Tokyo:20260603T113000
+            SUMMARY:Reuniao com fuso horario
+            END:VEVENT
+            END:VCALENDAR
+            """.trimIndent()
+
+        val events = IcsParser.parseIcs(icsContent)
+
+        assertEquals(1, events.size)
+        val event = events[0]
+
+        val format =
+            SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("Asia/Tokyo")
+            }
+        val expectedStart = format.parse("20260603T103000")?.time
+        val expectedEnd = format.parse("20260603T113000")?.time
+
+        assertEquals(expectedStart, event.startTime)
+        assertEquals(expectedEnd, event.endTime)
+    }
 }

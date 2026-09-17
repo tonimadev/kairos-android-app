@@ -25,16 +25,20 @@ object IcsParser {
             SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.US).apply {
                 timeZone = TimeZone.getTimeZone("UTC")
             }
-        val dateFormatLocal =
-            SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.US).apply {
-                timeZone = TimeZone.getDefault()
-            }
         val dateFormatAllDay =
             SimpleDateFormat("yyyyMMdd", Locale.US).apply {
                 timeZone = TimeZone.getTimeZone("UTC")
             }
 
-        fun parseTime(value: String): Pair<Long, Boolean> {
+        fun localFormatFor(tzid: String?): SimpleDateFormat =
+            SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.US).apply {
+                timeZone = tzid?.let { TimeZone.getTimeZone(it) } ?: TimeZone.getDefault()
+            }
+
+        fun parseTime(
+            value: String,
+            tzid: String?,
+        ): Pair<Long, Boolean> {
             var result = Pair(0L, false)
             try {
                 if (value.endsWith("Z")) {
@@ -42,13 +46,20 @@ object IcsParser {
                 } else if (value.length == 8) {
                     result = Pair(dateFormatAllDay.parse(value)?.time ?: 0L, true)
                 } else {
-                    result = Pair(dateFormatLocal.parse(value)?.time ?: 0L, false)
+                    result = Pair(localFormatFor(tzid).parse(value)?.time ?: 0L, false)
                 }
             } catch (e: Exception) {
                 // Ignore parsing errors and return default
             }
             return result
         }
+
+        fun extractTzid(keyPart: String): String? =
+            keyPart
+                .split(";")
+                .drop(1)
+                .firstOrNull { it.startsWith("TZID=") }
+                ?.substringAfter("TZID=")
 
         for (line in lines) {
             val trimmedLine = line.trim()
@@ -90,11 +101,11 @@ object IcsParser {
                 if (keyPart == "SUMMARY") {
                     currentTitle = valuePart
                 } else if (keyPart.startsWith("DTSTART")) {
-                    val parsed = parseTime(valuePart)
+                    val parsed = parseTime(valuePart, extractTzid(keyPart))
                     currentStartTime = parsed.first
                     if (parsed.second) isAllDay = true
                 } else if (keyPart.startsWith("DTEND")) {
-                    val parsed = parseTime(valuePart)
+                    val parsed = parseTime(valuePart, extractTzid(keyPart))
                     currentEndTime = parsed.first
                 } else if (keyPart == "LOCATION") {
                     currentLocation = valuePart

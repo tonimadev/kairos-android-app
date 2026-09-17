@@ -23,6 +23,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/build-logic" />
             <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/ads" />
             <option value="$PROJECT_DIR$/core/billing" />
             <option value="$PROJECT_DIR$/core/billing/bridge" />
             <option value="$PROJECT_DIR$/core/billing/impl" />

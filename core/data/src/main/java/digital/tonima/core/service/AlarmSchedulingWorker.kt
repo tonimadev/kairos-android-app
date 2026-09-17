@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import androidx.annotation.VisibleForTesting
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -18,6 +19,7 @@ import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.RingerModeRepository
 import digital.tonima.core.utils.NotificationHelper
 import digital.tonima.kairos.core.R.string
+import digital.tonima.kairos.core.model.Event
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -151,8 +153,8 @@ class AlarmSchedulingWorker
                             }
                             scheduler.schedule(event, triggerTime)
                         }
-                        if (eventsToSchedule.isNotEmpty()) {
-                            checkDeviceHealth(isAiUser, eventsToSchedule.first())
+                        selectEventForHealthCheck(eventsToSchedule)?.let { nextEvent ->
+                            checkDeviceHealth(isAiUser, nextEvent)
                         }
                     }
                     logcat { "Worker concluído com sucesso." }
@@ -165,7 +167,7 @@ class AlarmSchedulingWorker
 
         private fun checkDeviceHealth(
             isAiUser: Boolean,
-            nextEvent: digital.tonima.kairos.core.model.Event,
+            nextEvent: Event,
         ) {
             if (!isAiUser) return
 
@@ -210,5 +212,10 @@ class AlarmSchedulingWorker
                     applicationContext.getString(string.silent_mode_warning, eventTimeStr),
                 )
             }
+        }
+
+        companion object {
+            @VisibleForTesting
+            internal fun selectEventForHealthCheck(events: List<Event>): Event? = events.minByOrNull { it.startTime }
         }
     }
