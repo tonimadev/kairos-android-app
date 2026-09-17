@@ -1,14 +1,17 @@
 package digital.tonima.core.usecases
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.google.common.collect.ImmutableList
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.data.repository.CalendarRepository
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.core.model.InsightsPeriod
 import kotlinx.coroutines.flow.firstOrNull
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
@@ -24,11 +27,29 @@ class GetMeetingTimeStatsUseCaseImpl
         private val appPreferencesRepository: AppPreferencesRepository,
         @ApplicationContext private val context: Context,
     ) : GetMeetingTimeStatsUseCase {
+        @VisibleForTesting
+        internal var clock: Clock = Clock.systemDefaultZone()
+
+        private suspend fun getEventsForDateRange(
+            start: LocalDate,
+            end: LocalDate,
+            allowedCalendarIds: ImmutableList<Long>,
+        ): List<Event> {
+            val months =
+                generateSequence(YearMonth.from(start)) { it.plusMonths(1) }
+                    .takeWhile { it <= YearMonth.from(end) }
+                    .toList()
+
+            return months
+                .flatMap { calendarRepository.getEventsForMonth(it.atDay(1).toEpochDay(), allowedCalendarIds) }
+                .distinctBy { it.id }
+        }
+
         override suspend operator fun invoke(period: InsightsPeriod): ImmutableList<Pair<String, Float>> {
             val enabledCalendarIdStrings = appPreferencesRepository.getEnabledCalendarIds().firstOrNull() ?: emptySet()
             val allowedCalendarIds = ImmutableList.copyOf(enabledCalendarIdStrings.mapNotNull { it.toLongOrNull() })
 
-            val now = LocalDate.now()
+            val now = LocalDate.now(clock)
 
             val currentMonthEpoch = YearMonth.from(now).atDay(1).toEpochDay()
 
@@ -36,10 +57,12 @@ class GetMeetingTimeStatsUseCaseImpl
 
             when (period) {
                 InsightsPeriod.WEEK -> {
-                    // Fetch events for current month (covers most of the week)
-                    val events = calendarRepository.getEventsForMonth(currentMonthEpoch, allowedCalendarIds)
-
                     val startOfWeek = now.minusDays(now.dayOfWeek.value.toLong() - 1) // Monday
+                    val endOfWeek = startOfWeek.plusDays(6)
+
+                    // Fetch events for every month the week actually spans, not just the current one,
+                    // so events near a month boundary aren't silently dropped.
+                    val events = getEventsForDateRange(startOfWeek, endOfWeek, allowedCalendarIds)
                     val formatter = DateTimeFormatter.ofPattern("EEE")
 
                     for (i in 0..6) {
