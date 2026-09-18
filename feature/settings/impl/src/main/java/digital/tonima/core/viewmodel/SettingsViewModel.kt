@@ -7,6 +7,7 @@ import digital.tonima.core.data.usecases.CheckPermissionsUseCase
 import digital.tonima.core.data.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.data.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.data.usecases.UpdateAppPreferenceUseCase
+import digital.tonima.core.util.needsAutostartPermission
 import digital.tonima.core.viewmodel.SettingsIntent.ChangeTransportMode
 import digital.tonima.core.viewmodel.SettingsIntent.CheckPermissions
 import digital.tonima.core.viewmodel.SettingsIntent.CloseSettings
@@ -109,7 +110,7 @@ class SettingsViewModel
                         snoozeTimeMinutes = appPrefs.snoozeTimeMinutes,
                         skippedExactAlarmPermission = appPrefs.exactAlarmPermissionSkipped,
                         skippedFullScreenIntentPermission = appPrefs.fullScreenIntentPermissionSkipped,
-                        showAutostartSuggestion = !appPrefs.autostartSuggestionDismissed,
+                        showAutostartSuggestion = needsAutostartPermission() && !appPrefs.autostartSuggestionDismissed,
                         skipWeekends = appPrefs.skipWeekendsEnabled,
                         autoDismissMinutes = appPrefs.autoDismissMinutes,
                         isTemperatureInCelsius = appPrefs.isTemperatureInCelsius,

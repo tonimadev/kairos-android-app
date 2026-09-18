@@ -121,7 +121,7 @@ private fun openAppDetailsSettingsWithToast(context: Context) {
  * permissões de início automático.
  */
 fun needsAutostartPermission(): Boolean {
-    val manufacturer = Build.MANUFACTURER.lowercase()
+    val manufacturer = Build.MANUFACTURER?.lowercase().orEmpty()
     val knownManufacturers =
         listOf("xiaomi", "oppo", "vivo", "oneplus", "huawei", "samsung", "asus", "letv", "iqoo", "htc")
     return knownManufacturers.any { manufacturer.contains(it) }
