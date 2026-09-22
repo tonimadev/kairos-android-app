@@ -55,6 +55,7 @@ import digital.tonima.core.viewmodel.AiIntent.SpeakAiResponse
 import digital.tonima.core.viewmodel.AiIntent.StopSpeaking
 import digital.tonima.core.viewmodel.AiIntent.ToggleFocusMode
 import digital.tonima.core.viewmodel.AiSideEffect.AIToolError
+import digital.tonima.core.viewmodel.AiSideEffect.CalendarEventCreated
 import digital.tonima.core.viewmodel.AiSideEffect.RequireUserConfirmation
 import digital.tonima.core.viewmodel.AiSideEffect.ShowSnackbar
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleGlobalAlarms
@@ -519,15 +520,17 @@ class AiViewModel
                 }
                 is EventIntent.CreateEvent -> {
                     viewModelScope.launch {
-                        createEventUseCase(
-                            calendarId = intent.calendarId,
-                            title = intent.title,
-                            description = intent.description,
-                            location = intent.location,
-                            startTime = intent.startTime,
-                            endTime = intent.endTime,
-                            isAllDay = intent.isAllDay,
-                        )
+                        val eventId =
+                            createEventUseCase(
+                                calendarId = intent.calendarId,
+                                title = intent.title,
+                                description = intent.description,
+                                location = intent.location,
+                                startTime = intent.startTime,
+                                endTime = intent.endTime,
+                                isAllDay = intent.isAllDay,
+                            )
+                        onCalendarEventCreated(eventId)
                     }
                 }
                 is ToggleGlobalAlarms -> {
@@ -606,21 +609,28 @@ class AiViewModel
             viewModelScope.launch {
                 val calendars = getAvailableCalendarsUseCase()
                 val calendarId = calendars.firstOrNull()?.id ?: return@launch
-                createEventUseCase(
-                    calendarId = calendarId,
-                    title = intent.title,
-                    description = "Gerado por AI para Foco",
-                    location = null,
-                    startTime = intent.startTime,
-                    endTime = intent.endTime,
-                    isAllDay = false,
-                )
-                _uiState.update {
-                    it.copy(
-                        effect = ShowSnackbar(StringResource(R.string.ai_agent_event_created)),
+                val eventId =
+                    createEventUseCase(
+                        calendarId = calendarId,
+                        title = intent.title,
+                        description = "Gerado por AI para Foco",
+                        location = null,
+                        startTime = intent.startTime,
+                        endTime = intent.endTime,
+                        isAllDay = false,
                     )
-                }
+                onCalendarEventCreated(eventId)
             }
+        }
+
+        private fun onCalendarEventCreated(eventId: Long?) {
+            val effect =
+                if (eventId != null) {
+                    CalendarEventCreated(StringResource(R.string.ai_agent_event_created))
+                } else {
+                    AIToolError(StringResource(R.string.ai_agent_event_creation_error))
+                }
+            _uiState.update { it.copy(effect = effect) }
         }
 
         private fun formatConfirmationMessage(

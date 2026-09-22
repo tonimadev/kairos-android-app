@@ -134,6 +134,10 @@ private fun HandleSideEffects(
                     is RequireUserConfirmation -> onSetAiConfirmationData(effect)
                     is AiSideEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
                     is AiSideEffect.AIToolError -> snackbarHostState.showSnackbar(effect.message.asString(context))
+                    is AiSideEffect.CalendarEventCreated -> {
+                        eventViewModel.handleIntent(EventIntent.RefreshEvents)
+                        snackbarHostState.showSnackbar(effect.message.asString(context))
+                    }
                 }
                 aiViewModel.handleIntent(AiIntent.ConsumeEffect)
             }
