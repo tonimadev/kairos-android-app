@@ -350,6 +350,38 @@ class AiViewModelTest {
 
             assertNull(viewModel.uiState.value.pendingAIAction)
             coVerify { mockCreateEventUseCase(1L, "Meeting", any(), any(), 1000L, 2000L, false) }
+            assertTrue(viewModel.uiState.value.effect is AiSideEffect.CalendarEventCreated)
+        }
+
+    @Test
+    fun `ApprovePendingAction emits AIToolError when the event cannot be created`() =
+        runTest {
+            val criticalTool =
+                mockk<AITool>(relaxed = true) {
+                    every { riskLevel } returns RiskLevel.CRITICAL
+                    every { name } returns "create_event"
+                }
+            val createIntent = EventIntent.CreateEvent(1L, "Meeting", null, null, 1000L, 2000L, false)
+            coEvery {
+                mockProcessAiResponseUseCase("create_event", any())
+            } returns AIToolResult.Success(criticalTool, createIntent)
+            coEvery { mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any()) } returns null
+
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+                listOf(
+                    flowOf(AIAgentResponse.FunctionCall("create_event", emptyMap())),
+                    flowOf(AIAgentResponse.Text("Pronto.")),
+                )
+
+            viewModel.handleIntent(AiIntent.AskAi("Create meeting", "en"))
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
+
+            viewModel.handleIntent(AiIntent.ApprovePendingAction)
+            runCurrent()
+
+            assertTrue(viewModel.uiState.value.effect is AiSideEffect.AIToolError)
         }
 
     @Test
