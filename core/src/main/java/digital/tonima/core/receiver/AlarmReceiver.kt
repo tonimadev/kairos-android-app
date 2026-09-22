@@ -223,6 +223,35 @@ class AlarmReceiver : BroadcastReceiver() {
 
         receiverScope.launch {
             try {
+                // ── Safety net: re-check disabled state at fire time ────────────────
+                // Scheduling-side cancellation can miss stale PendingIntents (e.g. other
+                // occurrences of a recurring series already armed before it was disabled),
+                // so re-validate here instead of trusting AlarmManager alone.
+                val isGloballyEnabled =
+                    try {
+                        appStatusRepository.isGlobalAlarmEnabled().first()
+                    } catch (_: Exception) {
+                        true
+                    }
+                if (!isGloballyEnabled) {
+                    logcat { "Alarm fired for '$eventTitle' but alarms are globally disabled; ignoring." }
+                    return@launch
+                }
+
+                val isDisabled =
+                    try {
+                        val disabledInstanceIds = appStatusRepository.getDisabledEventIds().first()
+                        val disabledSeriesIds = appStatusRepository.getDisabledSeriesIds().first()
+                        disabledInstanceIds.contains(uniqueId.toString()) ||
+                            disabledSeriesIds.contains(eventId.toString())
+                    } catch (_: Exception) {
+                        false
+                    }
+                if (isDisabled) {
+                    logcat { "Alarm fired for disabled event '$eventTitle'; ignoring." }
+                    return@launch
+                }
+
                 // ── Auto Focus Mode: enable DND + schedule end ──────────────────────
                 val isAutoFocusEnabled =
                     try {
