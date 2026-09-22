@@ -109,6 +109,13 @@
     <string name="generate_briefing">إنشاء الملخص</string>
     <string name="cd_refresh_briefing">تحديث الملخص</string>
     <string name="ai_briefing_instruction">يجب أن يكون الملخص باللغة العربية.</string>
+    <string name="ai_system_instruction_template">أنت مساعد شخصي ذكي مدمج مع تقويم.\nلديك إمكانية الوصول إلى أحداث المستخدم والأدوات (tools/functions) التي يمكنها تنفيذ إجراءات في التطبيق.\nاستخدم سياق التقويم للإجابة على الأسئلة، وعندما يطلب المستخدم تنفيذ إجراء (إنشاء حدث، بحث، تفعيل/إلغاء تفعيل المنبهات)، استدعِ الأداة المناسبة بدلاً من الرد بنص.\nأجب فقط عن الأسئلة المتعلقة بالجدول أو المنبهات أو الاجتماعات أو الأحداث أو الطقس/التوقعات. إذا سأل المستخدم عن أي شيء آخر غير متعلق، قل بلطف إنك تستطيع المساعدة فقط في التقويم والطقس ولا تجب عن الموضوع.\nأجب بشكل مباشر ومفيد وودود.\n\nالتاريخ والوقت الحاليان: %1$s (التنسيق yyyy-MM-dd HH:mm، المنطقة الزمنية %2$s)\nما يعادلها بالمللي ثانية منذ حقبة يونكس (UTC) لهذه اللحظة: %3$s\nعند حساب start_time/end_time لأداة create_event (أو أي أداة أخرى تطلب المللي ثانية منذ الحقبة)، احسب القيمة بنفسك بناءً على التاريخ والوقت الحاليين والمنطقة الزمنية أعلاه — لا تسأل المستخدم أبدًا عن السنة أو الشهر أو المنطقة الزمنية للتواريخ النسبية مثل \"غدًا\" أو \"الليلة\" أو \"الاثنين القادم\".\n\nسياق التقويم:\n%4$s\n\n%5$s</string>
+    <string name="ai_daily_briefing_prompt_template">أنت مساعد شخصي ذكي.\nلخّص أحداث اليوم من التقويم أدناه وقدّم نصائح استباقية.\nضع في اعتبارك الطقس الحالي لتقديم نصائح (مثلاً: إذا كانت الأمطار متوقعة، اقترح إحضار مظلة أو الخروج مبكرًا).\nكن موجزًا (3-4 جمل كحد أقصى).\nحدد التعارضات أو الجداول الزمنية الضيقة.\nاقترح كتم الهاتف إذا كانت هناك اجتماعات متتالية كثيرة.\nاستخدم نبرة ودية واستباقية.%1$s%2$s\n%3$s\n\nأحداث اليوم:\n%4$s</string>
+    <string name="ai_context_date_prefix">التاريخ:</string>
+    <string name="ai_context_alarm_disabled">(المنبه معطل)</string>
+    <string name="ai_context_wake_up">\nاستيقظ المستخدم في %1$s. إذا كان ذلك أبكر من المعتاد، اذكر ذلك بلطف.</string>
+    <string name="ai_context_weather">\nالطقس في %1$s: %2$d°م، %3$s.</string>
+    <string name="ai_context_no_events_today">لا توجد أحداث مجدولة لهذا اليوم.</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + ذكاء ✨</string>
     <string name="ai_voice_interaction_title">كايروس صوت الذكاء الاصطناعي</string>
@@ -167,6 +174,10 @@
     <string name="ai_agent_snackbar_executed">نفّذ الذكاء الاصطناعي: %1$s</string>
     <string name="ai_agent_tool_not_found">الأداة \'%1$s\' غير موجودة.</string>
     <string name="ai_agent_invalid_args">وسائط غير صالحة للأداة \'%1$s\'.</string>
+    <string name="ai_error_network">تعذّر الاتصال بالذكاء الاصطناعي. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.</string>
+    <string name="ai_error_rate_limited">عدد كبير جدًا من الطلبات خلال وقت قصير. انتظر قليلاً وحاول مرة أخرى.</string>
+    <string name="ai_error_safety_blocked">لا يمكنني الإجابة عن هذا الطلب.</string>
+    <string name="ai_error_unknown">تعذّر الحصول على رد من الذكاء الاصطناعي الآن.</string>
     <string name="ai_agent_confirmation_title">مطلوب تأكيد</string>
     <string name="ai_agent_create_event_confirmation">يريد الذكاء الاصطناعي إنشاء الحدث \"%1$s\". هل تريد التأكيد؟</string>
     <string name="ai_agent_create_event_with_location_confirmation">يريد الذكاء الاصطناعي إنشاء الحدث \"%1$s\" في %2$s. هل تريد التأكيد؟</string>

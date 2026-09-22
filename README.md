@@ -134,31 +134,51 @@ Kairos uses `InferenceMode.PREFER_ON_DEVICE` for text generation tasks. This ens
 2. **Speed**: No network latency for local tasks.
 3. **Fallback**: If the device doesn't support Gemini Nano, it automatically fails back to the Cloud model.
 
+The Daily Briefing is also cached per calendar day (`DailyBriefingRepository.getLastGeneratedDate()`):
+the background `DailyBriefingWorker`, the on-demand "Generate Summary" button, and the AppFunctions
+entry point all reuse the same generation for a given day instead of triggering a new model call
+each time.
+
+### Reliability & Cost Controls
+
+Both AI entry points go through `AiModelRepository`, which centralizes:
+- **Streaming** for the chat agent (`Chat.sendMessageStream`), so replies render as they arrive instead of waiting for the full response.
+- **Retry with backoff** for transient network failures — only before any content has been streamed back, so a retry never restarts text the user already sees.
+- **Client-side rate limiting** (`AiRateLimiter`, a sliding window capped by `AIConfig.MAX_REQUESTS_PER_MINUTE`) to guard against runaway cost or a stuck retry loop.
+- **Typed errors** (`AIAgentResponse.Error` / `BriefingResult.Error`) instead of silently swallowing failures — the UI surfaces them via `AiSideEffect.AIToolError`.
+
 ### How It Works (Tool Calling)
 
+`AskAiAgentUseCase` never talks to the Firebase AI SDK directly — it builds the system prompt +
+tool declarations and delegates to `AiModelRepository`, which owns the SDK call itself: streaming
+the response, retrying transient network failures (before any chunk has been emitted), enforcing a
+client-side rate limit, and classifying failures into `AiErrorType` (`NETWORK`, `RATE_LIMITED`,
+`SAFETY_BLOCKED`, `UNKNOWN`).
+
 ```text
-User question ──▶ DB (ChatHistoryDao) ──▶ AskAiAgentUseCase (Gemini + Tool declarations)
-                                                │
-                              ┌─────────────────┴─────────────────┐
-                              ▼                                   ▼
-                        Text response                   FunctionCall response
-                     (save to DB & show)                          │
-                                                                  ▼
-                                                        onAIFunctionCalled()
-                                                                  │
-                                                                  ▼
-                                                    ActionRegistry.processAIToolCall()
-                                                                  │
-                                            ┌─────────────────────┼─────────────────────┐
-                                            ▼                     ▼                     ▼
-                                          SAFE                MODERATE               CRITICAL
-                                       (execute)         (execute + snackbar)  (pause, ask user)
-                                            │                     │
-                                            └─────────────────────┘
-                                                      │
-                                           DB (Save FunctionResponse)
-                                                      │
-                                        (Loop back to AskAiAgentUseCase)
+User question ──▶ DB (ChatHistoryDao) ──▶ AskAiAgentUseCase ──▶ AiModelRepository
+                                                                (streams Gemini + Tool declarations)
+                                                                        │
+                                   ┌────────────────────────────────────┼────────────────────────────────────┐
+                                   ▼                                    ▼                                     ▼
+                          Text response (Flow)                 FunctionCall response                       Error
+                    (accumulated chunks shown live,                    │                        (surfaced as a snackbar via
+                     final chunk saved to DB)                          ▼                          AiSideEffect.AIToolError)
+                                                              onAIFunctionCalled()
+                                                                        │
+                                                                        ▼
+                                                          ActionRegistry.processAIToolCall()
+                                                                        │
+                                                  ┌─────────────────────┼─────────────────────┐
+                                                  ▼                     ▼                     ▼
+                                                SAFE                MODERATE               CRITICAL
+                                             (execute)         (execute + snackbar)  (pause, ask user)
+                                                  │                     │
+                                                  └─────────────────────┘
+                                                            │
+                                                 DB (Save FunctionResponse)
+                                                            │
+                                              (Loop back to AskAiAgentUseCase)
 ```
 
 ### Risk Levels
@@ -176,7 +196,9 @@ User question ──▶ DB (ChatHistoryDao) ──▶ AskAiAgentUseCase (Gemini 
 | `ChatHistoryDao` | Room database interface managing the offline chat history persistence. |
 | `AITool` | Interface — each tool maps an LLM function call to an `EventIntent` |
 | `ActionRegistry` | Singleton — discovers tools, dispatches function calls |
-| `AskAiAgentUseCase` | Sends the prompt + tool declarations to Gemini (`model.startChat`), returns `Text` or `FunctionCall` |
+| `AskAiAgentUseCase` | Builds the system prompt + tool declarations and streams the conversation via `AiModelRepository`, emitting `Flow<AIAgentResponse>` (`Text`, `FunctionCall`, or `Error`) |
+| `AiModelRepository` | The only place that touches the Firebase AI SDK — builds requests, streams/generates content, retries transient failures, enforces the rate limit, classifies errors into `AiErrorType` |
+| `AiRateLimiter` | In-memory sliding-window limiter guarding LLM calls against runaway cost/abuse |
 | `RiskLevel` | Enum controlling execution policy (`SAFE`, `MODERATE`, `CRITICAL`) |
 | `AIToolResult` | Sealed class wrapping dispatch results (`Success`, `ToolNotFound`, `InvalidArguments`) |
 

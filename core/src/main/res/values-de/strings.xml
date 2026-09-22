@@ -111,6 +111,13 @@
     <string name="generate_briefing">Zusammenfassung erstellen</string>
     <string name="cd_refresh_briefing">Zusammenfassung aktualisieren</string>
     <string name="ai_briefing_instruction">Die Zusammenfassung muss in Deutsch sein.</string>
+    <string name="ai_system_instruction_template">Du bist ein intelligenter persönlicher Assistent, der in einen Kalender integriert ist.\nDu hast Zugriff auf die Termine des Nutzers und auf Tools/Funktionen, die Aktionen in der App ausführen können.\nNutze den Kalenderkontext, um Fragen zu beantworten, und wenn der Nutzer eine Aktion ausführen möchte (Termin erstellen, suchen, Alarme ein-/ausschalten), rufe das passende Tool auf, statt mit Text zu antworten.\nBeantworte NUR Fragen zu Terminen, Alarmen, Besprechungen, Ereignissen oder zum Wetter/Vorhersage. Wenn der Nutzer nach etwas anderem, nicht Verwandtem fragt, sag freundlich, dass du nur bei Kalender und Wetter helfen kannst, und antworte nicht auf das Thema.\nAntworte direkt, hilfreich und freundlich.\n\nAktuelles Datum und Uhrzeit: %1$s (Format yyyy-MM-dd HH:mm, Zeitzone %2$s)\nEntsprechung in epoch millis (UTC) für diesen Moment: %3$s\nBeim Berechnen von start_time/end_time für das create_event-Tool (oder jedes andere, das epoch millis erwartet), berechne den Wert selbst anhand des aktuellen Datums/der Uhrzeit und der obigen Zeitzone — frage den Nutzer niemals nach Jahr, Monat oder Zeitzone bei relativen Daten wie \"morgen\", \"heute Abend\" oder \"nächsten Montag\".\n\nKalenderkontext:\n%4$s\n\n%5$s</string>
+    <string name="ai_daily_briefing_prompt_template">Du bist ein intelligenter persönlicher Assistent.\nFasse die heutigen Kalendertermine unten zusammen und gib proaktive Ratschläge.\nBerücksichtige das aktuelle Wetter für Tipps (z. B. bei Regen einen Regenschirm oder früheres Losgehen vorschlagen).\nSei kurz (maximal 3-4 Sätze).\nErkenne Konflikte oder enge Zeitpläne.\nSchlage vor, das Handy stummzuschalten, wenn viele Termine aufeinanderfolgen.\nVerwende einen freundlichen, proaktiven Ton.%1$s%2$s\n%3$s\n\nHeutige Termine:\n%4$s</string>
+    <string name="ai_context_date_prefix">Datum:</string>
+    <string name="ai_context_alarm_disabled">(Alarm deaktiviert)</string>
+    <string name="ai_context_wake_up">\nDer Nutzer ist um %1$s aufgewacht. Falls das früher als gewöhnlich ist, erwähne es sanft.</string>
+    <string name="ai_context_weather">\nWetter in %1$s: %2$d°C, %3$s.</string>
+    <string name="ai_context_no_events_today">Heute sind keine Termine geplant.</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + KI ✨</string>
     <string name="ai_voice_interaction_title">Kairos Sprach-KI</string>
@@ -169,6 +176,10 @@
     <string name="ai_agent_snackbar_executed">KI hat ausgeführt: %1$s</string>
     <string name="ai_agent_tool_not_found">Werkzeug \'%1$s\' nicht gefunden.</string>
     <string name="ai_agent_invalid_args">Ungültige Argumente für \'%1$s\'.</string>
+    <string name="ai_error_network">Verbindung zur KI nicht möglich. Überprüfe deine Internetverbindung und versuche es erneut.</string>
+    <string name="ai_error_rate_limited">Zu viele Anfragen in kurzer Zeit. Warte einen Moment und versuche es erneut.</string>
+    <string name="ai_error_safety_blocked">Ich kann diese Anfrage nicht beantworten.</string>
+    <string name="ai_error_unknown">Momentan keine Antwort von der KI möglich.</string>
     <string name="ai_agent_confirmation_title">Bestätigung erforderlich</string>
     <string name="ai_agent_create_event_confirmation">Die KI möchte den Termin \"%1$s\" erstellen. Bestätigen?</string>
     <string name="ai_agent_create_event_with_location_confirmation">Die KI möchte den Termin \"%1$s\" in %2$s erstellen. Bestätigen?</string>

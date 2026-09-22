@@ -2,6 +2,7 @@ package digital.tonima.core.ai.appfunctions
 
 import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
+import digital.tonima.core.ai.usecases.BriefingResult
 import digital.tonima.core.ai.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.data.repository.CalendarRepository
 import digital.tonima.core.data.usecases.CreateEventUseCase
@@ -14,6 +15,10 @@ import javax.inject.Inject
 
 /**
  * Funções do Kairos expostas para o sistema Android.
+ *
+ * `androidx.appfunctions` is still pre-1.0 (1.0.0-alpha11 as of writing) — its API can change
+ * between alpha releases. This file is the only surface in the app affected, so a breaking
+ * change is contained and easy to patch here.
  */
 class KairosAppFunctions
     @Inject
@@ -85,11 +90,18 @@ class KairosAppFunctions
                             eventDate == today
                         }
 
-                generateDailyBriefingUseCase(
-                    events = events,
-                    languageInstruction = "Responda em Português",
-                    wakeUpTime = null,
-                    city = null,
-                ) ?: "Não foi possível gerar o resumo no momento."
+                when (
+                    val result =
+                        generateDailyBriefingUseCase(
+                            events = events,
+                            languageInstruction = "Responda em Português",
+                            wakeUpTime = null,
+                            city = null,
+                        )
+                ) {
+                    is BriefingResult.Success -> result.text
+                    is BriefingResult.Cached -> result.text
+                    is BriefingResult.Error -> "Não foi possível gerar o resumo no momento."
+                }
             }
     }

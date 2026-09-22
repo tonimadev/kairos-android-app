@@ -353,6 +353,7 @@ fun EventScreen(
                         messages = aiUiState.chatHistory,
                         isAsking = aiUiState.isAskingAi,
                         isSpeaking = aiUiState.isSpeaking,
+                        streamingText = aiUiState.streamingText,
                         onBack = { aiViewModel.handleIntent(CloseChatDetail) },
                         onSendMessage = { aiViewModel.handleIntent(AskAi(it, aiInstruction)) },
                         onSpeakToggle = {

@@ -13,6 +13,7 @@ import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.ai.model.ChatMessage.FunctionResponse
 import digital.tonima.core.ai.model.ChatMessage.Text
 import digital.tonima.core.ai.usecases.AskAiAgentUseCase
+import digital.tonima.core.ai.usecases.BriefingResult
 import digital.tonima.core.ai.usecases.ClearChatHistoryUseCase
 import digital.tonima.core.ai.usecases.CreateConversationUseCase
 import digital.tonima.core.ai.usecases.DeleteConversationUseCase
@@ -71,6 +72,7 @@ import digital.tonima.kairos.core.navigation.BaseIntent
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -237,16 +239,21 @@ class AiViewModel
                 // Since AiViewModel doesn't track currentMonth, we'll use current date's month.
                 val eventsRecent = getEventsForMonthUseCase(now().atDay(1).toEpochDay())
 
-                val agentResponse =
-                    askAiAgentUseCase(
-                        eventsRecent,
-                        question,
-                        language,
-                        getRegisteredAiToolsUseCase(),
-                        currentHistory,
-                    )
+                var finalResponse: AIAgentResponse = AIAgentResponse.Empty
+                askAiAgentUseCase(
+                    eventsRecent,
+                    question,
+                    language,
+                    getRegisteredAiToolsUseCase(),
+                    currentHistory,
+                ).collect { response ->
+                    finalResponse = response
+                    if (response is AIAgentResponse.Text) {
+                        _uiState.update { it.copy(streamingText = response.content) }
+                    }
+                }
 
-                when (agentResponse) {
+                when (val agentResponse = finalResponse) {
                     is AIAgentResponse.Text -> {
                         val answerMsg = Text(ChatMessage.Role.ASSISTANT, agentResponse.content)
                         insertChatMessageUseCase(convId, answerMsg)
@@ -261,9 +268,12 @@ class AiViewModel
                         insertChatMessageUseCase(convId, callMsg)
                         onAIFunctionCalled(agentResponse.name, agentResponse.args)
                     }
+                    is AIAgentResponse.Error -> {
+                        _uiState.update { it.copy(effect = AIToolError(agentResponse.message)) }
+                    }
                     is AIAgentResponse.Empty -> Unit
                 }
-                _uiState.update { it.copy(isAskingAi = false) }
+                _uiState.update { it.copy(isAskingAi = false, streamingText = null) }
             }
         }
 
@@ -358,9 +368,12 @@ class AiViewModel
                         val date = Instant.ofEpochMilli(it.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
                         date == LocalDate.now()
                     }
-                val briefing = generateDailyBriefingUseCase(eventsToday, language)
-                if (briefing != null) {
-                    updateWidgetUseCase.updateDailyBriefingWidget()
+                when (val result = generateDailyBriefingUseCase(eventsToday, language)) {
+                    is BriefingResult.Success -> updateWidgetUseCase.updateDailyBriefingWidget()
+                    is BriefingResult.Cached -> Unit
+                    is BriefingResult.Error -> {
+                        _uiState.update { it.copy(effect = AIToolError(result.message)) }
+                    }
                 }
                 _uiState.update { it.copy(isGeneratingBriefing = false) }
             }

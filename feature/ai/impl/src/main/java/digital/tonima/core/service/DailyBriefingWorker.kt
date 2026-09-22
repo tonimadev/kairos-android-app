@@ -6,7 +6,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import digital.tonima.core.ai.repository.DailyBriefingRepository
+import digital.tonima.core.ai.repository.AiErrorType
+import digital.tonima.core.ai.usecases.BriefingResult
 import digital.tonima.core.ai.usecases.GenerateDailyBriefingUseCase
 import digital.tonima.core.data.repository.CalendarRepository
 import digital.tonima.core.delegates.ProUserProvider
@@ -31,7 +32,6 @@ class DailyBriefingWorker
         @Assisted workerParams: WorkerParameters,
         private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
         private val calendarRepository: CalendarRepository,
-        private val dailyBriefingRepository: DailyBriefingRepository,
         private val widgetUpdater: WidgetUpdater,
         private val proUserProvider: ProUserProvider,
     ) : CoroutineWorker(appContext, workerParams) {
@@ -71,19 +71,33 @@ class DailyBriefingWorker
                     val wakeUpTime = java.time.LocalTime.now()
                     val wakeUpTimeStr = wakeUpTime.format(ofPattern("HH:mm"))
 
-                    val briefing = generateDailyBriefingUseCase.invoke(events, languageInstruction, wakeUpTimeStr)
-
-                    if (!briefing.isNullOrBlank()) {
-                        dailyBriefingRepository.saveDailyBriefing(briefing)
-                        widgetUpdater.updateDailyBriefingWidget()
-                        val title = appContext.getString(R.string.daily_briefing_title)
-                        NotificationHelper.showDailyBriefingNotification(appContext, title, briefing)
-                        logcat(LogPriority.INFO) { "Notificação de Daily Briefing enviada com sucesso." }
-                    } else {
-                        logcat(LogPriority.WARN) { "Falha ao gerar resumo da IA ou resumo vazio." }
+                    val briefingResult =
+                        generateDailyBriefingUseCase.invoke(events, languageInstruction, wakeUpTimeStr)
+                    when (briefingResult) {
+                        is BriefingResult.Success -> {
+                            widgetUpdater.updateDailyBriefingWidget()
+                            val title = appContext.getString(R.string.daily_briefing_title)
+                            NotificationHelper.showDailyBriefingNotification(appContext, title, briefingResult.text)
+                            logcat(LogPriority.INFO) { "Notificação de Daily Briefing enviada com sucesso." }
+                            Result.success()
+                        }
+                        is BriefingResult.Cached -> {
+                            // Already generated (and notified, if applicable) earlier today.
+                            logcat(LogPriority.INFO) { "Resumo de hoje já existe em cache. Nada a fazer." }
+                            Result.success()
+                        }
+                        is BriefingResult.Error -> {
+                            logcat(LogPriority.WARN) { "Falha ao gerar resumo da IA: ${briefingResult.errorType}" }
+                            val isTransient =
+                                briefingResult.errorType == AiErrorType.NETWORK ||
+                                    briefingResult.errorType == AiErrorType.RATE_LIMITED
+                            if (isTransient) {
+                                Result.retry()
+                            } else {
+                                Result.failure()
+                            }
+                        }
                     }
-
-                    Result.success()
                 } catch (e: Exception) {
                     logcat(LogPriority.ERROR) { "Erro no DailyBriefingWorker: ${e.localizedMessage}" }
                     Result.retry()

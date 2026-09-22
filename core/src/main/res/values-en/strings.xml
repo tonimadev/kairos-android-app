@@ -110,6 +110,13 @@
     <string name="generate_briefing">Generate Summary</string>
     <string name="cd_refresh_briefing">Refresh summary</string>
     <string name="ai_briefing_instruction">The summary should be in English.</string>
+    <string name="ai_system_instruction_template">You are an intelligent personal assistant integrated with a calendar.\nYou have access to the user\'s events and to tools/functions that can perform actions in the app.\nUse the calendar context to answer questions and, when the user asks you to perform an action (create an event, search, turn alarms on/off), invoke the appropriate tool instead of replying with text.\nAnswer ONLY questions related to the agenda, alarms, meetings, events, or weather/forecast. If the user asks about anything else unrelated, gently say you can only help with calendar and weather and do not answer the topic.\nAnswer directly, helpfully and in a friendly way.\n\nCurrent date and time: %1$s (format yyyy-MM-dd HH:mm, time zone %2$s)\nEquivalent epoch millis (UTC) for this instant: %3$s\nWhen computing start_time/end_time for the create_event tool (or any other that expects epoch millis), derive the value yourself from the current date/time and time zone above — never ask the user for the year, month or time zone of relative dates like \"tomorrow\", \"tonight\" or \"next Monday\".\n\nCalendar context:\n%4$s\n\n%5$s</string>
+    <string name="ai_daily_briefing_prompt_template">You are an intelligent personal assistant.\nSummarize today\'s calendar events below and give proactive advice.\nConsider the current weather to give tips (e.g. if it will rain, suggest bringing an umbrella or leaving earlier).\nBe brief (3-4 sentences max).\nIdentify conflicts or tight schedules.\nSuggest silencing the phone if there are many back-to-back meetings.\nUse a friendly, proactive tone.%1$s%2$s\n%3$s\n\nToday\'s events:\n%4$s</string>
+    <string name="ai_context_date_prefix">Date:</string>
+    <string name="ai_context_alarm_disabled">(Alarm Disabled)</string>
+    <string name="ai_context_wake_up">\nThe user woke up at %1$s. If it\'s earlier than usual, mention it gently.</string>
+    <string name="ai_context_weather">\nWeather in %1$s: %2$d°C, %3$s.</string>
+    <string name="ai_context_no_events_today">No events scheduled for today.</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
     <string name="ai_voice_interaction_title">Kairos Voice AI</string>
@@ -170,6 +177,10 @@
     <string name="ai_agent_snackbar_executed">AI executed: %1$s</string>
     <string name="ai_agent_tool_not_found">Tool \'%1$s\' not found.</string>
     <string name="ai_agent_invalid_args">Invalid arguments for \'%1$s\'.</string>
+    <string name="ai_error_network">Couldn\'t connect to the AI. Check your internet connection and try again.</string>
+    <string name="ai_error_rate_limited">Too many requests in a short time. Wait a moment and try again.</string>
+    <string name="ai_error_safety_blocked">I can\'t answer that request.</string>
+    <string name="ai_error_unknown">Couldn\'t get a response from the AI right now.</string>
     <string name="ai_agent_confirmation_title">Confirmation required</string>
     <string name="ai_agent_create_event_confirmation">AI wants to create the event \"%1$s\". Confirm?</string>
     <string name="ai_agent_create_event_with_location_confirmation">AI wants to create the event \"%1$s\" at %2$s. Confirm?</string>

@@ -8,5 +8,5 @@ interface GenerateDailyBriefingUseCase {
         languageInstruction: String,
         wakeUpTime: String? = null,
         city: String? = null,
-    ): String?
+    ): BriefingResult
 }

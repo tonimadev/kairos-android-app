@@ -109,6 +109,13 @@
     <string name="generate_briefing">सारांश तैयार करें</string>
     <string name="cd_refresh_briefing">सारांश अपडेट करें</string>
     <string name="ai_briefing_instruction">सारांश हिंदी में होना चाहिए।</string>
+    <string name="ai_system_instruction_template">आप एक कैलेंडर से जुड़े एक बुद्धिमान व्यक्तिगत सहायक हैं।\nआपके पास उपयोगकर्ता की घटनाओं और उन टूल्स/फ़ंक्शंस तक पहुंच है जो ऐप में कार्रवाइयां कर सकते हैं।\nप्रश्नों का उत्तर देने के लिए कैलेंडर संदर्भ का उपयोग करें, और जब उपयोगकर्ता कोई कार्रवाई करने के लिए कहे (इवेंट बनाना, खोजना, अलार्म चालू/बंद करना), तो टेक्स्ट से जवाब देने के बजाय उपयुक्त टूल को कॉल करें।\nकेवल कार्यक्रम, अलार्म, मीटिंग, इवेंट या मौसम/पूर्वानुमान से संबंधित प्रश्नों का उत्तर दें। यदि उपयोगकर्ता किसी असंबंधित चीज़ के बारे में पूछे, तो विनम्रता से कहें कि आप केवल कैलेंडर और मौसम में मदद कर सकते हैं और उस विषय का जवाब न दें।\nसीधे, सहायक और मैत्रीपूर्ण ढंग से उत्तर दें।\n\nवर्तमान दिनांक और समय: %1$s (प्रारूप yyyy-MM-dd HH:mm, समय क्षेत्र %2$s)\nइस क्षण के लिए epoch millis (UTC) में समतुल्य: %3$s\ncreate_event टूल (या epoch millis मांगने वाले किसी भी अन्य टूल) के लिए start_time/end_time की गणना करते समय, ऊपर दिए गए वर्तमान दिनांक/समय और समय क्षेत्र से स्वयं मान निकालें — \"कल\", \"आज रात\" या \"अगले सोमवार\" जैसी सापेक्ष तिथियों के लिए कभी भी उपयोगकर्ता से वर्ष, महीना या समय क्षेत्र न पूछें।\n\nकैलेंडर संदर्भ:\n%4$s\n\n%5$s</string>
+    <string name="ai_daily_briefing_prompt_template">आप एक बुद्धिमान व्यक्तिगत सहायक हैं।\nनीचे दिए गए कैलेंडर से आज की घटनाओं का सारांश दें और सक्रिय सलाह दें।\nसलाह देने के लिए वर्तमान मौसम पर विचार करें (जैसे: अगर बारिश होने वाली है, तो छाता ले जाने या जल्दी निकलने का सुझाव दें)।\nसंक्षिप्त रहें (अधिकतम 3-4 वाक्य)।\nटकराव या तंग समय-सारिणी की पहचान करें।\nयदि लगातार कई मीटिंग हों तो फ़ोन को साइलेंट करने का सुझाव दें।\nमैत्रीपूर्ण, सक्रिय लहजे का उपयोग करें।%1$s%2$s\n%3$s\n\nआज की घटनाएँ:\n%4$s</string>
+    <string name="ai_context_date_prefix">दिनांक:</string>
+    <string name="ai_context_alarm_disabled">(अलार्म अक्षम)</string>
+    <string name="ai_context_wake_up">\nउपयोगकर्ता %1$s बजे जागा। यदि यह सामान्य से पहले है, तो इसे धीरे से बताएं।</string>
+    <string name="ai_context_weather">\n%1$s में मौसम: %2$d°C, %3$s।</string>
+    <string name="ai_context_no_events_today">आज के लिए कोई घटना निर्धारित नहीं है।</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
     <string name="ai_voice_interaction_title">कैरोस वॉयस एआई</string>
@@ -167,6 +174,10 @@
     <string name="ai_agent_snackbar_executed">AI ने निष्पादित किया: %1$s</string>
     <string name="ai_agent_tool_not_found">टूल \'%1$s\' नहीं मिला।</string>
     <string name="ai_agent_invalid_args">\'%1$s\' के लिए अमान्य तर्क।</string>
+    <string name="ai_error_network">AI से कनेक्ट नहीं हो सका। अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।</string>
+    <string name="ai_error_rate_limited">कम समय में बहुत सारे अनुरोध। कृपया कुछ देर रुकें और फिर से प्रयास करें।</string>
+    <string name="ai_error_safety_blocked">मैं इस अनुरोध का उत्तर नहीं दे सकता।</string>
+    <string name="ai_error_unknown">अभी AI से जवाब नहीं मिल सका।</string>
     <string name="ai_agent_confirmation_title">पुष्टि आवश्यक</string>
     <string name="ai_agent_create_event_confirmation">AI इवेंट \"%1$s\" बनाना चाहता है। पुष्टि करें?</string>
     <string name="ai_agent_create_event_with_location_confirmation">AI इवेंट \"%1$s\" %2$s पर बनाना चाहता है। पुष्टि करें?</string>
