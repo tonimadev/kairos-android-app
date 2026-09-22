@@ -106,6 +106,13 @@
     <string name="generate_briefing">生成摘要</string>
     <string name="cd_refresh_briefing">刷新摘要</string>
     <string name="ai_briefing_instruction">摘要必须使用中文。</string>
+    <string name="ai_system_instruction_template">你是一个集成日历的智能个人助手。\n你可以访问用户的日程，以及可以在应用中执行操作的工具（tools/functions）。\n使用日历上下文回答问题，当用户要求执行某项操作（创建事件、搜索、开启/关闭闹钟）时，调用相应的工具，而不是用文字回复。\n仅回答与日程、闹钟、会议、事件或天气/预报相关的问题。如果用户询问其他不相关的内容，请礼貌地说明你只能帮助处理日历和天气相关问题，并且不要回答该话题。\n请直接、有帮助且友好地回答。\n\n当前日期和时间：%1$s（格式 yyyy-MM-dd HH:mm，时区 %2$s）\n此刻对应的 epoch 毫秒数（UTC）：%3$s\n在为 create_event 工具（或任何需要 epoch 毫秒数的其他工具）计算 start_time/end_time 时，请根据上面的当前日期/时间和时区自行推算——切勿就"明天""今晚"或"下周一"等相对日期向用户询问年份、月份或时区。\n\n日历上下文：\n%4$s\n\n%5$s</string>
+    <string name="ai_daily_briefing_prompt_template">你是一个智能个人助手。\n总结以下日历中今天的事件，并给出积极主动的建议。\n结合当前天气给出建议（例如：如果要下雨，建议带伞或提前出门）。\n请简明扼要（最多3-4句话）。\n找出时间冲突或安排紧张的情况。\n如果连续有多个会议，建议将手机调至静音。\n使用友好、积极主动的语气。%1$s%2$s\n%3$s\n\n今天的事件：\n%4$s</string>
+    <string name="ai_context_date_prefix">日期：</string>
+    <string name="ai_context_alarm_disabled">（闹钟已禁用）</string>
+    <string name="ai_context_wake_up">\n用户在%1$s醒来。如果比平时早，请委婉地提一下。</string>
+    <string name="ai_context_weather">\n%1$s的天气：%2$d°C，%3$s。</string>
+    <string name="ai_context_no_events_today">今天没有安排的事件。</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
     <string name="ai_voice_interaction_title">Kairos 语音 AI</string>
@@ -164,6 +171,10 @@
     <string name="ai_agent_snackbar_executed">AI 已执行：%1$s</string>
     <string name="ai_agent_tool_not_found">未找到工具 \'%1$s\'。</string>
     <string name="ai_agent_invalid_args">\'%1$s\' 的参数无效。</string>
+    <string name="ai_error_network">无法连接到AI。请检查网络连接后重试。</string>
+    <string name="ai_error_rate_limited">短时间内请求过多。请稍等片刻后重试。</string>
+    <string name="ai_error_safety_blocked">我无法回答该请求。</string>
+    <string name="ai_error_unknown">目前无法从AI获取回复。</string>
     <string name="ai_agent_confirmation_title">需要确认</string>
     <string name="ai_agent_create_event_confirmation">AI 想要创建事件「%1$s」。确认吗？</string>
     <string name="ai_agent_create_event_with_location_confirmation">AI 想要在 %2$s 创建事件「%1$s」。确认吗？</string>

@@ -140,6 +140,13 @@
     <string name="manage_subscription">Gerenciar assinatura</string>
     <string name="billing_store_unavailable">Não foi possível conectar à loja. Verifique sua conexão e tente novamente.</string>
     <string name="ai_briefing_instruction">O resumo deve ser em Português.</string>
+    <string name="ai_system_instruction_template">Você é um assistente pessoal inteligente integrado a um calendário.\nVocê tem acesso aos eventos do usuário e a ferramentas (tools/functions) que podem executar ações no app.\nUse o contexto do calendário para responder perguntas e, quando o usuário pedir para executar uma ação (criar evento, buscar, ligar/desligar alarmes), invoque a ferramenta apropriada em vez de responder com texto.\nResponda APENAS perguntas relacionadas à agenda, alarmes, reuniões, eventos, ou sobre o clima/previsão do tempo. Se o usuário perguntar qualquer outra coisa não relacionada, diga gentilmente que você só pode ajudar com calendário e clima e não responda ao assunto.\nResponda de forma direta, útil e amigável.\n\nData e Hora atual: %1$s (formato yyyy-MM-dd HH:mm, fuso horário %2$s)\nEquivalente em epoch millis (UTC) deste instante: %3$s\nAo calcular start_time/end_time para a ferramenta create_event (ou qualquer outra que peça epoch millis), derive o valor você mesmo a partir da Data e Hora atual e do fuso horário acima — nunca pergunte ao usuário o ano, mês ou fuso horário de datas relativas como \"amanhã\", \"hoje à noite\" ou \"próxima segunda\".\n\nContexto do Calendário:\n%4$s\n\n%5$s</string>
+    <string name="ai_daily_briefing_prompt_template">Você é um assistente pessoal inteligente.\nResuma os eventos de hoje do calendário abaixo e dê conselhos proativos.\nConsidere o clima atual para dar dicas (ex: se vai chover, sugira levar guarda-chuva ou sair mais cedo).\nSeja breve (máximo 3-4 frases).\nIdentifique conflitos ou horários apertados.\nSugira silenciar o celular se houver muitas reuniões seguidas.\nUse um tom amigável e proativo.%1$s%2$s\n%3$s\n\nEventos de hoje:\n%4$s</string>
+    <string name="ai_context_date_prefix">Data:</string>
+    <string name="ai_context_alarm_disabled">(Alarme Desativado)</string>
+    <string name="ai_context_wake_up">\nO usuário acordou às %1$s. Se for mais cedo que o habitual, mencione isso suavemente.</string>
+    <string name="ai_context_weather">\nClima em %1$s: %2$d°C, %3$s.</string>
+    <string name="ai_context_no_events_today">Nenhum evento agendado para hoje.</string>
     <string name="widget_daily_briefing_name">Resumo do Dia (IA)</string>
     <string name="widget_daily_briefing_description">Exibe o resumo inteligente do seu dia gerado pela IA.</string>
     <string name="widget_no_briefing">Nenhum resumo disponível. Abra o app para gerar!</string>
@@ -173,6 +180,10 @@
     <string name="ai_agent_snackbar_executed">IA executou: %1$s</string>
     <string name="ai_agent_tool_not_found">Ferramenta \'%1$s\' não encontrada.</string>
     <string name="ai_agent_invalid_args">Argumentos inválidos para \'%1$s\'.</string>
+    <string name="ai_error_network">Não foi possível conectar à IA. Verifique sua internet e tente novamente.</string>
+    <string name="ai_error_rate_limited">Muitas solicitações em pouco tempo. Aguarde um instante e tente novamente.</string>
+    <string name="ai_error_safety_blocked">Não posso responder a essa solicitação.</string>
+    <string name="ai_error_unknown">Não foi possível obter uma resposta da IA agora.</string>
     <string name="ai_agent_confirmation_title">Confirmação necessária</string>
     <string name="ai_agent_create_event_confirmation">A IA quer criar o evento \"%1$s\". Deseja confirmar?</string>
     <string name="ai_agent_create_event_with_location_confirmation">A IA quer criar o evento \"%1$s\" em %2$s. Deseja confirmar?</string>

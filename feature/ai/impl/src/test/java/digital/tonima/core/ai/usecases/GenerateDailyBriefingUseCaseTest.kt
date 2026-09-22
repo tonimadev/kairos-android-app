@@ -1,94 +1,75 @@
 package digital.tonima.core.ai.usecases
 
-import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
-import com.google.firebase.ai.GenerativeModel
-import com.google.firebase.ai.ai
-import com.google.firebase.ai.type.PublicPreviewAPI
+import android.content.Context
+import digital.tonima.core.ai.repository.AiErrorType
+import digital.tonima.core.ai.repository.AiModelRepository
+import digital.tonima.core.ai.repository.AiModelResult
 import digital.tonima.core.ai.repository.DailyBriefingRepository
 import digital.tonima.core.data.repository.WeatherRepository
 import digital.tonima.kairos.core.model.Event
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
+import java.time.LocalDate
 
-@RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
 class GenerateDailyBriefingUseCaseTest {
+    private val context = mockk<Context>(relaxed = true)
     private val weatherRepository = mockk<WeatherRepository>()
     private val dailyBriefingRepository = mockk<DailyBriefingRepository>(relaxed = true)
-    private val useCase = GenerateDailyBriefingUseCaseImpl(weatherRepository, dailyBriefingRepository)
+    private val aiModelRepository = mockk<AiModelRepository>()
+    private val useCase =
+        GenerateDailyBriefingUseCaseImpl(context, weatherRepository, dailyBriefingRepository, aiModelRepository)
+
+    private val events =
+        listOf(
+            Event(id = 1L, title = "Event 1", startTime = 1710000000000L, isAllDay = false),
+        )
 
     @Before
     fun setup() {
-        mockkStatic(FirebaseApp::class)
-        every { FirebaseApp.getInstance() } returns mockk(relaxed = true)
-        mockkStatic("com.google.firebase.ai.FirebaseAIKt")
+        coEvery { dailyBriefingRepository.getLastGeneratedDate() } returns null
     }
 
-    @After
-    fun tearDown() {
-        unmockkStatic(FirebaseApp::class)
-        unmockkStatic("com.google.firebase.ai.FirebaseAIKt")
-    }
-
-    @OptIn(PublicPreviewAPI::class)
     @Test
-    fun `when events list is empty should return null`() =
+    fun `when already generated today should return cached without calling the model`() =
         runBlocking {
-            coEvery { weatherRepository.getWeather(any<String>(), any<Boolean>(), any<String>()) } returns null
-            val mockModel = mockk<GenerativeModel>()
-            coEvery { mockModel.generateContent(any<String>()) } returns
-                mockk {
-                    every { text } returns null
-                }
+            coEvery { dailyBriefingRepository.getLastGeneratedDate() } returns LocalDate.now()
+            every { dailyBriefingRepository.getDailyBriefing() } returns flowOf("Cached briefing")
 
-            every { Firebase.ai(any(), any()) } returns
-                mockk {
-                    every { generativeModel(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockModel
-                }
+            val result = useCase.invoke(events, "Instruction", null)
 
-            val result = useCase.invoke(emptyList(), "Instruction", null)
-            assertNull(result)
+            assertEquals(BriefingResult.Cached("Cached briefing"), result)
+            coVerify(exactly = 0) { aiModelRepository.generateBriefingContent(any()) }
         }
 
-    @OptIn(PublicPreviewAPI::class)
     @Test
-    fun `when events exist should return briefing text`() =
+    fun `when not yet generated today should call the model and cache the result`() =
         runBlocking {
-            val mockModel = mockk<GenerativeModel>()
-            coEvery { mockModel.generateContent(any<String>()) } returns
-                mockk {
-                    every { text } returns "Briefing content"
-                }
-
-            every { Firebase.ai(any(), any()) } returns
-                mockk {
-                    every { generativeModel(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockModel
-                }
-
-            val events =
-                listOf(
-                    Event(
-                        id = 1L,
-                        title = "Event 1",
-                        startTime = 1710000000000L,
-                        isAllDay = false,
-                    ),
-                )
+            coEvery { aiModelRepository.generateBriefingContent(any()) } returns AiModelResult.Text("Briefing content")
 
             val result = useCase.invoke(events, "Instruction", "08:00")
-            assertEquals("Briefing content", result)
+
+            assertEquals(BriefingResult.Success("Briefing content"), result)
+            coVerify { dailyBriefingRepository.saveDailyBriefing("Briefing content", LocalDate.now()) }
+        }
+
+    @Test
+    fun `when the model call fails should return a typed error`() =
+        runBlocking {
+            val cause = RuntimeException("boom")
+            coEvery { aiModelRepository.generateBriefingContent(any()) } returns
+                AiModelResult.Error(AiErrorType.NETWORK, cause)
+
+            val result = useCase.invoke(events, "Instruction", null)
+
+            assertTrue(result is BriefingResult.Error)
+            assertEquals(AiErrorType.NETWORK, (result as BriefingResult.Error).errorType)
         }
 }

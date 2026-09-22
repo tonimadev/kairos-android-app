@@ -106,6 +106,13 @@
     <string name="generate_briefing">要約を生成</string>
     <string name="cd_refresh_briefing">要約を更新</string>
     <string name="ai_briefing_instruction">要約は日本語である必要があります。</string>
+    <string name="ai_system_instruction_template">あなたはカレンダーと連携した賢いパーソナルアシスタントです。\nユーザーの予定や、アプリ内でアクションを実行できるツール（tools/functions）にアクセスできます。\nカレンダーのコンテキストを使って質問に答え、ユーザーがアクションの実行（予定の作成、検索、アラームのオン/オフ）を求めた場合は、テキストで返答する代わりに適切なツールを呼び出してください。\n予定、アラーム、会議、イベント、天気/予報に関する質問にのみ答えてください。ユーザーがそれ以外の無関係な質問をした場合は、カレンダーと天気についてのみお手伝いできると丁寧に伝え、その話題には答えないでください。\n直接的で、役立ち、フレンドリーに答えてください。\n\n現在の日時: %1$s（形式 yyyy-MM-dd HH:mm、タイムゾーン %2$s）\nこの瞬間のepochミリ秒（UTC）換算: %3$s\ncreate_eventツール（またはepochミリ秒を必要とする他のツール）のstart_time/end_timeを計算する際は、上記の現在の日時とタイムゾーンから自分で値を導き出してください。「明日」「今夜」「来週の月曜日」などの相対的な日付について、ユーザーに年・月・タイムゾーンを尋ねないでください。\n\nカレンダーのコンテキスト:\n%4$s\n\n%5$s</string>
+    <string name="ai_daily_briefing_prompt_template">あなたは賢いパーソナルアシスタントです。\n以下の今日のカレンダーの予定を要約し、積極的なアドバイスを行ってください。\n現在の天気を考慮してアドバイスしてください(例: 雨が降りそうなら傘を持って行くか早めに出発することを提案する)。\n簡潔に(最大3〜4文)。\n予定の重複や詰まったスケジュールを特定してください。\n連続した会議が多い場合は電話をサイレントにすることを提案してください。\nフレンドリーで積極的なトーンを使ってください。%1$s%2$s\n%3$s\n\n今日の予定:\n%4$s</string>
+    <string name="ai_context_date_prefix">日付:</string>
+    <string name="ai_context_alarm_disabled">（アラーム無効）</string>
+    <string name="ai_context_wake_up">\nユーザーは%1$sに起きました。いつもより早い場合は、そっとそのことに触れてください。</string>
+    <string name="ai_context_weather">\n%1$sの天気: %2$d°C、%3$s。</string>
+    <string name="ai_context_no_events_today">今日の予定はありません。</string>
     <string name="pro_label">Pro ✨</string>
     <string name="pro_ia_label">Pro + AI ✨</string>
     <string name="ai_voice_interaction_title">カイロス音声AI</string>
@@ -164,6 +171,10 @@
     <string name="ai_agent_snackbar_executed">AIが実行しました: %1$s</string>
     <string name="ai_agent_tool_not_found">ツール \'%1$s\' が見つかりません。</string>
     <string name="ai_agent_invalid_args">\'%1$s\' の引数が無効です。</string>
+    <string name="ai_error_network">AIに接続できませんでした。インターネット接続を確認して、もう一度お試しください。</string>
+    <string name="ai_error_rate_limited">短時間にリクエストが多すぎます。少し待ってからもう一度お試しください。</string>
+    <string name="ai_error_safety_blocked">そのリクエストにはお答えできません。</string>
+    <string name="ai_error_unknown">現在AIから応答を得られませんでした。</string>
     <string name="ai_agent_confirmation_title">確認が必要です</string>
     <string name="ai_agent_create_event_confirmation">AIがイベント「%1$s」を作成しようとしています。確認しますか？</string>
     <string name="ai_agent_create_event_with_location_confirmation">AIがイベント「%1$s」を%2$sで作成しようとしています。確認しますか？</string>

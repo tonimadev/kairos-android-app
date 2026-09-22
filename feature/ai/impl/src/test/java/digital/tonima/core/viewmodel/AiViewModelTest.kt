@@ -7,6 +7,7 @@ import digital.tonima.core.ai.RiskLevel
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
 import digital.tonima.core.ai.usecases.AskAiAgentUseCase
+import digital.tonima.core.ai.usecases.BriefingResult
 import digital.tonima.core.ai.usecases.ClearChatHistoryUseCase
 import digital.tonima.core.ai.usecases.CreateConversationUseCase
 import digital.tonima.core.ai.usecases.DeleteConversationUseCase
@@ -37,6 +38,7 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
@@ -101,7 +103,7 @@ class AiViewModelTest {
         fakeChatHistory.clear()
         fakeChatHistoryFlow.value = emptyList()
 
-        coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns AIAgentResponse.Text("")
+        every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns flowOf(AIAgentResponse.Text(""))
 
         every { mockProUserProvider.isProUser } returns isProUserFlow
         every { mockProUserProvider.isAiUser } returns isAiUserFlow
@@ -161,7 +163,8 @@ class AiViewModelTest {
             isAiUserFlow.value = true
             runCurrent()
 
-            coEvery { mockGenerateDailyBriefingUseCase(any(), any()) } returns "Briefing content"
+            coEvery { mockGenerateDailyBriefingUseCase(any(), any()) } returns
+                BriefingResult.Success("Briefing content")
             coEvery { mockUpdateWidgetUseCase.updateDailyBriefingWidget() } just Runs
 
             viewModel.handleIntent(AiIntent.GenerateDailyBriefing("en"))
@@ -180,8 +183,8 @@ class AiViewModelTest {
             isAiUserFlow.value = true
             runCurrent()
 
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
-                AIAgentResponse.Text("AI Response")
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(AIAgentResponse.Text("AI Response"))
 
             viewModel.handleIntent(AiIntent.AskAi("What's next?", "en"))
             runCurrent()
@@ -199,10 +202,10 @@ class AiViewModelTest {
             isAiUserFlow.value = true
             runCurrent()
 
-            val response1 = AIAgentResponse.Text("Response 1")
-            val response2 = AIAgentResponse.Text("Response 2")
+            val response1 = flowOf(AIAgentResponse.Text("Response 1"))
+            val response2 = flowOf(AIAgentResponse.Text("Response 2"))
 
-            coEvery {
+            every {
                 mockAskAiAgentUseCase(
                     any(),
                     any(),
@@ -237,8 +240,8 @@ class AiViewModelTest {
             viewModel.handleIntent(AiIntent.OpenChatDetail(1L))
             runCurrent()
 
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
-                AIAgentResponse.Text("Some response")
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(AIAgentResponse.Text("Some response"))
 
             viewModel.handleIntent(AiIntent.AskAi("Q", "en"))
             runCurrent()
@@ -266,13 +269,15 @@ class AiViewModelTest {
                 mockProcessAiResponseUseCase("notify_late", any())
             } returns AIToolResult.Success(safeTool, intent)
 
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
                 listOf(
-                    AIAgentResponse.FunctionCall(
-                        "notify_late",
-                        mapOf("eventId" to "test_event", "message" to "Running late!"),
+                    flowOf(
+                        AIAgentResponse.FunctionCall(
+                            "notify_late",
+                            mapOf("eventId" to "test_event", "message" to "Running late!"),
+                        ),
                     ),
-                    AIAgentResponse.Text("Pronto, avisei que você vai se atrasar."),
+                    flowOf(AIAgentResponse.Text("Pronto, avisei que você vai se atrasar.")),
                 )
 
             viewModel.handleIntent(AiIntent.OpenChatDetail(1L))
@@ -300,10 +305,10 @@ class AiViewModelTest {
                 mockProcessAiResponseUseCase("create_event", any())
             } returns AIToolResult.Success(criticalTool, createIntent)
 
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
                 listOf(
-                    AIAgentResponse.FunctionCall("create_event", emptyMap()),
-                    AIAgentResponse.Text("Aguardando sua confirmação para criar o evento."),
+                    flowOf(AIAgentResponse.FunctionCall("create_event", emptyMap())),
+                    flowOf(AIAgentResponse.Text("Aguardando sua confirmação para criar o evento.")),
                 )
 
             viewModel.handleIntent(AiIntent.AskAi("Create meeting", "en"))
@@ -329,10 +334,10 @@ class AiViewModelTest {
                 mockProcessAiResponseUseCase("create_event", any())
             } returns AIToolResult.Success(criticalTool, createIntent)
 
-            coEvery { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
                 listOf(
-                    AIAgentResponse.FunctionCall("create_event", emptyMap()),
-                    AIAgentResponse.Text("Pronto."),
+                    flowOf(AIAgentResponse.FunctionCall("create_event", emptyMap())),
+                    flowOf(AIAgentResponse.Text("Pronto.")),
                 )
 
             viewModel.handleIntent(AiIntent.AskAi("Create meeting", "en"))
@@ -356,5 +361,47 @@ class AiViewModelTest {
             runCurrent()
 
             verify { mockToggleFocusModeUseCase(true) }
+        }
+
+    @Test
+    fun `askAi surfaces a snackbar and clears loading state on Error`() =
+        runTest {
+            isAiUserFlow.value = true
+            runCurrent()
+
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(AIAgentResponse.Error(UiText.DynamicString("network down")))
+
+            viewModel.handleIntent(AiIntent.AskAi("What's next?", "en"))
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
+
+            val state = viewModel.uiState.value
+            assertTrue(state.effect is AiSideEffect.AIToolError)
+            assertFalse(state.isAskingAi)
+            assertNull(state.streamingText)
+        }
+
+    @Test
+    fun `askAi updates streamingText as chunks arrive and clears it when done`() =
+        runTest {
+            isAiUserFlow.value = true
+            runCurrent()
+
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(
+                    AIAgentResponse.Text("Hello"),
+                    AIAgentResponse.Text("Hello world"),
+                )
+
+            viewModel.handleIntent(AiIntent.AskAi("Hi", "en"))
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
+
+            val state = viewModel.uiState.value
+            assertEquals("Hello world", state.aiResponse)
+            assertNull(state.streamingText)
         }
 }

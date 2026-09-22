@@ -62,6 +62,7 @@ fun ChatDetailScreen(
     onSendMessage: (String) -> Unit,
     onSpeakToggle: () -> Unit,
     modifier: Modifier = Modifier,
+    streamingText: String? = null,
 ) {
     var textInput by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -168,14 +169,18 @@ fun ChatDetailScreen(
             }
             if (isAsking) {
                 item {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = Dimensions.SpacingNormal),
-                        contentAlignment = Alignment.CenterStart,
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    if (streamingText != null) {
+                        ChatMessageItem(ChatMessage.Text(ChatMessage.Role.ASSISTANT, streamingText))
+                    } else {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = Dimensions.SpacingNormal),
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        }
                     }
                 }
             }

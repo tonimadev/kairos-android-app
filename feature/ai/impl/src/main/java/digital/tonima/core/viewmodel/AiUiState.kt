@@ -11,6 +11,7 @@ data class AiUiState(
     val isGeneratingBriefing: Boolean = false,
     val aiResponse: String? = null,
     val isAskingAi: Boolean = false,
+    val streamingText: String? = null,
     val lastAiQuestion: String? = null,
     val isSpeaking: Boolean = false,
     val chatHistory: List<ChatMessage> = emptyList(),
