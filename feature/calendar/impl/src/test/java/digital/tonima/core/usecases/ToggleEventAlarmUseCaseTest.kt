@@ -1,5 +1,6 @@
 package digital.tonima.core.usecases
 
+import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.kairos.core.model.Event
@@ -14,6 +15,7 @@ import org.junit.Test
 class ToggleEventAlarmUseCaseTest {
     private val repository = mockk<AppPreferencesRepository>(relaxed = true)
     private val scheduler = mockk<EventAlarmScheduler>(relaxed = true)
+    private val getEventsForMonthUseCase = mockk<GetEventsForMonthUseCase>(relaxed = true)
     private lateinit var useCase: ToggleEventAlarmUseCase
 
     private val sampleEvent =
@@ -26,8 +28,9 @@ class ToggleEventAlarmUseCaseTest {
 
     @Before
     fun setup() {
-        useCase = ToggleEventAlarmUseCase(repository, scheduler)
+        useCase = ToggleEventAlarmUseCase(repository, scheduler, getEventsForMonthUseCase)
         coEvery { repository.isGlobalAlarmEnabled() } returns flowOf(true)
+        coEvery { getEventsForMonthUseCase(any()) } returns emptyList()
     }
 
     @Test
@@ -64,6 +67,20 @@ class ToggleEventAlarmUseCaseTest {
 
             coVerify { repository.setDisabledSeriesIds(setOf(sampleEvent.id.toString())) }
             coVerify { scheduler.cancel(sampleEvent) }
+        }
+
+    @Test
+    fun `when disabling all occurrences then every already-scheduled occurrence of the series is cancelled`() =
+        runTest {
+            coEvery { repository.getDisabledEventIds() } returns flowOf(setOf())
+            coEvery { repository.getDisabledSeriesIds() } returns flowOf(setOf())
+            val otherOccurrence = sampleEvent.copy(startTime = sampleEvent.startTime + 604_800_000L)
+            coEvery { getEventsForMonthUseCase(any()) } returns listOf(sampleEvent, otherOccurrence)
+
+            useCase(sampleEvent, isEnabled = false, disableAllOccurrences = true)
+
+            coVerify { scheduler.cancel(sampleEvent) }
+            coVerify { scheduler.cancel(otherOccurrence) }
         }
 
     @Test
