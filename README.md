@@ -32,6 +32,20 @@ Kairós is a modern application that transforms your calendar appointments into 
 
 ---
 
+## 🎬 AI Assistant in Action
+
+<p align="center">
+  <a href="/images/ai-demo.mp4"><img src="/images/ai-demo.gif" width="720" alt="Kairós AI assistant demo: daily briefing, streamed chat answers and an event created through tool calling"></a>
+</p>
+
+1. **Daily briefing** generated from today's calendar events.
+2. **Streamed chat answers** grounded in the user's agenda ("How is my agenda today?", "What time should I sleep?").
+3. **Tool calling**: "Schedule dentist Wednesday, 10am" triggers `create_event`, which is a `CRITICAL` action and asks for confirmation before the event is saved to the calendar.
+
+<sub>Click the animation for the full-quality video. Recorded on an Android emulator; model responses come from a scripted stand-in for the Gemini backend, so the UI and tool-calling flow are real but the answers are pre-written.</sub>
+
+---
+
 ## 📱 Screenshots
 
 <p align="center">
