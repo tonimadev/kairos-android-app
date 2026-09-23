@@ -138,6 +138,10 @@ private fun HandleSideEffects(
                         eventViewModel.handleIntent(EventIntent.RefreshEvents)
                         snackbarHostState.showSnackbar(effect.message.asString(context))
                     }
+                    is AiSideEffect.CalendarEventUpdated -> {
+                        eventViewModel.handleIntent(EventIntent.RefreshEvents)
+                        snackbarHostState.showSnackbar(effect.message.asString(context))
+                    }
                 }
                 aiViewModel.handleIntent(AiIntent.ConsumeEffect)
             }

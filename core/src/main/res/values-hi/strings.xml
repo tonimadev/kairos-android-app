@@ -312,4 +312,7 @@
     <string name="import_calendar_error_no_events">ICS फ़ाइल में कोई इवेंट नहीं मिला</string>
     <string name="import_calendar_error_create_calendar">लोकल कैलेंडर नहीं बनाया जा सका। कैलेंडर की अनुमतियाँ जाँचें।</string>
     <string name="import_calendar_error_generic">कैलेंडर इम्पोर्ट नहीं हो सका। URL या फ़ाइल जाँचें और फिर से कोशिश करें।</string>
+    <string name="ai_agent_event_rescheduled">इवेंट को कैलेंडर में फिर से शेड्यूल किया गया।</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">असिस्टेंट अभी दोहराए जाने वाले इवेंट को फिर से शेड्यूल नहीं कर सकता। कैलेंडर ऐप में यह इवेंट बदलें।</string>
+    <string name="ai_agent_reschedule_error">कैलेंडर में इवेंट को फिर से शेड्यूल नहीं किया जा सका।</string>
 </resources>

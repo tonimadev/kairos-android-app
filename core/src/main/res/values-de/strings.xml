@@ -314,4 +314,7 @@
     <string name="import_calendar_error_no_events">Keine Termine in der ICS-Datei gefunden</string>
     <string name="import_calendar_error_create_calendar">Der lokale Kalender konnte nicht erstellt werden. Prüfe die Kalenderberechtigungen.</string>
     <string name="import_calendar_error_generic">Der Kalender konnte nicht importiert werden. Prüfe die URL oder die Datei und versuche es erneut.</string>
+    <string name="ai_agent_event_rescheduled">Termin im Kalender verschoben.</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">Wiederkehrende Termine kann der Assistent noch nicht verschieben. Ändere den Termin in deiner Kalender-App.</string>
+    <string name="ai_agent_reschedule_error">Der Termin konnte im Kalender nicht verschoben werden.</string>
 </resources>

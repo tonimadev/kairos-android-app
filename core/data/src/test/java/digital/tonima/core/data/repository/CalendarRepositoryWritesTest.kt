@@ -115,6 +115,44 @@ class CalendarRepositoryWritesTest {
 
     // endregion
 
+    // region rescheduleEvent
+
+    @Test
+    fun `rescheduling updates the start and end of that event only`() =
+        runTest {
+            val uri = slot<Uri>()
+            val values = slot<ContentValues>()
+            every { resolver.update(capture(uri), capture(values), null, null) } returns 1
+
+            assertTrue(repository.rescheduleEvent(42L, 5_000L, 6_000L))
+
+            assertEquals("content://com.android.calendar/events/42", uri.captured.toString())
+            assertEquals(5_000L, values.captured.getAsLong(CalendarContract.Events.DTSTART))
+            assertEquals(6_000L, values.captured.getAsLong(CalendarContract.Events.DTEND))
+            assertEquals(2, values.captured.size())
+        }
+
+    @Test
+    fun `rescheduling reports when the provider updated nothing or rejected the change`() =
+        runTest {
+            every { resolver.update(any(), any(), any(), any()) } returns 0
+            assertFalse(repository.rescheduleEvent(42L, 5_000L, 6_000L))
+
+            every { resolver.update(any(), any(), any(), any()) } throws IllegalArgumentException("all-day must be UTC")
+            assertFalse(repository.rescheduleEvent(42L, 5_000L, 6_000L))
+        }
+
+    @Test
+    fun `rescheduling needs calendar write permission`() =
+        runTest {
+            grantCalendar(read = true, write = false)
+
+            assertFalse(repository.rescheduleEvent(42L, 5_000L, 6_000L))
+            verify(exactly = 0) { resolver.update(any(), any(), any(), any()) }
+        }
+
+    // endregion
+
     // region Local calendars
 
     @Test

@@ -312,4 +312,7 @@
     <string name="import_calendar_error_no_events">لم يتم العثور على أي أحداث في ملف ICS</string>
     <string name="import_calendar_error_create_calendar">تعذّر إنشاء التقويم المحلي. تحقّق من أذونات التقويم.</string>
     <string name="import_calendar_error_generic">تعذّر استيراد التقويم. تحقّق من الرابط أو الملف وحاول مرة أخرى.</string>
+    <string name="ai_agent_event_rescheduled">تمت إعادة جدولة الحدث في التقويم.</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">لا يمكن للمساعد بعد إعادة جدولة الأحداث المتكررة. غيّر هذا الموعد من تطبيق التقويم.</string>
+    <string name="ai_agent_reschedule_error">تعذّرت إعادة جدولة الحدث في التقويم.</string>
 </resources>
