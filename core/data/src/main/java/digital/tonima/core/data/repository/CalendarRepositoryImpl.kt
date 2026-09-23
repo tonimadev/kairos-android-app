@@ -56,6 +56,7 @@ class CalendarRepositoryImpl
                     CalendarContract.Events.RRULE,
                     CalendarContract.Events.RDATE,
                     CalendarContract.Instances.AVAILABILITY,
+                    CalendarContract.Instances.SELF_ATTENDEE_STATUS,
                 )
             if (includeEventType) {
                 projection.add("event_type")
@@ -98,6 +99,14 @@ class CalendarRepositoryImpl
                 null,
             )
         }
+
+        // Absent column (idx -1) means the provider has no attendee data: treat as not declined.
+        private fun isDeclinedBySelf(
+            cursor: android.database.Cursor,
+            attendeeStatusIdx: Int,
+        ): Boolean =
+            attendeeStatusIdx != -1 &&
+                cursor.getInt(attendeeStatusIdx) == CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED
 
         private fun hasCalendarPermission() =
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
@@ -204,6 +213,7 @@ class CalendarRepositoryImpl
                     val rruleIdx = it.getColumnIndex(CalendarContract.Events.RRULE)
                     val rdateIdx = it.getColumnIndex(CalendarContract.Events.RDATE)
                     val availIdx = it.getColumnIndex(CalendarContract.Instances.AVAILABILITY)
+                    val attendeeStatusIdx = it.getColumnIndex(CalendarContract.Instances.SELF_ATTENDEE_STATUS)
                     // Absent (unsupported/omitted) column safely yields -1 here, no exception.
                     val typeIdx = it.getColumnIndex("event_type")
 
@@ -230,6 +240,11 @@ class CalendarRepositoryImpl
 
                         // event_type values (API 34+): 2 = TYPE_WORK_LOCATION, 3 = TYPE_FOCUS_TIME
                         if (typeIdx != -1 && (eventType == 2 || eventType == 3)) {
+                            continue
+                        }
+
+                        // An invitation the user declined must not ring.
+                        if (isDeclinedBySelf(it, attendeeStatusIdx)) {
                             continue
                         }
 
@@ -299,6 +314,7 @@ class CalendarRepositoryImpl
                     val rruleIdx = it.getColumnIndex(CalendarContract.Events.RRULE)
                     val rdateIdx = it.getColumnIndex(CalendarContract.Events.RDATE)
                     val availIdx = it.getColumnIndex(CalendarContract.Instances.AVAILABILITY)
+                    val attendeeStatusIdx = it.getColumnIndex(CalendarContract.Instances.SELF_ATTENDEE_STATUS)
                     // Absent (unsupported/omitted) column safely yields -1 here, no exception.
                     val typeIdx = it.getColumnIndex("event_type")
 
@@ -325,6 +341,9 @@ class CalendarRepositoryImpl
                                 continue
                             }
                             if (typeIdx != -1 && (eventType == 2 || eventType == 3)) {
+                                continue
+                            }
+                            if (isDeclinedBySelf(it, attendeeStatusIdx)) {
                                 continue
                             }
 
