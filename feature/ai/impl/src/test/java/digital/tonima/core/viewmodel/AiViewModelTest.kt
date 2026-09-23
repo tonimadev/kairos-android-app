@@ -6,6 +6,7 @@ import digital.tonima.core.ai.AIToolResult
 import digital.tonima.core.ai.RiskLevel
 import digital.tonima.core.ai.model.AIAgentResponse
 import digital.tonima.core.ai.model.ChatMessage
+import digital.tonima.core.ai.repository.AiErrorType
 import digital.tonima.core.ai.usecases.AskAiAgentUseCase
 import digital.tonima.core.ai.usecases.BriefingResult
 import digital.tonima.core.ai.usecases.ClearChatHistoryUseCase
@@ -30,8 +31,11 @@ import digital.tonima.core.data.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.database.entity.ConversationEntity
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.feature.ai.bridge.AiNavKey
+import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.model.DeviceCalendar
+import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.core.navigation.AppNavigator
+import digital.tonima.kairos.core.navigation.BaseIntent
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -44,6 +48,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -52,6 +57,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -59,6 +65,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlin.time.Duration.Companion.milliseconds
 
 @ExperimentalCoroutinesApi
@@ -680,4 +688,390 @@ class AiViewModelTest {
             coVerify(exactly = 0) { mockRescheduleEventUseCase(any(), any(), any()) }
             assertTrue(viewModel.uiState.value.effect is AiSideEffect.AIToolError)
         }
+
+    // region Navigation and simple intents
+
+    @Test
+    fun `ConsumeEffect clears the pending effect`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.NotifyRunningLate("1", "late"))
+            runCurrent()
+            assertNotNull(viewModel.uiState.value.effect)
+
+            viewModel.handleIntent(AiIntent.ConsumeEffect)
+            runCurrent()
+
+            assertNull(viewModel.uiState.value.effect)
+        }
+
+    @Test
+    fun `chat screens open and close through the navigator`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.OpenChatDetail(3L))
+            runCurrent()
+            viewModel.handleIntent(AiIntent.OpenChatHistoryScreen)
+            runCurrent()
+            verify { mockAppNavigator.navigateTo(AiNavKey.ChatHistory) }
+
+            viewModel.handleIntent(AiIntent.CloseChatHistoryScreen)
+            runCurrent()
+
+            assertNull(viewModel.uiState.value.selectedConversationId)
+            verify(exactly = 1) { mockAppNavigator.popBackStack() }
+
+            viewModel.handleIntent(AiIntent.OpenChatDetail(4L))
+            runCurrent()
+            viewModel.handleIntent(AiIntent.CloseChatDetail)
+            runCurrent()
+
+            assertNull(viewModel.uiState.value.selectedConversationId)
+            verify(exactly = 2) { mockAppNavigator.popBackStack() }
+        }
+
+    @Test
+    fun `a new chat without a first question does not ask the AI`() =
+        runTest {
+            coEvery { mockCreateConversationUseCase("Vazio") } returns 5L
+
+            viewModel.handleIntent(AiIntent.CreateNewChat("Vazio", initialQuestion = " ", language = "pt"))
+            runCurrent()
+
+            assertEquals(5L, viewModel.uiState.value.selectedConversationId)
+            verify(exactly = 0) { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) }
+        }
+
+    @Test
+    fun `NotifyRunningLate shows the suggested message`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.NotifyRunningLate("1", "Chego em 10 min"))
+            runCurrent()
+
+            val effect = viewModel.uiState.value.effect as AiSideEffect.ShowSnackbar
+            assertEquals(
+                UiText.StringResource(R.string.ai_suggested_late_notification, listOf("Chego em 10 min")),
+                effect.message,
+            )
+        }
+
+    @Test
+    fun `disabling focus mode reports it`() =
+        runTest {
+            every { mockToggleFocusModeUseCase(false) } returns Result.success(Unit)
+
+            viewModel.handleIntent(AiIntent.ToggleFocusMode(false))
+            runCurrent()
+
+            val effect = viewModel.uiState.value.effect as AiSideEffect.ShowSnackbar
+            assertEquals(
+                UiText.StringResource(R.string.ai_agent_snackbar_executed, listOf("DND disabled")),
+                effect.message,
+            )
+        }
+
+    @Test
+    fun `schedule analysis and categorization give feedback`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.AnalyzeSchedule("week"))
+            runCurrent()
+            assertEquals(
+                AiSideEffect.ShowSnackbar(UiText.DynamicString("Analysing schedule for week...")),
+                viewModel.uiState.value.effect,
+            )
+
+            viewModel.handleIntent(AiIntent.CategorizeEvent("1", "Work"))
+            runCurrent()
+            assertEquals(
+                AiSideEffect.ShowSnackbar(UiText.DynamicString("Event categorized: Work")),
+                viewModel.uiState.value.effect,
+            )
+        }
+
+    // endregion
+
+    // region Speech
+
+    @Test
+    fun `SpeakAiResponse reads the last answer, if any, and StopSpeaking stops it`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.SpeakAiResponse)
+            runCurrent()
+            verify(exactly = 0) { mockSpeakTextUseCase(any(), any()) }
+
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(AIAgentResponse.Text("Resposta"))
+            viewModel.handleIntent(AiIntent.AskAi("Oi", "pt"))
+            runCurrent()
+
+            viewModel.handleIntent(AiIntent.SpeakAiResponse)
+            runCurrent()
+            verify(exactly = 2) { mockSpeakTextUseCase("Resposta", any()) }
+            assertTrue(viewModel.uiState.value.isSpeaking)
+
+            viewModel.handleIntent(AiIntent.StopSpeaking)
+            runCurrent()
+            verify { mockSpeakTextUseCase.stop() }
+            assertFalse(viewModel.uiState.value.isSpeaking)
+        }
+
+    @Test
+    fun `speaking finishes when the speech engine calls back`() =
+        runTest {
+            every { mockSpeakTextUseCase(any(), any()) } answers { secondArg<(() -> Unit)?>()?.invoke() }
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(AIAgentResponse.Text("Resposta"))
+
+            viewModel.handleIntent(AiIntent.AskAi("Oi", "pt"))
+            runCurrent()
+
+            assertFalse(viewModel.uiState.value.isSpeaking)
+        }
+
+    @Test
+    fun `clearing without an open conversation does not touch the history`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.ClearAiResponse)
+            runCurrent()
+
+            coVerify(exactly = 0) { mockClearChatHistoryUseCase(any()) }
+            assertNull(viewModel.uiState.value.aiResponse)
+        }
+
+    // endregion
+
+    // region Agent responses
+
+    @Test
+    fun `an empty agent response stores nothing and stops loading`() =
+        runTest {
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(AIAgentResponse.Empty)
+
+            viewModel.handleIntent(AiIntent.AskAi("Oi", "pt"))
+            runCurrent()
+
+            assertEquals(1, fakeChatHistory.size)
+            assertFalse(viewModel.uiState.value.isAskingAi)
+            assertNull(viewModel.uiState.value.aiResponse)
+        }
+
+    @Test
+    fun `a dictated event keeps every field it was given`() =
+        runTest {
+            val json =
+                "{\"title\": \"Dentista\", \"description\": \"Limpeza\", \"location\": \"Centro\", " +
+                    "\"startTime\": 1000, \"endTime\": 2000, \"isAllDay\": true}"
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(AIAgentResponse.Text(json))
+
+            viewModel.handleIntent(AiIntent.AskAi("Marque dentista", "pt"))
+            runCurrent()
+
+            assertEquals(
+                VoiceEventData("Dentista", "Limpeza", "Centro", 1000L, 2000L, true),
+                viewModel.uiState.value.voiceEventData,
+            )
+        }
+
+    @Test
+    fun `a tool that does not exist is reported and answered back to the agent`() =
+        runTest {
+            coEvery { mockProcessAiResponseUseCase("ghost", any()) } returns AIToolResult.ToolNotFound("ghost")
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+                listOf(
+                    flowOf(AIAgentResponse.FunctionCall("ghost", emptyMap())),
+                    flowOf(AIAgentResponse.Text("Desculpe.")),
+                )
+
+            viewModel.handleIntent(AiIntent.AskAi("Faça algo", "pt"))
+            runCurrent()
+
+            assertTrue(
+                fakeChatHistory.any {
+                    it is ChatMessage.FunctionResponse && it.response == mapOf("error" to "Tool not found")
+                },
+            )
+            assertEquals(
+                AiSideEffect.AIToolError(UiText.StringResource(R.string.ai_agent_tool_not_found, listOf("ghost"))),
+                viewModel.uiState.value.effect,
+            )
+        }
+
+    @Test
+    fun `invalid tool arguments are reported and answered back to the agent`() =
+        runTest {
+            coEvery { mockProcessAiResponseUseCase("create_event", any()) } returns
+                AIToolResult.InvalidArguments("create_event", emptyMap())
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+                listOf(
+                    flowOf(AIAgentResponse.FunctionCall("create_event", emptyMap())),
+                    flowOf(AIAgentResponse.Text("Faltou informação.")),
+                )
+
+            viewModel.handleIntent(AiIntent.AskAi("Crie", "pt"))
+            runCurrent()
+
+            assertTrue(
+                fakeChatHistory.any {
+                    it is ChatMessage.FunctionResponse && it.response == mapOf("error" to "Invalid arguments")
+                },
+            )
+            assertEquals(
+                AiSideEffect.AIToolError(UiText.StringResource(R.string.ai_agent_invalid_args, listOf("create_event"))),
+                viewModel.uiState.value.effect,
+            )
+        }
+
+    @Test
+    fun `a MODERATE tool runs and tells the user what it did`() =
+        runTest {
+            every { mockToggleFocusModeUseCase(true) } returns Result.success(Unit)
+            callTool(RiskLevel.MODERATE, "focus", AiIntent.ToggleFocusMode(true))
+
+            verify { mockToggleFocusModeUseCase(true) }
+            assertEquals(
+                AiSideEffect.ShowSnackbar(UiText.StringResource(R.string.ai_agent_snackbar_executed, listOf("focus"))),
+                viewModel.uiState.value.effect,
+            )
+        }
+
+    @Test
+    fun `SAFE tools dispatch every kind of mapped intent`() =
+        runTest {
+            coEvery { mockGetAvailableCalendarsUseCase() } returns
+                listOf(DeviceCalendar(id = 9L, displayName = "Pessoal", accountName = "a"))
+            coEvery { mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any()) } returns 1L
+
+            callTool(RiskLevel.SAFE, "focus_block", AiIntent.CreateFocusBlock(1_000L, 2_000L, "Foco"))
+            coVerify { mockCreateEventUseCase(9L, "Foco", any(), null, 1_000L, 2_000L, false) }
+
+            callTool(RiskLevel.SAFE, "analyze", AiIntent.AnalyzeSchedule("hoje"))
+            assertEquals(
+                AiSideEffect.ShowSnackbar(UiText.DynamicString("Analysing schedule for hoje...")),
+                viewModel.uiState.value.effect,
+            )
+
+            callTool(RiskLevel.SAFE, "categorize", AiIntent.CategorizeEvent("1", "Saúde"))
+            assertEquals(
+                AiSideEffect.ShowSnackbar(UiText.DynamicString("Event categorized: Saúde")),
+                viewModel.uiState.value.effect,
+            )
+
+            callTool(RiskLevel.SAFE, "alarms", SettingsIntent.ToggleGlobalAlarms(true))
+            assertEquals(
+                AiSideEffect.ShowSnackbar(UiText.DynamicString("Global alarms enabled by AI")),
+                viewModel.uiState.value.effect,
+            )
+
+            callTool(RiskLevel.SAFE, "alarms", SettingsIntent.ToggleGlobalAlarms(false))
+            assertEquals(
+                AiSideEffect.ShowSnackbar(UiText.DynamicString("Global alarms disabled by AI")),
+                viewModel.uiState.value.effect,
+            )
+        }
+
+    @Test
+    fun `an intent the agent cannot handle is ignored`() =
+        runTest {
+            callTool(RiskLevel.SAFE, "noop", AiIntent.ConsumeEffect)
+
+            assertNull(viewModel.uiState.value.effect)
+            assertNull(viewModel.uiState.value.pendingAIAction)
+        }
+
+    @Test
+    fun `confirmation names the event and location, or else the tool`() =
+        runTest {
+            val intent = EventIntent.CreateEvent(1L, "Reunião", null, "Sala 2", 1000L, 2000L, false)
+            callTool(RiskLevel.CRITICAL, "create_event", intent)
+
+            val effect = viewModel.uiState.value.effect as AiSideEffect.RequireUserConfirmation
+            assertEquals(
+                UiText.StringResource(
+                    R.string.ai_agent_create_event_with_location_confirmation,
+                    listOf("Reunião", "Sala 2"),
+                ),
+                effect.message,
+            )
+
+            callTool(RiskLevel.CRITICAL, "toggle_alarms", SettingsIntent.ToggleGlobalAlarms(false))
+            val generic = viewModel.uiState.value.effect as AiSideEffect.RequireUserConfirmation
+            assertEquals(
+                UiText.StringResource(R.string.ai_agent_generic_confirmation, listOf("toggle_alarms")),
+                generic.message,
+            )
+        }
+
+    @Test
+    fun `rejecting a pending action discards it and approving nothing does nothing`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.ApprovePendingAction)
+            runCurrent()
+            assertNull(viewModel.uiState.value.effect)
+
+            callTool(RiskLevel.CRITICAL, "toggle_alarms", SettingsIntent.ToggleGlobalAlarms(false))
+            assertNotNull(viewModel.uiState.value.pendingAIAction)
+
+            viewModel.handleIntent(AiIntent.RejectPendingAction)
+            runCurrent()
+
+            assertNull(viewModel.uiState.value.pendingAIAction)
+        }
+
+    // endregion
+
+    // region Daily briefing
+
+    @Test
+    fun `the daily briefing only uses today's events`() =
+        runTest {
+            val todayNoon =
+                LocalDate.now().atTime(12, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val today = Event(id = 1L, title = "Hoje", startTime = todayNoon)
+            val other = Event(id = 2L, title = "Outro dia", startTime = todayNoon - 3 * 86_400_000L)
+            coEvery { mockGetEventsForMonthUseCase(any()) } returns listOf(today, other)
+            coEvery { mockGenerateDailyBriefingUseCase(any(), any()) } returns BriefingResult.Cached("ok")
+
+            viewModel.handleIntent(AiIntent.GenerateDailyBriefing("pt"))
+            runCurrent()
+
+            coVerify { mockGenerateDailyBriefingUseCase(listOf(today), "pt") }
+            coVerify(exactly = 0) { mockUpdateWidgetUseCase.updateDailyBriefingWidget() }
+            assertFalse(viewModel.uiState.value.isGeneratingBriefing)
+        }
+
+    @Test
+    fun `a failed daily briefing is reported`() =
+        runTest {
+            val message = UiText.DynamicString("sem rede")
+            coEvery { mockGenerateDailyBriefingUseCase(any(), any()) } returns
+                BriefingResult.Error(message, AiErrorType.NETWORK)
+
+            viewModel.handleIntent(AiIntent.GenerateDailyBriefing("pt"))
+            runCurrent()
+
+            assertEquals(AiSideEffect.AIToolError(message), viewModel.uiState.value.effect)
+            assertFalse(viewModel.uiState.value.isGeneratingBriefing)
+        }
+
+    // endregion
+
+    private fun TestScope.callTool(
+        riskLevel: RiskLevel,
+        toolName: String,
+        intent: BaseIntent,
+    ) {
+        val tool =
+            mockk<AITool>(relaxed = true) {
+                every { this@mockk.riskLevel } returns riskLevel
+                every { name } returns toolName
+            }
+        coEvery { mockProcessAiResponseUseCase(toolName, any()) } returns AIToolResult.Success(tool, intent)
+        every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returnsMany
+            listOf(
+                flowOf(AIAgentResponse.FunctionCall(toolName, emptyMap())),
+                flowOf(AIAgentResponse.Text("Pronto.")),
+            )
+        viewModel.handleIntent(AiIntent.AskAi("Use $toolName", "pt"))
+        runCurrent()
+    }
 }

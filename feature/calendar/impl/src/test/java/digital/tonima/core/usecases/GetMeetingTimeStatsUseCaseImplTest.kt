@@ -46,7 +46,7 @@ class GetMeetingTimeStatsUseCaseImplTest {
         every { mockContext.getString(R.string.insights_afternoon) } returns "Afternoon"
         every { mockContext.getString(R.string.insights_evening) } returns "Evening"
         every { mockContext.getString(R.string.insights_week_format, any()) } answers {
-            "W${secondArg<Int>()}"
+            "W${secondArg<Array<Any>>().first()}"
         }
         useCase = GetMeetingTimeStatsUseCaseImpl(mockCalendarRepository, mockAppPreferencesRepository, mockContext)
     }
@@ -158,6 +158,82 @@ class GetMeetingTimeStatsUseCaseImplTest {
                     ImmutableList.of(),
                 )
             } returns ImmutableList.of(nonMeetingEvent)
+
+            val result = useCase(InsightsPeriod.DAY)
+
+            assertEquals(0f, result.sumOf { it.second.toDouble() }.toFloat(), 0.001f)
+        }
+
+    @Test
+    fun `month stats bucket meetings by week and skip other months`() =
+        runTest {
+            val now = LocalDate.of(2024, 6, 10)
+            useCase.clock = Clock.fixed(now.atStartOfDay(zone).toInstant(), zone)
+
+            fun meeting(
+                id: Long,
+                day: Int,
+                minutes: Long,
+                month: Int = 6,
+            ): Event {
+                val date = LocalDate.of(2024, month, day)
+                return Event(
+                    id = id,
+                    title = "Meeting $id",
+                    startTime = toEpochMillis(date),
+                    endTime = toEpochMillis(date, LocalTime.of(10, 0).plusMinutes(minutes)),
+                    meetingUrl = "https://meet.example.com/$id",
+                )
+            }
+
+            coEvery {
+                mockCalendarRepository.getEventsForMonth(
+                    YearMonth.from(now).atDay(1).toEpochDay(),
+                    ImmutableList.of(),
+                )
+            } returns
+                ImmutableList.of(
+                    meeting(1L, day = 3, minutes = 60),
+                    meeting(2L, day = 12, minutes = 30),
+                    meeting(3L, day = 20, minutes = 90),
+                    meeting(4L, day = 28, minutes = 120),
+                    meeting(5L, day = 28, minutes = 60, month = 7),
+                )
+
+            val result = useCase(InsightsPeriod.MONTH)
+
+            assertEquals(listOf("W1", "W2", "W3", "W4+"), result.map { it.first })
+            assertEquals(listOf(1f, 0.5f, 1.5f, 2f), result.map { it.second })
+        }
+
+    @Test
+    fun `afternoon meetings count towards the afternoon bucket`() =
+        runTest {
+            val now = LocalDate.of(2024, 6, 10)
+            useCase.clock = Clock.fixed(now.atStartOfDay(zone).toInstant(), zone)
+            val afternoon =
+                Event(
+                    id = 1L,
+                    title = "Sync",
+                    startTime = toEpochMillis(now, LocalTime.of(14, 0)),
+                    endTime = toEpochMillis(now, LocalTime.of(15, 0)),
+                    meetingUrl = "https://meet.example.com/a",
+                )
+            coEvery { mockCalendarRepository.getEventsForMonth(any(), any()) } returns ImmutableList.of(afternoon)
+
+            val result = useCase(InsightsPeriod.DAY)
+
+            assertEquals(1f, result.first { it.first == "Afternoon" }.second, 0.001f)
+        }
+
+    @Test
+    fun `only the enabled calendars are queried`() =
+        runTest {
+            val now = LocalDate.of(2024, 6, 10)
+            useCase.clock = Clock.fixed(now.atStartOfDay(zone).toInstant(), zone)
+            every { mockAppPreferencesRepository.getEnabledCalendarIds() } returns flowOf(setOf("3", "oops"))
+            coEvery { mockCalendarRepository.getEventsForMonth(any(), ImmutableList.of(3L)) } returns
+                ImmutableList.of()
 
             val result = useCase(InsightsPeriod.DAY)
 

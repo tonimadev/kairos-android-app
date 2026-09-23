@@ -4,6 +4,7 @@ import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.sync.WearMessagingHelper
 import digital.tonima.core.viewmodel.AlarmIntent.Init
 import digital.tonima.core.viewmodel.AlarmSideEffect.SendSnoozeBroadcast
+import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -185,5 +186,42 @@ class AlarmViewModelTest {
             val effects = viewModel.uiState.value.sideEffects
             assertTrue(effects.any { it is AlarmSideEffect.FinishScreen })
             assertFalse(effects.any { it is AlarmSideEffect.OpenMeetingUrl })
+        }
+
+    @Test
+    fun `opening the map stops the alarm, dismisses the watch and shows the place`() =
+        runTest {
+            viewModel.handleIntent(Init("Dentista", 9, 30L, 600L, null, "Av. Paulista, 1000"))
+
+            viewModel.handleIntent(AlarmIntent.OpenMap)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            val effects = viewModel.uiState.value.sideEffects
+            assertTrue(effects.contains(AlarmSideEffect.OpenMapUrl("Av. Paulista, 1000")))
+            assertTrue(effects.contains(AlarmSideEffect.FinishScreen))
+            assertTrue(viewModel.didUserStopAlarm)
+            verify { mockAnalytics.logEvent(Analytics.EVENT_ALARM_STOP, match { it["action"] == "open_map" }) }
+            coVerify { mockWearMessagingHelper.sendDismissAlarm(9) }
+        }
+
+    @Test
+    fun `opening the map without a location only closes the alarm`() =
+        runTest {
+            viewModel.handleIntent(Init("Call", 9, 30L, 600L, null, null))
+
+            viewModel.handleIntent(AlarmIntent.OpenMap)
+
+            assertEquals(listOf(AlarmSideEffect.FinishScreen), viewModel.uiState.value.sideEffects.toList())
+        }
+
+    @Test
+    fun `a consumed side effect is removed`() =
+        runTest {
+            viewModel.handleIntent(Init("Call", 9, 30L, 600L, null, null))
+            viewModel.handleIntent(AlarmIntent.Stop)
+
+            viewModel.onSideEffectConsumed(AlarmSideEffect.FinishScreen)
+
+            assertTrue(viewModel.uiState.value.sideEffects.none { it is AlarmSideEffect.FinishScreen })
         }
 }

@@ -1,6 +1,7 @@
 package digital.tonima.core.utils
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -92,5 +93,49 @@ class IcsParserTest {
 
         assertEquals(expectedStart, event.startTime)
         assertEquals(expectedEnd, event.endTime)
+    }
+
+    @Test
+    fun `events without a UID still get an id and escaped text is unescaped`() {
+        val ics =
+            """
+            BEGIN:VCALENDAR
+            BEGIN:VEVENT
+            SUMMARY:Café\, pão
+            LOCATION:Rua A\, 10
+            DTSTART:20240101T100000Z
+            END:VEVENT
+            END:VCALENDAR
+            """.trimIndent()
+
+        val event = IcsParser.parseIcs(ics).single()
+
+        assertTrue(event.id > 0)
+        assertEquals("Café, pão", event.title)
+        assertEquals("Rua A, 10", event.location)
+    }
+
+    @Test
+    fun `events with an unreadable start or no title are skipped`() {
+        val ics =
+            """
+            BEGIN:VEVENT
+            SUMMARY:Broken date
+            DTSTART:not-a-date
+            END:VEVENT
+            BEGIN:VEVENT
+            DTSTART:20240101T100000Z
+            END:VEVENT
+            END:VEVENT
+            BEGIN:VEVENT
+            A line without a colon
+            SUMMARY:Ok
+            DTSTART:20240102T100000Z
+            END:VEVENT
+            """.trimIndent()
+
+        val events = IcsParser.parseIcs(ics)
+
+        assertEquals(listOf("Ok"), events.map { it.title })
     }
 }

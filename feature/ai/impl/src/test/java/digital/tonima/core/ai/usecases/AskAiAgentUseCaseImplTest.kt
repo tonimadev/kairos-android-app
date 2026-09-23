@@ -137,4 +137,22 @@ class AskAiAgentUseCaseImplTest {
                 awaitComplete()
             }
         }
+
+    @Test
+    fun `every model error type has its own message`() =
+        runTest {
+            mapOf(
+                AiErrorType.RATE_LIMITED to R.string.ai_error_rate_limited,
+                AiErrorType.SAFETY_BLOCKED to R.string.ai_error_safety_blocked,
+                AiErrorType.UNKNOWN to R.string.ai_error_unknown,
+            ).forEach { (type, message) ->
+                every { aiModelRepository.streamAgentResponse(any(), any(), any(), any()) } returns
+                    flowOf(AiModelResult.Error(type, RuntimeException("model failed")))
+
+                useCase(events, "hi", "Reply in English", emptySet()).test {
+                    assertEquals(AIAgentResponse.Error(UiText.StringResource(message)), awaitItem())
+                    awaitComplete()
+                }
+            }
+        }
 }

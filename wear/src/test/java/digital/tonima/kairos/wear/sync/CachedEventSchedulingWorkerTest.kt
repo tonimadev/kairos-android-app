@@ -10,6 +10,7 @@ import digital.tonima.kairos.core.model.Event
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -19,7 +20,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
@@ -222,6 +225,42 @@ class CachedEventSchedulingWorkerTest {
             every { preferences.isGlobalAlarmEnabled() } throws IllegalStateException("datastore corrupted")
 
             assertEquals(ListenableWorker.Result.failure(), worker().doWork())
+        }
+
+    @Test
+    fun `all-day events ring at the configured hour on their own date`() =
+        runTest {
+            val alarmAt = LocalDateTime.now().plusHours(2).truncatedTo(ChronoUnit.HOURS)
+            every { preferences.getAllDayAlarmHour() } returns flowOf(alarmAt.hour)
+            val allDay =
+                Event(
+                    id = 1L,
+                    title = "Feriado",
+                    startTime = alarmAt.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+                    isAllDay = true,
+                )
+            WearEventCache.save(context, listOf(allDay))
+
+            worker().doWork()
+
+            verify(exactly = 1) { scheduler.schedule(allDay, null) }
+        }
+
+    @Test
+    fun `missing preferences fall back to alarms on with no offset`() =
+        runTest {
+            every { preferences.isGlobalAlarmEnabled() } returns emptyFlow()
+            every { preferences.getAlarmOffsetMinutes() } returns emptyFlow()
+            every { preferences.isAllDayAlarmsEnabled() } returns emptyFlow()
+            every { preferences.getAllDayAlarmHour() } returns emptyFlow()
+            every { preferences.getDisabledEventIds() } returns emptyFlow()
+            every { preferences.getDisabledSeriesIds() } returns emptyFlow()
+            val soon = event(1, System.currentTimeMillis() + hours(2))
+            WearEventCache.save(context, listOf(soon))
+
+            worker().doWork()
+
+            verify(exactly = 1) { scheduler.schedule(soon, null) }
         }
 
     private fun worker() =

@@ -8,6 +8,7 @@ import digital.tonima.core.data.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.data.usecases.PermissionState
 import digital.tonima.core.data.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.repository.AudioWarningState
+import digital.tonima.feature.settings.bridge.SettingsNavKey
 import digital.tonima.kairos.core.model.AlarmOffset
 import digital.tonima.kairos.core.navigation.AppNavigator
 import io.mockk.Runs
@@ -16,6 +17,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +27,9 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -180,5 +184,87 @@ class SettingsViewModelTest {
 
             coVerify { mockUpdateAppPreferenceUseCase.setExactAlarmPermissionSkipped(true) }
             assertTrue(viewModel.uiState.value.hasExactAlarmPermission)
+        }
+
+    @Test
+    fun `every preference intent is persisted`() =
+        runTest {
+            listOf(
+                SettingsIntent.ToggleAllDayAlarms(false),
+                SettingsIntent.UpdateAllDayAlarmHour(7),
+                SettingsIntent.UpdateSnoozeTime(15),
+                SettingsIntent.ToggleSkipWeekends(true),
+                SettingsIntent.UpdateAutoDismissMinutes(3),
+                SettingsIntent.ToggleLocationAlarm(true),
+                SettingsIntent.ToggleAutoJoin(true),
+                SettingsIntent.ToggleAutoFocusMode(true),
+                SettingsIntent.ChangeTransportMode("walking"),
+                SettingsIntent.ToggleTemperatureUnit(false),
+            ).forEach { viewModel.handleIntent(it) }
+            advanceUntilIdle()
+
+            coVerify { mockUpdateAppPreferenceUseCase.setAllDayAlarmsEnabled(false) }
+            coVerify { mockUpdateAppPreferenceUseCase.setAllDayAlarmHour(7) }
+            coVerify { mockUpdateAppPreferenceUseCase.setSnoozeTimeMinutes(15) }
+            coVerify { mockUpdateAppPreferenceUseCase.setSkipWeekendsEnabled(true) }
+            coVerify { mockUpdateAppPreferenceUseCase.setAutoDismissMinutes(3) }
+            coVerify { mockUpdateAppPreferenceUseCase.setLocationAlarmEnabled(true) }
+            coVerify { mockUpdateAppPreferenceUseCase.setAutoJoinEnabled(true) }
+            coVerify { mockUpdateAppPreferenceUseCase.setAutoFocusModeEnabled(true) }
+            coVerify { mockUpdateAppPreferenceUseCase.setPreferredTransportMode("walking") }
+            coVerify { mockUpdateAppPreferenceUseCase.setTemperatureInCelsius(false) }
+        }
+
+    @Test
+    fun `settings screen opens and closes through the navigator`() =
+        runTest {
+            viewModel.handleIntent(SettingsIntent.OpenSettings)
+            viewModel.handleIntent(SettingsIntent.CloseSettings)
+            advanceUntilIdle()
+
+            verify { mockAppNavigator.navigateTo(SettingsNavKey.Root) }
+            verify { mockAppNavigator.popBackStack() }
+        }
+
+    @Test
+    fun `a chosen ringtone is shown and effects can be consumed`() =
+        runTest {
+            viewModel.handleIntent(SettingsIntent.UpdateCustomRingtoneUri("content://tone"))
+            viewModel.handleIntent(SettingsIntent.ConsumeEffect)
+            advanceUntilIdle()
+
+            assertEquals("content://tone", viewModel.uiState.value.customRingtoneUri)
+            assertNull(viewModel.uiState.value.effect)
+        }
+
+    @Test
+    fun `a previously skipped full screen permission counts as granted`() =
+        runTest {
+            every { mockCheckPermissionsUseCase() } returns
+                PermissionState(
+                    hasCalendarPermission = true,
+                    hasPostNotificationsPermission = true,
+                    hasExactAlarmPermission = true,
+                    hasFullScreenIntentPermission = false,
+                    hasLocationPermission = false,
+                    hasBackgroundLocationPermission = false,
+                )
+            appPreferencesFlow.value = defaultAppPreferences().copy(fullScreenIntentPermissionSkipped = true)
+            advanceUntilIdle()
+
+            viewModel.handleIntent(SettingsIntent.SkipFullScreenIntentPermission)
+            advanceUntilIdle()
+
+            coVerify { mockUpdateAppPreferenceUseCase.setFullScreenIntentPermissionSkipped(true) }
+            assertTrue(viewModel.uiState.value.hasFullScreenIntentPermission)
+        }
+
+    @Test
+    fun `the ringer mode is shown as an audio warning`() =
+        runTest {
+            ringerModeFlow.value = AudioWarningState.SILENT
+            advanceUntilIdle()
+
+            assertEquals(AudioWarningState.SILENT, viewModel.uiState.value.audioWarning)
         }
 }
