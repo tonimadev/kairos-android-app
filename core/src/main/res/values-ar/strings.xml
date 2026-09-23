@@ -291,4 +291,25 @@
     <string name="hide_dashboard">إخفاء لوحة المعلومات</string>
     <string name="back">رجوع</string>
     <string name="use_celsius_for_weather">استخدام درجة مئوية للطقس</string>
+
+    <!-- Import calendar -->
+    <string name="ok">حسنًا</string>
+    <string name="import_calendar_success_title">تم بنجاح</string>
+    <string name="import_calendar_success_message">تم استيراد التقويم بنجاح!</string>
+    <string name="import_calendar_error_title">خطأ</string>
+    <string name="import_calendar_name_label">اسم التقويم</string>
+    <string name="import_calendar_source_title">مصدر الملف</string>
+    <string name="import_calendar_url_label">رابط ملف ‎.ics</string>
+    <string name="import_calendar_or">أو</string>
+    <string name="import_calendar_file_selected">تم اختيار الملف</string>
+    <string name="import_calendar_select_file">اختيار ملف محلي</string>
+    <string name="import_calendar_color_title">لون التقويم</string>
+    <string name="import_calendar_enable_alarms">تفعيل التنبيهات تلقائيًا</string>
+    <string name="import_calendar_submit">استيراد</string>
+    <string name="import_calendar_error_name_required">اسم التقويم مطلوب</string>
+    <string name="import_calendar_error_source_required">أدخل رابطًا أو اختر ملفًا</string>
+    <string name="import_calendar_error_read_file">تعذّرت قراءة الملف المحدد.</string>
+    <string name="import_calendar_error_no_events">لم يتم العثور على أي أحداث في ملف ICS</string>
+    <string name="import_calendar_error_create_calendar">تعذّر إنشاء التقويم المحلي. تحقّق من أذونات التقويم.</string>
+    <string name="import_calendar_error_generic">تعذّر استيراد التقويم. تحقّق من الرابط أو الملف وحاول مرة أخرى.</string>
 </resources>

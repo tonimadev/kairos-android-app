@@ -288,4 +288,25 @@
     <string name="hide_dashboard">ダッシュボードを非表示</string>
     <string name="back">戻る</string>
     <string name="use_celsius_for_weather">天気にセルシウスを使用</string>
+
+    <!-- Import calendar -->
+    <string name="ok">OK</string>
+    <string name="import_calendar_success_title">完了</string>
+    <string name="import_calendar_success_message">カレンダーをインポートしました</string>
+    <string name="import_calendar_error_title">エラー</string>
+    <string name="import_calendar_name_label">カレンダー名</string>
+    <string name="import_calendar_source_title">ファイルの取得元</string>
+    <string name="import_calendar_url_label">.ics の URL</string>
+    <string name="import_calendar_or">または</string>
+    <string name="import_calendar_file_selected">ファイルを選択済み</string>
+    <string name="import_calendar_select_file">端末のファイルを選択</string>
+    <string name="import_calendar_color_title">カレンダーの色</string>
+    <string name="import_calendar_enable_alarms">アラームを自動で有効にする</string>
+    <string name="import_calendar_submit">インポート</string>
+    <string name="import_calendar_error_name_required">カレンダー名を入力してください</string>
+    <string name="import_calendar_error_source_required">URL を入力するかファイルを選択してください</string>
+    <string name="import_calendar_error_read_file">選択したファイルを読み込めませんでした。</string>
+    <string name="import_calendar_error_no_events">ICS ファイルに予定が見つかりませんでした</string>
+    <string name="import_calendar_error_create_calendar">ローカルカレンダーを作成できませんでした。カレンダーの権限を確認してください。</string>
+    <string name="import_calendar_error_generic">カレンダーをインポートできませんでした。URL またはファイルを確認して、もう一度お試しください。</string>
 </resources>

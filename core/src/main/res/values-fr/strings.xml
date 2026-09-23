@@ -292,4 +292,25 @@
     <string name="hide_dashboard">Masquer le tableau de bord</string>
     <string name="back">Retour</string>
     <string name="use_celsius_for_weather">Utiliser Celsius pour la météo</string>
+
+    <!-- Import calendar -->
+    <string name="ok">OK</string>
+    <string name="import_calendar_success_title">Succès</string>
+    <string name="import_calendar_success_message">Calendrier importé avec succès !</string>
+    <string name="import_calendar_error_title">Erreur</string>
+    <string name="import_calendar_name_label">Nom du calendrier</string>
+    <string name="import_calendar_source_title">Source du fichier</string>
+    <string name="import_calendar_url_label">URL du .ics</string>
+    <string name="import_calendar_or">OU</string>
+    <string name="import_calendar_file_selected">Fichier sélectionné</string>
+    <string name="import_calendar_select_file">Sélectionner un fichier local</string>
+    <string name="import_calendar_color_title">Couleur du calendrier</string>
+    <string name="import_calendar_enable_alarms">Activer les alarmes automatiquement</string>
+    <string name="import_calendar_submit">Importer</string>
+    <string name="import_calendar_error_name_required">Le nom du calendrier est obligatoire</string>
+    <string name="import_calendar_error_source_required">Indiquez une URL ou sélectionnez un fichier</string>
+    <string name="import_calendar_error_read_file">Impossible de lire le fichier sélectionné.</string>
+    <string name="import_calendar_error_no_events">Aucun événement trouvé dans le fichier ICS</string>
+    <string name="import_calendar_error_create_calendar">Impossible de créer le calendrier local. Vérifiez les autorisations d\'Agenda.</string>
+    <string name="import_calendar_error_generic">Impossible d\'importer le calendrier. Vérifiez l\'URL ou le fichier et réessayez.</string>
 </resources>

@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import digital.tonima.core.usecases.ImportIcsException
 import digital.tonima.core.usecases.ImportIcsUseCase
+import digital.tonima.kairos.core.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import logcat.logcat
 import java.net.URL
 import javax.inject.Inject
 
@@ -63,12 +66,14 @@ class ImportCalendarViewModel
         private fun importCalendar() {
             val state = _uiState.value
             if (state.calendarName.isBlank()) {
-                _uiState.update { it.copy(error = "O nome do calendário é obrigatório") }
+                _uiState.update { it.copy(error = UiText.StringResource(R.string.import_calendar_error_name_required)) }
                 return
             }
 
             if (state.url.isBlank() && state.fileUri == null) {
-                _uiState.update { it.copy(error = "Forneça uma URL ou selecione um arquivo") }
+                _uiState.update {
+                    it.copy(error = UiText.StringResource(R.string.import_calendar_error_source_required))
+                }
                 return
             }
 
@@ -82,7 +87,7 @@ class ImportCalendarViewModel
                                 val uri = state.fileUri.toUri()
                                 context.contentResolver.openInputStream(uri)?.bufferedReader()?.use {
                                     it.readText()
-                                } ?: throw IllegalStateException("Não foi possível ler o arquivo selecionado.")
+                                } ?: throw UnreadableFileException()
                             } else {
                                 URL(state.url).readText()
                             }
@@ -99,13 +104,26 @@ class ImportCalendarViewModel
                     if (result.isSuccess) {
                         _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                     } else {
-                        val msg = result.exceptionOrNull()?.message ?: "Erro desconhecido"
-                        _uiState.update { it.copy(isLoading = false, error = msg) }
+                        val error = result.exceptionOrNull()
+                        logcat { "ICS import failed: ${error?.message}" }
+                        _uiState.update { it.copy(isLoading = false, error = errorMessageFor(error)) }
                     }
                 } catch (e: Exception) {
-                    val eMsg = e.message ?: "Erro ao importar calendário"
-                    _uiState.update { it.copy(isLoading = false, error = eMsg) }
+                    logcat { "ICS import failed: ${e.message}" }
+                    _uiState.update { it.copy(isLoading = false, error = errorMessageFor(e)) }
                 }
             }
         }
+
+        private fun errorMessageFor(error: Throwable?): UiText =
+            UiText.StringResource(
+                when (error) {
+                    is ImportIcsException.NoEvents -> R.string.import_calendar_error_no_events
+                    is ImportIcsException.CalendarCreationFailed -> R.string.import_calendar_error_create_calendar
+                    is UnreadableFileException -> R.string.import_calendar_error_read_file
+                    else -> R.string.import_calendar_error_generic
+                },
+            )
+
+        private class UnreadableFileException : Exception("Could not read the selected file")
     }

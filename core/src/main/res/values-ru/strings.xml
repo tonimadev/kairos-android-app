@@ -292,4 +292,25 @@
     <string name="hide_dashboard">Скрыть панель управления</string>
     <string name="back">Назад</string>
     <string name="use_celsius_for_weather">Использовать Цельсий для погоды</string>
+
+    <!-- Import calendar -->
+    <string name="ok">ОК</string>
+    <string name="import_calendar_success_title">Готово</string>
+    <string name="import_calendar_success_message">Календарь успешно импортирован!</string>
+    <string name="import_calendar_error_title">Ошибка</string>
+    <string name="import_calendar_name_label">Название календаря</string>
+    <string name="import_calendar_source_title">Источник файла</string>
+    <string name="import_calendar_url_label">URL файла .ics</string>
+    <string name="import_calendar_or">ИЛИ</string>
+    <string name="import_calendar_file_selected">Файл выбран</string>
+    <string name="import_calendar_select_file">Выбрать локальный файл</string>
+    <string name="import_calendar_color_title">Цвет календаря</string>
+    <string name="import_calendar_enable_alarms">Автоматически включать будильники</string>
+    <string name="import_calendar_submit">Импортировать</string>
+    <string name="import_calendar_error_name_required">Укажите название календаря</string>
+    <string name="import_calendar_error_source_required">Укажите URL или выберите файл</string>
+    <string name="import_calendar_error_read_file">Не удалось прочитать выбранный файл.</string>
+    <string name="import_calendar_error_no_events">В файле ICS не найдено событий</string>
+    <string name="import_calendar_error_create_calendar">Не удалось создать локальный календарь. Проверьте разрешения для Календаря.</string>
+    <string name="import_calendar_error_generic">Не удалось импортировать календарь. Проверьте URL или файл и повторите попытку.</string>
 </resources>

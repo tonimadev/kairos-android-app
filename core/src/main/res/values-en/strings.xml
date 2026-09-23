@@ -293,4 +293,25 @@
     <string name="hide_dashboard">Hide Dashboard</string>
     <string name="back">Back</string>
     <string name="use_celsius_for_weather">Use Celsius for Weather</string>
+
+    <!-- Import calendar -->
+    <string name="ok">OK</string>
+    <string name="import_calendar_success_title">Success</string>
+    <string name="import_calendar_success_message">Calendar imported successfully!</string>
+    <string name="import_calendar_error_title">Error</string>
+    <string name="import_calendar_name_label">Calendar name</string>
+    <string name="import_calendar_source_title">File source</string>
+    <string name="import_calendar_url_label">URL of the .ics</string>
+    <string name="import_calendar_or">OR</string>
+    <string name="import_calendar_file_selected">File selected</string>
+    <string name="import_calendar_select_file">Select local file</string>
+    <string name="import_calendar_color_title">Calendar color</string>
+    <string name="import_calendar_enable_alarms">Enable alarms automatically</string>
+    <string name="import_calendar_submit">Import</string>
+    <string name="import_calendar_error_name_required">The calendar name is required</string>
+    <string name="import_calendar_error_source_required">Provide a URL or select a file</string>
+    <string name="import_calendar_error_read_file">Could not read the selected file.</string>
+    <string name="import_calendar_error_no_events">No events found in the ICS file</string>
+    <string name="import_calendar_error_create_calendar">Could not create the local calendar. Check the Calendar permissions.</string>
+    <string name="import_calendar_error_generic">Could not import the calendar. Check the URL or file and try again.</string>
 </resources>

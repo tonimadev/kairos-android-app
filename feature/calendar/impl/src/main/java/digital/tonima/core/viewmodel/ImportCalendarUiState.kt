@@ -11,6 +11,6 @@ data class ImportCalendarUiState(
     val alarmsEnabled: Boolean = false,
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
-    val error: String? = null,
+    val error: UiText? = null,
     val effect: ImportCalendarSideEffect? = null,
 )

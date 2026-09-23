@@ -288,4 +288,25 @@
     <string name="hide_dashboard">隐藏仪表板</string>
     <string name="back">返回</string>
     <string name="use_celsius_for_weather">天气使用摄氏度</string>
+
+    <!-- Import calendar -->
+    <string name="ok">确定</string>
+    <string name="import_calendar_success_title">成功</string>
+    <string name="import_calendar_success_message">日历导入成功！</string>
+    <string name="import_calendar_error_title">错误</string>
+    <string name="import_calendar_name_label">日历名称</string>
+    <string name="import_calendar_source_title">文件来源</string>
+    <string name="import_calendar_url_label">.ics 文件的网址</string>
+    <string name="import_calendar_or">或</string>
+    <string name="import_calendar_file_selected">已选择文件</string>
+    <string name="import_calendar_select_file">选择本地文件</string>
+    <string name="import_calendar_color_title">日历颜色</string>
+    <string name="import_calendar_enable_alarms">自动启用闹钟</string>
+    <string name="import_calendar_submit">导入</string>
+    <string name="import_calendar_error_name_required">日历名称为必填项</string>
+    <string name="import_calendar_error_source_required">请提供网址或选择一个文件</string>
+    <string name="import_calendar_error_read_file">无法读取所选文件。</string>
+    <string name="import_calendar_error_no_events">ICS 文件中未找到任何活动</string>
+    <string name="import_calendar_error_create_calendar">无法创建本地日历。请检查日历权限。</string>
+    <string name="import_calendar_error_generic">无法导入日历。请检查网址或文件后重试。</string>
 </resources>

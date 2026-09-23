@@ -41,10 +41,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import digital.tonima.core.viewmodel.ImportCalendarIntent
 import digital.tonima.core.viewmodel.ImportCalendarViewModel
+import digital.tonima.kairos.core.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,14 +92,14 @@ fun ImportCalendarScreen(
                 viewModel.handleIntent(ImportCalendarIntent.ResetSuccess)
                 onNavigateBack()
             },
-            title = { Text("Sucesso") },
-            text = { Text("Calendário importado com sucesso!") },
+            title = { Text(stringResource(R.string.import_calendar_success_title)) },
+            text = { Text(stringResource(R.string.import_calendar_success_message)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.handleIntent(ImportCalendarIntent.ResetSuccess)
                     onNavigateBack()
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             },
         )
@@ -105,11 +108,11 @@ fun ImportCalendarScreen(
     state.error?.let { error ->
         AlertDialog(
             onDismissRequest = { viewModel.handleIntent(ImportCalendarIntent.DismissError) },
-            title = { Text("Erro") },
-            text = { Text(error) },
+            title = { Text(stringResource(R.string.import_calendar_error_title)) },
+            text = { Text(error.asString(LocalContext.current)) },
             confirmButton = {
                 TextButton(onClick = { viewModel.handleIntent(ImportCalendarIntent.DismissError) }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             },
         )
@@ -120,12 +123,12 @@ fun ImportCalendarScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Importar Calendário ICS") },
+                title = { Text(stringResource(R.string.import_calendar)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Filled.ArrowBack,
-                            contentDescription = "Voltar",
+                            contentDescription = stringResource(R.string.back),
                         )
                     }
                 },
@@ -143,21 +146,21 @@ fun ImportCalendarScreen(
             OutlinedTextField(
                 value = state.calendarName,
                 onValueChange = { viewModel.handleIntent(ImportCalendarIntent.UpdateName(it)) },
-                label = { Text("Nome do Calendário") },
+                label = { Text(stringResource(R.string.import_calendar_name_label)) },
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Text("Origem do Arquivo", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.import_calendar_source_title), style = MaterialTheme.typography.titleMedium)
 
             OutlinedTextField(
                 value = state.url,
                 onValueChange = { viewModel.handleIntent(ImportCalendarIntent.UpdateUrl(it)) },
-                label = { Text("URL do .ics") },
+                label = { Text(stringResource(R.string.import_calendar_url_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = state.fileUri == null,
             )
 
-            Text("OU", modifier = Modifier.align(Alignment.CenterHorizontally))
+            Text(stringResource(R.string.import_calendar_or), modifier = Modifier.align(Alignment.CenterHorizontally))
 
             Button(
                 onClick = { filePickerLauncher.launch("*/*") },
@@ -169,10 +172,18 @@ fun ImportCalendarScreen(
                         ButtonDefaults.buttonColors()
                     },
             ) {
-                Text(if (state.fileUri != null) "Arquivo Selecionado" else "Selecionar Arquivo Local")
+                Text(
+                    stringResource(
+                        if (state.fileUri != null) {
+                            R.string.import_calendar_file_selected
+                        } else {
+                            R.string.import_calendar_select_file
+                        },
+                    ),
+                )
             }
 
-            Text("Cor do Calendário", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.import_calendar_color_title), style = MaterialTheme.typography.titleMedium)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(presetColors) { color ->
                     val isSelected = state.calendarColor == color.toArgb()
@@ -197,7 +208,7 @@ fun ImportCalendarScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text("Ativar Alarmes Automaticamente")
+                Text(stringResource(R.string.import_calendar_enable_alarms))
                 Switch(
                     checked = state.alarmsEnabled,
                     onCheckedChange = { viewModel.handleIntent(ImportCalendarIntent.ToggleAlarms(it)) },
@@ -214,7 +225,7 @@ fun ImportCalendarScreen(
                 if (state.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Importar")
+                    Text(stringResource(R.string.import_calendar_submit))
                 }
             }
         }

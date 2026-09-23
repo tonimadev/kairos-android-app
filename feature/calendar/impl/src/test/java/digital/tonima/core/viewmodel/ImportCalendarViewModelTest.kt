@@ -1,7 +1,9 @@
 package digital.tonima.core.viewmodel
 
 import android.content.Context
+import digital.tonima.core.usecases.ImportIcsException
 import digital.tonima.core.usecases.ImportIcsUseCase
+import digital.tonima.kairos.core.R
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -59,7 +61,7 @@ class ImportCalendarViewModelTest {
 
         viewModel.handleIntent(ImportCalendarIntent.SubmitImport)
 
-        assertNotNull(viewModel.uiState.value.error)
+        assertEquals(message(R.string.import_calendar_error_name_required), viewModel.uiState.value.error)
         assertFalse(viewModel.uiState.value.isLoading)
         coVerify(exactly = 0) { importIcs(any(), any(), any(), any()) }
     }
@@ -71,7 +73,7 @@ class ImportCalendarViewModelTest {
 
         viewModel.handleIntent(ImportCalendarIntent.SubmitImport)
 
-        assertNotNull(viewModel.uiState.value.error)
+        assertEquals(message(R.string.import_calendar_error_source_required), viewModel.uiState.value.error)
         coVerify(exactly = 0) { importIcs(any(), any(), any(), any()) }
     }
 
@@ -141,17 +143,23 @@ class ImportCalendarViewModelTest {
     }
 
     @Test
-    fun `a use case failure is shown to the user`() {
-        coEvery { importIcs(any(), any(), any(), any()) } returns Result.failure(Exception("Nenhum evento"))
-        val viewModel = viewModel()
-        viewModel.handleIntent(ImportCalendarIntent.UpdateName("Feriados"))
-        viewModel.handleIntent(ImportCalendarIntent.FileSelected(icsFile.toURI().toString()))
+    fun `each import failure is explained with a translated message`() {
+        mapOf(
+            ImportIcsException.NoEvents() to R.string.import_calendar_error_no_events,
+            ImportIcsException.CalendarCreationFailed() to R.string.import_calendar_error_create_calendar,
+            IllegalStateException("provider crashed") to R.string.import_calendar_error_generic,
+        ).forEach { (failure, expected) ->
+            coEvery { importIcs(any(), any(), any(), any()) } returns Result.failure(failure)
+            val viewModel = viewModel()
+            viewModel.handleIntent(ImportCalendarIntent.UpdateName("Feriados"))
+            viewModel.handleIntent(ImportCalendarIntent.FileSelected(icsFile.toURI().toString()))
 
-        viewModel.handleIntent(ImportCalendarIntent.SubmitImport)
-        val state = viewModel.awaitIdle()
+            viewModel.handleIntent(ImportCalendarIntent.SubmitImport)
+            val state = viewModel.awaitIdle()
 
-        assertFalse(state.isSuccess)
-        assertEquals("Nenhum evento", state.error)
+            assertFalse(state.isSuccess)
+            assertEquals(message(expected), state.error)
+        }
     }
 
     @Test
@@ -164,7 +172,7 @@ class ImportCalendarViewModelTest {
         val state = viewModel.awaitIdle()
 
         assertFalse(state.isSuccess)
-        assertNotNull(state.error)
+        assertEquals(message(R.string.import_calendar_error_generic), state.error)
         coVerify(exactly = 0) { importIcs(any(), any(), any(), any()) }
     }
 
@@ -184,6 +192,8 @@ class ImportCalendarViewModelTest {
     // endregion
 
     private fun viewModel() = ImportCalendarViewModel(importIcs, context)
+
+    private fun message(resId: Int) = UiText.StringResource(resId)
 
     /** The import reads its source on Dispatchers.IO, so wait for the loading state to settle. */
     private fun ImportCalendarViewModel.awaitIdle(): ImportCalendarUiState =
