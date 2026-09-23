@@ -154,6 +154,8 @@ class AlarmReceiver : BroadcastReceiver() {
         val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
         val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
         val meetingUrl = intent.getStringExtra(EXTRA_MEETING_URL)
+        val eventLocation = intent.getStringExtra(EXTRA_EVENT_LOCATION)
+        val endTime = intent.getLongExtra(EXTRA_EVENT_END_TIME, -1L)
         val source = intent.getStringExtra(EXTRA_SOURCE) ?: Analytics.SOURCE_NOTIFICATION
 
         if (source == Analytics.SOURCE_NOTIFICATION) {
@@ -183,7 +185,9 @@ class AlarmReceiver : BroadcastReceiver() {
                     context.applicationContext,
                     SchedulerEntryPoint::class.java,
                 )
-            schedulerEntryPoint.scheduler().scheduleSnooze(eventTitle, uniqueId, eventId, startTime, meetingUrl)
+            schedulerEntryPoint
+                .scheduler()
+                .scheduleSnooze(eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation, endTime)
         } catch (e: Exception) {
             logcat { "Failed to access EventAlarmScheduler via Hilt: ${e.message}" }
         }
@@ -292,13 +296,22 @@ class AlarmReceiver : BroadcastReceiver() {
                     } catch (e: Exception) {
                         logcat { "Auto-Join: Failed to open meeting URL: ${e.message}" }
                         // Fallback to normal alarm flow
-                        startNormalAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation)
+                        startNormalAlarm(
+                            context,
+                            eventTitle,
+                            uniqueId,
+                            eventId,
+                            startTime,
+                            meetingUrl,
+                            eventLocation,
+                            endTime,
+                        )
                     }
                     return@launch
                 }
 
                 // ── Normal alarm flow ───────────────────────────────────────────────
-                startNormalAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation)
+                startNormalAlarm(context, eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation, endTime)
             } finally {
                 pendingResult.finish()
             }
@@ -364,6 +377,7 @@ class AlarmReceiver : BroadcastReceiver() {
         startTime: Long,
         meetingUrl: String?,
         eventLocation: String?,
+        endTime: Long,
     ) {
         val isWatch = context.packageManager.hasSystemFeature("android.hardware.type.watch")
 
@@ -379,6 +393,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         putExtra(EXTRA_EVENT_START_TIME, startTime)
                         putExtra(EXTRA_MEETING_URL, meetingUrl)
                         putExtra(EXTRA_EVENT_LOCATION, eventLocation)
+                        putExtra(EXTRA_EVENT_END_TIME, endTime)
                     }
                 context.startActivity(activityIntent)
                 return
@@ -395,6 +410,7 @@ class AlarmReceiver : BroadcastReceiver() {
             startTime,
             meetingUrl,
             eventLocation,
+            endTime,
         )
     }
 }

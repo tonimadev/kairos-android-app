@@ -59,6 +59,7 @@ class AlarmSoundAndVibrateService : Service() {
             startTime: Long = -1L,
             meetingUrl: String? = null,
             eventLocation: String? = null,
+            eventEndTime: Long = -1L,
         ) {
             val intent =
                 Intent(context, AlarmSoundAndVibrateService::class.java).apply {
@@ -71,6 +72,7 @@ class AlarmSoundAndVibrateService : Service() {
                     putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
                     putExtra(AlarmReceiver.EXTRA_MEETING_URL, meetingUrl)
                     putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, eventLocation)
+                    putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, eventEndTime)
                 }
             ContextCompat.startForegroundService(context, intent)
         }
@@ -128,8 +130,9 @@ class AlarmSoundAndVibrateService : Service() {
                     )
                 val meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL)
                 val eventLocation = intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION)
+                val eventEndTime = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, -1L)
 
-                ensureForeground(eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation)
+                ensureForeground(eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation, eventEndTime)
 
                 val vibrateOnly =
                     try {
@@ -296,6 +299,7 @@ class AlarmSoundAndVibrateService : Service() {
         startTime: Long = -1L,
         meetingUrl: String? = null,
         eventLocation: String? = null,
+        eventEndTime: Long = -1L,
     ) {
         val isWatch = packageManager.hasSystemFeature("android.hardware.type.watch")
         val fullScreenPendingIntent =
@@ -317,6 +321,8 @@ class AlarmSoundAndVibrateService : Service() {
                         putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
                         putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
                         putExtra(AlarmReceiver.EXTRA_MEETING_URL, meetingUrl)
+                        putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, eventLocation)
+                        putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, eventEndTime)
                     }
                 PendingIntent.getActivity(
                     applicationContext,
@@ -355,6 +361,8 @@ class AlarmSoundAndVibrateService : Service() {
                 putExtra(AlarmReceiver.EXTRA_EVENT_ID, eventId)
                 putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, startTime)
                 putExtra(AlarmReceiver.EXTRA_MEETING_URL, meetingUrl)
+                putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, eventLocation)
+                putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, eventEndTime)
             }
         val snoozePendingIntent =
             PendingIntent.getBroadcast(

@@ -92,6 +92,7 @@ class AlarmActivity : ComponentActivity() {
                 startTime = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, -1L),
                 meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL),
                 eventLocation = intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION),
+                eventEndTime = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, -1L),
             ),
         )
 
@@ -306,6 +307,9 @@ class AlarmActivity : ComponentActivity() {
                                     putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, effect.uniqueId)
                                     putExtra(AlarmReceiver.EXTRA_EVENT_ID, effect.eventId)
                                     putExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, effect.startTime)
+                                    putExtra(AlarmReceiver.EXTRA_MEETING_URL, effect.meetingUrl)
+                                    putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, effect.eventLocation)
+                                    putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, effect.eventEndTime)
                                 }
                             sendBroadcast(snoozeIntent)
                             viewModel.onSideEffectConsumed(effect)

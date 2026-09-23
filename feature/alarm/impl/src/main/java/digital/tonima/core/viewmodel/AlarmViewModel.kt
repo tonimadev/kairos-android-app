@@ -48,6 +48,7 @@ class AlarmViewModel
                     startTime = intent.startTime,
                     meetingUrl = intent.meetingUrl,
                     eventLocation = intent.eventLocation,
+                    eventEndTime = intent.eventEndTime,
                 )
             }
         }
@@ -80,6 +81,8 @@ class AlarmViewModel
                                     eventId = state.eventId,
                                     startTime = state.startTime,
                                     meetingUrl = state.meetingUrl,
+                                    eventLocation = state.eventLocation,
+                                    eventEndTime = state.eventEndTime,
                                 ),
                                 AlarmSideEffect.FinishScreen,
                             ),

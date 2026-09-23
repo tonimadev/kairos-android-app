@@ -8,6 +8,7 @@ sealed class AlarmIntent {
         val startTime: Long,
         val meetingUrl: String?,
         val eventLocation: String?,
+        val eventEndTime: Long = -1L,
     ) : AlarmIntent()
 
     data object Snooze : AlarmIntent()

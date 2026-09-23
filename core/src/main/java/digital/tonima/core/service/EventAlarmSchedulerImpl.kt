@@ -176,6 +176,8 @@ class EventAlarmSchedulerImpl
             eventId: Long,
             startTime: Long,
             meetingUrl: String?,
+            eventLocation: String?,
+            eventEndTime: Long,
         ) {
             val snoozeMinutes =
                 runBlocking {
@@ -190,13 +192,15 @@ class EventAlarmSchedulerImpl
             val intent =
                 Intent(context, AlarmReceiver::class.java).apply {
                     action = ACTION_ALARM_TRIGGERED
-                    data = "kairos://alarm/$uniqueId/snooze".toUri()
+                    data = snoozeUri(uniqueId)
 
                     putExtra(EXTRA_EVENT_TITLE, eventTitle)
                     putExtra(EXTRA_UNIQUE_ID, uniqueId)
                     putExtra(EXTRA_EVENT_ID, eventId)
                     putExtra(EXTRA_EVENT_START_TIME, startTime)
                     putExtra(EXTRA_MEETING_URL, meetingUrl)
+                    putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, eventLocation)
+                    putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, eventEndTime)
                 }
 
             val pendingIntent =
@@ -250,5 +254,23 @@ class EventAlarmSchedulerImpl
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             alarmManager.cancel(pendingIntent)
+
+            // A pending snooze is a separate alarm; cancel it too so a disabled or deleted event
+            // does not ring again later.
+            val snoozeIntent =
+                Intent(context, AlarmReceiver::class.java).apply {
+                    action = ACTION_ALARM_TRIGGERED
+                    data = snoozeUri(event.uniqueIntentId)
+                }
+            val snoozePendingIntent =
+                PendingIntent.getBroadcast(
+                    context,
+                    event.uniqueIntentId,
+                    snoozeIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            alarmManager.cancel(snoozePendingIntent)
         }
+
+        private fun snoozeUri(uniqueId: Int) = "kairos://alarm/$uniqueId/snooze".toUri()
     }

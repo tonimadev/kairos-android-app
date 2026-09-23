@@ -7,6 +7,7 @@ data class AlarmUiState(
     val startTime: Long = -1L,
     val meetingUrl: String? = null,
     val eventLocation: String? = null,
+    val eventEndTime: Long = -1L,
     val sideEffects: List<AlarmSideEffect> = emptyList(),
 ) {
     val hasMeetingUrl: Boolean get() = !meetingUrl.isNullOrEmpty()

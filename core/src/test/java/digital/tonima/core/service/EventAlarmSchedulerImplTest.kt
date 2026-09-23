@@ -381,6 +381,39 @@ class EventAlarmSchedulerImplTest {
     }
 
     @Test
+    fun `snooze keeps the location and end time of the event`() {
+        createScheduler().scheduleSnooze("T", 1, 1L, 1L, null, "Room 42", 9_000L)
+
+        val intent = Shadows.shadowOf(nextAlarm().operation).savedIntent
+        assertEquals("Room 42", intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION))
+        assertEquals(9_000L, intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, -1L))
+    }
+
+    @Test
+    fun `cancel also removes a pending snooze of the event`() {
+        val event = Event(id = 10L, title = "T", startTime = 123_456_789L)
+        val scheduler = createScheduler()
+        scheduler.schedule(event)
+        scheduler.scheduleSnooze(event.title, event.uniqueIntentId, event.id, event.startTime)
+
+        scheduler.cancel(event)
+
+        assertTrue(Shadows.shadowOf(alarmManager).scheduledAlarms.isEmpty())
+    }
+
+    @Test
+    fun `cancel keeps snoozes of other events`() {
+        val cancelled = Event(id = 1L, title = "A", startTime = 1_000_000L)
+        val other = Event(id = 2L, title = "B", startTime = 2_000_000L)
+        val scheduler = createScheduler()
+        scheduler.scheduleSnooze(other.title, other.uniqueIntentId, other.id, other.startTime)
+
+        scheduler.cancel(cancelled)
+
+        assertEquals(1, Shadows.shadowOf(alarmManager).scheduledAlarms.size)
+    }
+
+    @Test
     fun `snooze does not replace the original alarm of the event`() {
         val event = Event(id = 10L, title = "T", startTime = 123_456_789L)
         val scheduler = createScheduler()

@@ -31,8 +31,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowAlarmManager
 import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowAlarmManager
 import org.robolectric.shadows.ShadowBroadcastPendingResult
 import java.util.concurrent.TimeUnit
 
@@ -285,6 +285,19 @@ class AlarmReceiverTest {
 
         verify(exactly = 0) { analytics.logEvent(Analytics.EVENT_ALARM_SNOOZE, any()) }
         verify { scheduler.scheduleSnooze("", UNIQUE_ID, -1L, -1L, null) }
+    }
+
+    @Test
+    fun `snooze keeps the location and end time for the next ring`() {
+        deliver(
+            Intent(AlarmReceiver.ACTION_SNOOZE).apply {
+                putExtra(AlarmReceiver.EXTRA_UNIQUE_ID, UNIQUE_ID)
+                putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, "Room 42")
+                putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, END_TIME)
+            },
+        )
+
+        verify { scheduler.scheduleSnooze(any(), UNIQUE_ID, any(), any(), any(), "Room 42", END_TIME) }
     }
 
     @Test

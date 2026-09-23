@@ -67,6 +67,7 @@ class WearAlarmActivity : ComponentActivity() {
         val startTime = intent?.getLongExtra(EXTRA_EVENT_START_TIME, -1L) ?: -1L
         val meetingUrl = intent?.getStringExtra(EXTRA_MEETING_URL)
         val eventLocation = intent?.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION)
+        val eventEndTime = intent?.getLongExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, -1L) ?: -1L
 
         viewModel.handleIntent(
             AlarmIntent.Init(
@@ -76,6 +77,7 @@ class WearAlarmActivity : ComponentActivity() {
                 startTime = startTime,
                 meetingUrl = meetingUrl,
                 eventLocation = eventLocation,
+                eventEndTime = eventEndTime,
             ),
         )
 
@@ -87,6 +89,7 @@ class WearAlarmActivity : ComponentActivity() {
             startTime,
             meetingUrl,
             eventLocation,
+            eventEndTime,
         )
 
         collectSideEffects()
@@ -166,6 +169,8 @@ class WearAlarmActivity : ComponentActivity() {
                                     putExtra(EXTRA_EVENT_ID, effect.eventId)
                                     putExtra(EXTRA_EVENT_START_TIME, effect.startTime)
                                     putExtra(EXTRA_MEETING_URL, effect.meetingUrl)
+                                    putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, effect.eventLocation)
+                                    putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, effect.eventEndTime)
                                 }
                             sendBroadcast(snoozeIntent)
                             viewModel.onSideEffectConsumed(effect)
