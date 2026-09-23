@@ -15,11 +15,13 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
+import digital.tonima.core.service.AlarmSchedulingWorker
 import logcat.LogPriority
 import logcat.logcat
 
 object CalendarChangeObserver {
     private const val UNIQUE_WORK_NAME = "phone-event-sync-onchange"
+    private const val RESCHEDULE_WORK_NAME = "reschedule-alarms-onchange"
     private const val DEBOUNCE_MS = 3000L
 
     @Volatile
@@ -100,7 +102,18 @@ object CalendarChangeObserver {
                 ExistingWorkPolicy.REPLACE,
                 request,
             )
-            logcat { "CalendarChangeObserver: enqueued PhoneEventSyncWorker due to calendar change." }
+            // Reschedule the phone's own alarms too, so an event edited, moved or deleted in the
+            // calendar app does not keep ringing at its old time until the next periodic run.
+            val reschedule =
+                OneTimeWorkRequestBuilder<AlarmSchedulingWorker>()
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build()
+            WorkManager.getInstance(appContext).enqueueUniqueWork(
+                RESCHEDULE_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                reschedule,
+            )
+            logcat { "CalendarChangeObserver: enqueued watch sync and alarm rescheduling due to calendar change." }
         } catch (t: Throwable) {
             logcat(LogPriority.ERROR) { "CalendarChangeObserver: failed to enqueue sync: ${t.localizedMessage}" }
         }

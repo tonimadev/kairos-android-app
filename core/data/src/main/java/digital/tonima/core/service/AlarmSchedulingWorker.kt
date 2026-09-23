@@ -82,6 +82,10 @@ class AlarmSchedulingWorker
 
                     logcat { "Encontrados ${allUpcomingEvents.size} eventos no total para os próximos 2 meses." }
 
+                    // Alarms of events that were deleted, moved or whose calendar was turned off
+                    // would otherwise still ring at the old time.
+                    scheduler.cancelAlarmsNotIn(allUpcomingEvents)
+
                     val disabledInstanceIds = appPreferencesRepository.getDisabledEventIds().firstOrNull() ?: emptySet()
                     val disabledSeriesIds = appPreferencesRepository.getDisabledSeriesIds().firstOrNull() ?: emptySet()
 
