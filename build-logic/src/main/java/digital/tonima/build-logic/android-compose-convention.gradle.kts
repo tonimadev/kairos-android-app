@@ -32,5 +32,8 @@ dependencies {
 
     add("testImplementation", libs.findLibrary("androidx-compose-ui-test-junit4").get())
     add("testImplementation", libs.findLibrary("androidx-test-core").get())
+    // ui-test-junit4 pulls espresso-core 3.5, which calls InputManager.getInstance() and breaks on
+    // the newer SDKs Robolectric runs these modules on; the catalog version fixes it.
+    add("testImplementation", libs.findLibrary("androidx-espresso-core").get())
     add("debugImplementation", libs.findLibrary("androidx-compose-ui-test-manifest").get())
 }
