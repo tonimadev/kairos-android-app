@@ -19,4 +19,11 @@ interface EventAlarmScheduler {
     )
 
     fun cancel(event: Event)
+
+    /**
+     * Cancels previously scheduled alarms whose event is no longer in [currentEvents] (deleted,
+     * moved to another time, or in a calendar that was turned off). Events that already started
+     * are left alone so an active snooze is not cancelled.
+     */
+    fun cancelAlarmsNotIn(currentEvents: Collection<Event>) {}
 }
