@@ -473,6 +473,74 @@ class CalendarRepositoryImplTest {
             assertEquals(1L, calendar.id)
         }
 
+    @Test
+    fun `declined invitations are left out of the month and every other response is kept`() =
+        runTest {
+            val cursor = attendeeStatusCursor()
+            cursor.addRow(instanceRow(301L, "Recusada", CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED))
+            cursor.addRow(instanceRow(302L, "Aceita", CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED))
+            cursor.addRow(instanceRow(303L, "Sem resposta", CalendarContract.Attendees.ATTENDEE_STATUS_INVITED))
+            cursor.addRow(instanceRow(304L, "Talvez", CalendarContract.Attendees.ATTENDEE_STATUS_TENTATIVE))
+            cursor.addRow(instanceRow(305L, "Sem convidados", CalendarContract.Attendees.ATTENDEE_STATUS_NONE))
+            every { mockContentResolver.query(any(), any(), any(), any(), any()) } returns cursor
+
+            val events =
+                repository.getEventsForMonth(
+                    YearMonth.of(2024, 5).atDay(1).toEpochDay(),
+                    ImmutableList.of(1L),
+                )
+
+            assertEquals(listOf(302L, 303L, 304L, 305L), events.map { it.id })
+        }
+
+    @Test
+    fun `the next event skips a declined invitation`() =
+        runTest {
+            val cursor = attendeeStatusCursor()
+            cursor.addRow(instanceRow(401L, "Recusada", CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED))
+            cursor.addRow(instanceRow(402L, "Aceita", CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED))
+            every { mockContentResolver.query(any(), any(), any(), any(), any()) } returns cursor
+
+            val next = repository.getNextUpcomingEvent(ImmutableList.of(1L))
+
+            assertEquals(402L, next?.id)
+        }
+
+    @Test
+    fun `the attendee status is requested from the provider`() =
+        runTest {
+            val projection = slot<Array<String>>()
+            every { mockContentResolver.query(any(), capture(projection), any(), any(), any()) } returns null
+
+            repository.getEventsForMonth(YearMonth.of(2024, 5).atDay(1).toEpochDay(), ImmutableList.of(1L))
+
+            assertTrue(projection.captured.contains(CalendarContract.Instances.SELF_ATTENDEE_STATUS))
+        }
+
+    private fun attendeeStatusCursor() =
+        MatrixCursor(upcomingCursor().columnNames + CalendarContract.Instances.SELF_ATTENDEE_STATUS)
+
+    private fun instanceRow(
+        id: Long,
+        title: String,
+        attendeeStatus: Int,
+    ) = arrayOf<Any?>(
+        id,
+        title,
+        1715760000000L + id,
+        1715763600000L + id,
+        0,
+        1L,
+        0,
+        null,
+        null,
+        null,
+        null,
+        0,
+        0,
+        attendeeStatus,
+    )
+
     private fun upcomingCursor() =
         MatrixCursor(
             arrayOf(
