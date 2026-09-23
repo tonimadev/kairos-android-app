@@ -1,0 +1,16 @@
+coverage:
+  status:
+    # New or changed lines in a PR must be covered by tests.
+    patch:
+      default:
+        target: 90%
+        threshold: 0%
+    # The overall number may only drift down by rounding noise, never by untested code.
+    project:
+      default:
+        target: auto
+        threshold: 0.5%
+
+comment:
+  layout: "condensed_header, diff, files"
+  require_changes: true

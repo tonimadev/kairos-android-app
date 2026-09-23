@@ -4,6 +4,10 @@ plugins {
 
 android {
     namespace = "digital.tonima.kairos.core.data"
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 // Shared domain/data layer: repositories + usecases consumed by 2+ features (or by :app-shell
