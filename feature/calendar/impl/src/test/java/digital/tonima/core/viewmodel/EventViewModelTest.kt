@@ -19,8 +19,10 @@ import digital.tonima.core.usecases.LogEventUseCase
 import digital.tonima.core.usecases.ScheduleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
+import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.model.DeviceCalendar
 import digital.tonima.kairos.core.model.Event
+import digital.tonima.kairos.core.model.Weather
 import digital.tonima.kairos.core.navigation.AppNavigator
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -32,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -39,6 +42,9 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -264,4 +270,100 @@ class EventViewModelTest {
             verify { mockCancelEventAlarmUseCase(match { it.id == 301L }) }
             verify { mockCancelEventAlarmUseCase(match { it.id == 302L }) }
         }
+
+    @Test
+    fun `overlapping timed events are flagged as conflicts`() =
+        runTest {
+            val base = System.currentTimeMillis() + 3_600_000L
+            val a = Event(id = 1, title = "A", startTime = base, endTime = base + 3_600_000L)
+            val b = Event(id = 2, title = "B", startTime = base + 1_800_000L, endTime = base + 5_400_000L)
+            val c = Event(id = 3, title = "C", startTime = base + 10_800_000L, endTime = base + 14_400_000L)
+
+            val events = loadEvents(a, b, c)
+
+            assertTrue(events.getValue(1).hasConflict)
+            assertTrue(events.getValue(2).hasConflict)
+            assertFalse(events.getValue(3).hasConflict)
+        }
+
+    @Test
+    fun `events less than five minutes apart are flagged as back to back`() =
+        runTest {
+            val base = System.currentTimeMillis() + 3_600_000L
+            val first = Event(id = 1, title = "First", startTime = base, endTime = base + 3_600_000L)
+            val next =
+                Event(id = 2, title = "Next", startTime = base + 3_600_000L + 240_000L, endTime = base + 7_200_000L)
+            val later = Event(id = 3, title = "Later", startTime = base + 10_800_000L, endTime = base + 14_400_000L)
+
+            val events = loadEvents(first, next, later)
+
+            assertTrue(events.getValue(1).isBackToBack)
+            assertTrue(events.getValue(2).isBackToBack)
+            assertFalse(events.getValue(3).isBackToBack)
+            assertFalse(events.getValue(1).hasConflict)
+        }
+
+    @Test
+    fun `all-day events never conflict with timed events`() =
+        runTest {
+            val base = System.currentTimeMillis() + 3_600_000L
+            val allDay =
+                Event(id = 1, title = "Holiday", startTime = base, endTime = base + 86_400_000L, isAllDay = true)
+            val meeting = Event(id = 2, title = "Meeting", startTime = base + 3_600_000L, endTime = base + 7_200_000L)
+
+            val events = loadEvents(allDay, meeting)
+
+            assertFalse(events.getValue(1).hasConflict)
+            assertFalse(events.getValue(2).hasConflict)
+        }
+
+    @Test
+    fun `weather is fetched for the current location in the chosen unit`() =
+        runTest {
+            val weather =
+                Weather(temperature = 25.0, description = "clear", icon = "01d", city = "SP", conditionCode = 800)
+            coEvery { mockGetCurrentLocationUseCase() } returns "-23.55,-46.63"
+            coEvery { mockGetWeatherUseCase(-23.55, -46.63, true, any()) } returns weather
+
+            viewModel.handleIntent(EventIntent.FetchWeather)
+            advanceUntilIdle()
+
+            assertEquals(weather, viewModel.uiState.value.weather)
+            assertFalse(viewModel.uiState.value.isWeatherLoading)
+            assertNull(viewModel.uiState.value.weatherError)
+        }
+
+    @Test
+    fun `weather reports why it could not be loaded`() =
+        runTest {
+            listOf(null, "not-a-location", "abc,def", "-23.55,-46.63").forEach { location ->
+                coEvery { mockGetCurrentLocationUseCase() } returns location
+                coEvery { mockGetWeatherUseCase(any(), any(), any(), any()) } returns null
+
+                viewModel.handleIntent(EventIntent.FetchWeather)
+                advanceUntilIdle()
+
+                assertNotNull("location=$location", viewModel.uiState.value.weatherError)
+                assertFalse(viewModel.uiState.value.isWeatherLoading)
+                assertNull(viewModel.uiState.value.weather)
+            }
+        }
+
+    @Test
+    fun `rating now remembers it and asks the store for a review`() =
+        runTest {
+            viewModel.handleIntent(EventIntent.RateNow)
+            advanceUntilIdle()
+
+            coVerify { mockUpdateAppPreferenceUseCase.setRatingCompleted(true) }
+            assertFalse(viewModel.uiState.value.showRatingBottomSheet)
+            assertEquals(EventSideEffect.RequestAppReview, viewModel.uiState.value.effect)
+        }
+
+    private fun TestScope.loadEvents(vararg events: Event): Map<Long, EventUiModel> {
+        coEvery { mockGetEventsForMonthUseCase(any()) } returns events.toList()
+        viewModel.handleIntent(EventIntent.ChangeMonth(YearMonth.now().atDay(1).toEpochDay()))
+        advanceUntilIdle()
+        return viewModel.uiState.value.events.associateBy { it.id }
+    }
 }
