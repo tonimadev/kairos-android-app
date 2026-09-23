@@ -7,6 +7,8 @@ sealed class AlarmSideEffect {
         val eventId: Long,
         val startTime: Long,
         val meetingUrl: String?,
+        val eventLocation: String?,
+        val eventEndTime: Long,
     ) : AlarmSideEffect()
 
     data object FinishScreen : AlarmSideEffect()
