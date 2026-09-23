@@ -197,7 +197,10 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.work.testing)
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
     testImplementation(libs.robolectric)
 }
 

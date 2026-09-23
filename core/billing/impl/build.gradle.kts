@@ -29,4 +29,8 @@ dependencies {
 
     ksp(libs.hilt.binder.compiler)
     ksp(libs.hilt.compiler)
+
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
 }
