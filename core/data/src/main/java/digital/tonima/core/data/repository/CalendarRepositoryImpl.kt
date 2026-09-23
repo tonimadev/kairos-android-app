@@ -424,6 +424,32 @@ class CalendarRepositoryImpl
                 return@withContext uri?.lastPathSegment?.toLongOrNull()
             }
 
+        override suspend fun rescheduleEvent(
+            eventId: Long,
+            startTime: Long,
+            endTime: Long,
+        ): Boolean =
+            withContext(Dispatchers.IO) {
+                if (!hasWriteCalendarPermission()) {
+                    logcat { "Tentativa de reagendar evento sem a permissão WRITE_CALENDAR." }
+                    return@withContext false
+                }
+
+                val values =
+                    android.content.ContentValues().apply {
+                        put(CalendarContract.Events.DTSTART, startTime)
+                        put(CalendarContract.Events.DTEND, endTime)
+                    }
+                try {
+                    val uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId)
+                    context.contentResolver.update(uri, values, null, null) > 0
+                } catch (e: IllegalArgumentException) {
+                    // The provider rejects invalid combinations (e.g. an all-day event off UTC midnight).
+                    logcat { "Calendar provider rejected rescheduling event $eventId: ${e.message}" }
+                    false
+                }
+            }
+
         private fun asSyncAdapter(
             uri: Uri,
             accountName: String,

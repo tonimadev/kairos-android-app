@@ -26,6 +26,13 @@ interface CalendarRepository {
         isAllDay: Boolean = false,
     ): Long?
 
+    /** Moves a single (non-recurring) event. Returns false when nothing was updated. */
+    suspend fun rescheduleEvent(
+        eventId: Long,
+        startTime: Long,
+        endTime: Long,
+    ): Boolean
+
     suspend fun createLocalCalendar(
         name: String,
         color: Int,

@@ -30,6 +30,8 @@ import digital.tonima.core.ai.usecases.UpdateWidgetUseCase
 import digital.tonima.core.data.usecases.CreateEventUseCase
 import digital.tonima.core.data.usecases.GetAvailableCalendarsUseCase
 import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.data.usecases.RescheduleEventUseCase
+import digital.tonima.core.data.usecases.RescheduleResult
 import digital.tonima.core.data.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.viewmodel.AiIntent.AnalyzeSchedule
@@ -56,6 +58,7 @@ import digital.tonima.core.viewmodel.AiIntent.StopSpeaking
 import digital.tonima.core.viewmodel.AiIntent.ToggleFocusMode
 import digital.tonima.core.viewmodel.AiSideEffect.AIToolError
 import digital.tonima.core.viewmodel.AiSideEffect.CalendarEventCreated
+import digital.tonima.core.viewmodel.AiSideEffect.CalendarEventUpdated
 import digital.tonima.core.viewmodel.AiSideEffect.RequireUserConfirmation
 import digital.tonima.core.viewmodel.AiSideEffect.ShowSnackbar
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleGlobalAlarms
@@ -112,6 +115,7 @@ class AiViewModel
         private val toggleFocusModeUseCase: ToggleFocusModeUseCase,
         private val createEventUseCase: CreateEventUseCase,
         private val getAvailableCalendarsUseCase: GetAvailableCalendarsUseCase,
+        private val rescheduleEventUseCase: RescheduleEventUseCase,
         private val appNavigator: AppNavigator,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(AiUiState())
@@ -511,13 +515,7 @@ class AiViewModel
                         )
                     }
                 }
-                is RescheduleEvent -> {
-                    _uiState.update {
-                        it.copy(
-                            effect = ShowSnackbar(DynamicString("Event rescheduled.")),
-                        )
-                    }
-                }
+                is RescheduleEvent -> handleRescheduleEvent(intent)
                 is EventIntent.CreateEvent -> {
                     viewModelScope.launch {
                         val eventId =
@@ -605,6 +603,35 @@ class AiViewModel
             }
         }
 
+        private fun handleRescheduleEvent(intent: RescheduleEvent) {
+            val eventId = intent.eventId.toLongOrNull()
+            if (eventId == null) {
+                _uiState.update {
+                    it.copy(
+                        effect =
+                            AIToolError(
+                                StringResource(R.string.ai_agent_invalid_args, listOf(RESCHEDULE_TOOL_NAME)),
+                            ),
+                    )
+                }
+                return
+            }
+            viewModelScope.launch {
+                val effect =
+                    when (rescheduleEventUseCase(eventId, intent.newStartTime, intent.newEndTime)) {
+                        RescheduleResult.Success ->
+                            CalendarEventUpdated(StringResource(R.string.ai_agent_event_rescheduled))
+                        RescheduleResult.RecurringNotSupported ->
+                            AIToolError(StringResource(R.string.ai_agent_reschedule_recurring_unsupported))
+                        RescheduleResult.InvalidTime ->
+                            AIToolError(StringResource(R.string.ai_agent_invalid_args, listOf(RESCHEDULE_TOOL_NAME)))
+                        RescheduleResult.Failed ->
+                            AIToolError(StringResource(R.string.ai_agent_reschedule_error))
+                    }
+                _uiState.update { it.copy(effect = effect) }
+            }
+        }
+
         private fun handleCreateFocusBlock(intent: CreateFocusBlock) {
             viewModelScope.launch {
                 val calendars = getAvailableCalendarsUseCase()
@@ -651,4 +678,8 @@ class AiViewModel
                 }
                 else -> StringResource(R.string.ai_agent_generic_confirmation, listOf(tool.name))
             }
+
+        private companion object {
+            const val RESCHEDULE_TOOL_NAME = "reschedule_event"
+        }
     }

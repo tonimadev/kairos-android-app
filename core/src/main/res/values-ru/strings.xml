@@ -313,4 +313,7 @@
     <string name="import_calendar_error_no_events">В файле ICS не найдено событий</string>
     <string name="import_calendar_error_create_calendar">Не удалось создать локальный календарь. Проверьте разрешения для Календаря.</string>
     <string name="import_calendar_error_generic">Не удалось импортировать календарь. Проверьте URL или файл и повторите попытку.</string>
+    <string name="ai_agent_event_rescheduled">Событие перенесено в календаре.</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">Ассистент пока не может переносить повторяющиеся события. Измените событие в приложении календаря.</string>
+    <string name="ai_agent_reschedule_error">Не удалось перенести событие в календаре.</string>
 </resources>

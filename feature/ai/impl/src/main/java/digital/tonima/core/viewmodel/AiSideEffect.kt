@@ -19,4 +19,7 @@ sealed class AiSideEffect {
      * calendar events must reload them, then [message] can be shown to the user.
      */
     data class CalendarEventCreated(val message: UiText) : AiSideEffect()
+
+    /** The AI changed an existing calendar event; reload cached events, then show [message]. */
+    data class CalendarEventUpdated(val message: UiText) : AiSideEffect()
 }

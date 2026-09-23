@@ -309,4 +309,7 @@
     <string name="import_calendar_error_no_events">ICS 文件中未找到任何活动</string>
     <string name="import_calendar_error_create_calendar">无法创建本地日历。请检查日历权限。</string>
     <string name="import_calendar_error_generic">无法导入日历。请检查网址或文件后重试。</string>
+    <string name="ai_agent_event_rescheduled">已在日历中重新安排活动。</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">助手暂时无法重新安排重复活动。请在日历应用中修改该活动。</string>
+    <string name="ai_agent_reschedule_error">无法在日历中重新安排该活动。</string>
 </resources>

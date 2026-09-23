@@ -309,4 +309,7 @@
     <string name="import_calendar_error_no_events">ICS ファイルに予定が見つかりませんでした</string>
     <string name="import_calendar_error_create_calendar">ローカルカレンダーを作成できませんでした。カレンダーの権限を確認してください。</string>
     <string name="import_calendar_error_generic">カレンダーをインポートできませんでした。URL またはファイルを確認して、もう一度お試しください。</string>
+    <string name="ai_agent_event_rescheduled">カレンダーの予定を変更しました。</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">繰り返しの予定はまだアシスタントで変更できません。カレンダーアプリで変更してください。</string>
+    <string name="ai_agent_reschedule_error">カレンダーの予定を変更できませんでした。</string>
 </resources>

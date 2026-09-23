@@ -315,4 +315,7 @@
     <string name="import_calendar_error_no_events">No se encontraron eventos en el archivo ICS</string>
     <string name="import_calendar_error_create_calendar">No se pudo crear el calendario local. Revisa los permisos de Calendario.</string>
     <string name="import_calendar_error_generic">No se pudo importar el calendario. Revisa la URL o el archivo e inténtalo de nuevo.</string>
+    <string name="ai_agent_event_rescheduled">Evento reprogramado en tu calendario.</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">El asistente aún no puede reprogramar eventos recurrentes. Cambia la ocurrencia en tu app de calendario.</string>
+    <string name="ai_agent_reschedule_error">No se pudo reprogramar el evento en tu calendario.</string>
 </resources>

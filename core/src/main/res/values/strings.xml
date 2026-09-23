@@ -317,4 +317,7 @@
     <string name="import_calendar_error_no_events">Nenhum evento encontrado no arquivo ICS</string>
     <string name="import_calendar_error_create_calendar">Falha ao criar o calendário local. Verifique as permissões de Calendário.</string>
     <string name="import_calendar_error_generic">Não foi possível importar o calendário. Verifique a URL ou o arquivo e tente novamente.</string>
+    <string name="ai_agent_event_rescheduled">Evento reagendado no calendário.</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">Ainda não é possível reagendar eventos recorrentes pelo assistente. Altere a ocorrência pelo app de calendário.</string>
+    <string name="ai_agent_reschedule_error">Não foi possível reagendar o evento no calendário.</string>
 </resources>

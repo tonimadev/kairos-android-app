@@ -24,6 +24,8 @@ import digital.tonima.core.ai.usecases.UpdateWidgetUseCase
 import digital.tonima.core.data.usecases.CreateEventUseCase
 import digital.tonima.core.data.usecases.GetAvailableCalendarsUseCase
 import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.data.usecases.RescheduleEventUseCase
+import digital.tonima.core.data.usecases.RescheduleResult
 import digital.tonima.core.data.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.database.entity.ConversationEntity
 import digital.tonima.core.delegates.ProUserProvider
@@ -86,6 +88,7 @@ class AiViewModelTest {
     private val mockToggleFocusModeUseCase: ToggleFocusModeUseCase = mockk(relaxed = true)
     private val mockCreateEventUseCase: CreateEventUseCase = mockk(relaxed = true)
     private val mockGetAvailableCalendarsUseCase: GetAvailableCalendarsUseCase = mockk(relaxed = true)
+    private val mockRescheduleEventUseCase: RescheduleEventUseCase = mockk()
     private val mockAppNavigator: AppNavigator = mockk(relaxed = true)
 
     private val dailyBriefingFlow = MutableStateFlow<String?>(null)
@@ -156,6 +159,7 @@ class AiViewModelTest {
             toggleFocusModeUseCase = mockToggleFocusModeUseCase,
             createEventUseCase = mockCreateEventUseCase,
             getAvailableCalendarsUseCase = mockGetAvailableCalendarsUseCase,
+            rescheduleEventUseCase = mockRescheduleEventUseCase,
             appNavigator = mockAppNavigator,
         )
 
@@ -636,5 +640,44 @@ class AiViewModelTest {
             assertEquals(12L, viewModel.uiState.value.selectedConversationId)
             verify { mockAppNavigator.navigateTo(AiNavKey.ChatDetail(12L)) }
             verify { mockAskAiAgentUseCase(any(), "O que tenho hoje?", "pt", any(), any()) }
+        }
+
+    @Test
+    fun `rescheduling moves the event and refreshes the calendar`() =
+        runTest {
+            coEvery { mockRescheduleEventUseCase(42L, 5_000L, 6_000L) } returns RescheduleResult.Success
+
+            viewModel.handleIntent(AiIntent.RescheduleEvent("42", 5_000L, 6_000L))
+            runCurrent()
+
+            coVerify { mockRescheduleEventUseCase(42L, 5_000L, 6_000L) }
+            assertTrue(viewModel.uiState.value.effect is AiSideEffect.CalendarEventUpdated)
+        }
+
+    @Test
+    fun `rescheduling failures are reported instead of claiming success`() =
+        runTest {
+            listOf(
+                RescheduleResult.RecurringNotSupported,
+                RescheduleResult.InvalidTime,
+                RescheduleResult.Failed,
+            ).forEach { result ->
+                coEvery { mockRescheduleEventUseCase(any(), any(), any()) } returns result
+
+                viewModel.handleIntent(AiIntent.RescheduleEvent("42", 5_000L, 6_000L))
+                runCurrent()
+
+                assertTrue(result.toString(), viewModel.uiState.value.effect is AiSideEffect.AIToolError)
+            }
+        }
+
+    @Test
+    fun `an unknown event id is rejected without touching the calendar`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.RescheduleEvent("not-an-id", 5_000L, 6_000L))
+            runCurrent()
+
+            coVerify(exactly = 0) { mockRescheduleEventUseCase(any(), any(), any()) }
+            assertTrue(viewModel.uiState.value.effect is AiSideEffect.AIToolError)
         }
 }

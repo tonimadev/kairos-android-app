@@ -313,4 +313,7 @@
     <string name="import_calendar_error_no_events">Aucun événement trouvé dans le fichier ICS</string>
     <string name="import_calendar_error_create_calendar">Impossible de créer le calendrier local. Vérifiez les autorisations d\'Agenda.</string>
     <string name="import_calendar_error_generic">Impossible d\'importer le calendrier. Vérifiez l\'URL ou le fichier et réessayez.</string>
+    <string name="ai_agent_event_rescheduled">Événement reprogrammé dans votre agenda.</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">L\'assistant ne peut pas encore reprogrammer les événements récurrents. Modifiez l\'occurrence dans votre application d\'agenda.</string>
+    <string name="ai_agent_reschedule_error">Impossible de reprogrammer l\'événement dans votre agenda.</string>
 </resources>
