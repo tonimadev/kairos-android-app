@@ -21,10 +21,12 @@ import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
+import digital.tonima.core.sync.WearSyncSchema.KEY_END
 import digital.tonima.core.sync.WearSyncSchema.KEY_EVENTS
 import digital.tonima.core.sync.WearSyncSchema.KEY_GENERATED_AT
 import digital.tonima.core.sync.WearSyncSchema.KEY_ID
 import digital.tonima.core.sync.WearSyncSchema.KEY_LOCATION
+import digital.tonima.core.sync.WearSyncSchema.KEY_MEETING_URL
 import digital.tonima.core.sync.WearSyncSchema.KEY_RECUR
 import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
@@ -77,6 +79,8 @@ class PhoneEventSyncWorker
                     dm.putLong(KEY_ID, e.id)
                     dm.putString(KEY_TITLE, e.title)
                     dm.putLong(KEY_START, e.startTime)
+                    dm.putLong(KEY_END, e.endTime)
+                    e.meetingUrl?.takeIf { it.isNotBlank() }?.let { dm.putString(KEY_MEETING_URL, it) }
                     dm.putBoolean(KEY_RECUR, e.isRecurring)
                     dm.putBoolean(KEY_ALL_DAY, e.isAllDay)
 

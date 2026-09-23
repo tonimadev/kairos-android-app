@@ -7,6 +7,8 @@ object WearSyncSchema {
     const val KEY_ID = "id"
     const val KEY_TITLE = "title"
     const val KEY_START = "start"
+    const val KEY_END = "end"
+    const val KEY_MEETING_URL = "meeting_url"
     const val KEY_RECUR = "recurring"
     const val KEY_ALL_DAY = "all_day"
     const val KEY_LOCATION = "location"
