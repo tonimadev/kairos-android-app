@@ -80,7 +80,7 @@ class CalendarChangeTriggersTest {
     // region CalendarChangeObserver
 
     @Test
-    fun `a burst of calendar changes triggers a single watch sync after the debounce`() {
+    fun `a burst of calendar changes triggers one watch sync and one alarm reschedule after the debounce`() {
         shadowOf(app).grantPermissions(Manifest.permission.READ_CALENDAR)
         CalendarChangeObserver.init(app)
 
@@ -91,6 +91,7 @@ class CalendarChangeTriggersTest {
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
         assertEnqueued(OBSERVER_WORK, PhoneEventSyncWorker::class.java)
+        assertEnqueued(RESCHEDULE_WORK, AlarmSchedulingWorker::class.java)
     }
 
     @Test
@@ -101,6 +102,7 @@ class CalendarChangeTriggersTest {
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(5))
 
         assertTrue(workInfos(OBSERVER_WORK).isEmpty())
+        assertTrue(workInfos(RESCHEDULE_WORK).isEmpty())
     }
 
     // endregion
@@ -137,5 +139,6 @@ class CalendarChangeTriggersTest {
 
     private companion object {
         const val OBSERVER_WORK = "phone-event-sync-onchange"
+        const val RESCHEDULE_WORK = "reschedule-alarms-onchange"
     }
 }

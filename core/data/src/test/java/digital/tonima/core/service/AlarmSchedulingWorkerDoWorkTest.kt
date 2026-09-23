@@ -258,6 +258,19 @@ class AlarmSchedulingWorkerDoWorkTest {
         }
 
     @Test
+    fun `alarms of events no longer in the calendar are cancelled on every run`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val thisMonth = timedEvent(1, now + hours(2))
+            val nextMonth = timedEvent(2, now + TimeUnit.DAYS.toMillis(20))
+            coEvery { getEventsForMonth(any()) } returnsMany listOf(listOf(thisMonth), listOf(nextMonth))
+
+            worker().doWork()
+
+            verify { scheduler.cancelAlarmsNotIn(listOf(thisMonth, nextMonth)) }
+        }
+
+    @Test
     fun `worker reports failure when loading events throws`() =
         runTest {
             coEvery { getEventsForMonth(any()) } throws SecurityException("calendar provider unavailable")

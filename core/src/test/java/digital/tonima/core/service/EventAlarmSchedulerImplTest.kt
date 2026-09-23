@@ -424,6 +424,87 @@ class EventAlarmSchedulerImplTest {
         assertEquals(2, Shadows.shadowOf(alarmManager).scheduledAlarms.size)
     }
 
+    @Test
+    fun `alarms of events deleted from the calendar are cancelled`() {
+        val kept = Event(id = 1L, title = "Kept", startTime = 1_000_000L)
+        val deleted = Event(id = 2L, title = "Deleted", startTime = 2_000_000L)
+        val scheduler = createScheduler()
+        scheduler.schedule(kept)
+        scheduler.schedule(deleted)
+
+        scheduler.cancelAlarmsNotIn(listOf(kept))
+
+        assertEquals(listOf(kept.uniqueIntentId), scheduledIds())
+    }
+
+    @Test
+    fun `moving an event cancels the alarm at its old time`() {
+        val before = Event(id = 1L, title = "Meeting", startTime = 1_000_000L)
+        val after = before.copy(startTime = 5_000_000L)
+        val scheduler = createScheduler()
+        scheduler.schedule(before)
+        scheduler.schedule(after)
+
+        scheduler.cancelAlarmsNotIn(listOf(after))
+
+        assertEquals(listOf(after.uniqueIntentId), scheduledIds())
+    }
+
+    @Test
+    fun `a deleted event does not ring after being snoozed either`() {
+        val deleted = Event(id = 2L, title = "Deleted", startTime = 2_000_000L)
+        val scheduler = createScheduler()
+        scheduler.schedule(deleted)
+        scheduler.scheduleSnooze(deleted.title, deleted.uniqueIntentId, deleted.id, deleted.startTime)
+
+        scheduler.cancelAlarmsNotIn(emptyList())
+
+        assertTrue(Shadows.shadowOf(alarmManager).scheduledAlarms.isEmpty())
+    }
+
+    @Test
+    fun `events that already started keep their alarm and snooze`() {
+        val scheduler = createScheduler()
+        val meeting = Event(id = 1L, title = "Meeting", startTime = 1_000_000L)
+        scheduler.schedule(meeting)
+        scheduler.scheduleSnooze(meeting.title, meeting.uniqueIntentId, meeting.id, meeting.startTime)
+
+        // The meeting started; the calendar window no longer returns it.
+        scheduler.clock = Clock.fixed(Instant.ofEpochMilli(1_500_000L), ZoneId.systemDefault())
+        scheduler.cancelAlarmsNotIn(emptyList())
+
+        assertEquals(2, Shadows.shadowOf(alarmManager).scheduledAlarms.size)
+    }
+
+    @Test
+    fun `scheduled alarms are remembered across scheduler instances`() {
+        val deleted = Event(id = 2L, title = "Deleted", startTime = 2_000_000L)
+        createScheduler().schedule(deleted)
+
+        // The worker usually runs in a new process with a new scheduler instance.
+        createScheduler().cancelAlarmsNotIn(emptyList())
+
+        assertTrue(Shadows.shadowOf(alarmManager).scheduledAlarms.isEmpty())
+    }
+
+    @Test
+    fun `alarms cancelled directly are not cancelled again later`() {
+        val event = Event(id = 1L, title = "T", startTime = 1_000_000L)
+        val scheduler = createScheduler()
+        scheduler.schedule(event)
+        scheduler.cancel(event)
+        scheduler.schedule(event.copy(id = 9L))
+
+        scheduler.cancelAlarmsNotIn(listOf(event.copy(id = 9L)))
+
+        assertEquals(listOf(event.copy(id = 9L).uniqueIntentId), scheduledIds())
+    }
+
+    private fun scheduledIds() =
+        Shadows.shadowOf(alarmManager).scheduledAlarms.map {
+            Shadows.shadowOf(it.operation).savedIntent.getIntExtra(AlarmReceiver.EXTRA_UNIQUE_ID, -1)
+        }
+
     private fun nextAlarm(): ShadowAlarmManager.ScheduledAlarm {
         val alarm = Shadows.shadowOf(alarmManager).peekNextScheduledAlarm()
         assertNotNull("An alarm should have been scheduled", alarm)

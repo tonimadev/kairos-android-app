@@ -40,6 +40,10 @@ class EventAlarmSchedulerImpl
 
         private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
+        // Event id + start of every alarm scheduled here, so alarms of events that were later
+        // deleted or moved can be found and cancelled (see cancelAlarmsNotIn).
+        private val scheduledAlarms = context.getSharedPreferences(SCHEDULED_ALARMS_PREFS, Context.MODE_PRIVATE)
+
         override fun schedule(
             event: Event,
             triggerTime: Long?,
@@ -163,6 +167,7 @@ class EventAlarmSchedulerImpl
                         "FALLBACK: Alarm scheduled INEXACT (exact alarms not permitted) for event: ${event.title}"
                     }
                 }
+                rememberScheduled(event)
             } catch (e: SecurityException) {
                 logcat {
                     "ERROR: Could not schedule alarm for event ${event.title}: ${e.message}"
@@ -270,7 +275,58 @@ class EventAlarmSchedulerImpl
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             alarmManager.cancel(snoozePendingIntent)
+            forgetScheduled(event)
+        }
+
+        override fun cancelAlarmsNotIn(currentEvents: Collection<Event>) {
+            val now = clock.millis()
+            val current = currentEvents.map { alarmKey(it.id, it.startTime) }.toSet()
+            val stale =
+                synchronized(scheduledAlarms) {
+                    scheduledAlarms
+                        .getStringSet(KEY_SCHEDULED, emptySet())
+                        .orEmpty()
+                        .filter { it !in current }
+                        .mapNotNull(::eventFromKey)
+                        // Started events drop out of the calendar window but may have a snooze pending.
+                        .filter { it.startTime > now }
+                }
+            stale.forEach { event ->
+                logcat { "Cancelling alarm of event ${event.id} at ${event.startTime}: no longer in the calendar." }
+                cancel(event)
+            }
+            pruneStarted(now)
+        }
+
+        private fun rememberScheduled(event: Event) = updateScheduled { it + alarmKey(event.id, event.startTime) }
+
+        private fun forgetScheduled(event: Event) = updateScheduled { it - alarmKey(event.id, event.startTime) }
+
+        private fun pruneStarted(now: Long) =
+            updateScheduled { keys -> keys.filterTo(mutableSetOf()) { (eventFromKey(it)?.startTime ?: 0L) > now } }
+
+        private fun updateScheduled(transform: (Set<String>) -> Set<String>) {
+            synchronized(scheduledAlarms) {
+                val keys = scheduledAlarms.getStringSet(KEY_SCHEDULED, emptySet()).orEmpty()
+                scheduledAlarms.edit().putStringSet(KEY_SCHEDULED, transform(keys)).apply()
+            }
+        }
+
+        private fun alarmKey(
+            eventId: Long,
+            startTime: Long,
+        ) = "$eventId:$startTime"
+
+        private fun eventFromKey(key: String): Event? {
+            val id = key.substringBefore(':').toLongOrNull() ?: return null
+            val start = key.substringAfter(':').toLongOrNull() ?: return null
+            return Event(id = id, title = "", startTime = start)
         }
 
         private fun snoozeUri(uniqueId: Int) = "kairos://alarm/$uniqueId/snooze".toUri()
+
+        private companion object {
+            const val SCHEDULED_ALARMS_PREFS = "scheduled_event_alarms"
+            const val KEY_SCHEDULED = "scheduled"
+        }
     }
