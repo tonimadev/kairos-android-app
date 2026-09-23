@@ -27,6 +27,8 @@ import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.data.usecases.ToggleFocusModeUseCase
 import digital.tonima.core.database.entity.ConversationEntity
 import digital.tonima.core.delegates.ProUserProvider
+import digital.tonima.feature.ai.bridge.AiNavKey
+import digital.tonima.kairos.core.model.DeviceCalendar
 import digital.tonima.kairos.core.navigation.AppNavigator
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -435,5 +437,204 @@ class AiViewModelTest {
             val state = viewModel.uiState.value
             assertEquals("Hello world", state.aiResponse)
             assertNull(state.streamingText)
+        }
+
+    @Test
+    fun `an event dictated by voice opens the create dialog instead of being read aloud`() =
+        runTest {
+            isAiUserFlow.value = true
+            runCurrent()
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(
+                    AIAgentResponse.Text(
+                        """{"title": "Dentista", "description": "Levar exames", "location": "Rua Augusta", """ +
+                            """"startTime": 1800000000000, "endTime": 1800003600000, "isAllDay": false}""",
+                    ),
+                )
+
+            viewModel.handleIntent(AiIntent.AskAi("Marque dentista amanhã às 10h", "pt"))
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
+
+            val state = viewModel.uiState.value
+            assertEquals(
+                VoiceEventData(
+                    title = "Dentista",
+                    description = "Levar exames",
+                    location = "Rua Augusta",
+                    startTime = 1_800_000_000_000L,
+                    endTime = 1_800_003_600_000L,
+                    isAllDay = false,
+                ),
+                state.voiceEventData,
+            )
+            assertNull("The raw JSON must not be shown or spoken", state.aiResponse)
+        }
+
+    @Test
+    fun `a dictated all-day event with only a title keeps the optional fields empty`() =
+        runTest {
+            isAiUserFlow.value = true
+            runCurrent()
+            every { mockAskAiAgentUseCase(any(), any(), any(), any(), any()) } returns
+                flowOf(AIAgentResponse.Text("""{"title": "Feriado", "isAllDay": true}"""))
+
+            viewModel.handleIntent(AiIntent.AskAi("Feriado amanhã", "pt"))
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
+
+            assertEquals(VoiceEventData(title = "Feriado", isAllDay = true), viewModel.uiState.value.voiceEventData)
+        }
+
+    @Test
+    fun `json-looking text without a title is shown as a normal answer`() =
+        runTest {
+            isAiUserFlow.value = true
+            runCurrent()
+            val answer = """Use {"title": } to name it"""
+            every {
+                mockAskAiAgentUseCase(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns flowOf(AIAgentResponse.Text(answer))
+
+            viewModel.handleIntent(AiIntent.AskAi("?", "pt"))
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
+
+            assertEquals(answer, viewModel.uiState.value.aiResponse)
+            assertNull(viewModel.uiState.value.voiceEventData)
+        }
+
+    @Test
+    fun `a focus block is created in the first calendar`() =
+        runTest {
+            coEvery { mockGetAvailableCalendarsUseCase() } returns
+                listOf(DeviceCalendar(id = 5L, displayName = "Work", accountName = "me@company.com"))
+            coEvery { mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any()) } returns 99L
+
+            viewModel.handleIntent(AiIntent.CreateFocusBlock(startTime = 1_000L, endTime = 2_000L, title = "Foco"))
+            runCurrent()
+
+            coVerify {
+                mockCreateEventUseCase(
+                    calendarId = 5L,
+                    title = "Foco",
+                    description = any(),
+                    location = null,
+                    startTime = 1_000L,
+                    endTime = 2_000L,
+                    isAllDay = false,
+                )
+            }
+            assertTrue(viewModel.uiState.value.effect is AiSideEffect.CalendarEventCreated)
+        }
+
+    @Test
+    fun `a focus block is not created without any calendar`() =
+        runTest {
+            coEvery { mockGetAvailableCalendarsUseCase() } returns emptyList()
+
+            viewModel.handleIntent(AiIntent.CreateFocusBlock(startTime = 1_000L, endTime = 2_000L))
+            runCurrent()
+
+            coVerify(exactly = 0) { mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any()) }
+        }
+
+    @Test
+    fun `a failed focus block creation is reported`() =
+        runTest {
+            coEvery { mockGetAvailableCalendarsUseCase() } returns
+                listOf(DeviceCalendar(id = 5L, displayName = "Work", accountName = "a"))
+            coEvery { mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any()) } returns null
+
+            viewModel.handleIntent(AiIntent.CreateFocusBlock(startTime = 1_000L, endTime = 2_000L))
+            runCurrent()
+
+            assertTrue(viewModel.uiState.value.effect is AiSideEffect.AIToolError)
+        }
+
+    @Test
+    fun `focus mode without do-not-disturb access explains what is missing`() =
+        runTest {
+            every { mockToggleFocusModeUseCase(true) } returns Result.failure(SecurityException("no DND access"))
+
+            viewModel.handleIntent(AiIntent.ToggleFocusMode(true))
+            runCurrent()
+
+            assertTrue(viewModel.uiState.value.effect is AiSideEffect.AIToolError)
+        }
+
+    @Test
+    fun `suggestions dialog can be shown and dismissed`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.ShowAiSuggestionsDialog)
+            runCurrent()
+            assertTrue(viewModel.uiState.value.showAiSuggestionsDialog)
+
+            viewModel.handleIntent(AiIntent.DismissAiSuggestionsDialog)
+            runCurrent()
+            assertFalse(viewModel.uiState.value.showAiSuggestionsDialog)
+        }
+
+    @Test
+    fun `deleting the open conversation also closes it`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.OpenChatDetail(7L))
+            runCurrent()
+
+            viewModel.handleIntent(AiIntent.DeleteChat(7L))
+            runCurrent()
+
+            coVerify { mockDeleteConversationUseCase(7L) }
+            assertNull(viewModel.uiState.value.selectedConversationId)
+            verify { mockAppNavigator.popBackStack() }
+        }
+
+    @Test
+    fun `deleting another conversation keeps the open one`() =
+        runTest {
+            viewModel.handleIntent(AiIntent.OpenChatDetail(7L))
+            runCurrent()
+
+            viewModel.handleIntent(AiIntent.DeleteChat(8L))
+            runCurrent()
+
+            assertEquals(7L, viewModel.uiState.value.selectedConversationId)
+            verify(exactly = 0) { mockAppNavigator.popBackStack() }
+        }
+
+    @Test
+    fun `a new chat with a first question asks it right away`() =
+        runTest {
+            isAiUserFlow.value = true
+            coEvery { mockCreateConversationUseCase("Agenda") } returns 12L
+            every {
+                mockAskAiAgentUseCase(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns flowOf(AIAgentResponse.Text("ok"))
+
+            viewModel.handleIntent(
+                AiIntent.CreateNewChat("Agenda", initialQuestion = "O que tenho hoje?", language = "pt"),
+            )
+            runCurrent()
+            advanceTimeBy(1000.milliseconds)
+            runCurrent()
+
+            assertEquals(12L, viewModel.uiState.value.selectedConversationId)
+            verify { mockAppNavigator.navigateTo(AiNavKey.ChatDetail(12L)) }
+            verify { mockAskAiAgentUseCase(any(), "O que tenho hoje?", "pt", any(), any()) }
         }
 }
