@@ -3,21 +3,37 @@ package digital.tonima.kairos.wear.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.wearable.MessageClient
+import com.google.android.gms.wearable.Node
+import com.google.android.gms.wearable.NodeClient
+import com.google.android.gms.wearable.Wearable
 import digital.tonima.core.data.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.data.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.core.sync.WearSyncSchema.PATH_REQUEST_SYNC
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.sync.SyncActions
 import digital.tonima.kairos.wear.sync.WearEventCache
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -391,4 +407,113 @@ class WearCalendarViewModelTest {
                     ?.isAlarmEnabled,
             )
         }
+
+    @After
+    fun tearDown() {
+        unmockkStatic(Wearable::class)
+    }
+
+    @Test
+    fun `rescan asks every connected phone to sync`() {
+        val phone = mockk<Node> { every { id } returns "phone-1" }
+        val otherPhone = mockk<Node> { every { id } returns "phone-2" }
+        val messageClient =
+            mockk<MessageClient> {
+                every { sendMessage("phone-1", PATH_REQUEST_SYNC, any()) } returns Tasks.forResult(1)
+                every { sendMessage("phone-2", PATH_REQUEST_SYNC, any()) } returns
+                    Tasks.forException(IllegalStateException("offline"))
+            }
+        givenWearable(Tasks.forResult(listOf(phone, otherPhone)), messageClient)
+        val vm = createVm(FakePrefsRepo())
+
+        vm.requestRescan()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        verify { messageClient.sendMessage("phone-1", PATH_REQUEST_SYNC, any()) }
+        verify { messageClient.sendMessage("phone-2", PATH_REQUEST_SYNC, any()) }
+    }
+
+    @Test
+    fun `rescan still reloads the cache when no phone can be reached`() {
+        givenWearable(Tasks.forException(IllegalStateException("no nodes")), mockk())
+        val now = System.currentTimeMillis()
+        WearEventCache.save(context, listOf(Event(7, "Cached", now + 60_000L)))
+        val vm = createVm(FakePrefsRepo())
+
+        vm.requestRescan()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(7L, vm.next24hEvents.value.single().id)
+    }
+
+    @Test
+    fun `rescan survives the Wearable API being unavailable`() {
+        mockkStatic(Wearable::class)
+        every { Wearable.getNodeClient(any<Context>()) } throws IllegalStateException("no play services")
+        val vm = createVm(FakePrefsRepo())
+
+        vm.requestRescan()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(emptyList<EventUiModel>(), vm.next24hEvents.value)
+    }
+
+    @Test
+    fun `ReloadFromCache picks up a new cache`() {
+        val vm = createVm(FakePrefsRepo())
+        WearEventCache.save(context, listOf(Event(8, "Novo", System.currentTimeMillis() + 60_000L)))
+
+        vm.handleIntent(WearCalendarIntent.ReloadFromCache)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(8L, vm.next24hEvents.value.single().id)
+    }
+
+    @Test
+    @Config(sdk = [33])
+    fun `on Android 13 the update broadcast is still received`() {
+        val vm = createVm(FakePrefsRepo())
+        WearEventCache.save(context, listOf(Event(9, "T", System.currentTimeMillis() + 60_000L)))
+
+        context.sendBroadcast(Intent(SyncActions.ACTION_EVENTS_UPDATED).setPackage(context.packageName))
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(9L, vm.next24hEvents.value.single().id)
+    }
+
+    @Test
+    fun `a cleared view model stops listening for updates`() {
+        val store = ViewModelStore()
+        val vm =
+            ViewModelProvider.create(
+                store,
+                viewModelFactory {
+                    initializer {
+                        WearCalendarViewModel(
+                            context,
+                            ObserveAppPreferencesUseCase(FakePrefsRepo()),
+                            UpdateAppPreferenceUseCase(FakePrefsRepo()),
+                        )
+                    }
+                },
+            )[WearCalendarViewModel::class]
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        store.clear()
+        WearEventCache.save(context, listOf(Event(10, "Late", System.currentTimeMillis() + 60_000L)))
+        context.sendBroadcast(Intent(SyncActions.ACTION_EVENTS_UPDATED))
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(emptyList<EventUiModel>(), vm.next24hEvents.value)
+    }
+
+    private fun givenWearable(
+        nodes: com.google.android.gms.tasks.Task<List<Node>>,
+        messageClient: MessageClient,
+    ) {
+        val nodeClient = mockk<NodeClient> { every { connectedNodes } returns nodes }
+        mockkStatic(Wearable::class)
+        every { Wearable.getNodeClient(any<Context>()) } returns nodeClient
+        every { Wearable.getMessageClient(any<Context>()) } returns messageClient
+    }
 }

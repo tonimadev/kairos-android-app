@@ -1,11 +1,13 @@
 package digital.tonima.core.viewmodel
 
+import android.content.ContentResolver
 import android.content.Context
 import digital.tonima.core.usecases.ImportIcsException
 import digital.tonima.core.usecases.ImportIcsUseCase
 import digital.tonima.kairos.core.R
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -173,6 +175,22 @@ class ImportCalendarViewModelTest {
 
         assertFalse(state.isSuccess)
         assertEquals(message(R.string.import_calendar_error_generic), state.error)
+        coVerify(exactly = 0) { importIcs(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `a file that cannot be opened is reported as unreadable`() {
+        val resolver = mockk<ContentResolver> { every { openInputStream(any()) } returns null }
+        val emptyProviderContext = mockk<Context> { every { contentResolver } returns resolver }
+        val viewModel = ImportCalendarViewModel(importIcs, emptyProviderContext)
+        viewModel.handleIntent(ImportCalendarIntent.UpdateName("Feriados"))
+        viewModel.handleIntent(ImportCalendarIntent.FileSelected("content://digital.tonima.missing/holidays.ics"))
+
+        viewModel.handleIntent(ImportCalendarIntent.SubmitImport)
+        val state = viewModel.awaitIdle()
+
+        assertFalse(state.isSuccess)
+        assertEquals(message(R.string.import_calendar_error_read_file), state.error)
         coVerify(exactly = 0) { importIcs(any(), any(), any(), any()) }
     }
 

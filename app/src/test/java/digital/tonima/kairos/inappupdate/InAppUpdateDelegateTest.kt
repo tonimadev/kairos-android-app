@@ -7,13 +7,19 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.core.app.ActivityOptionsCompat
+import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.InstallState
+import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.InstallStatus
 import digital.tonima.core.inappupdate.InAppUpdateManager
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -109,6 +115,58 @@ class InAppUpdateDelegateTest {
 
         assertTrue("completeFlexibleUpdate should be called after action", fakeManager.completeFlexibleUpdateCalled)
     }
+
+    @Test
+    fun theListenerLivesFromOnCreateUntilOnDestroy() {
+        val appUpdateManager = mockk<AppUpdateManager>(relaxed = true)
+        val registered = slot<InstallStateUpdatedListener>()
+        val delegate = delegateWith(appUpdateManager)
+
+        delegate.onCreate()
+        verify { appUpdateManager.registerListener(capture(registered)) }
+
+        delegate.onDestroy()
+        verify { appUpdateManager.unregisterListener(registered.captured) }
+    }
+
+    @Test
+    fun anInstalledUpdateStopsListening() {
+        val appUpdateManager = mockk<AppUpdateManager>(relaxed = true)
+        val registered = slot<InstallStateUpdatedListener>()
+        delegateWith(appUpdateManager).onCreate()
+        verify { appUpdateManager.registerListener(capture(registered)) }
+
+        listOf(InstallStatus.DOWNLOADING, InstallStatus.INSTALLING, InstallStatus.PENDING).forEach {
+            registered.captured.onStateUpdate(FakeInstallState(it))
+        }
+        verify(exactly = 0) { appUpdateManager.unregisterListener(any()) }
+
+        registered.captured.onStateUpdate(FakeInstallState(InstallStatus.INSTALLED))
+        verify { appUpdateManager.unregisterListener(registered.captured) }
+    }
+
+    @Test
+    fun dismissingTheDownloadedSnackbarDoesNotRestart() {
+        val appUpdateManager = mockk<AppUpdateManager>(relaxed = true)
+        val registered = slot<InstallStateUpdatedListener>()
+        delegateWith(appUpdateManager).onCreate()
+        verify { appUpdateManager.registerListener(capture(registered)) }
+
+        registered.captured.onStateUpdate(FakeInstallState(InstallStatus.DOWNLOADED))
+        snackbarHostState.currentSnackbarData?.dismiss()
+
+        assertFalse(fakeManager.completeFlexibleUpdateCalled)
+    }
+
+    private fun delegateWith(appUpdateManager: AppUpdateManager) =
+        InAppUpdateDelegate(
+            activity = activity,
+            inAppUpdateManager = fakeManager,
+            snackbarHostState = snackbarHostState,
+            coroutineScope = scope,
+            updateLauncher = launcher,
+            appUpdateManager = appUpdateManager,
+        )
 
     private class DummyLauncher : ActivityResultLauncher<IntentSenderRequest>() {
         override val contract: ActivityResultContract<IntentSenderRequest, Any?> =
