@@ -18,6 +18,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
+    // Emits unit-test coverage data consumed by :createJacocoMergedCoverageReport.
+    buildTypes {
+        getByName("debug") { enableUnitTestCoverage = true }
+    }
+
     kotlin { jvmToolchain(21) }
 }
 

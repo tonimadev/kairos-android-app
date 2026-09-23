@@ -37,7 +37,12 @@ tasks.register<JacocoReport>("createJacocoDebugCoverageReport") {
             "**/Manifest*.*",
             "**/*Test*.*",
             "android/**/*.*", // DI, generated code
+            "hilt_aggregated_deps/**",
+            "dagger/**",
+            "**/Hilt_*.class",
             "**/*_Hilt*.class",
+            "**/*_HiltModules*.class",
+            "**/*_MembersInjector.class",
             "**/Dagger*Component.class",
             "**/Dagger*Module.class",
             "**/Dagger*Module_Provide*Factory.class",
@@ -45,14 +50,18 @@ tasks.register<JacocoReport>("createJacocoDebugCoverageReport") {
             "**/*_Factory*.*",
         )
 
-    val kotlinDebugTree = fileTree("${layout.buildDirectory}/tmp/kotlin-classes/debug") { exclude(fileFilter) }
-    val javaDebugTree = fileTree("${layout.buildDirectory}/intermediates/javac/debug/classes") { exclude(fileFilter) }
+    // Read the classes after Hilt's bytecode transform: that is what the unit tests execute, and the
+    // raw compiler output has different class IDs, which makes JaCoCo report 0% coverage.
+    val debugClassesTree =
+        fileTree(layout.buildDirectory.dir("intermediates/classes/debug/transformDebugClassesWithAsm/dirs")) {
+            exclude(fileFilter)
+        }
 
     val mainSrcJava = "${project.projectDir}/src/main/java"
     val mainSrcKotlin = "${project.projectDir}/src/main/kotlin"
 
     sourceDirectories.setFrom(files(mainSrcJava, mainSrcKotlin))
-    classDirectories.setFrom(files(kotlinDebugTree, javaDebugTree))
+    classDirectories.setFrom(files(debugClassesTree))
     executionData.setFrom(
         files(
             fileTree(layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") },
