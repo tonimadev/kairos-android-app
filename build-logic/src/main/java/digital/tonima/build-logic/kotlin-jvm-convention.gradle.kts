@@ -1,5 +1,6 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
+    id("jacoco")
 }
 
 // For pure-Kotlin modules that must never pull in the Android framework or Compose

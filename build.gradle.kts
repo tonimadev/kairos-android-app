@@ -53,6 +53,17 @@ subprojects {
             "--add-opens=java.base/java.util=ALL-UNNAMED",
         )
     }
+
+    // Robolectric loads classes through its own class loader; without this JaCoCo drops their
+    // coverage. Applies to AGP's enableUnitTestCoverage and to the jacoco convention alike.
+    pluginManager.withPlugin("jacoco") {
+        tasks.withType<Test>().configureEach {
+            extensions.configure(JacocoTaskExtension::class.java) {
+                isIncludeNoLocationClasses = true
+                excludes = listOf("jdk.internal.*")
+            }
+        }
+    }
 }
 
 val sortDependencies by tasks.registering {
@@ -164,6 +175,14 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
         )
 
     dependsOn(modulesToInclude.map { "$it:createJacocoDebugCoverageReport" })
+    // Most tests live in :core:* and :feature:* modules, which don't apply the jacoco convention;
+    // their coverage comes from AGP's enableUnitTestCoverage (see android-library-convention).
+    // Pure-Kotlin modules (:core:model) run `test` instead.
+    dependsOn(
+        provider {
+            subprojects.mapNotNull { it.tasks.findByName("testDebugUnitTest") ?: it.tasks.findByName("test") }
+        },
+    )
 
     sourceDirectories.setFrom(
         files(
@@ -173,42 +192,38 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
         ),
     )
 
+    // Android modules: read the classes *after* Hilt's bytecode transform, since that is what the
+    // unit tests execute; the raw compiler output has different class IDs and reports 0% coverage.
+    val coverageExcludes =
+        listOf(
+            "**/R.class",
+            "**/R$*.class",
+            "**/BuildConfig.*",
+            "**/Manifest*.*",
+            "**/*Test*.*",
+            "android/**/*.*",
+            "hilt_aggregated_deps/**",
+            "dagger/**",
+            "**/Hilt_*.class",
+            "**/*_Hilt*.class",
+            "**/*_HiltModules*.class",
+            "**/*_MembersInjector.class",
+            "**/Dagger*Component.class",
+            "**/Dagger*Module.class",
+            "**/Dagger*Module_Provide*Factory.class",
+            "**/*_Provide*Factory*.*",
+            "**/*_Factory*.*",
+        )
     classDirectories.setFrom(
         files(
             subprojects.flatMap { sp ->
                 listOf(
-                    fileTree(sp.layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
-                        exclude(
-                            "**/R.class",
-                            "**/R$*.class",
-                            "**/BuildConfig.*",
-                            "**/Manifest*.*",
-                            "**/*Test*.*",
-                            "android/**/*.*",
-                            "**/*_Hilt*.class",
-                            "**/Dagger*Component.class",
-                            "**/Dagger*Module.class",
-                            "**/Dagger*Module_Provide*Factory.class",
-                            "**/*_Provide*Factory*.*",
-                            "**/*_Factory*.*",
-                        )
+                    fileTree(
+                        sp.layout.buildDirectory.dir("intermediates/classes/debug/transformDebugClassesWithAsm/dirs"),
+                    ) {
+                        exclude(coverageExcludes)
                     },
-                    fileTree(sp.layout.buildDirectory.dir("intermediates/javac/debug/classes")) {
-                        exclude(
-                            "**/R.class",
-                            "**/R$*.class",
-                            "**/BuildConfig.*",
-                            "**/Manifest*.*",
-                            "**/*Test*.*",
-                            "android/**/*.*",
-                            "**/*_Hilt*.class",
-                            "**/Dagger*Component.class",
-                            "**/Dagger*Module.class",
-                            "**/Dagger*Module_Provide*Factory.class",
-                            "**/*_Provide*Factory*.*",
-                            "**/*_Factory*.*",
-                        )
-                    },
+                    fileTree(sp.layout.buildDirectory.dir("classes/kotlin/main")) { exclude(coverageExcludes) },
                 )
             },
         ),
@@ -218,7 +233,7 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
         files(
             subprojects.flatMap { sp ->
                 listOf(
-                    fileTree(sp.layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") },
+                    fileTree(sp.layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec", "jacoco/test.exec") },
                     fileTree(
                         sp.layout.buildDirectory,
                     ) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") },
