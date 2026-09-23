@@ -17,10 +17,20 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Compose UI unit tests run on Robolectric and resolve stringResource()/painterResource().
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 dependencies {
     val bom = platform(libs.findLibrary("androidx-compose-bom").get())
     add("implementation", bom)
     add("androidTestImplementation", bom)
+    add("testImplementation", bom)
+
+    add("testImplementation", libs.findLibrary("androidx-compose-ui-test-junit4").get())
+    add("testImplementation", libs.findLibrary("androidx-test-core").get())
+    add("debugImplementation", libs.findLibrary("androidx-compose-ui-test-manifest").get())
 }
