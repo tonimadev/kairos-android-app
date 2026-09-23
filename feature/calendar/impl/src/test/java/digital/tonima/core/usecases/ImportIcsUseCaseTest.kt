@@ -79,4 +79,33 @@ class ImportIcsUseCaseTest {
             assertTrue(result.isSuccess)
             coVerify(exactly = 1) { toggleEventAlarmUseCase.invoke(any(), false, true) }
         }
+
+    @Test
+    fun `content without events fails with NoEvents and creates nothing`() =
+        runTest {
+            val result = useCase("BEGIN:VCALENDAR\nEND:VCALENDAR", "Vazio", 0, alarmsEnabled = true)
+
+            assertTrue(result.exceptionOrNull() is ImportIcsException.NoEvents)
+            coVerify(exactly = 0) { calendarRepository.createLocalCalendar(any(), any()) }
+        }
+
+    @Test
+    fun `failing to create the local calendar fails with CalendarCreationFailed`() =
+        runTest {
+            coEvery { calendarRepository.createLocalCalendar(any(), any()) } returns null
+            val ics =
+                """
+                BEGIN:VCALENDAR
+                BEGIN:VEVENT
+                UID:test
+                DTSTART:20260603T103000Z
+                SUMMARY:Reunião
+                END:VEVENT
+                END:VCALENDAR
+                """.trimIndent()
+
+            val result = useCase(ics, "Feriados", 0, alarmsEnabled = true)
+
+            assertTrue(result.exceptionOrNull() is ImportIcsException.CalendarCreationFailed)
+        }
 }

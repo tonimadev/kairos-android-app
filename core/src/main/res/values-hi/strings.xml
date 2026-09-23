@@ -291,4 +291,25 @@
     <string name="hide_dashboard">डैशबोर्ड छुपाएं</string>
     <string name="back">वापस</string>
     <string name="use_celsius_for_weather">मौसम के लिए सेल्सियस का उपयोग करें</string>
+
+    <!-- Import calendar -->
+    <string name="ok">ठीक है</string>
+    <string name="import_calendar_success_title">सफल</string>
+    <string name="import_calendar_success_message">कैलेंडर सफलतापूर्वक इम्पोर्ट हो गया!</string>
+    <string name="import_calendar_error_title">त्रुटि</string>
+    <string name="import_calendar_name_label">कैलेंडर का नाम</string>
+    <string name="import_calendar_source_title">फ़ाइल का स्रोत</string>
+    <string name="import_calendar_url_label">.ics का URL</string>
+    <string name="import_calendar_or">या</string>
+    <string name="import_calendar_file_selected">फ़ाइल चुनी गई</string>
+    <string name="import_calendar_select_file">लोकल फ़ाइल चुनें</string>
+    <string name="import_calendar_color_title">कैलेंडर का रंग</string>
+    <string name="import_calendar_enable_alarms">अलार्म अपने आप चालू करें</string>
+    <string name="import_calendar_submit">इम्पोर्ट करें</string>
+    <string name="import_calendar_error_name_required">कैलेंडर का नाम ज़रूरी है</string>
+    <string name="import_calendar_error_source_required">कोई URL दें या फ़ाइल चुनें</string>
+    <string name="import_calendar_error_read_file">चुनी गई फ़ाइल पढ़ी नहीं जा सकी।</string>
+    <string name="import_calendar_error_no_events">ICS फ़ाइल में कोई इवेंट नहीं मिला</string>
+    <string name="import_calendar_error_create_calendar">लोकल कैलेंडर नहीं बनाया जा सका। कैलेंडर की अनुमतियाँ जाँचें।</string>
+    <string name="import_calendar_error_generic">कैलेंडर इम्पोर्ट नहीं हो सका। URL या फ़ाइल जाँचें और फिर से कोशिश करें।</string>
 </resources>
