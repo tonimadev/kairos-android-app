@@ -315,6 +315,6 @@
     <string name="import_calendar_error_create_calendar">Could not create the local calendar. Check the Calendar permissions.</string>
     <string name="import_calendar_error_generic">Could not import the calendar. Check the URL or file and try again.</string>
     <string name="ai_agent_event_rescheduled">Event rescheduled in your calendar.</string>
-    <string name="ai_agent_reschedule_recurring_unsupported">Recurring events can't be rescheduled by the assistant yet. Change the occurrence in your calendar app.</string>
+    <string name="ai_agent_reschedule_recurring_unsupported">Recurring events can\'t be rescheduled by the assistant yet. Change the occurrence in your calendar app.</string>
     <string name="ai_agent_reschedule_error">Could not reschedule the event in your calendar.</string>
 </resources>

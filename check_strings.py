@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -64,9 +65,28 @@ def check_missing_strings(base_dir):
         print("")
     return bool(missing_info)
 
+def check_unescaped_apostrophes(base_dir):
+    """aapt2 rejects a bare ' in a string resource; it must be written as \\'."""
+    res_dir = os.path.join(base_dir, 'src', 'main', 'res')
+    if not os.path.exists(res_dir):
+        return False
+    found = False
+    for item in sorted(os.listdir(res_dir)):
+        path = os.path.join(res_dir, item, 'strings.xml')
+        if not item.startswith('values') or not os.path.exists(path):
+            continue
+        with open(path, encoding='utf-8') as f:
+            for number, line in enumerate(f, 1):
+                match = re.search(r'<string[^>]*>(.*)</string>', line)
+                if match and re.search(r"(?<!\\)'", match.group(1)):
+                    print(f"{path}:{number}: unescaped apostrophe, use \\'")
+                    found = True
+    return found
+
 if __name__ == "__main__":
     project_root = os.path.dirname(os.path.abspath(__file__))
     has_missing = False
     for module in ["app", "core", "wear"]:
         has_missing |= check_missing_strings(os.path.join(project_root, module))
+        has_missing |= check_unescaped_apostrophes(os.path.join(project_root, module))
     sys.exit(1 if has_missing else 0)
