@@ -8,6 +8,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.EventAlarmScheduler
+import digital.tonima.kairos.core.model.Event
 import kotlinx.coroutines.flow.firstOrNull
 import logcat.LogPriority
 import logcat.logcat
@@ -84,18 +85,58 @@ class CachedEventSchedulingWorker
                             !(instanceDisabled || seriesDisabled)
                         }
 
+                cancelRemovedEvents(events, now)
+
                 if (toSchedule.isEmpty()) {
                     logcat { "Wear: No cached events to schedule in window." }
                 } else {
                     toSchedule.forEach { e ->
                         logcat { "Wear: Scheduling '${e.title}' at ${sdf.format(Date(e.startTime))} (from cache)" }
-                        scheduler.schedule(e)
+                        // Same traffic-aware trigger the phone uses; a departure time already in the
+                        // past falls back to the regular alarm instead of dropping it.
+                        scheduler.schedule(e, e.departureTime?.takeIf { it > now })
                     }
                 }
+                rememberScheduled(toSchedule, events, now)
                 Result.success()
             } catch (t: Throwable) {
                 logcat(LogPriority.ERROR) { "Wear: CachedEventSchedulingWorker failed: ${t.localizedMessage}" }
                 Result.failure()
             }
+        }
+
+        /**
+         * Cancels alarms the watch scheduled for events the phone no longer sends (deleted or
+         * moved). Events that already started are left alone: the phone stops sending them once
+         * they start, and cancelling would also kill a snooze the user is waiting for.
+         */
+        private fun cancelRemovedEvents(
+            cachedEvents: List<Event>,
+            now: Long,
+        ) {
+            val cachedIds = cachedEvents.map { it.uniqueIntentId }.toSet()
+            WearEventCache
+                .loadScheduled(applicationContext)
+                .filter { it.uniqueIntentId !in cachedIds && it.startTime > now }
+                .forEach { e ->
+                    logcat { "Wear: Cancelling alarm for '${e.title}', no longer sent by the phone." }
+                    scheduler.cancel(e)
+                }
+        }
+
+        private fun rememberScheduled(
+            scheduled: List<Event>,
+            cachedEvents: List<Event>,
+            now: Long,
+        ) {
+            val cachedIds = cachedEvents.map { it.uniqueIntentId }.toSet()
+            val stillTracked =
+                WearEventCache.loadScheduled(applicationContext).filter {
+                    it.uniqueIntentId in cachedIds && it.startTime > now
+                }
+            WearEventCache.saveScheduled(
+                applicationContext,
+                (scheduled + stillTracked).distinctBy { it.uniqueIntentId },
+            )
         }
     }
