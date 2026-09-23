@@ -1,11 +1,15 @@
 package digital.tonima.core.ai.appfunctions
 
+import android.content.Context
 import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
+import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.ai.usecases.BriefingResult
 import digital.tonima.core.ai.usecases.GenerateDailyBriefingUseCase
-import digital.tonima.core.data.repository.CalendarRepository
 import digital.tonima.core.data.usecases.CreateEventUseCase
+import digital.tonima.core.data.usecases.GetAvailableCalendarsUseCase
+import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
+import digital.tonima.kairos.core.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -23,9 +27,11 @@ import javax.inject.Inject
 class KairosAppFunctions
     @Inject
     constructor(
+        @ApplicationContext private val appContext: Context,
         private val createEventUseCase: CreateEventUseCase,
         private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase,
-        private val calendarRepository: CalendarRepository,
+        private val getEventsForMonthUseCase: GetEventsForMonthUseCase,
+        private val getAvailableCalendarsUseCase: GetAvailableCalendarsUseCase,
     ) {
         /**
          * Cria um novo evento no calendário do usuário.
@@ -37,6 +43,7 @@ class KairosAppFunctions
          * @param endTime O horário de término em milissegundos desde a época (epoch millis).
          * Se não informado, presume-se que o evento dure 1 hora.
          * @param calendarId O identificador do calendário (use 1 como padrão se não souber).
+         * Se esse calendário não existir, o evento é criado no primeiro calendário disponível.
          * @param description Notas ou detalhes adicionais sobre o compromisso.
          * @param location O local onde o evento ocorrerá (presencial ou link).
          * @param isAllDay Se verdadeiro, o evento será marcado para o dia inteiro, ignorando as horas.
@@ -55,9 +62,15 @@ class KairosAppFunctions
         ): Long =
             withContext(Dispatchers.IO) {
                 val calculatedEndTime = endTime ?: (startTime + 3_600_000L) // +1 hour in millis
+                // The model is told to default to 1, which may not exist on this device.
+                val calendars = getAvailableCalendarsUseCase()
+                val targetCalendarId =
+                    calendars.firstOrNull { it.id == calendarId }?.id
+                        ?: calendars.firstOrNull()?.id
+                        ?: return@withContext -1L
 
                 createEventUseCase(
-                    calendarId = calendarId,
+                    calendarId = targetCalendarId,
                     title = title,
                     description = description,
                     location = location,
@@ -79,7 +92,7 @@ class KairosAppFunctions
             withContext(Dispatchers.IO) {
                 val today = LocalDate.now()
                 val events =
-                    calendarRepository.getEventsForMonth(
+                    getEventsForMonthUseCase(
                         YearMonth.from(today).atDay(1).toEpochDay(),
                     )
                         .filter {
@@ -94,14 +107,14 @@ class KairosAppFunctions
                     val result =
                         generateDailyBriefingUseCase(
                             events = events,
-                            languageInstruction = "Responda em Português",
+                            languageInstruction = appContext.getString(R.string.ai_briefing_instruction),
                             wakeUpTime = null,
                             city = null,
                         )
                 ) {
                     is BriefingResult.Success -> result.text
                     is BriefingResult.Cached -> result.text
-                    is BriefingResult.Error -> "Não foi possível gerar o resumo no momento."
+                    is BriefingResult.Error -> result.message.asString(appContext)
                 }
             }
     }
