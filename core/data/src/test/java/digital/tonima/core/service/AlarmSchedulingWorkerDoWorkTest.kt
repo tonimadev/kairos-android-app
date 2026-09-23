@@ -1,5 +1,11 @@
 package digital.tonima.core.service
 
+import android.Manifest
+import android.app.Application
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.os.BatteryManager
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
@@ -11,6 +17,7 @@ import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.RingerModeRepository
+import digital.tonima.core.utils.NotificationHelper
 import digital.tonima.kairos.core.model.Event
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -26,6 +33,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -277,6 +285,77 @@ class AlarmSchedulingWorkerDoWorkTest {
 
             assertEquals(ListenableWorker.Result.failure(), worker().doWork())
         }
+
+    @Test
+    fun `ai users are warned about a low battery before the next event`() =
+        runTest {
+            every { proUserProvider.isAiUser } returns MutableStateFlow(true)
+            givenBattery(level = 10, status = BatteryManager.BATTERY_STATUS_DISCHARGING)
+            givenEvents(timedEvent(1, System.currentTimeMillis() + hours(2)))
+
+            worker().doWork()
+
+            assertEquals(1, postedNotifications().size)
+        }
+
+    @Test
+    fun `a low battery that is charging is not a problem`() =
+        runTest {
+            every { proUserProvider.isAiUser } returns MutableStateFlow(true)
+            givenBattery(level = 10, status = BatteryManager.BATTERY_STATUS_CHARGING)
+            givenEvents(timedEvent(1, System.currentTimeMillis() + hours(2)))
+
+            worker().doWork()
+
+            assertEquals(0, postedNotifications().size)
+        }
+
+    @Test
+    fun `ai users are warned when the phone is silenced before the next event`() =
+        runTest {
+            every { proUserProvider.isAiUser } returns MutableStateFlow(true)
+            every { ringerModeRepository.ringerMode } returns MutableStateFlow(AudioWarningState.SILENT)
+            givenBattery(level = 80, status = BatteryManager.BATTERY_STATUS_FULL)
+            givenEvents(timedEvent(1, System.currentTimeMillis() + hours(2)))
+
+            worker().doWork()
+
+            assertEquals(1, postedNotifications().size)
+        }
+
+    @Test
+    fun `other users never get device health warnings`() =
+        runTest {
+            every { ringerModeRepository.ringerMode } returns MutableStateFlow(AudioWarningState.ALARM_MUTED)
+            givenBattery(level = 5, status = BatteryManager.BATTERY_STATUS_DISCHARGING)
+            givenEvents(timedEvent(1, System.currentTimeMillis() + hours(2)))
+
+            worker().doWork()
+
+            assertEquals(0, postedNotifications().size)
+        }
+
+    private fun givenBattery(
+        level: Int,
+        status: Int,
+    ) {
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        shadowOf(app).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        NotificationHelper.createNotificationChannels(app)
+        @Suppress("DEPRECATION")
+        app.sendStickyBroadcast(
+            Intent(Intent.ACTION_BATTERY_CHANGED)
+                .putExtra(BatteryManager.EXTRA_LEVEL, level)
+                .putExtra(BatteryManager.EXTRA_SCALE, 100)
+                .putExtra(BatteryManager.EXTRA_STATUS, status),
+        )
+    }
+
+    private fun postedNotifications() =
+        shadowOf(
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager,
+        ).allNotifications
 
     private fun worker() =
         AlarmSchedulingWorker(

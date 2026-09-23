@@ -1,10 +1,12 @@
 package digital.tonima.core.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.common.collect.ImmutableList
 import digital.tonima.core.data.usecases.AppPreferences
 import digital.tonima.core.data.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.data.usecases.CheckPermissionsUseCase
 import digital.tonima.core.data.usecases.CreateEventUseCase
+import digital.tonima.core.data.usecases.DepartureInfo
 import digital.tonima.core.data.usecases.GetAvailableCalendarsUseCase
 import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.data.usecases.ObserveAppPreferencesUseCase
@@ -20,8 +22,11 @@ import digital.tonima.core.usecases.ScheduleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventAlarmUseCase
 import digital.tonima.core.usecases.ToggleEventVibrateUseCase
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
+import digital.tonima.feature.calendar.bridge.CalendarNavKey
+import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.model.DeviceCalendar
 import digital.tonima.kairos.core.model.Event
+import digital.tonima.kairos.core.model.InsightsPeriod
 import digital.tonima.kairos.core.model.Weather
 import digital.tonima.kairos.core.navigation.AppNavigator
 import io.mockk.clearMocks
@@ -358,6 +363,266 @@ class EventViewModelTest {
             coVerify { mockUpdateAppPreferenceUseCase.setRatingCompleted(true) }
             assertFalse(viewModel.uiState.value.showRatingBottomSheet)
             assertEquals(EventSideEffect.RequestAppReview, viewModel.uiState.value.effect)
+        }
+
+    @Test
+    fun `simple intents update the screen state`() =
+        runTest {
+            viewModel.handleIntent(EventIntent.ChangeBottomTab(2))
+            viewModel.handleIntent(EventIntent.SearchQueryChanged("dentista"))
+            viewModel.handleIntent(EventIntent.ShowCreateEventDialog())
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals(2, state.selectedBottomTab)
+            assertEquals("dentista", state.searchQuery)
+            assertTrue(state.showCreateEventDialog)
+
+            viewModel.handleIntent(EventIntent.DismissCreateEventDialog)
+            advanceUntilIdle()
+            assertFalse(viewModel.uiState.value.showCreateEventDialog)
+        }
+
+    @Test
+    fun `meeting links are opened or copied`() =
+        runTest {
+            viewModel.handleIntent(EventIntent.JoinMeeting("https://meet.google.com/abc"))
+            advanceUntilIdle()
+            assertEquals(
+                EventSideEffect.OpenMeetingUrl("https://meet.google.com/abc"),
+                viewModel.uiState.value.effect,
+            )
+
+            viewModel.handleIntent(EventIntent.CopyMeetingUrl("https://meet.google.com/abc"))
+            advanceUntilIdle()
+            assertEquals(
+                EventSideEffect.CopyToClipboard(
+                    "https://meet.google.com/abc",
+                    UiText.StringResource(R.string.link_copied),
+                ),
+                viewModel.uiState.value.effect,
+            )
+
+            viewModel.handleIntent(EventIntent.ConsumeEffect)
+            advanceUntilIdle()
+            assertNull(viewModel.uiState.value.effect)
+        }
+
+    @Test
+    fun `upgrade requests open the matching purchase flow`() =
+        runTest {
+            viewModel.handleIntent(EventIntent.UpgradeToProRequest)
+            advanceUntilIdle()
+            assertEquals(EventSideEffect.RequestPurchase, viewModel.uiState.value.effect)
+
+            viewModel.handleIntent(EventIntent.UpgradeToProIARequest)
+            advanceUntilIdle()
+            assertEquals(EventSideEffect.RequestSubscription, viewModel.uiState.value.effect)
+        }
+
+    @Test
+    fun `alarm and vibrate toggles are forwarded with the event`() =
+        runTest {
+            val event = EventUiModel(id = 7L, title = "Aula", startTime = 1_000L, endTime = 2_000L)
+
+            viewModel.handleIntent(EventIntent.ToggleEventAlarm(event, enabled = false, allOccurrences = true))
+            viewModel.handleIntent(EventIntent.ToggleEventVibrate(event, enabled = true))
+            advanceUntilIdle()
+
+            coVerify { mockToggleEventAlarmUseCase(match { it.id == 7L && it.title == "Aula" }, false, true) }
+            coVerify { mockToggleEventVibrateUseCase(match { it.id == 7L }, true) }
+        }
+
+    @Test
+    fun `import and manage calendar screens use the navigator`() =
+        runTest {
+            viewModel.handleIntent(EventIntent.OpenImportCalendarScreen)
+            viewModel.handleIntent(EventIntent.CloseImportCalendarScreen)
+            viewModel.handleIntent(EventIntent.OpenManageCalendarsScreen)
+            viewModel.handleIntent(EventIntent.CloseManageCalendarsScreen)
+            advanceUntilIdle()
+
+            verify { mockAppNavigator.navigateTo(CalendarNavKey.ImportCalendar) }
+            verify { mockAppNavigator.navigateTo(CalendarNavKey.ManageCalendars) }
+            verify(exactly = 2) { mockAppNavigator.popBackStack() }
+        }
+
+    @Test
+    fun `changing the insights period reloads the stats`() =
+        runTest {
+            val monthStats = ImmutableList.copyOf(listOf("Seg" to 1.5f))
+            coEvery { mockGetMeetingTimeStatsUseCase(InsightsPeriod.MONTH) } returns monthStats
+
+            viewModel.handleIntent(EventIntent.ChangeInsightsPeriod(InsightsPeriod.MONTH))
+            advanceUntilIdle()
+
+            assertEquals(InsightsPeriod.MONTH, viewModel.uiState.value.selectedInsightsPeriod)
+            assertEquals(monthStats, viewModel.uiState.value.meetingStats)
+        }
+
+    @Test
+    fun `rating later only hides the sheet and rating never also remembers it`() =
+        runTest {
+            viewModel.handleIntent(EventIntent.RateLater)
+            advanceUntilIdle()
+            assertFalse(viewModel.uiState.value.showRatingBottomSheet)
+            coVerify(exactly = 0) { mockUpdateAppPreferenceUseCase.setRatingCompleted(any()) }
+
+            viewModel.handleIntent(EventIntent.RateNever)
+            advanceUntilIdle()
+            assertFalse(viewModel.uiState.value.showRatingBottomSheet)
+            coVerify { mockUpdateAppPreferenceUseCase.setRatingCompleted(true) }
+        }
+
+    @Test
+    fun `intents owned by other screens are ignored`() =
+        runTest {
+            val before = viewModel.uiState.value
+
+            viewModel.handleIntent(EventIntent.ToggleFocusMode(true))
+            advanceUntilIdle()
+
+            assertEquals(before, viewModel.uiState.value)
+        }
+
+    @Test
+    fun `clearing the calendar filter enables every calendar`() =
+        runTest {
+            viewModel.handleIntent(EventIntent.ClearCalendarFilter)
+            advanceUntilIdle()
+
+            coVerify { mockUpdateAppPreferenceUseCase.setEnabledCalendarIds(emptySet()) }
+        }
+
+    @Test
+    fun `hiding one calendar keeps the others enabled`() =
+        runTest {
+            coEvery { mockGetAvailableCalendarsUseCase() } returns
+                listOf(
+                    DeviceCalendar(id = 1L, displayName = "A", accountName = "a"),
+                    DeviceCalendar(id = 2L, displayName = "B", accountName = "a"),
+                )
+            viewModel.handleIntent(EventIntent.LoadCalendars)
+            advanceUntilIdle()
+
+            viewModel.handleIntent(EventIntent.ToggleCalendarFilter(2L, enabled = false))
+            advanceUntilIdle()
+            assertEquals(setOf(1L), viewModel.uiState.value.enabledCalendarIds)
+            coVerify { mockUpdateAppPreferenceUseCase.setEnabledCalendarIds(setOf("1")) }
+
+            viewModel.handleIntent(EventIntent.ToggleCalendarFilter(2L, enabled = true))
+            advanceUntilIdle()
+            assertEquals(emptySet<Long>(), viewModel.uiState.value.enabledCalendarIds)
+            coVerify { mockUpdateAppPreferenceUseCase.setEnabledCalendarIds(emptySet()) }
+        }
+
+    @Test
+    fun `a failed event creation is reported`() =
+        runTest {
+            coEvery { mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any()) } returns null
+
+            viewModel.handleIntent(EventIntent.CreateEvent(1L, "X", null, null, 1000L, 2000L, false))
+            advanceUntilIdle()
+
+            assertEquals(
+                EventSideEffect.AIToolError(UiText.StringResource(R.string.ai_agent_event_creation_error)),
+                viewModel.uiState.value.effect,
+            )
+            coVerify(exactly = 0) { mockLogEventUseCase.logEventCreated() }
+        }
+
+    @Test
+    fun `AI users get the departure time for events with a location`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+            val start = System.currentTimeMillis() + 3 * 3_600_000L
+            val event =
+                Event(
+                    id = 1L,
+                    title = "Médico",
+                    startTime = start,
+                    endTime = start + 3_600_000L,
+                    location = "Av. Paulista",
+                )
+            coEvery { mockCalculateDepartureTimeUseCase(any()) } returns DepartureInfo(start - 1_800_000L, 30)
+
+            val loaded = loadEvents(event).getValue(1L)
+
+            assertEquals(start - 1_800_000L, loaded.departureTime)
+            assertEquals(30, loaded.travelTimeMinutes)
+        }
+
+    @Test
+    fun `an AI user's alarm fires at the departure time when it is close`() =
+        runTest {
+            isAiUserFlow.value = true
+            advanceUntilIdle()
+            val start = System.currentTimeMillis() + 2 * 3_600_000L
+            val departure = System.currentTimeMillis() + 30 * 60_000L
+            val event =
+                Event(
+                    id = 1L,
+                    title = "Médico",
+                    startTime = start,
+                    endTime = start + 3_600_000L,
+                    location = "Av. Paulista",
+                )
+            coEvery { mockCalculateDepartureTimeUseCase(any()) } returns DepartureInfo(departure, 90)
+
+            loadEvents(event)
+
+            coVerify { mockScheduleEventAlarmUseCase(match { it.id == 1L }, departure) }
+        }
+
+    @Test
+    fun `disabled and vibrate-only events are marked from the preferences`() =
+        runTest {
+            val start = System.currentTimeMillis() + 5 * 3_600_000L
+            val muted = Event(id = 1L, title = "Muted", startTime = start)
+            val series = Event(id = 2L, title = "Series", startTime = start + 1)
+            val quiet = Event(id = 3L, title = "Quiet", startTime = start + 2)
+            appPreferencesFlow.value =
+                defaultAppPreferences().copy(
+                    disabledEventIds = setOf(muted.uniqueIntentId.toString()),
+                    disabledSeriesIds = setOf("2"),
+                    vibrateOnlyEventIds = setOf(quiet.uniqueIntentId.toString()),
+                )
+            advanceUntilIdle()
+
+            val events = loadEvents(muted, series, quiet)
+
+            assertFalse(events.getValue(1L).isAlarmEnabled)
+            assertFalse(events.getValue(2L).isAlarmEnabled)
+            assertTrue(events.getValue(3L).isAlarmEnabled)
+            assertTrue(events.getValue(3L).vibrateOnly)
+        }
+
+    @Test
+    fun `an event created in another month switches to it and enables its calendar`() =
+        runTest {
+            coEvery { mockCreateEventUseCase(any(), any(), any(), any(), any(), any(), any()) } returns 1L
+            coEvery { mockGetAvailableCalendarsUseCase() } returns
+                listOf(
+                    DeviceCalendar(id = 1L, displayName = "A", accountName = "a"),
+                    DeviceCalendar(id = 2L, displayName = "B", accountName = "a"),
+                )
+            viewModel.handleIntent(EventIntent.LoadCalendars)
+            advanceUntilIdle()
+            viewModel.handleIntent(EventIntent.ToggleCalendarFilter(2L, enabled = false))
+            advanceUntilIdle()
+
+            val nextYear = LocalDate.now().plusYears(1).withDayOfMonth(10)
+            val startMillis = nextYear.atTime(10, 0).atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            viewModel.handleIntent(
+                EventIntent.CreateEvent(2L, "Viagem", null, null, startMillis, startMillis + 1, false),
+            )
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals(nextYear.toEpochDay(), state.selectedDate)
+            assertEquals(YearMonth.from(nextYear).atDay(1).toEpochDay(), state.currentMonth)
+            assertEquals(emptySet<Long>(), state.enabledCalendarIds)
         }
 
     private fun TestScope.loadEvents(vararg events: Event): Map<Long, EventUiModel> {

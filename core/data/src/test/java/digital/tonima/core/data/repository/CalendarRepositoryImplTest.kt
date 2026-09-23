@@ -2,14 +2,19 @@ package digital.tonima.core.data.repository
 
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.database.MatrixCursor
 import android.provider.CalendarContract
 import com.google.common.collect.ImmutableList
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -392,4 +397,98 @@ class CalendarRepositoryImplTest {
             assertEquals("Busy Meeting", nextEvent?.title)
             assertEquals(102L, nextEvent?.id)
         }
+
+    @Test
+    fun `without calendar permission nothing is read`() =
+        runTest {
+            every { mockContext.checkSelfPermission("android.permission.READ_CALENDAR") } returns PERMISSION_DENIED
+            every { mockContext.checkPermission("android.permission.READ_CALENDAR", any(), any()) } returns
+                PERMISSION_DENIED
+
+            assertTrue(repository.getAvailableCalendars().isEmpty())
+            val thisMonth = YearMonth.now().atDay(1).toEpochDay()
+            assertTrue(repository.getEventsForMonth(thisMonth, ImmutableList.of()).isEmpty())
+            assertNull(repository.getNextUpcomingEvent(ImmutableList.of()))
+            verify(exactly = 0) { mockContentResolver.query(any(), any(), any(), any(), any()) }
+        }
+
+    @Test
+    fun `with no calendar filter every calendar is queried`() =
+        runTest {
+            every { mockContentResolver.query(any(), any(), any(), any(), any()) } returns null
+
+            val events = repository.getEventsForMonth(YearMonth.now().atDay(1).toEpochDay(), ImmutableList.of())
+
+            assertTrue(events.isEmpty())
+            verify { mockContentResolver.query(any(), any(), isNull(), isNull(), any()) }
+        }
+
+    @Test
+    fun `the next event skips birthdays and reads recurrence and all-day flags`() =
+        runTest {
+            val cursor = upcomingCursor()
+            cursor.addRow(arrayOf<Any?>(201L, "Aniversário", 1L, 2L, 1, 1L, 0, null, null, null, null, 0, 3))
+            cursor.addRow(
+                arrayOf<Any?>(202L, "Feriado", 3L, 4L, 1, 1L, 0, null, null, null, "20240101", 0, 0),
+            )
+
+            val selection = slot<String>()
+            every { mockContentResolver.query(any(), any(), capture(selection), any(), any()) } returns cursor
+
+            val next = repository.getNextUpcomingEvent(ImmutableList.of())
+
+            assertEquals(202L, next?.id)
+            assertTrue(next!!.isAllDay)
+            assertTrue(next.isRecurring)
+            assertEquals("${CalendarContract.Instances.END} > ?", selection.captured)
+        }
+
+    @Test
+    fun `no upcoming event when the calendar is empty`() =
+        runTest {
+            every { mockContentResolver.query(any(), any(), any(), any(), any()) } returns upcomingCursor()
+
+            assertNull(repository.getNextUpcomingEvent(ImmutableList.of(1L)))
+        }
+
+    @Test
+    fun `calendars without a name or account get empty strings`() =
+        runTest {
+            val cursor =
+                MatrixCursor(
+                    arrayOf(
+                        CalendarContract.Calendars._ID,
+                        CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
+                        CalendarContract.Calendars.ACCOUNT_NAME,
+                        CalendarContract.Calendars.CALENDAR_COLOR,
+                    ),
+                )
+            cursor.addRow(arrayOf<Any?>(1L, null, null, 0))
+            every { mockContentResolver.query(any(), any(), any(), any(), any()) } returns cursor
+
+            val calendar = repository.getAvailableCalendars().single()
+
+            assertEquals("", calendar.displayName)
+            assertEquals("", calendar.accountName)
+            assertEquals(1L, calendar.id)
+        }
+
+    private fun upcomingCursor() =
+        MatrixCursor(
+            arrayOf(
+                CalendarContract.Instances.EVENT_ID,
+                CalendarContract.Instances.TITLE,
+                CalendarContract.Instances.BEGIN,
+                CalendarContract.Instances.END,
+                CalendarContract.Instances.ALL_DAY,
+                CalendarContract.Instances.CALENDAR_ID,
+                CalendarContract.Instances.CALENDAR_COLOR,
+                CalendarContract.Instances.DESCRIPTION,
+                CalendarContract.Instances.EVENT_LOCATION,
+                CalendarContract.Events.RRULE,
+                CalendarContract.Events.RDATE,
+                CalendarContract.Instances.AVAILABILITY,
+                "event_type",
+            ),
+        )
 }
