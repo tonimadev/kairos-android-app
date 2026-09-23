@@ -213,6 +213,10 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
             "**/Dagger*Module_Provide*Factory.class",
             "**/*_Provide*Factory*.*",
             "**/*_Factory*.*",
+            // KSP output of androidx.appfunctions: metadata tables, not app logic.
+            "**/*AppFunctionInventory*.class",
+            "**/*AppFunctionInvoker*.class",
+            "androidx/appfunctions/internal/**",
         )
     classDirectories.setFrom(
         files(
