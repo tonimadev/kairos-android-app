@@ -49,6 +49,16 @@ class ChatHistoryMapperTest {
     }
 
     @Test
+    fun `null arguments come back as null, not as the text null`() {
+        val call = ChatMessage.FunctionCall("create_event", mapOf("title" to "Dentista", "location" to null))
+
+        val restored = call.toEntity(conversationId = 1L).toChatMessage() as ChatMessage.FunctionCall
+
+        assertEquals(call, restored)
+        assertNull(restored.args["location"])
+    }
+
+    @Test
     fun `function responses round trip and are attributed to the user role`() {
         val response = ChatMessage.FunctionResponse("search_events", mapOf("result" to "2 events found"))
 
