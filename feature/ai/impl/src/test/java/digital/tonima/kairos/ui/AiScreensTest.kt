@@ -10,9 +10,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import digital.tonima.core.ai.model.ChatMessage
+import digital.tonima.core.database.entity.ConversationEntity
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.ui.components.AiSuggestionsDialog
 import digital.tonima.kairos.ui.view.ChatDetailScreen
+import digital.tonima.kairos.ui.view.ChatHistoryScreen
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -142,6 +144,43 @@ class AiScreensTest {
                 onSendMessage = { calls += "send:$it" },
                 onSpeakToggle = { calls += "speak" },
                 streamingText = streamingText,
+            )
+        }
+    }
+
+    // endregion
+
+    // region ChatHistoryScreen
+
+    @Test
+    fun `chat history lists conversations and opens or deletes them`() {
+        chatHistory(listOf(ConversationEntity(id = 3L, title = "Agenda da semana", createdAt = 1L, updatedAt = 1L)))
+
+        compose.onNodeWithText("Agenda da semana").performClick()
+        compose.onNodeWithContentDescription(string(R.string.cd_delete_conversation)).performClick()
+
+        assertEquals(listOf("open:3", "delete:3"), calls)
+    }
+
+    @Test
+    fun `empty chat history invites starting a conversation`() {
+        chatHistory(emptyList())
+
+        compose.onNodeWithText(string(R.string.no_conversations_yet)).assertExists()
+        compose.onNodeWithContentDescription(string(R.string.new_conversation_title)).performClick()
+        compose.onNodeWithContentDescription(string(R.string.cd_close)).performClick()
+
+        assertEquals(listOf("new:${string(R.string.new_conversation_title)}", "back"), calls)
+    }
+
+    private fun chatHistory(conversations: List<ConversationEntity>) {
+        compose.setContent {
+            ChatHistoryScreen(
+                conversations = conversations,
+                onBack = { calls += "back" },
+                onConversationClick = { calls += "open:$it" },
+                onCreateNewChat = { calls += "new:$it" },
+                onDeleteConversation = { calls += "delete:$it" },
             )
         }
     }

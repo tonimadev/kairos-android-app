@@ -2,6 +2,9 @@ package digital.tonima.kairos.ui.components
 
 import android.Manifest
 import android.app.Application
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -12,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
+import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.model.Weather
@@ -163,6 +167,39 @@ class CalendarCardsTest {
         compose.onNodeWithText(string(R.string.try_pro_plan)).performClick()
 
         assertEquals(listOf("upgrade"), calls)
+    }
+
+    // endregion
+
+    // region RingerModeWarningCard and AlarmsToggleRow
+
+    @Test
+    fun `silent and vibrate modes warn that the alarm may not be heard`() {
+        var mode by mutableStateOf(AudioWarningState.SILENT)
+        compose.setContent { RingerModeWarningCard(ringerMode = mode) }
+
+        compose.onNodeWithText(string(R.string.ringer_mode_silent_warning)).assertExists()
+        mode = AudioWarningState.VIBRATE
+        compose.onNodeWithText(string(R.string.ringer_mode_vibrate_warning)).assertExists()
+        mode = AudioWarningState.NORMAL
+        compose.onAllNodesWithText(string(R.string.ringer_mode_vibrate_warning)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `global alarm switch shows its state and flips it`() {
+        var enabled by mutableStateOf(true)
+        compose.setContent {
+            AlarmsToggleRow(alarmsEnabled = enabled, onToggle = {
+                calls += "toggle:$it"
+                enabled = it
+            })
+        }
+
+        compose.onNodeWithText(string(R.string.status_active)).assertExists()
+        compose.onNodeWithText(string(R.string.activate_event_alarms)).performClick()
+
+        assertEquals(listOf("toggle:false"), calls)
+        compose.onNodeWithText(string(R.string.status_disabled)).assertExists()
     }
 
     // endregion
