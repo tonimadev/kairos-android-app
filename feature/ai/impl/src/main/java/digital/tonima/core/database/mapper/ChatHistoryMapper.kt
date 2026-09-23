@@ -14,53 +14,11 @@ fun ChatHistoryEntity.toChatMessage(): ChatMessage? {
         "TEXT" -> content?.let { ChatMessage.Text(messageRole, it) }
         "FUNCTION_CALL" -> {
             val name = functionName ?: return null
-            val argsStr = functionArgsOrResponse ?: "{}"
-            val args =
-                try {
-                    val json = Json.parseToJsonElement(argsStr).jsonObject
-                    val map = mutableMapOf<String, Any?>()
-                    json.forEach { (key, element) ->
-                        map[key] =
-                            if (element is JsonPrimitive) {
-                                if (element.isString) {
-                                    element.content
-                                } else {
-                                    element.content // we leave it as string representation of number/boolean
-                                }
-                            } else {
-                                element.toString()
-                            }
-                    }
-                    map
-                } catch (_: Exception) {
-                    emptyMap()
-                }
-            ChatMessage.FunctionCall(name, args)
+            ChatMessage.FunctionCall(name, parseJsonMap(functionArgsOrResponse))
         }
         "FUNCTION_RESPONSE" -> {
             val name = functionName ?: return null
-            val respStr = functionArgsOrResponse ?: "{}"
-            val resp =
-                try {
-                    val json = Json.parseToJsonElement(respStr).jsonObject
-                    val map = mutableMapOf<String, Any?>()
-                    json.forEach { (key, element) ->
-                        map[key] =
-                            if (element is JsonPrimitive) {
-                                if (element.isString) {
-                                    element.content
-                                } else {
-                                    element.content
-                                }
-                            } else {
-                                element.toString()
-                            }
-                    }
-                    map
-                } catch (_: Exception) {
-                    emptyMap()
-                }
-            ChatMessage.FunctionResponse(name, resp)
+            ChatMessage.FunctionResponse(name, parseJsonMap(functionArgsOrResponse))
         }
         else -> null
     }
@@ -94,6 +52,23 @@ fun ChatMessage.toEntity(conversationId: Long): ChatHistoryEntity {
             )
     }
 }
+
+/**
+ * Reads back what [toJsonObject] wrote. Numbers and booleans come back as their string form;
+ * JSON null comes back as null; nested values as their JSON text. Corrupted JSON yields an empty map.
+ */
+private fun parseJsonMap(json: String?): Map<String, Any?> =
+    try {
+        Json.parseToJsonElement(json ?: "{}").jsonObject.mapValues { (_, element) ->
+            when (element) {
+                is JsonNull -> null
+                is JsonPrimitive -> element.content
+                else -> element.toString()
+            }
+        }
+    } catch (_: Exception) {
+        emptyMap()
+    }
 
 private fun Map<String, Any?>.toJsonObject(): JsonObject {
     return JsonObject(
