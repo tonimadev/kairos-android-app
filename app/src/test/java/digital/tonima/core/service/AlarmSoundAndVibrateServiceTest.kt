@@ -128,6 +128,21 @@ class AlarmSoundAndVibrateServiceTest {
     }
 
     @Test
+    fun `snooze action and alarm screen keep the location and end time`() {
+        val service = start(startIntent().putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, 1_800_001_800_000L)).get()
+        val notification = shadowOf(service).lastForegroundNotification
+
+        listOf(
+            shadowOf(notification.actions[0].actionIntent).savedIntent,
+            shadowOf(notification.fullScreenIntent).savedIntent,
+        ).forEach { intent ->
+            assertEquals("Room 42", intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION))
+            assertEquals(1_800_001_800_000L, intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, -1L))
+            assertEquals("https://meet.google.com/abc", intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL))
+        }
+    }
+
+    @Test
     fun `alarm without title falls back to the generic event text`() {
         val service = start(startIntent().apply { removeExtra(AlarmReceiver.EXTRA_EVENT_TITLE) }).get()
 

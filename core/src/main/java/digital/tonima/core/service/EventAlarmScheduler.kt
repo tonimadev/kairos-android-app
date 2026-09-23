@@ -14,6 +14,8 @@ interface EventAlarmScheduler {
         eventId: Long,
         startTime: Long,
         meetingUrl: String? = null,
+        eventLocation: String? = null,
+        eventEndTime: Long = -1L,
     )
 
     fun cancel(event: Event)

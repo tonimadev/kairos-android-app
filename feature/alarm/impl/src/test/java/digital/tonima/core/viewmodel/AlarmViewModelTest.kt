@@ -75,6 +75,19 @@ class AlarmViewModelTest {
         }
 
     @Test
+    fun `snooze keeps the meeting, location and end time for the next ring`() =
+        runTest {
+            viewModel.handleIntent(Init("Daily", 10, 50L, 800L, "https://meet/x", "Room 42", 1_800L))
+
+            viewModel.handleIntent(AlarmIntent.Snooze)
+
+            val snooze = viewModel.uiState.value.sideEffects.filterIsInstance<SendSnoozeBroadcast>().single()
+            assertEquals("https://meet/x", snooze.meetingUrl)
+            assertEquals("Room 42", snooze.eventLocation)
+            assertEquals(1_800L, snooze.eventEndTime)
+        }
+
+    @Test
     fun `snooze logs analytics and emits side effects`() =
         runTest {
             viewModel.handleIntent(

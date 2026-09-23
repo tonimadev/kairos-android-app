@@ -3,6 +3,7 @@ package digital.tonima.kairos.wear.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.receiver.AlarmReceiver.Companion.ACTION_ALARM_TRIGGERED
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_ID
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_START_TIME
@@ -30,6 +31,9 @@ class WearAlarmReceiver : BroadcastReceiver() {
             uniqueId = uniqueId,
             eventId = eventId,
             startTime = startTime,
+            meetingUrl = intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL),
+            eventLocation = intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION),
+            eventEndTime = intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, -1L),
         )
     }
 }
