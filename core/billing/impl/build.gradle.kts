@@ -12,6 +12,12 @@ android {
         minSdk = rootProject.extra["MIN_SDK_VERSION"].toString().toInt()
     }
 
+    // Emits unit-test coverage data consumed by :createJacocoMergedCoverageReport (this module
+    // configures Android by hand instead of applying android-library-convention).
+    buildTypes {
+        getByName("debug") { enableUnitTestCoverage = true }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
