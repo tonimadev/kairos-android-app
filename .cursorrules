@@ -27,7 +27,7 @@ Before considering any task or feature "complete", ALL AI agents must execute th
 ./gradlew spotlessApply sortDependencies detekt testDebugUnitTest
 ```
 
-- **Spotless**: All Kotlin files must adhere strictly to `ktfmt` via the spotless plugin. If there are formatting errors, `spotlessApply` must be executed to fix them.
+- **Spotless**: All Kotlin files must adhere strictly to `ktlint` via the spotless plugin. If there are formatting errors, `spotlessApply` must be executed to fix them.
 - **Detekt**: Do not introduce code smells, excessive complexity, or long lines (`MaxLineLength`). If `detekt` fails, refactor the code (e.g. break lines, simplify logic) until it passes.
 - **Sort Dependencies**: The custom `sortDependencies` task must be run whenever `build.gradle.kts` files are modified to maintain dependency order.
 - **Unit Tests**: Existing unit tests (`testDebugUnitTest` or simply `test`) must pass without exceptions. If an architectural change breaks an existing test, update the test (especially `mockk` definitions) to reflect the new structure.

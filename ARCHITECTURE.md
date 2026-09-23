@@ -36,7 +36,7 @@ Before considering any task, refactoring, or feature "complete", ALL developers 
 ./gradlew spotlessApply sortDependencies detekt testDebugUnitTest
 ```
 
-- **Spotless (`spotlessApply`)**: All Kotlin files must adhere strictly to the project's formatting rules (`ktfmt`). If there are formatting errors, executing `spotlessApply` automatically fixes them.
+- **Spotless (`spotlessApply`)**: All Kotlin files must adhere strictly to the project's formatting rules (`ktlint`). If there are formatting errors, executing `spotlessApply` automatically fixes them.
 - **Detekt (`detekt`)**: Enforces static code analysis rules. Do not bypass code smells, excessive complexity (Cyclomatic/Cognitive), or long lines (`MaxLineLength`). If `detekt` fails, you must refactor the code to comply.
 - **Sort Dependencies (`sortDependencies`)**: A custom Gradle task to maintain organized and alphabetically sorted dependencies in all `.gradle.kts` files.
 - **Unit Tests (`testDebugUnitTest` ou `test`)**: Existing unit tests must pass without regressions. If an architectural change (like flattening a ViewModel's dependencies) breaks tests, update the `mockk` definitions and injection setup accordingly.
