@@ -49,3 +49,7 @@ local.properties
 
 # Arquivos temporários
 X#
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/.verify/
