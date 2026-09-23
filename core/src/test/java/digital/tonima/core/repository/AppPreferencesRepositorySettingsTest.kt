@@ -109,7 +109,7 @@ class AppPreferencesRepositorySettingsTest {
     @Test
     fun `wake-up history keeps only the 14 most recent entries`() =
         runTest {
-            (1L..20L).forEach { repository.addWakeUpTimestamp(it * 1_000L) }
+            for (second in 1L..20L) repository.addWakeUpTimestamp(second * 1_000L)
 
             assertEquals((7L..20L).map { it * 1_000L }, repository.getWakeUpHistory().first())
         }
