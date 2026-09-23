@@ -521,12 +521,23 @@ class CalendarRepositoryImpl
         ): String? {
             if (description == null && location == null) return null
             val combinedText = "${description ?: ""} ${location ?: ""}"
-            val pattern =
-                """https?://(?:[a-zA-Z0-9-]+\.)*(?:meet\.google\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}
-                ||zoom\.us/(?:j|my)/[^\s"'<>]+|teams\.microsoft\.com/l/meetup-join/[^\s"'<>]+
-|webex\.com/(?:meet|join)/[^\s"'<>]+|join\.skype\.com/[a-zA-Z0-9]+|meet\.jit\.si/[^\s"'<>]+)
-                """.trimMargin()
-            val regex = pattern.toRegex(RegexOption.IGNORE_CASE)
-            return regex.find(combinedText)?.value
+            return MEETING_LINK_REGEX.find(combinedText)?.value
+        }
+
+        private companion object {
+            // Built from a list rather than a multi-line raw string: the previous trimMargin()
+            // pattern embedded line breaks inside the alternation, so Google Meet, Teams and
+            // Webex links never matched.
+            private const val URL_REST = """[^\s"'<>]+"""
+            val MEETING_LINK_REGEX =
+                listOf(
+                    """meet\.google\.com/[a-z]{3}-[a-z]{4}-[a-z]{3}""",
+                    """zoom\.us/(?:j|my)/$URL_REST""",
+                    """teams\.microsoft\.com/l/meetup-join/$URL_REST""",
+                    """webex\.com/(?:meet|join)/$URL_REST""",
+                    """join\.skype\.com/[a-zA-Z0-9]+""",
+                    """meet\.jit\.si/$URL_REST""",
+                ).joinToString(separator = "|", prefix = """https?://(?:[a-zA-Z0-9-]+\.)*(?:""", postfix = ")")
+                    .toRegex(RegexOption.IGNORE_CASE)
         }
     }
