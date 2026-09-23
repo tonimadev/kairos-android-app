@@ -124,6 +124,8 @@ dependencies {
     ksp(libs.hilt.binder.compiler)
     ksp(libs.hilt.compiler)
 
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.androidx.espresso.core)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.work.testing)
     testImplementation(libs.coroutines.test)
@@ -131,6 +133,7 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.robolectric)
     testImplementation(libs.turbine)
+    testImplementation(platform(libs.androidx.compose.bom))
 }
 
 // Robolectric 4.17 reflects into JDK internals (jdk.internal.access.SharedSecrets and friends)
