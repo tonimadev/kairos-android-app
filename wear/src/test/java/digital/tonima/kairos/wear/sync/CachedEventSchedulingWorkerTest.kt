@@ -124,6 +124,91 @@ class CachedEventSchedulingWorkerTest {
         }
 
     @Test
+    fun `traffic-aware departure time from the phone is used as the trigger`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val located = event(1, now + hours(3)).copy(departureTime = now + hours(2))
+            WearEventCache.save(context, listOf(located))
+
+            worker().doWork()
+
+            verify(exactly = 1) { scheduler.schedule(located, now + hours(2)) }
+        }
+
+    @Test
+    fun `a departure time already in the past falls back to the regular alarm`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val late = event(1, now + hours(1)).copy(departureTime = now - hours(1))
+            WearEventCache.save(context, listOf(late))
+
+            worker().doWork()
+
+            verify(exactly = 1) { scheduler.schedule(late, null) }
+        }
+
+    @Test
+    fun `alarms of events the phone stopped sending are cancelled`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val kept = event(1, now + hours(2))
+            val deleted = event(2, now + hours(3))
+            WearEventCache.save(context, listOf(kept, deleted))
+            worker().doWork()
+
+            WearEventCache.save(context, listOf(kept))
+            worker().doWork()
+
+            verify(exactly = 1) { scheduler.cancel(deleted) }
+            verify(exactly = 0) { scheduler.cancel(kept) }
+        }
+
+    @Test
+    fun `an empty sync cancels every pending watch alarm`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val first = event(1, now + hours(2))
+            val second = event(2, now + hours(3))
+            WearEventCache.save(context, listOf(first, second))
+            worker().doWork()
+
+            WearEventCache.save(context, emptyList())
+            worker().doWork()
+
+            verify(exactly = 1) { scheduler.cancel(first) }
+            verify(exactly = 1) { scheduler.cancel(second) }
+        }
+
+    @Test
+    fun `events that already started are not cancelled so their snooze survives`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val ringing = event(1, now - TimeUnit.MINUTES.toMillis(5))
+            // Simulates an event scheduled earlier that is now in progress (and maybe snoozed).
+            WearEventCache.saveScheduled(context, listOf(ringing))
+            WearEventCache.save(context, emptyList())
+
+            worker().doWork()
+
+            verify(exactly = 0) { scheduler.cancel(any()) }
+        }
+
+    @Test
+    fun `an event is cancelled once even after later syncs`() =
+        runTest {
+            val now = System.currentTimeMillis()
+            val deleted = event(1, now + hours(2))
+            WearEventCache.save(context, listOf(deleted))
+            worker().doWork()
+
+            WearEventCache.save(context, emptyList())
+            worker().doWork()
+            worker().doWork()
+
+            verify(exactly = 1) { scheduler.cancel(deleted) }
+        }
+
+    @Test
     fun `empty cache succeeds without scheduling anything`() =
         runTest {
             assertEquals(ListenableWorker.Result.success(), worker().doWork())

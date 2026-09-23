@@ -13,9 +13,11 @@ import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.sync.WearSyncSchema.EXTRA_UNIQUE_ID
 import digital.tonima.core.sync.WearSyncSchema.KEY_ALL_DAY
 import digital.tonima.core.sync.WearSyncSchema.KEY_DEPARTURE_TIME
+import digital.tonima.core.sync.WearSyncSchema.KEY_END
 import digital.tonima.core.sync.WearSyncSchema.KEY_EVENTS
 import digital.tonima.core.sync.WearSyncSchema.KEY_ID
 import digital.tonima.core.sync.WearSyncSchema.KEY_LOCATION
+import digital.tonima.core.sync.WearSyncSchema.KEY_MEETING_URL
 import digital.tonima.core.sync.WearSyncSchema.KEY_RECUR
 import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
@@ -37,6 +39,9 @@ class WearEventListenerService : WearableListenerService() {
     override fun onDataChanged(dataEvents: DataEventBuffer) {
         super.onDataChanged(dataEvents)
         val events = mutableListOf<Event>()
+        // An empty list from the phone is meaningful (every event was deleted or moved), so track
+        // whether a payload arrived instead of only whether it had events.
+        var receivedEvents = false
         dataEvents.use { buffer ->
             buffer.forEach { event ->
                 val path = event.dataItem.uri.path ?: ""
@@ -46,10 +51,13 @@ class WearEventListenerService : WearableListenerService() {
                             try {
                                 val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
                                 val list = dataMap.getDataMapArrayList(KEY_EVENTS)
+                                val parsed = mutableListOf<Event>()
                                 list?.forEach { dm ->
                                     val id = dm.getLong(KEY_ID)
                                     val title = dm.getString(KEY_TITLE) ?: getString(coreR.string.event_untitled)
                                     val start = dm.getLong(KEY_START)
+                                    val end = dm.getLong(KEY_END, 0L)
+                                    val meetingUrl = dm.getString(KEY_MEETING_URL)
                                     val rec = dm.getBoolean(KEY_RECUR)
                                     val allDay = dm.getBoolean(KEY_ALL_DAY)
                                     val location = dm.getString(KEY_LOCATION)
@@ -65,19 +73,25 @@ class WearEventListenerService : WearableListenerService() {
                                     val travelTime =
                                         if (dm.containsKey(KEY_TRAVEL_TIME)) dm.getInt(KEY_TRAVEL_TIME) else null
 
-                                    events.add(
+                                    parsed.add(
                                         Event(
                                             id = id,
                                             title = title,
                                             startTime = start,
+                                            endTime = end,
                                             isRecurring = rec,
                                             isAllDay = allDay,
+                                            meetingUrl = meetingUrl,
                                             location = location,
                                             departureTime = departureTime,
                                             travelTimeMinutes = travelTime,
                                         ),
                                     )
                                 }
+                                // Only replace the cache once the whole payload parsed.
+                                events.clear()
+                                events.addAll(parsed)
+                                receivedEvents = true
                             } catch (t: Throwable) {
                                 logcat { "Wear listener parse error: ${t.localizedMessage}" }
                             }
@@ -108,7 +122,7 @@ class WearEventListenerService : WearableListenerService() {
                 }
             }
         }
-        if (events.isNotEmpty()) {
+        if (receivedEvents) {
             logcat { "Wear received ${events.size} events from phone." }
             WearEventCache.save(this, events)
             sendBroadcast(

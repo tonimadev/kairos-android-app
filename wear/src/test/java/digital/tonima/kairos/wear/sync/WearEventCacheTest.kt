@@ -35,7 +35,9 @@ class WearEventCacheTest {
                     id = 1L,
                     title = "Dentist",
                     startTime = 1_800_000_000_000L,
+                    endTime = 1_800_001_800_000L,
                     isRecurring = true,
+                    meetingUrl = "https://meet.google.com/abc",
                     isAllDay = false,
                     location = "Rua Augusta, 500",
                     departureTime = 1_799_999_000_000L,
@@ -57,6 +59,18 @@ class WearEventCacheTest {
         assertNull(loaded.location)
         assertNull(loaded.departureTime)
         assertNull(loaded.travelTimeMinutes)
+    }
+
+    @Test
+    fun `scheduled alarms are stored apart from the synced events`() {
+        val synced = listOf(Event(id = 1L, title = "Synced", startTime = 1_000L))
+        val scheduled = listOf(Event(id = 2L, title = "Scheduled", startTime = 2_000L))
+
+        WearEventCache.save(context, synced)
+        WearEventCache.saveScheduled(context, scheduled)
+
+        assertEquals(synced, WearEventCache.load(context))
+        assertEquals(scheduled, WearEventCache.loadScheduled(context))
     }
 
     @Test

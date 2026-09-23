@@ -76,6 +76,8 @@ class WearEventListenerServiceTest {
                     putLong(WearSyncSchema.KEY_ID, 1L)
                     putString(WearSyncSchema.KEY_TITLE, "Dentist")
                     putLong(WearSyncSchema.KEY_START, 1_800_000_000_000L)
+                    putLong(WearSyncSchema.KEY_END, 1_800_001_800_000L)
+                    putString(WearSyncSchema.KEY_MEETING_URL, "https://meet.google.com/abc")
                     putBoolean(WearSyncSchema.KEY_RECUR, true)
                     putBoolean(WearSyncSchema.KEY_ALL_DAY, false)
                     putString(WearSyncSchema.KEY_LOCATION, "Rua Augusta, 500")
@@ -98,7 +100,9 @@ class WearEventListenerServiceTest {
                     id = 1L,
                     title = "Dentist",
                     startTime = 1_800_000_000_000L,
+                    endTime = 1_800_001_800_000L,
                     isRecurring = true,
+                    meetingUrl = "https://meet.google.com/abc",
                     location = "Rua Augusta, 500",
                     departureTime = 1_799_998_000_000L,
                     travelTimeMinutes = 20,
@@ -112,6 +116,19 @@ class WearEventListenerServiceTest {
             WorkManager.getInstance(app).getWorkInfosForUniqueWork(WorkNames.UNIQUE_SCHEDULE_NOW).get().size,
         )
         assertTrue(shadowOf(app).broadcastIntents.any { it.action == SyncActions.ACTION_EVENTS_UPDATED })
+    }
+
+    @Test
+    fun `an empty list from the phone clears the watch cache and reschedules`() {
+        WearEventCache.save(context = app, events = listOf(Event(id = 9L, title = "Deleted", startTime = 1_000L)))
+
+        service.onDataChanged(buffer(changed(WearSyncSchema.PATH_EVENTS_24H, eventsPayload())))
+
+        assertTrue(WearEventCache.load(app).isEmpty())
+        assertEquals(
+            1,
+            WorkManager.getInstance(app).getWorkInfosForUniqueWork(WorkNames.UNIQUE_SCHEDULE_NOW).get().size,
+        )
     }
 
     @Test
@@ -170,14 +187,16 @@ class WearEventListenerServiceTest {
     }
 
     @Test
-    fun `a malformed payload does not crash the listener`() {
+    fun `a malformed payload keeps the previous cache`() {
+        val previous = listOf(Event(id = 9L, title = "Kept", startTime = 1_000L))
+        WearEventCache.save(app, previous)
         val event = changed(WearSyncSchema.PATH_EVENTS_24H, DataMap())
         val item = event.dataItem
         every { DataMapItem.fromDataItem(item) } throws IllegalStateException("corrupt")
 
         service.onDataChanged(buffer(event))
 
-        assertTrue(WearEventCache.load(app).isEmpty())
+        assertEquals(previous, WearEventCache.load(app))
     }
 
     private fun eventsPayload(vararg events: DataMap) =
