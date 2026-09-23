@@ -210,6 +210,24 @@ class CalendarRepositoryWritesTest {
     // region Meeting links
 
     @Test
+    fun `google meet links are detected`() = assertMeetingLink("https://meet.google.com/abc-defg-hij")
+
+    @Test
+    fun `teams links are detected`() = assertMeetingLink("https://teams.microsoft.com/l/meetup-join/19%3ameeting")
+
+    @Test
+    fun `webex links are detected`() = assertMeetingLink("https://acme.webex.com/meet/bob")
+
+    @Test
+    fun `google meet link in the location field is found`() =
+        runTest {
+            assertEquals(
+                "https://meet.google.com/abc-defg-hij",
+                eventWith(description = "Weekly sync", location = "https://meet.google.com/abc-defg-hij").meetingUrl,
+            )
+        }
+
+    @Test
     fun `zoom links are detected`() = assertMeetingLink("https://us02web.zoom.us/j/123456789?pwd=x")
 
     @Test
