@@ -217,6 +217,18 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
             "**/*AppFunctionInventory*.class",
             "**/*AppFunctionInvoker*.class",
             "androidx/appfunctions/internal/**",
+            "appfunctions_aggregated_deps/**",
+            // Other generated code: Room (*_Impl) and Hilt component tree metadata.
+            "**/*_Impl.class",
+            "**/*_Impl$*.class",
+            "**/*_ComponentTreeDeps*.class",
+            // Thin wrappers over Play/Firebase/Wearable/TTS SDKs with no app logic of their own.
+            "**/InAppUpdateManagerImpl*.class",
+            "**/ReviewManagerImpl*.class",
+            "**/FirebaseAnalyticsImpl*.class",
+            "**/TextToSpeechHelper*.class",
+            "**/LocationRepositoryImpl*.class",
+            "**/WearMessagingHelper*.class",
         )
     classDirectories.setFrom(
         files(
