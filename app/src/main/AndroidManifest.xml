@@ -105,6 +105,29 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/daily_briefing_widget_info" />
         </receiver>
+
+        <!-- Entry point the system binds to run KairosAppFunctions. Since androidx.appfunctions
+             1.0.0-alpha10 the library no longer declares it (the old appfunctions-service artifact
+             did), so without this block no function is indexed and every call fails with
+             "App function not found". -->
+        <service
+            android:name="androidx.appfunctions.PlatformAppFunctionService"
+            android:exported="true"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
+            tools:targetApi="36">
+            <property
+                android:name="android.app.appfunctions"
+                android:value="app_functions.xml" />
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="app_functions_v2.xml" />
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
