@@ -2,6 +2,9 @@ package digital.tonima.core.delegates
 
 import com.paulrybitskyi.hiltbinder.BindType
 import com.paulrybitskyi.hiltbinder.BindType.Component.SINGLETON
+import digital.tonima.core.analytics.CrashReporter
+import digital.tonima.core.analytics.coroutineExceptionHandler
+import digital.tonima.core.analytics.runOrReport
 import digital.tonima.core.billing.BillingManager
 import digital.tonima.core.billing.SubscriptionManager
 import digital.tonima.core.repository.AppPreferencesRepository
@@ -24,17 +27,22 @@ class DefaultProUserProvider
         private val billingManager: BillingManager,
         private val subscriptionManager: SubscriptionManager,
         private val appPreferencesRepository: AppPreferencesRepository,
+        private val crashReporter: CrashReporter,
     ) : ProUserProvider {
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        private val scope =
+            CoroutineScope(
+                SupervisorJob() + Dispatchers.Main + crashReporter.coroutineExceptionHandler("DefaultProUserProvider"),
+            )
 
+        // Only the value shown until billing answers: an unreadable cache falls back to "not pro".
         private val initialProStatus =
-            runBlocking {
-                appPreferencesRepository.isProUser().first()
+            crashReporter.runOrReport("DefaultProUserProvider: failed to read cached pro status", fallback = false) {
+                runBlocking { appPreferencesRepository.isProUser().first() }
             }
 
         private val initialAiStatus =
-            runBlocking {
-                appPreferencesRepository.isAiUser().first()
+            crashReporter.runOrReport("DefaultProUserProvider: failed to read cached ai status", fallback = false) {
+                runBlocking { appPreferencesRepository.isAiUser().first() }
             }
 
         override val isProUser: StateFlow<Boolean> =

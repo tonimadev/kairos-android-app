@@ -16,12 +16,15 @@ import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import dagger.hilt.internal.GeneratedComponent
 import dagger.hilt.internal.GeneratedComponentManager
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSchedulingWorker
 import digital.tonima.core.service.DailyBriefingWorker
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -30,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.IOException
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -38,10 +42,13 @@ class WakeUpReceiverTestApp :
     Application(),
     GeneratedComponentManager<Any> {
     lateinit var preferences: AppPreferencesRepository
+    lateinit var crashReporter: CrashReporter
 
     override fun generatedComponent(): Any =
         object : GeneratedComponent, WakeUpReceiver.WakeUpEntryPoint {
             override fun appPreferencesRepository() = preferences
+
+            override fun crashReporter() = crashReporter
         }
 }
 
@@ -50,11 +57,13 @@ class WakeUpReceiverTestApp :
 class WakeUpReceiverTest {
     private lateinit var app: WakeUpReceiverTestApp
     private val preferences: AppPreferencesRepository = mockk(relaxed = true)
+    private val crashReporter: CrashReporter = mockk(relaxed = true)
 
     @Before
     fun setUp() {
         app = ApplicationProvider.getApplicationContext()
         app.preferences = preferences
+        app.crashReporter = crashReporter
         // Enqueued work runs immediately in the test WorkManager; a stub worker keeps the real
         // workers (and their Hilt dependencies) out of this test, which only checks what is enqueued.
         WorkManagerTestInitHelper.initializeTestWorkManager(
@@ -123,6 +132,17 @@ class WakeUpReceiverTest {
         coVerify(timeout = 5_000) { preferences.getWakeUpHistory() }
         Thread.sleep(200) // the receiver works on Dispatchers.IO; give it time to (not) write
         coVerify(exactly = 0) { preferences.addWakeUpTimestamp(any()) }
+        assertTrue(workInfos(BRIEFING_WORK).isEmpty())
+    }
+
+    @Test
+    fun `a storage failure while recording the wake-up is reported instead of crashing`() {
+        val failure = IOException("disk error")
+        every { preferences.getWakeUpHistory() } returns flow { throw failure }
+
+        WakeUpReceiver().onReceive(app, Intent(Intent.ACTION_USER_PRESENT))
+
+        verify(timeout = 5_000) { crashReporter.recordNonFatal(failure, any()) }
         assertTrue(workInfos(BRIEFING_WORK).isEmpty())
     }
 

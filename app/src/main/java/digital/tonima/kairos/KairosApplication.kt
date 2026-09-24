@@ -15,6 +15,8 @@ import androidx.work.WorkManager
 import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.HiltAndroidApp
 import digital.tonima.core.ai.appfunctions.KairosAppFunctions
+import digital.tonima.core.analytics.CrashReporter
+import digital.tonima.core.analytics.coroutineExceptionHandler
 import digital.tonima.core.delegates.ProUserProvider
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSchedulingWorker
@@ -50,6 +52,9 @@ class KairosApplication :
     @Inject
     lateinit var proUserProvider: ProUserProvider
 
+    @Inject
+    lateinit var crashReporter: CrashReporter
+
     override val appFunctionConfiguration: AppFunctionConfiguration
         get() =
             AppFunctionConfiguration.Builder()
@@ -65,8 +70,10 @@ class KairosApplication :
 
     override fun onCreate() {
         super.onCreate()
-        MobileAds.initialize(this) { initializationStatus ->
-            logcat(LogPriority.INFO) { "MobileAds initialized: $initializationStatus" }
+        initializeMobileAds(crashReporter) {
+            MobileAds.initialize(this) { initializationStatus ->
+                logcat(LogPriority.INFO) { "MobileAds initialized: $initializationStatus" }
+            }
         }
         try {
             WorkManager.initialize(this, workManagerConfiguration)
@@ -91,7 +98,7 @@ class KairosApplication :
                 LogPriority.ERROR,
             ) { "KairosApplication: failed to init CalendarChangeObserver: ${t.localizedMessage}" }
         }
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO + crashReporter.coroutineExceptionHandler("KairosApplication")).launch {
             val installationDate = appPreferencesRepository.getInstallationDate().first()
             if (installationDate == 0L) {
                 appPreferencesRepository.setInstallationDate(System.currentTimeMillis())
