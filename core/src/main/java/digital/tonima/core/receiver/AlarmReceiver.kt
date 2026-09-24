@@ -13,10 +13,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors.fromApplication
 import dagger.hilt.components.SingletonComponent
 import digital.tonima.core.analytics.Analytics
+import digital.tonima.core.analytics.CrashReporter
+import digital.tonima.core.analytics.coroutineExceptionHandler
+import digital.tonima.core.analytics.runOrReport
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.kairos.core.R
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -58,8 +62,14 @@ class AlarmReceiver : BroadcastReceiver() {
     @Inject
     lateinit var appStatusRepository: AppPreferencesRepository
 
-    // Escopo customizado para manter as tarefas rodando em background (IO) com segurança
-    private val receiverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @Inject
+    lateinit var crashReporter: CrashReporter
+
+    // Escopo customizado para manter as tarefas rodando em background (IO) com segurança.
+    // Lazy because the handler needs the injected CrashReporter.
+    private val receiverScope by lazy {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO + crashReporter.coroutineExceptionHandler("AlarmReceiver"))
+    }
 
     @SuppressLint("MissingPermission")
     override fun onReceive(
@@ -170,8 +180,10 @@ class AlarmReceiver : BroadcastReceiver() {
         receiverScope.launch {
             try {
                 appStatusRepository.incrementSnoozeCount()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                logcat { "Failed to increment snooze count: ${e.message}" }
+                crashReporter.recordNonFatal(e, "AlarmReceiver: failed to increment snooze count")
             } finally {
                 pendingResult.finish()
             }
@@ -189,7 +201,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 .scheduler()
                 .scheduleSnooze(eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation, endTime)
         } catch (e: Exception) {
-            logcat { "Failed to access EventAlarmScheduler via Hilt: ${e.message}" }
+            crashReporter.recordNonFatal(e, "AlarmReceiver: failed to schedule snooze")
         }
     }
 
@@ -232,10 +244,8 @@ class AlarmReceiver : BroadcastReceiver() {
                 // occurrences of a recurring series already armed before it was disabled),
                 // so re-validate here instead of trusting AlarmManager alone.
                 val isGloballyEnabled =
-                    try {
+                    crashReporter.runOrReport("AlarmReceiver: failed to read global alarm switch", fallback = true) {
                         appStatusRepository.isGlobalAlarmEnabled().first()
-                    } catch (_: Exception) {
-                        true
                     }
                 if (!isGloballyEnabled) {
                     logcat { "Alarm fired for '$eventTitle' but alarms are globally disabled; ignoring." }
@@ -243,13 +253,11 @@ class AlarmReceiver : BroadcastReceiver() {
                 }
 
                 val isDisabled =
-                    try {
+                    crashReporter.runOrReport("AlarmReceiver: failed to read disabled events", fallback = false) {
                         val disabledInstanceIds = appStatusRepository.getDisabledEventIds().first()
                         val disabledSeriesIds = appStatusRepository.getDisabledSeriesIds().first()
                         disabledInstanceIds.contains(uniqueId.toString()) ||
                             disabledSeriesIds.contains(eventId.toString())
-                    } catch (_: Exception) {
-                        false
                     }
                 if (isDisabled) {
                     logcat { "Alarm fired for disabled event '$eventTitle'; ignoring." }
@@ -258,10 +266,8 @@ class AlarmReceiver : BroadcastReceiver() {
 
                 // ── Auto Focus Mode: enable DND + schedule end ──────────────────────
                 val isAutoFocusEnabled =
-                    try {
+                    crashReporter.runOrReport("AlarmReceiver: failed to read auto focus setting", fallback = false) {
                         appStatusRepository.isAutoFocusModeEnabled().first()
-                    } catch (_: Exception) {
-                        false
                     }
 
                 if (isAutoFocusEnabled && endTime > 0L) {
@@ -270,10 +276,8 @@ class AlarmReceiver : BroadcastReceiver() {
 
                 // ── Auto Join: skip alarm screen and open meeting URL ───────────────
                 val isAutoJoinEnabled =
-                    try {
+                    crashReporter.runOrReport("AlarmReceiver: failed to read auto join setting", fallback = false) {
                         appStatusRepository.isAutoJoinEnabled().first()
-                    } catch (_: Exception) {
-                        false
                     }
 
                 if (isAutoJoinEnabled && !meetingUrl.isNullOrEmpty()) {
