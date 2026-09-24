@@ -53,7 +53,7 @@ class KairosComplicationService : ComplicationDataSourceService() {
                     digital.tonima.kairos.wear.sync.WearEventCache
                         .load(this)
                 cached.filter { it.startTime >= now }.minByOrNull { it.startTime }
-            } catch (t: Throwable) {
+            } catch (t: Exception) {
                 logcat(LogPriority.ERROR) { "Erro ao obter o próximo evento: ${t.localizedMessage}" }
                 null
             }

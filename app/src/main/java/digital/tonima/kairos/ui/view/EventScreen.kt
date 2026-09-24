@@ -8,6 +8,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.READ_CALENDAR
 import android.Manifest.permission.WRITE_CALENDAR
 import android.app.Activity.RESULT_OK
+import android.content.ActivityNotFoundException
 import android.content.ContentUris
 import android.content.Intent
 import android.os.Build
@@ -119,6 +120,8 @@ import digital.tonima.kairos.ui.components.InsightsContent
 import digital.tonima.kairos.ui.components.MainContent
 import digital.tonima.kairos.ui.components.PermissionGate
 import digital.tonima.kairos.ui.components.SettingsActions
+import logcat.LogPriority
+import logcat.logcat
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -230,7 +233,8 @@ fun EventScreen(
                         }
                     try {
                         context.startActivity(intent)
-                    } catch (_: Exception) {
+                    } catch (e: ActivityNotFoundException) {
+                        logcat("EventScreen", LogPriority.WARN) { "No app can open event ${event.id}: ${e.message}" }
                         Toast.makeText(context, cannotOpenEvent, Toast.LENGTH_SHORT).show()
                     }
                 },

@@ -90,7 +90,7 @@ class WearMessagesListenerService : WearableListenerService() {
                 REPLACE,
                 request,
             )
-        } catch (t: Throwable) {
+        } catch (t: Exception) {
             logcat(
                 LogPriority.ERROR,
             ) { "Phone: Failed to enqueue PhoneEventSyncWorker on request: ${t.localizedMessage}" }

@@ -2,6 +2,9 @@ package digital.tonima.core.data.repository
 
 import com.paulrybitskyi.hiltbinder.BindType
 import digital.tonima.kairos.core.BuildConfig
+import kotlinx.coroutines.CancellationException
+import logcat.LogPriority
+import logcat.logcat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +34,10 @@ class DirectionsRepositoryImpl
                 } else {
                     null
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
+                logcat(LogPriority.WARN) { "Directions request failed: ${e.message}" }
                 null
             }
         }

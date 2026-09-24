@@ -43,11 +43,15 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import digital.tonima.core.ai.repository.DailyBriefingRepository
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.billing.SubscriptionManager
 import digital.tonima.core.data.repository.CalendarRepository
 import digital.tonima.kairos.MainActivity
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.model.Event
+import kotlinx.coroutines.CancellationException
+import logcat.LogPriority
+import logcat.logcat
 import java.time.Instant.ofEpochMilli
 import java.time.LocalDate
 import java.time.YearMonth
@@ -64,6 +68,8 @@ class DailyBriefingWidget : GlanceAppWidget() {
         fun calendarRepository(): CalendarRepository
 
         fun subscriptionManager(): SubscriptionManager
+
+        fun crashReporter(): CrashReporter
     }
 
     override suspend fun provideGlance(
@@ -95,7 +101,13 @@ class DailyBriefingWidget : GlanceAppWidget() {
                         .sortedBy { it.startTime }
                         .take(3)
                 ImmutableList.copyOf(filteredList)
-            } catch (_: Exception) {
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: SecurityException) {
+                logcat(LogPriority.WARN) { "DailyBriefingWidget: calendar permission missing: ${e.message}" }
+                ImmutableList.of()
+            } catch (e: Exception) {
+                entryPoint.crashReporter().recordNonFatal(e, "DailyBriefingWidget: failed to load today's events")
                 ImmutableList.of()
             }
 

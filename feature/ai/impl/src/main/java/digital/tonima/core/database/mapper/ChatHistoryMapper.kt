@@ -7,6 +7,8 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
+import logcat.LogPriority
+import logcat.logcat
 
 fun ChatHistoryEntity.toChatMessage(): ChatMessage? {
     val messageRole = if (role == "USER") ChatMessage.Role.USER else ChatMessage.Role.ASSISTANT
@@ -66,7 +68,12 @@ private fun parseJsonMap(json: String?): Map<String, Any?> =
                 else -> element.toString()
             }
         }
-    } catch (_: Exception) {
+    } catch (e: IllegalArgumentException) {
+        // SerializationException (malformed JSON) and non-object JSON are both IllegalArgumentException.
+        logcat(
+            "ChatHistoryMapper",
+            LogPriority.ERROR,
+        ) { "Chat history: unreadable metadata, dropping it: ${e.message}" }
         emptyMap()
     }
 

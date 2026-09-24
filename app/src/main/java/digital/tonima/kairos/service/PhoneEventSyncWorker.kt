@@ -16,6 +16,7 @@ import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.data.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
 import digital.tonima.core.delegates.ProUserProvider
@@ -32,6 +33,7 @@ import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
 import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
 import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import logcat.LogPriority
@@ -48,6 +50,7 @@ class PhoneEventSyncWorker
         private val getEventsForMonthUseCase: GetEventsForMonthUseCase,
         private val proUserProvider: ProUserProvider,
         private val calculateDepartureTimeUseCase: CalculateDepartureTimeUseCase,
+        private val crashReporter: CrashReporter,
     ) : CoroutineWorker(appContext, workerParams) {
         override suspend fun doWork(): Result =
             try {
@@ -101,8 +104,14 @@ class PhoneEventSyncWorker
                 val request = putReq.asPutDataRequest().setUrgent()
                 dataClient.putDataItem(request).await()
                 Result.success()
-            } catch (t: Throwable) {
-                logcat(LogPriority.ERROR) { "PhoneEventSyncWorker failed: ${t.localizedMessage}" }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: SecurityException) {
+                // Expected while the calendar permission is not granted.
+                logcat(LogPriority.WARN) { "PhoneEventSyncWorker: calendar not readable: ${e.message}" }
+                Result.retry()
+            } catch (e: Exception) {
+                crashReporter.recordNonFatal(e, "PhoneEventSyncWorker: failed to sync events to the watch")
                 Result.retry()
             }
 

@@ -10,6 +10,7 @@ import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataMap
 import com.google.android.gms.wearable.PutDataRequest
 import com.google.android.gms.wearable.Wearable
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.data.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.data.usecases.DepartureInfo
 import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
@@ -22,6 +23,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -43,6 +45,7 @@ class PhoneEventSyncWorkerTest {
     private val proUserProvider: ProUserProvider = mockk()
     private val calculateDepartureTime: CalculateDepartureTimeUseCase = mockk()
     private val dataClient: DataClient = mockk()
+    private val crashReporter: CrashReporter = mockk(relaxed = true)
     private val sent = slot<PutDataRequest>()
 
     @Before
@@ -151,6 +154,17 @@ class PhoneEventSyncWorkerTest {
             coEvery { getEventsForMonth(any()) } throws SecurityException("no calendar permission")
 
             assertEquals(ListenableWorker.Result.retry(), worker().doWork())
+            verify(exactly = 0) { crashReporter.recordNonFatal(any(), any()) }
+        }
+
+    @Test
+    fun `an unexpected sync failure is retried and reported`() =
+        runTest {
+            val failure = IllegalStateException("data layer unavailable")
+            coEvery { getEventsForMonth(any()) } throws failure
+
+            assertEquals(ListenableWorker.Result.retry(), worker().doWork())
+            verify { crashReporter.recordNonFatal(failure, any()) }
         }
 
     private fun worker() =
@@ -160,6 +174,7 @@ class PhoneEventSyncWorkerTest {
             getEventsForMonth,
             proUserProvider,
             calculateDepartureTime,
+            crashReporter,
         )
 
     private fun givenEvents(vararg events: Event) {

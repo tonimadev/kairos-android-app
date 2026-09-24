@@ -27,6 +27,7 @@ import digital.tonima.core.sync.WearSyncSchema.PATH_EVENTS_24H
 import digital.tonima.core.sync.WearSyncSchema.PATH_SNOOZE_ALARM
 import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.WorkNames
+import logcat.LogPriority
 import logcat.logcat
 import digital.tonima.kairos.core.R as coreR
 
@@ -92,8 +93,9 @@ class WearEventListenerService : WearableListenerService() {
                                 events.clear()
                                 events.addAll(parsed)
                                 receivedEvents = true
-                            } catch (t: Throwable) {
-                                logcat { "Wear listener parse error: ${t.localizedMessage}" }
+                            } catch (e: Exception) {
+                                // Keeps the previous cache instead of replacing it with a partial list.
+                                logcat(LogPriority.ERROR) { "Wear listener parse error: ${e.localizedMessage}" }
                             }
                         }
                         path.startsWith(PATH_DISMISS_ALARM) -> {

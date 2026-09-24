@@ -45,6 +45,8 @@ import androidx.core.net.toUri
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.R.drawable.ic_k_monochrome
 import digital.tonima.kairos.core.ui.theme.Dimensions
+import logcat.LogPriority
+import logcat.logcat
 
 @Composable
 fun DrawerContent(
@@ -65,7 +67,7 @@ fun DrawerContent(
                 val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
                 packageInfo.versionName ?: "N/A"
             } catch (e: PackageManager.NameNotFoundException) {
-                e.printStackTrace()
+                logcat("Drawer", LogPriority.WARN) { "Drawer: version name unavailable: ${e.message}" }
                 "N/A"
             }
         }

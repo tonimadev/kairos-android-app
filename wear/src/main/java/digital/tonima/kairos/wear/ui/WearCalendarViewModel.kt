@@ -138,7 +138,7 @@ class WearCalendarViewModel
                                 LogPriority.ERROR,
                             ) { "WearCalendarViewModel: Failed to obtain connected nodes: ${t.localizedMessage}" }
                         }
-                } catch (t: Throwable) {
+                } catch (t: Exception) {
                     logcat(
                         LogPriority.ERROR,
                     ) { "WearCalendarViewModel: Exception while requesting sync: ${t.localizedMessage}" }
@@ -154,7 +154,7 @@ class WearCalendarViewModel
                         ExistingWorkPolicy.REPLACE,
                         OneTimeWorkRequestBuilder<CachedEventSchedulingWorker>().build(),
                     )
-            } catch (e: Throwable) {
+            } catch (e: Exception) {
                 logcat(LogPriority.ERROR) {
                     "WearCalendarViewModel: Failed to enqueue CachedEventSchedulingWorker: ${e.localizedMessage}"
                 }
