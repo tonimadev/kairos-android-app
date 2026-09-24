@@ -6,9 +6,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.kairos.core.model.Event
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.firstOrNull
 import logcat.LogPriority
 import logcat.logcat
@@ -28,6 +30,7 @@ class CachedEventSchedulingWorker
         @Assisted workerParams: WorkerParameters,
         private val appPreferencesRepository: AppPreferencesRepository,
         private val scheduler: EventAlarmScheduler,
+        private val crashReporter: CrashReporter,
     ) : CoroutineWorker(appContext, workerParams) {
         override suspend fun doWork(): Result {
             return try {
@@ -99,8 +102,11 @@ class CachedEventSchedulingWorker
                 }
                 rememberScheduled(toSchedule, events, now)
                 Result.success()
-            } catch (t: Throwable) {
-                logcat(LogPriority.ERROR) { "Wear: CachedEventSchedulingWorker failed: ${t.localizedMessage}" }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // The watch's alarms were not (re)scheduled: make it visible in production.
+                crashReporter.recordNonFatal(e, "Wear: CachedEventSchedulingWorker failed to schedule alarms")
                 Result.failure()
             }
         }

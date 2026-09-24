@@ -13,6 +13,7 @@ import dagger.hilt.android.internal.managers.ServiceComponentManager
 import dagger.hilt.internal.GeneratedComponent
 import dagger.hilt.internal.GeneratedComponentManager
 import digital.tonima.core.analytics.Analytics
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.repository.AppPreferencesRepositoryImpl
 import digital.tonima.core.sync.WearMessagingHelper
@@ -41,12 +42,14 @@ class AlarmServiceTestApp :
     GeneratedComponentManager<Any> {
     lateinit var analytics: Analytics
     lateinit var wearMessagingHelper: WearMessagingHelper
+    lateinit var crashReporter: CrashReporter
 
     private val serviceComponent =
         object : ServiceComponent, GeneratedComponent, AlarmSoundAndVibrateService_GeneratedInjector {
             override fun injectAlarmSoundAndVibrateService(service: AlarmSoundAndVibrateService) {
                 service.analytics = analytics
                 service.wearMessagingHelper = wearMessagingHelper
+                service.crashReporter = crashReporter
             }
         }
 
@@ -73,6 +76,7 @@ class AlarmSoundAndVibrateServiceTest {
         app = ApplicationProvider.getApplicationContext()
         app.analytics = analytics
         app.wearMessagingHelper = wearMessagingHelper
+        app.crashReporter = mockk(relaxed = true)
     }
 
     // region Start

@@ -7,6 +7,8 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import digital.tonima.kairos.core.R
+import logcat.LogPriority
+import logcat.logcat
 
 object NotificationHelper {
     const val CHANNEL_DAILY_BRIEFING = "daily_briefing_channel"
@@ -54,7 +56,7 @@ object NotificationHelper {
             try {
                 notify(NOTIFICATION_ID_DAILY_BRIEFING, builder.build())
             } catch (e: SecurityException) {
-                // Permission not granted
+                logcat(LogPriority.WARN) { "Daily briefing not shown, notification permission denied: ${e.message}" }
             }
         }
     }
@@ -77,7 +79,9 @@ object NotificationHelper {
             try {
                 notify(NOTIFICATION_ID_DEVICE_HEALTH_ALERT, builder.build())
             } catch (e: SecurityException) {
-                // Permission not granted
+                logcat(
+                    LogPriority.WARN,
+                ) { "Device health alert not shown, notification permission denied: ${e.message}" }
             }
         }
     }

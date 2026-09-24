@@ -66,7 +66,7 @@ object CalendarChangeObserver {
                 cr.registerContentObserver(CalendarContract.Instances.CONTENT_URI, true, observer!!)
                 initialized = true
                 logcat { "CalendarChangeObserver: registered content observers." }
-            } catch (t: Throwable) {
+            } catch (t: Exception) {
                 logcat(
                     LogPriority.ERROR,
                 ) { "CalendarChangeObserver: failed to register observer: ${t.localizedMessage}" }
@@ -114,7 +114,7 @@ object CalendarChangeObserver {
                 reschedule,
             )
             logcat { "CalendarChangeObserver: enqueued watch sync and alarm rescheduling due to calendar change." }
-        } catch (t: Throwable) {
+        } catch (t: Exception) {
             logcat(LogPriority.ERROR) { "CalendarChangeObserver: failed to enqueue sync: ${t.localizedMessage}" }
         }
     }

@@ -7,7 +7,10 @@ import digital.tonima.core.data.repository.WeatherRepository
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.util.toOpenWeatherLang
 import digital.tonima.kairos.core.model.Event
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
+import logcat.LogPriority
+import logcat.logcat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,8 +64,11 @@ class CalculateDepartureTimeUseCaseImpl
                                 bufferSeconds += 600 // Add extra 10 minutes
                             }
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
-                        // Ignore weather errors, use base buffer
+                        // Weather is only an extra margin: on any failure keep the base buffer.
+                        logcat(LogPriority.WARN) { "Skipping weather buffer: ${e.message}" }
                     }
 
                     val totalSecondsToSubtract = travelTimeSeconds + bufferSeconds

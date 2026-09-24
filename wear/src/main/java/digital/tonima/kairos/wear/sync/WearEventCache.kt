@@ -13,7 +13,10 @@ import digital.tonima.core.sync.WearSyncSchema.KEY_START
 import digital.tonima.core.sync.WearSyncSchema.KEY_TITLE
 import digital.tonima.core.sync.WearSyncSchema.KEY_TRAVEL_TIME
 import digital.tonima.kairos.core.model.Event
+import logcat.LogPriority
+import logcat.logcat
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 object WearEventCache {
@@ -92,7 +95,8 @@ object WearEventCache {
                 )
             }
             list
-        } catch (_: Throwable) {
+        } catch (e: JSONException) {
+            logcat(LogPriority.ERROR) { "WearEventCache: corrupted cache '$key', ignoring it: ${e.message}" }
             emptyList()
         }
     }

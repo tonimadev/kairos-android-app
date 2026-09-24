@@ -1,6 +1,7 @@
 package digital.tonima.kairos.ui.view
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -12,6 +13,8 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import digital.tonima.kairos.core.R
+import logcat.LogPriority
+import logcat.logcat
 
 fun Context.findActivity(): Activity? {
     var context = this
@@ -64,7 +67,8 @@ fun launchVoiceCapture(
         }
     try {
         speechRecognizerLauncher.launch(intent)
-    } catch (_: Exception) {
+    } catch (e: ActivityNotFoundException) {
+        logcat("EventScreen", LogPriority.WARN) { "No speech recognizer available: ${e.message}" }
         Toast.makeText(context, R.string.cannot_open_event, Toast.LENGTH_SHORT).show()
     }
 }

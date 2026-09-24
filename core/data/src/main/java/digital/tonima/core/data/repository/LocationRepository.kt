@@ -7,7 +7,10 @@ import com.google.android.gms.location.LocationServices
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.permissions.PermissionManager
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import logcat.LogPriority
+import logcat.logcat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,7 +36,11 @@ class LocationRepositoryImpl
             return try {
                 val location = fusedLocationClient.lastLocation.await()
                 location?.let { "${it.latitude},${it.longitude}" }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
+                // Location services unavailable or permission revoked meanwhile.
+                logcat(LogPriority.WARN) { "Could not read the current location: ${e.message}" }
                 null
             }
         }
