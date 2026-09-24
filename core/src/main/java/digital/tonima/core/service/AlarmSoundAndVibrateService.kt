@@ -1,5 +1,6 @@
 package digital.tonima.core.service
 
+import android.app.ForegroundServiceStartNotAllowedException
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -48,6 +49,9 @@ class AlarmSoundAndVibrateService : Service() {
         const val EXTRA_SOURCE = "EXTRA_SOURCE"
         const val EXTRA_UNIQUE_ID = "EXTRA_UNIQUE_ID"
         const val ACTION_FINISH_ALARM_ACTIVITY = "digital.tonima.core.service.FINISH_ALARM_ACTIVITY"
+
+        /** Set when the alarm screen is opened by the fallback notification and must start the sound itself. */
+        const val EXTRA_START_ALARM_SOUND = "EXTRA_START_ALARM_SOUND"
         private const val NOTIFICATION_CHANNEL_ID = "calendar_alarm_channel"
         const val NOTIFICATION_ID = 0xA11A7
 
@@ -74,8 +78,21 @@ class AlarmSoundAndVibrateService : Service() {
                     putExtra(AlarmReceiver.EXTRA_EVENT_LOCATION, eventLocation)
                     putExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, eventEndTime)
                 }
-            ContextCompat.startForegroundService(context, intent)
+            try {
+                ContextCompat.startForegroundService(context, intent)
+            } catch (e: IllegalStateException) {
+                if (!isBackgroundStartBlocked(e)) throw e
+                logcat(logcat.LogPriority.WARN) {
+                    "AlarmSoundAndVibrateService: background start not allowed, posting fallback alarm notification"
+                }
+                AlarmFallbackNotification.post(context, intent, eventTitle, uniqueId)
+            }
         }
+
+        // ForegroundServiceStartNotAllowedException only exists on API 31+ (minSdk is 30),
+        // so it cannot be named in a catch clause directly.
+        private fun isBackgroundStartBlocked(e: IllegalStateException): Boolean =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is ForegroundServiceStartNotAllowedException
 
         fun stopAlarm(
             context: Context,

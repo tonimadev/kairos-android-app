@@ -96,6 +96,23 @@ class AlarmActivity : ComponentActivity() {
             ),
         )
 
+        // Opened by the fallback notification because the system blocked starting the alarm
+        // service from the background: now that this screen is visible, start the sound here.
+        if (savedInstanceState == null &&
+            intent.getBooleanExtra(AlarmSoundAndVibrateService.EXTRA_START_ALARM_SOUND, false)
+        ) {
+            AlarmSoundAndVibrateService.startAlarm(
+                this,
+                intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_TITLE),
+                intent.getIntExtra(AlarmReceiver.EXTRA_UNIQUE_ID, -1),
+                intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_ID, -1L),
+                intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_START_TIME, -1L),
+                intent.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL),
+                intent.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION),
+                intent.getLongExtra(AlarmReceiver.EXTRA_EVENT_END_TIME, -1L),
+            )
+        }
+
         collectSideEffects()
 
         setContent {
