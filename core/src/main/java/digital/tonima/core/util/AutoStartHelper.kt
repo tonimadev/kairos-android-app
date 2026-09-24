@@ -1,5 +1,6 @@
 package digital.tonima.core.util
 
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -9,6 +10,8 @@ import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import digital.tonima.kairos.core.R
+import logcat.LogPriority
+import logcat.logcat
 
 /**
  * Tenta abrir a tela de configurações de "Início Automático" (Autostart) específica do fabricante.
@@ -94,7 +97,17 @@ fun openAutostartSettings(context: Context) {
                     context.startActivity(intent)
                     didStartActivity = true
                     break
-                } catch (ignored: Exception) {
+                } catch (e: ActivityNotFoundException) {
+                    logcat(
+                        "AutoStartHelper",
+                        LogPriority.WARN,
+                    ) { "AutoStart screen ${intent.component} not found: ${e.message}" }
+                } catch (e: SecurityException) {
+                    // Some OEM screens resolve but are not exported to third-party apps.
+                    logcat(
+                        "AutoStartHelper",
+                        LogPriority.WARN,
+                    ) { "AutoStart screen ${intent.component} not allowed: ${e.message}" }
                 }
             }
         }
@@ -102,6 +115,9 @@ fun openAutostartSettings(context: Context) {
             openAppDetailsSettingsWithToast(context)
         }
     } catch (e: RuntimeException) {
+        logcat("AutoStartHelper", LogPriority.WARN) {
+            "AutoStart settings unavailable, falling back to app details: ${e.message}"
+        }
         openAppDetailsSettingsWithToast(context)
     }
 }
@@ -111,9 +127,16 @@ private fun openAppDetailsSettingsWithToast(context: Context) {
     val settingsIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
     try {
         settingsIntent.data = Uri.fromParts("package", context.packageName, null)
-    } catch (ignored: RuntimeException) {
+    } catch (e: RuntimeException) {
+        // Still opens the settings screen, just without jumping to this app.
+        logcat("AutoStartHelper", LogPriority.WARN) { "Could not target the app details page: ${e.message}" }
     }
-    context.startActivity(settingsIntent)
+    try {
+        context.startActivity(settingsIntent)
+    } catch (e: ActivityNotFoundException) {
+        // The toast above already tells the user where to find the setting manually.
+        logcat("AutoStartHelper", LogPriority.WARN) { "App details settings not available: ${e.message}" }
+    }
 }
 
 /**

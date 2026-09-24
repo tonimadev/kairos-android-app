@@ -299,35 +299,31 @@ class AiViewModel
         }
 
         private fun parseVoiceEventData(jsonStr: String): VoiceEventData? {
-            return try {
-                val title =
-                    Regex(
-                        "\"title\":\\s*\"([^\"]+)\"",
-                    ).find(jsonStr)?.groupValues?.get(1) ?: return null
-                val description =
-                    Regex(
-                        "\"description\":\\s*\"([^\"]+)\"",
-                    ).find(jsonStr)?.groupValues?.get(1)
-                val location =
-                    Regex(
-                        "\"location\":\\s*\"([^\"]+)\"",
-                    ).find(jsonStr)?.groupValues?.get(1)
-                val startTime =
-                    Regex(
-                        "\"startTime\":\\s*(\\d+)",
-                    ).find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
-                val endTime =
-                    Regex(
-                        "\"endTime\":\\s*(\\d+)",
-                    ).find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
-                val isAllDay =
-                    Regex(
-                        "\"isAllDay\":\\s*(true|false)",
-                    ).find(jsonStr)?.groupValues?.get(1)?.toBoolean() ?: false
-                VoiceEventData(title, description, location, startTime, endTime, isAllDay)
-            } catch (_: Exception) {
-                null
-            }
+            val title =
+                Regex(
+                    "\"title\":\\s*\"([^\"]+)\"",
+                ).find(jsonStr)?.groupValues?.get(1) ?: return null
+            val description =
+                Regex(
+                    "\"description\":\\s*\"([^\"]+)\"",
+                ).find(jsonStr)?.groupValues?.get(1)
+            val location =
+                Regex(
+                    "\"location\":\\s*\"([^\"]+)\"",
+                ).find(jsonStr)?.groupValues?.get(1)
+            val startTime =
+                Regex(
+                    "\"startTime\":\\s*(\\d+)",
+                ).find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
+            val endTime =
+                Regex(
+                    "\"endTime\":\\s*(\\d+)",
+                ).find(jsonStr)?.groupValues?.get(1)?.toLongOrNull()
+            val isAllDay =
+                Regex(
+                    "\"isAllDay\":\\s*(true|false)",
+                ).find(jsonStr)?.groupValues?.get(1)?.toBoolean() ?: false
+            return VoiceEventData(title, description, location, startTime, endTime, isAllDay)
         }
 
         private fun speak(text: String) {

@@ -1,6 +1,9 @@
 package digital.tonima.core.utils
 
 import digital.tonima.kairos.core.model.Event
+import logcat.LogPriority
+import logcat.logcat
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -76,8 +79,9 @@ object IcsParser {
                 value.length == 8 -> Pair(allDayDateFormat().parse(value)?.time ?: 0L, true)
                 else -> Pair(localDateFormat(tzid).parse(value)?.time ?: 0L, false)
             }
-        } catch (e: Exception) {
-            // Ignore parsing errors and return default
+        } catch (e: ParseException) {
+            // Malformed date in the user's file: fall back to an unset time for this field.
+            logcat(LogPriority.WARN) { "ICS: unparseable date '$value': ${e.message}" }
             Pair(0L, false)
         }
 

@@ -2,6 +2,9 @@ package digital.tonima.core.usecases
 
 import digital.tonima.core.data.repository.CalendarRepository
 import digital.tonima.core.utils.IcsParser
+import kotlinx.coroutines.CancellationException
+import logcat.LogPriority
+import logcat.logcat
 import javax.inject.Inject
 
 /** Failures the UI explains to the user; anything else is reported as a generic import error. */
@@ -54,7 +57,10 @@ class ImportIcsUseCase
                 }
 
                 Result.success(Unit)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
+                logcat(LogPriority.ERROR) { "ICS import failed: ${e.message}" }
                 Result.failure(e)
             }
         }

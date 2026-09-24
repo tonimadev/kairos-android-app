@@ -3,6 +3,9 @@ package digital.tonima.core.data.repository
 import com.paulrybitskyi.hiltbinder.BindType
 import digital.tonima.kairos.core.BuildConfig
 import digital.tonima.kairos.core.model.Weather
+import kotlinx.coroutines.CancellationException
+import logcat.LogPriority
+import logcat.logcat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,7 +32,10 @@ class WeatherRepositoryImpl
                     city = response.name,
                     conditionCode = response.weather.firstOrNull()?.id ?: 800,
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
+                logcat(LogPriority.WARN) { "Weather request failed: ${e.message}" }
                 null
             }
         }
@@ -51,7 +57,10 @@ class WeatherRepositoryImpl
                     city = response.name,
                     conditionCode = response.weather.firstOrNull()?.id ?: 800,
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
+                logcat(LogPriority.WARN) { "Weather request failed: ${e.message}" }
                 null
             }
         }

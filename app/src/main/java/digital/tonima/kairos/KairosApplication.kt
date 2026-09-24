@@ -93,10 +93,9 @@ class KairosApplication :
         enqueuePeriodic(this)
         try {
             CalendarChangeObserver.init(this)
-        } catch (t: Throwable) {
-            logcat(
-                LogPriority.ERROR,
-            ) { "KairosApplication: failed to init CalendarChangeObserver: ${t.localizedMessage}" }
+        } catch (e: Exception) {
+            // Calendar changes are then only picked up by the periodic sync.
+            crashReporter.recordNonFatal(e, "KairosApplication: failed to init CalendarChangeObserver")
         }
         CoroutineScope(Dispatchers.IO + crashReporter.coroutineExceptionHandler("KairosApplication")).launch {
             val installationDate = appPreferencesRepository.getInstallationDate().first()

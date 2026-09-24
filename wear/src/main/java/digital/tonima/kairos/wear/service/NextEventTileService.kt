@@ -64,7 +64,7 @@ class NextEventTileService : SuspendingTileService() {
                 val now = System.currentTimeMillis()
                 val cached = load(this@NextEventTileService)
                 cached.filter { it.startTime >= now }.minByOrNull { it.startTime }
-            } catch (t: Throwable) {
+            } catch (t: Exception) {
                 logcat(LogPriority.ERROR) { "Erro ao obter o próximo evento: ${t.localizedMessage}" }
                 null
             }

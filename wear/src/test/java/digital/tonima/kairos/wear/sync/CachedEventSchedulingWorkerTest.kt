@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.EventAlarmScheduler
 import digital.tonima.kairos.core.model.Event
@@ -31,6 +32,7 @@ class CachedEventSchedulingWorkerTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val preferences: AppPreferencesRepository = mockk()
     private val scheduler: EventAlarmScheduler = mockk(relaxed = true)
+    private val crashReporter: CrashReporter = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -225,6 +227,7 @@ class CachedEventSchedulingWorkerTest {
             every { preferences.isGlobalAlarmEnabled() } throws IllegalStateException("datastore corrupted")
 
             assertEquals(ListenableWorker.Result.failure(), worker().doWork())
+            verify { crashReporter.recordNonFatal(any<IllegalStateException>(), any()) }
         }
 
     @Test
@@ -269,6 +272,7 @@ class CachedEventSchedulingWorkerTest {
             mockk<WorkerParameters>(relaxed = true),
             preferences,
             scheduler,
+            crashReporter,
         )
 
     private fun event(

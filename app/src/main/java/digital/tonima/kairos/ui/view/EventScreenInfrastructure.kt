@@ -1,5 +1,6 @@
 package digital.tonima.kairos.ui.view
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import androidx.compose.material3.SnackbarHostState
@@ -27,6 +28,7 @@ import digital.tonima.core.viewmodel.EventSideEffect.ShowSnackbar
 import digital.tonima.core.viewmodel.EventViewModel
 import digital.tonima.core.viewmodel.SettingsIntent
 import digital.tonima.core.viewmodel.SettingsViewModel
+import logcat.LogPriority
 import logcat.logcat
 
 @Composable
@@ -173,7 +175,8 @@ private fun openPlayStoreFallback(context: Context) {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         context.startActivity(intent)
-    } catch (_: Exception) {
+    } catch (e: ActivityNotFoundException) {
+        logcat("EventScreen", LogPriority.WARN) { "Play Store app not available, opening the web page: ${e.message}" }
         val webIntent =
             Intent(
                 Intent.ACTION_VIEW,
@@ -181,6 +184,13 @@ private fun openPlayStoreFallback(context: Context) {
             ).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-        context.startActivity(webIntent)
+        try {
+            context.startActivity(webIntent)
+        } catch (webError: ActivityNotFoundException) {
+            logcat(
+                "EventScreen",
+                LogPriority.WARN,
+            ) { "No browser available to open the Play Store page: ${webError.message}" }
+        }
     }
 }
