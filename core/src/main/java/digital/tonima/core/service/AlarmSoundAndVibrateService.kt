@@ -23,6 +23,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.analytics.Analytics
+import digital.tonima.core.analytics.CrashReporter
+import digital.tonima.core.analytics.coroutineExceptionHandler
+import digital.tonima.core.analytics.runOrReport
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.repository.AppPreferencesRepositoryImpl
 import digital.tonima.core.sync.WearMessagingHelper
@@ -115,7 +118,15 @@ class AlarmSoundAndVibrateService : Service() {
     @Inject
     lateinit var wearMessagingHelper: WearMessagingHelper
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    @Inject
+    lateinit var crashReporter: CrashReporter
+
+    // Lazy because the handler needs the injected CrashReporter.
+    private val serviceScope by lazy {
+        CoroutineScope(
+            SupervisorJob() + Dispatchers.Main + crashReporter.coroutineExceptionHandler("AlarmSoundAndVibrateService"),
+        )
+    }
 
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
@@ -152,24 +163,22 @@ class AlarmSoundAndVibrateService : Service() {
                 ensureForeground(eventTitle, uniqueId, eventId, startTime, meetingUrl, eventLocation, eventEndTime)
 
                 val vibrateOnly =
-                    try {
+                    crashReporter.runOrReport(
+                        "AlarmSoundAndVibrateService: failed to read vibrate-only",
+                        fallback = false,
+                    ) {
                         runBlocking { AppPreferencesRepositoryImpl(applicationContext).getVibrateOnly().first() }
-                    } catch (e: Exception) {
-                        logcat(logcat.LogPriority.ERROR) {
-                            "AlarmSoundAndVibrateService: erro ao ler preferência vibrate-only: " +
-                                e.localizedMessage
-                        }
-                        false
                     }
 
                 val autoDismissMinutes =
-                    try {
+                    crashReporter.runOrReport(
+                        "AlarmSoundAndVibrateService: failed to read auto dismiss",
+                        fallback = 10,
+                    ) {
                         runBlocking {
                             AppPreferencesRepositoryImpl(applicationContext)
                                 .getAutoDismissMinutes().first()
                         }
-                    } catch (_: Exception) {
-                        10
                     }
 
                 autoDismissJob?.cancel()
@@ -205,12 +214,13 @@ class AlarmSoundAndVibrateService : Service() {
 
                 if (!vibrateOnly) {
                     val customRingtoneUriStr =
-                        try {
+                        crashReporter.runOrReport(
+                            "AlarmSoundAndVibrateService: failed to read custom ringtone",
+                            fallback = null,
+                        ) {
                             runBlocking {
                                 AppPreferencesRepositoryImpl(applicationContext).getCustomRingtoneUri().first()
                             }
-                        } catch (_: Exception) {
-                            null
                         }
 
                     val customUri = customRingtoneUriStr?.toUri()
@@ -242,7 +252,7 @@ class AlarmSoundAndVibrateService : Service() {
                                     .setUsage(AudioAttributes.USAGE_ALARM)
                                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                                     .build()
-                        } catch (e: Throwable) {
+                        } catch (e: Exception) {
                             logcat(logcat.LogPriority.WARN) {
                                 "AlarmSoundAndVibrateService: Falha ao definir AudioAttributes: " +
                                     e.localizedMessage
@@ -250,7 +260,7 @@ class AlarmSoundAndVibrateService : Service() {
                         }
                         try {
                             ringtone?.isLooping = true
-                        } catch (e: Throwable) {
+                        } catch (e: Exception) {
                             logcat(logcat.LogPriority.WARN) {
                                 "AlarmSoundAndVibrateService: Falha ao definir isLooping: " +
                                     e.localizedMessage
@@ -259,11 +269,12 @@ class AlarmSoundAndVibrateService : Service() {
                         try {
                             ringtone?.play()
                             logcat { "AlarmSoundAndVibrateService: Ringtone iniciado. Uri usada: $usedUri" }
-                        } catch (e: Throwable) {
-                            logcat(logcat.LogPriority.ERROR) {
-                                "AlarmSoundAndVibrateService: Erro ao tocar Ringtone: " +
-                                    e.localizedMessage
-                            }
+                        } catch (e: Exception) {
+                            // The alarm is now vibration-only: make it visible in production.
+                            crashReporter.recordNonFatal(
+                                e,
+                                "AlarmSoundAndVibrateService: failed to play ringtone $usedUri",
+                            )
                         }
                     } else {
                         logcat(logcat.LogPriority.ERROR) {
@@ -348,10 +359,7 @@ class AlarmSoundAndVibrateService : Service() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             } catch (e: Exception) {
-                logcat(logcat.LogPriority.ERROR) {
-                    "AlarmSoundAndVibrateService: Erro ao criar fullScreenPendingIntent: " +
-                        e.localizedMessage
-                }
+                crashReporter.recordNonFatal(e, "AlarmSoundAndVibrateService: failed to create full-screen intent")
                 null
             }
 
@@ -480,10 +488,7 @@ class AlarmSoundAndVibrateService : Service() {
                 startForeground(NOTIFICATION_ID, notification)
             }
         } catch (e: Exception) {
-            logcat(logcat.LogPriority.ERROR) {
-                "AlarmSoundAndVibrateService: " +
-                    "Error starting foreground: ${e.message}"
-            }
+            crashReporter.recordNonFatal(e, "AlarmSoundAndVibrateService: failed to start foreground")
         }
     }
 

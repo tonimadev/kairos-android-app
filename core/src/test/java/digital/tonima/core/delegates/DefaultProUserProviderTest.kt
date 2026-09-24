@@ -1,8 +1,10 @@
 package digital.tonima.core.delegates
 
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.billing.BillingManager
 import digital.tonima.core.billing.SubscriptionManager
 import digital.tonima.core.repository.AppPreferencesRepository
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -10,6 +12,7 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -21,6 +24,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DefaultProUserProviderTest {
@@ -30,6 +34,7 @@ class DefaultProUserProviderTest {
     private val billingManager: BillingManager = mockk(relaxed = true)
     private val subscriptionManager: SubscriptionManager = mockk(relaxed = true)
     private val preferences: AppPreferencesRepository = mockk(relaxed = true)
+    private val crashReporter: CrashReporter = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -48,7 +53,7 @@ class DefaultProUserProviderTest {
     @Test
     fun `in-app purchase grants pro but not ai features`() =
         runTest(dispatcher) {
-            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences)
+            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
 
             inAppPro.value = true
             runCurrent()
@@ -60,7 +65,7 @@ class DefaultProUserProviderTest {
     @Test
     fun `subscription grants both pro and ai features`() =
         runTest(dispatcher) {
-            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences)
+            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
 
             subscriptionPro.value = true
             runCurrent()
@@ -72,7 +77,7 @@ class DefaultProUserProviderTest {
     @Test
     fun `no purchase grants nothing`() =
         runTest(dispatcher) {
-            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences)
+            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
             runCurrent()
 
             assertFalse(provider.isProUser.value)
@@ -82,7 +87,7 @@ class DefaultProUserProviderTest {
     @Test
     fun `cancelling the subscription revokes ai but keeps pro from the one-time purchase`() =
         runTest(dispatcher) {
-            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences)
+            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
             inAppPro.value = true
             subscriptionPro.value = true
             runCurrent()
@@ -97,7 +102,7 @@ class DefaultProUserProviderTest {
     @Test
     fun `status changes are persisted`() =
         runTest(dispatcher) {
-            DefaultProUserProvider(billingManager, subscriptionManager, preferences)
+            DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
 
             subscriptionPro.value = true
             runCurrent()
@@ -112,7 +117,7 @@ class DefaultProUserProviderTest {
         every { preferences.isAiUser() } returns flowOf(true)
 
         // No dispatcher tick: this is the value screens read synchronously at startup.
-        val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences)
+        val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
 
         assertTrue(provider.isProUser.value)
         assertTrue(provider.isAiUser.value)
@@ -120,7 +125,7 @@ class DefaultProUserProviderTest {
 
     @Test
     fun `connects to the store on creation and forwards refresh`() {
-        val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences)
+        val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
 
         verify { billingManager.connect() }
         verify { subscriptionManager.connect() }
@@ -130,4 +135,27 @@ class DefaultProUserProviderTest {
         verify { billingManager.refresh() }
         verify { subscriptionManager.refresh() }
     }
+
+    @Test
+    fun `an unreadable status cache starts as not pro and is reported instead of crashing`() {
+        every { preferences.isProUser() } returns flow { throw IOException("disk error") }
+
+        val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
+
+        assertFalse(provider.isProUser.value)
+        verify { crashReporter.recordNonFatal(any<IOException>(), any()) }
+    }
+
+    @Test
+    fun `a failure persisting the status is reported instead of crashing`() =
+        runTest(dispatcher) {
+            coEvery { preferences.setProUser(any()) } throws IOException("disk full")
+            val provider = DefaultProUserProvider(billingManager, subscriptionManager, preferences, crashReporter)
+
+            inAppPro.value = true
+            runCurrent()
+
+            assertTrue(provider.isProUser.value)
+            verify { crashReporter.recordNonFatal(any<IOException>(), any()) }
+        }
 }

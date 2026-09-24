@@ -12,6 +12,7 @@ import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.internal.GeneratedComponent
 import dagger.hilt.internal.GeneratedComponentManager
 import digital.tonima.core.analytics.Analytics
+import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.service.EventAlarmScheduler
@@ -46,6 +47,7 @@ class AlarmReceiverTestApp :
     lateinit var scheduler: EventAlarmScheduler
     lateinit var analytics: Analytics
     lateinit var preferences: AppPreferencesRepository
+    lateinit var crashReporter: CrashReporter
 
     override fun generatedComponent(): Any =
         object : GeneratedComponent, AlarmReceiver_GeneratedInjector, AlarmReceiver.SchedulerEntryPoint {
@@ -53,6 +55,7 @@ class AlarmReceiverTestApp :
                 alarmReceiver.scheduler = scheduler
                 alarmReceiver.analytics = analytics
                 alarmReceiver.appStatusRepository = preferences
+                alarmReceiver.crashReporter = crashReporter
             }
 
             override fun scheduler(): EventAlarmScheduler = scheduler
@@ -67,6 +70,7 @@ class AlarmReceiverTest {
     private val scheduler: EventAlarmScheduler = mockk(relaxed = true)
     private val analytics: Analytics = mockk(relaxed = true)
     private val preferences: AppPreferencesRepository = mockk(relaxed = true)
+    private val crashReporter: CrashReporter = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -74,6 +78,7 @@ class AlarmReceiverTest {
         app.scheduler = scheduler
         app.analytics = analytics
         app.preferences = preferences
+        app.crashReporter = crashReporter
 
         every { preferences.isGlobalAlarmEnabled() } returns flowOf(true)
         every { preferences.getDisabledEventIds() } returns flowOf(emptySet())
@@ -147,6 +152,7 @@ class AlarmReceiverTest {
         deliver(alarmIntent())
 
         assertNotNull("A storage failure must never silence an alarm", nextStartedService())
+        verify { crashReporter.recordNonFatal(any(), "AlarmReceiver: failed to read global alarm switch") }
     }
 
     @Test
