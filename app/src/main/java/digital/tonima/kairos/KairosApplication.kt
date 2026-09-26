@@ -70,11 +70,12 @@ class KairosApplication :
 
     override fun onCreate() {
         super.onCreate()
-        initializeMobileAds(crashReporter) {
-            MobileAds.initialize(this) { initializationStatus ->
-                logcat(LogPriority.INFO) { "MobileAds initialized: $initializationStatus" }
+        CoroutineScope(Dispatchers.IO + crashReporter.coroutineExceptionHandler("MobileAds"))
+            .launchMobileAdsInitialization(crashReporter) {
+                MobileAds.initialize(this) { initializationStatus ->
+                    logcat(LogPriority.INFO) { "MobileAds initialized: $initializationStatus" }
+                }
             }
-        }
         try {
             WorkManager.initialize(this, workManagerConfiguration)
         } catch (e: IllegalStateException) {
