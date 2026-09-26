@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,7 +23,10 @@ fun AdBannerView(
     if (isProUser) return
 
     val isInspectionMode = LocalInspectionMode.current
-    val adWidth = LocalWindowInfo.current.containerSize.width
+    // containerSize is in pixels, but the adaptive banner API takes the width in dp. Passing pixels
+    // requests a banner several times wider than the screen, which AdMob fails to fill.
+    val containerWidthPx = LocalWindowInfo.current.containerSize.width
+    val adWidth = with(LocalDensity.current) { containerWidthPx.toDp().value.toInt() }
 
     AndroidView(
         modifier =
