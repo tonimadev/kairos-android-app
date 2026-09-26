@@ -17,6 +17,9 @@ plugins {
 
 val isRunningReleaseTask: Boolean = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
 
+// AdMob ids that were not configured for a release build; see verifyReleaseAdMobConfig below.
+val missingReleaseAdMobConfig = mutableListOf<String>()
+
 android {
     namespace = "digital.tonima.kairos"
     compileSdk = rootProject.extra["COMPILE_SDK_VERSION"].toString().toInt()
@@ -72,23 +75,35 @@ android {
                     localProperties.load(FileInputStream(localPropertiesFile))
                 }
 
-                admobAppId =
-                    findProperty("ADMOB_APP_ID")?.toString()
-                        ?: System.getenv("ADMOB_APP_ID")
-                        ?: localProperties.getProperty("admob.app.id")
-                        ?: admobAppIdTest
+                // Unset GitHub secrets expand to an empty string rather than a missing variable, so
+                // blank values must fall through too.
+                fun admobValue(
+                    name: String,
+                    vararg localKeys: String,
+                ): String? =
+                    (
+                        listOf(findProperty(name)?.toString(), System.getenv(name)) +
+                            localKeys.map { localProperties.getProperty(it) }
+                    ).firstOrNull { !it.isNullOrBlank() }
 
-                admobBannerAdUnitIdHome =
-                    findProperty("ADMOB_BANNER_AD_UNIT_HOME")?.toString()
-                        ?: System.getenv("ADMOB_BANNER_AD_UNIT_HOME")
-                        ?: localProperties.getProperty("admob.banner.ad.unit.home")
-                        ?: admobBannerAdUnitIdTest
-                admobBannerAdUnitIdAlarm =
-                    findProperty("ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY")?.toString()
-                        ?: System.getenv("ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY")
-                        ?: localProperties.getProperty("admob.banner.ad.unit.alarm_activity")
-                        ?: localProperties.getProperty("admob.banner.ad.unit.alarm_acitivity")
-                        ?: admobBannerAdUnitIdTest
+                val resolvedAppId = admobValue("ADMOB_APP_ID", "admob.app.id")
+                val resolvedHome = admobValue("ADMOB_BANNER_AD_UNIT_HOME", "admob.banner.ad.unit.home")
+                val resolvedAlarm =
+                    admobValue(
+                        "ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY",
+                        "admob.banner.ad.unit.alarm_activity",
+                        "admob.banner.ad.unit.alarm_acitivity",
+                    )
+                missingReleaseAdMobConfig +=
+                    listOf(
+                        "ADMOB_APP_ID" to resolvedAppId,
+                        "ADMOB_BANNER_AD_UNIT_HOME" to resolvedHome,
+                        "ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY" to resolvedAlarm,
+                    ).filter { (_, value) -> value == null }.map { it.first }
+
+                admobAppId = resolvedAppId ?: admobAppIdTest
+                admobBannerAdUnitIdHome = resolvedHome ?: admobBannerAdUnitIdTest
+                admobBannerAdUnitIdAlarm = resolvedAlarm ?: admobBannerAdUnitIdTest
             } else {
                 admobAppId = admobAppIdTest
                 admobBannerAdUnitIdHome = admobBannerAdUnitIdTest
@@ -220,6 +235,27 @@ tasks.withType<Test>().configureEach {
         "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED",
         "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
     )
+}
+
+// A release built without the real AdMob ids silently ships Google's test ids, and the published
+// app earns nothing. Fail the packaging of the phone release instead. The check runs at execution
+// time, not while configuring, so :wear:bundleRelease (which also configures this project) is not
+// affected. Pass -Pkairos.allowTestAdMobIds=true to build a local release with test ads.
+val verifyReleaseAdMobConfig by tasks.registering {
+    val missing = missingReleaseAdMobConfig.joinToString()
+    val allowTestIds = findProperty("kairos.allowTestAdMobIds")?.toString().toBoolean()
+    doLast {
+        if (missing.isNotEmpty() && !allowTestIds) {
+            throw GradleException(
+                "Release build is missing AdMob config ($missing); it would ship test ads. " +
+                    "Set them as Gradle properties, env vars or in local.properties, " +
+                    "or pass -Pkairos.allowTestAdMobIds=true for a local test build.",
+            )
+        }
+    }
+}
+tasks.matching { it.name == "packageRelease" || it.name == "bundleRelease" }.configureEach {
+    dependsOn(verifyReleaseAdMobConfig)
 }
 
 apply(from = "../spotless.gradle")
