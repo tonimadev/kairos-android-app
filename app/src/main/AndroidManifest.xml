@@ -75,6 +75,14 @@
         <service android:name="digital.tonima.core.service.AlarmSoundAndVibrateService" android:exported="false"
             android:foregroundServiceType="systemExempted" />
 
+        <service android:name=".service.GlobalAlarmsTileService" android:exported="true"
+            android:icon="@drawable/alarm" android:label="@string/global_alarms"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
         <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id" />
         <meta-data android:name="com.google.android.play.billingclient.version" android:value="8.0.0"
