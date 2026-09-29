@@ -28,6 +28,10 @@ sealed class SettingsIntent : BaseIntent {
 
     data class ToggleAutoFocusMode(val enabled: Boolean) : SettingsIntent()
 
+    data class ToggleEscalatingVolume(val enabled: Boolean) : SettingsIntent()
+
+    data class ToggleAnnounceEvent(val enabled: Boolean) : SettingsIntent()
+
     data class ChangeTransportMode(val mode: String) : SettingsIntent()
 
     data class ToggleTemperatureUnit(val isCelsius: Boolean) : SettingsIntent()

@@ -15,6 +15,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -131,6 +132,8 @@ class AlarmSoundAndVibrateService : Service() {
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
     private var autoDismissJob: kotlinx.coroutines.Job? = null
+    private var volumeJob: kotlinx.coroutines.Job? = null
+    private var announcer: AlarmAnnouncer? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -269,6 +272,7 @@ class AlarmSoundAndVibrateService : Service() {
                         try {
                             ringtone?.play()
                             logcat { "AlarmSoundAndVibrateService: Ringtone iniciado. Uri usada: $usedUri" }
+                            applyAlarmSoundOptions(eventTitle)
                         } catch (e: Exception) {
                             // The alarm is now vibration-only: make it visible in production.
                             crashReporter.recordNonFatal(
@@ -492,7 +496,71 @@ class AlarmSoundAndVibrateService : Service() {
         }
     }
 
+    /** Escalating volume and the spoken announcement: both start the ringtone quietly. */
+    private fun applyAlarmSoundOptions(eventTitle: String?) {
+        val preferences = AppPreferencesRepositoryImpl(applicationContext)
+        val escalatingVolume =
+            crashReporter.runOrReport("AlarmSoundAndVibrateService: failed to read escalating volume", false) {
+                runBlocking { preferences.isEscalatingVolumeEnabled().first() }
+            }
+        val announceEvent =
+            !eventTitle.isNullOrBlank() &&
+                crashReporter.runOrReport("AlarmSoundAndVibrateService: failed to read announce event", false) {
+                    runBlocking { preferences.isAnnounceEventEnabled().first() }
+                }
+        if (!escalatingVolume && !announceEvent) return
+
+        setRingtoneVolume(alarmInitialVolume(escalatingVolume, announceEvent))
+        volumeJob =
+            serviceScope.launch {
+                if (escalatingVolume) rampRingtoneVolume() else restoreFullVolumeAfterAnnouncementTimeout()
+            }
+        if (announceEvent) {
+            val onAnnouncementFinished: () -> Unit = {
+                if (!escalatingVolume) {
+                    serviceScope.launch {
+                        volumeJob?.cancel()
+                        setRingtoneVolume(ALARM_FULL_VOLUME)
+                    }
+                }
+            }
+            announcer =
+                crashReporter.runOrReport("AlarmSoundAndVibrateService: failed to start announcement", null) {
+                    AlarmAnnouncer(
+                        applicationContext,
+                        getString(R.string.announce_event_speech, eventTitle),
+                        resources.configuration.locales[0],
+                        onAnnouncementFinished,
+                    )
+                }
+            if (announcer == null) onAnnouncementFinished()
+        }
+    }
+
+    private suspend fun rampRingtoneVolume() {
+        val rampStart = SystemClock.elapsedRealtime()
+        do {
+            val volume = alarmVolumeAt(SystemClock.elapsedRealtime() - rampStart)
+            setRingtoneVolume(volume)
+            delay(ALARM_VOLUME_STEP_MS.milliseconds)
+        } while (volume < ALARM_FULL_VOLUME)
+    }
+
+    private suspend fun restoreFullVolumeAfterAnnouncementTimeout() {
+        delay(ALARM_ANNOUNCE_TIMEOUT_MS.milliseconds)
+        setRingtoneVolume(ALARM_FULL_VOLUME)
+    }
+
+    private fun setRingtoneVolume(volume: Float) {
+        ringtone?.volume = volume
+    }
+
     private fun stopAndReleaseResources() {
+        volumeJob?.cancel()
+        volumeJob = null
+        announcer?.release()
+        announcer = null
+
         if (ringtone?.isPlaying == true) {
             ringtone?.stop()
             logcat { "AlarmSoundAndVibrateService: Ringtone parado." }

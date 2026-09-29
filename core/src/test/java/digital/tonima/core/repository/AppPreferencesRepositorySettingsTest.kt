@@ -39,6 +39,8 @@ class AppPreferencesRepositorySettingsTest {
                 assertRoundTrip(isTemperatureInCelsius(), default = true) { setTemperatureInCelsius(it) }
                 assertRoundTrip(isAutoJoinEnabled(), default = false) { setAutoJoinEnabled(it) }
                 assertRoundTrip(isAutoFocusModeEnabled(), default = false) { setAutoFocusModeEnabled(it) }
+                assertRoundTrip(isEscalatingVolumeEnabled(), default = false) { setEscalatingVolumeEnabled(it) }
+                assertRoundTrip(isAnnounceEventEnabled(), default = false) { setAnnounceEventEnabled(it) }
                 assertRoundTrip(isOnboardingCompleted(), default = false) { setOnboardingCompleted(it) }
                 assertRoundTrip(isProUser(), default = false) { setProUser(it) }
                 assertRoundTrip(isAiUser(), default = false) { setAiUser(it) }

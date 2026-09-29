@@ -45,6 +45,16 @@ interface AlarmPreferencesRepository {
 
     suspend fun setAutoFocusModeEnabled(enabled: Boolean)
 
+    /** When enabled, the alarm sound starts quietly and gets louder over the first seconds. */
+    fun isEscalatingVolumeEnabled(): Flow<Boolean>
+
+    suspend fun setEscalatingVolumeEnabled(enabled: Boolean)
+
+    /** When enabled, the alarm reads the event title aloud when it starts ringing. */
+    fun isAnnounceEventEnabled(): Flow<Boolean>
+
+    suspend fun setAnnounceEventEnabled(enabled: Boolean)
+
     fun getCustomRingtoneUri(): Flow<String?>
 
     suspend fun setCustomRingtoneUri(uri: String?)

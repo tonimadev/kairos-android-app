@@ -18,6 +18,8 @@ data class SettingsUiState(
     val isTemperatureInCelsius: Boolean = true,
     val isAutoJoinEnabled: Boolean = false,
     val isAutoFocusModeEnabled: Boolean = false,
+    val isEscalatingVolumeEnabled: Boolean = false,
+    val isAnnounceEventEnabled: Boolean = false,
     val customRingtoneUri: String? = null,
     val showAutostartSuggestion: Boolean = false,
     val hasCalendarPermission: Boolean = false,

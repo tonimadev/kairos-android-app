@@ -92,6 +92,8 @@ import digital.tonima.core.viewmodel.SettingsIntent.OpenSettings
 import digital.tonima.core.viewmodel.SettingsIntent.SkipExactAlarmPermission
 import digital.tonima.core.viewmodel.SettingsIntent.SkipFullScreenIntentPermission
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAllDayAlarms
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleAnnounceEvent
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleEscalatingVolume
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleGlobalAlarms
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleLocationAlarm
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleSkipWeekends
@@ -204,6 +206,8 @@ fun EventScreen(
                 onLocationAlarmToggle = { settingsViewModel.handleIntent(ToggleLocationAlarm(it)) },
                 onTransportModeChanged = { settingsViewModel.handleIntent(ChangeTransportMode(it)) },
                 onTemperatureUnitToggle = { settingsViewModel.handleIntent(ToggleTemperatureUnit(it)) },
+                onEscalatingVolumeToggle = { settingsViewModel.handleIntent(ToggleEscalatingVolume(it)) },
+                onAnnounceEventToggle = { settingsViewModel.handleIntent(ToggleAnnounceEvent(it)) },
                 onCloseSettings = { settingsViewModel.handleIntent(CloseSettings) },
                 onCustomRingtoneSelected = { settingsViewModel.handleIntent(UpdateCustomRingtoneUri(it)) },
                 onCheckPermissions = { settingsViewModel.handleIntent(CheckPermissions) },

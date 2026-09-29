@@ -59,6 +59,9 @@
     <string name="tile_preview_description">次のイベントタイルのプレビュー</string>
     <string name="recurring_label">繰り返し</string>
     <string name="vibrate_only">バイブのみ</string>
+    <string name="escalating_volume_label">音量を徐々に上げる</string>
+    <string name="announce_event_label">イベントを読み上げる</string>
+    <string name="announce_event_speech">リマインダー：%1$s</string>
     <string name="update_alarm_title">アラームを更新</string>
     <string name="update_alarm_message">このイベントのみに適用しますか、それともシリーズ全体に適用しますか？</string>
     <string name="recurring_option">繰り返し</string>

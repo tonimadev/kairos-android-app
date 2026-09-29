@@ -198,6 +198,8 @@ class SettingsViewModelTest {
                 SettingsIntent.ToggleLocationAlarm(true),
                 SettingsIntent.ToggleAutoJoin(true),
                 SettingsIntent.ToggleAutoFocusMode(true),
+                SettingsIntent.ToggleEscalatingVolume(true),
+                SettingsIntent.ToggleAnnounceEvent(true),
                 SettingsIntent.ChangeTransportMode("walking"),
                 SettingsIntent.ToggleTemperatureUnit(false),
             ).forEach { viewModel.handleIntent(it) }
@@ -211,6 +213,8 @@ class SettingsViewModelTest {
             coVerify { mockUpdateAppPreferenceUseCase.setLocationAlarmEnabled(true) }
             coVerify { mockUpdateAppPreferenceUseCase.setAutoJoinEnabled(true) }
             coVerify { mockUpdateAppPreferenceUseCase.setAutoFocusModeEnabled(true) }
+            coVerify { mockUpdateAppPreferenceUseCase.setEscalatingVolumeEnabled(true) }
+            coVerify { mockUpdateAppPreferenceUseCase.setAnnounceEventEnabled(true) }
             coVerify { mockUpdateAppPreferenceUseCase.setPreferredTransportMode("walking") }
             coVerify { mockUpdateAppPreferenceUseCase.setTemperatureInCelsius(false) }
         }
