@@ -48,6 +48,8 @@ class AppPreferencesRepositoryImpl
             val TEMPERATURE_IN_CELSIUS = booleanPreferencesKey("temperature_in_celsius")
             val AUTO_JOIN_ENABLED = booleanPreferencesKey("auto_join_enabled")
             val AUTO_FOCUS_MODE_ENABLED = booleanPreferencesKey("auto_focus_mode_enabled")
+            val ESCALATING_VOLUME_ENABLED = booleanPreferencesKey("escalating_volume_enabled")
+            val ANNOUNCE_EVENT_ENABLED = booleanPreferencesKey("announce_event_enabled")
             val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
             val SNOOZE_COUNT = intPreferencesKey("snooze_count")
             val AI_USAGE_COUNT = intPreferencesKey("ai_usage_count")
@@ -424,6 +426,32 @@ class AppPreferencesRepositoryImpl
         override suspend fun setAutoJoinEnabled(enabled: Boolean) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.AUTO_JOIN_ENABLED] = enabled
+            }
+        }
+
+        override fun isEscalatingVolumeEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.ESCALATING_VOLUME_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setEscalatingVolumeEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ESCALATING_VOLUME_ENABLED] = enabled
+            }
+        }
+
+        override fun isAnnounceEventEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.ANNOUNCE_EVENT_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setAnnounceEventEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ANNOUNCE_EVENT_ENABLED] = enabled
             }
         }
 

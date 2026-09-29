@@ -65,6 +65,9 @@
     <string name="tile_preview_description">Aperçu de la tuile Événement suivant</string>
     <string name="recurring_label">récurrent</string>
     <string name="vibrate_only">Vibration uniquement</string>
+    <string name="escalating_volume_label">Volume progressif</string>
+    <string name="announce_event_label">Annoncer l\'événement à voix haute</string>
+    <string name="announce_event_speech">Rappel : %1$s</string>
     <string name="update_alarm_title">Mettre à jour l\'alarme</string>
     <string name="update_alarm_message">Appliquer uniquement à cet événement ou à toute la série ?</string>
     <string name="recurring_option">Récurrent</string>

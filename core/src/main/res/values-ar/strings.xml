@@ -62,6 +62,9 @@
     <string name="tile_preview_description">معاينة مربع الحدث التالي</string>
     <string name="recurring_label">متكرر</string>
     <string name="vibrate_only">اهتزاز فقط</string>
+    <string name="escalating_volume_label">رفع مستوى الصوت تدريجيًا</string>
+    <string name="announce_event_label">قراءة الحدث بصوت عالٍ</string>
+    <string name="announce_event_speech">تذكير: %1$s</string>
     <string name="update_alarm_title">تحديث التنبيه</string>
     <string name="update_alarm_message">هل تريد التطبيق على هذا الحدث فقط أم على السلسلة بالكامل؟</string>
     <string name="recurring_option">متكرر</string>

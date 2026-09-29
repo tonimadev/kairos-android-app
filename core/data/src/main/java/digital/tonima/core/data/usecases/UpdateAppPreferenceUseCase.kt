@@ -56,4 +56,8 @@ class UpdateAppPreferenceUseCase
         suspend fun setAutoJoinEnabled(enabled: Boolean) = repository.setAutoJoinEnabled(enabled)
 
         suspend fun setAutoFocusModeEnabled(enabled: Boolean) = repository.setAutoFocusModeEnabled(enabled)
+
+        suspend fun setEscalatingVolumeEnabled(enabled: Boolean) = repository.setEscalatingVolumeEnabled(enabled)
+
+        suspend fun setAnnounceEventEnabled(enabled: Boolean) = repository.setAnnounceEventEnabled(enabled)
     }

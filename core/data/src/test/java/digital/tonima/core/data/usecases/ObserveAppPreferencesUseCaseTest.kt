@@ -42,6 +42,8 @@ class ObserveAppPreferencesUseCaseTest {
             coEvery { repository.isTemperatureInCelsius() } returns flowOf(true)
             coEvery { repository.isAutoJoinEnabled() } returns flowOf(false)
             coEvery { repository.isAutoFocusModeEnabled() } returns flowOf(false)
+            coEvery { repository.isEscalatingVolumeEnabled() } returns flowOf(true)
+            coEvery { repository.isAnnounceEventEnabled() } returns flowOf(true)
 
             useCase().test {
                 val prefs = awaitItem()
@@ -65,6 +67,8 @@ class ObserveAppPreferencesUseCaseTest {
                 assertEquals(true, prefs.isTemperatureInCelsius)
                 assertEquals(false, prefs.isAutoJoinEnabled)
                 assertEquals(false, prefs.isAutoFocusModeEnabled)
+                assertEquals(true, prefs.isEscalatingVolumeEnabled)
+                assertEquals(true, prefs.isAnnounceEventEnabled)
                 cancelAndIgnoreRemainingEvents()
             }
         }

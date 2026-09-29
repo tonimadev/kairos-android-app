@@ -59,6 +59,9 @@
     <string name="tile_preview_description">下一个事件磁贴预览</string>
     <string name="recurring_label">重复</string>
     <string name="vibrate_only">仅振动</string>
+    <string name="escalating_volume_label">音量逐渐增大</string>
+    <string name="announce_event_label">语音播报事件</string>
+    <string name="announce_event_speech">提醒：%1$s</string>
     <string name="update_alarm_title">更新闹钟</string>
     <string name="update_alarm_message">仅应用于此事件还是整个系列？</string>
     <string name="recurring_option">重复</string>

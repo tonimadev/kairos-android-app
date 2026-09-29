@@ -43,6 +43,8 @@ data class SettingsActions(
     val onLocationAlarmToggle: (Boolean) -> Unit = {},
     val onTransportModeChanged: (String) -> Unit = {},
     val onTemperatureUnitToggle: (Boolean) -> Unit = {},
+    val onEscalatingVolumeToggle: (Boolean) -> Unit = {},
+    val onAnnounceEventToggle: (Boolean) -> Unit = {},
     val onCloseSettings: () -> Unit = {},
     val onCustomRingtoneSelected: (String?) -> Unit = {},
     val onCheckPermissions: () -> Unit = {},

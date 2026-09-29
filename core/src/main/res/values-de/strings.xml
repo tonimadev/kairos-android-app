@@ -64,6 +64,9 @@
     <string name="tile_preview_description">Vorschau der Kachel für das nächste Ereignis</string>
     <string name="recurring_label">wiederkehrend</string>
     <string name="vibrate_only">Nur vibrieren</string>
+    <string name="escalating_volume_label">Ansteigende Lautstärke</string>
+    <string name="announce_event_label">Termin laut ansagen</string>
+    <string name="announce_event_speech">Erinnerung: %1$s</string>
     <string name="update_alarm_title">Alarm aktualisieren</string>
     <string name="update_alarm_message">Nur auf dieses Ereignis oder auf die gesamte Serie anwenden?</string>
     <string name="recurring_option">Wiederkehrend</string>

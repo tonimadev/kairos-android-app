@@ -17,8 +17,10 @@ import digital.tonima.core.viewmodel.SettingsIntent.OpenSettings
 import digital.tonima.core.viewmodel.SettingsIntent.SkipExactAlarmPermission
 import digital.tonima.core.viewmodel.SettingsIntent.SkipFullScreenIntentPermission
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAllDayAlarms
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleAnnounceEvent
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAutoFocusMode
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAutoJoin
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleEscalatingVolume
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleGlobalAlarms
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleLocationAlarm
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleSkipWeekends
@@ -77,6 +79,8 @@ class SettingsViewModel
                     is ToggleLocationAlarm -> updateAppPreferenceUseCase.setLocationAlarmEnabled(intent.enabled)
                     is ToggleAutoJoin -> updateAppPreferenceUseCase.setAutoJoinEnabled(intent.enabled)
                     is ToggleAutoFocusMode -> updateAppPreferenceUseCase.setAutoFocusModeEnabled(intent.enabled)
+                    is ToggleEscalatingVolume -> updateAppPreferenceUseCase.setEscalatingVolumeEnabled(intent.enabled)
+                    is ToggleAnnounceEvent -> updateAppPreferenceUseCase.setAnnounceEventEnabled(intent.enabled)
                     is ChangeTransportMode -> updateAppPreferenceUseCase.setPreferredTransportMode(intent.mode)
                     is ToggleTemperatureUnit -> updateAppPreferenceUseCase.setTemperatureInCelsius(intent.isCelsius)
                     DismissAutostartSuggestion -> updateAppPreferenceUseCase.setAutostartSuggestionDismissed(true)
@@ -116,6 +120,8 @@ class SettingsViewModel
                         isTemperatureInCelsius = appPrefs.isTemperatureInCelsius,
                         isAutoJoinEnabled = appPrefs.isAutoJoinEnabled,
                         isAutoFocusModeEnabled = appPrefs.isAutoFocusModeEnabled,
+                        isEscalatingVolumeEnabled = appPrefs.isEscalatingVolumeEnabled,
+                        isAnnounceEventEnabled = appPrefs.isAnnounceEventEnabled,
                     )
                 }
             }.launchIn(viewModelScope)

@@ -23,8 +23,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.RecordVoiceOver
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material3.DropdownMenuItem
@@ -51,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -130,6 +133,13 @@ fun SettingsScreen(
             CustomRingtoneSection(
                 customRingtoneUri = settingsUiState.customRingtoneUri,
                 onCustomRingtoneSelected = settingsActions.onCustomRingtoneSelected,
+            )
+
+            AlarmSoundOptionsSection(
+                isEscalatingVolumeEnabled = settingsUiState.isEscalatingVolumeEnabled,
+                onEscalatingVolumeToggle = settingsActions.onEscalatingVolumeToggle,
+                isAnnounceEventEnabled = settingsUiState.isAnnounceEventEnabled,
+                onAnnounceEventToggle = settingsActions.onAnnounceEventToggle,
             )
 
             Row(
@@ -258,6 +268,60 @@ fun SettingsScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun AlarmSoundOptionsSection(
+    isEscalatingVolumeEnabled: Boolean,
+    onEscalatingVolumeToggle: (Boolean) -> Unit,
+    isAnnounceEventEnabled: Boolean,
+    onAnnounceEventToggle: (Boolean) -> Unit,
+) {
+    SettingSwitchRow(
+        icon = Icons.AutoMirrored.Rounded.VolumeUp,
+        label = stringResource(R.string.escalating_volume_label),
+        checked = isEscalatingVolumeEnabled,
+        onCheckedChange = onEscalatingVolumeToggle,
+    )
+    SettingSwitchRow(
+        icon = Icons.Rounded.RecordVoiceOver,
+        label = stringResource(R.string.announce_event_label),
+        checked = isAnnounceEventEnabled,
+        onCheckedChange = onAnnounceEventToggle,
+    )
+}
+
+@Composable
+private fun SettingSwitchRow(
+    icon: ImageVector,
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(Dimensions.IconSizeSmall),
+            )
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

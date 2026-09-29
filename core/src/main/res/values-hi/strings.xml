@@ -62,6 +62,9 @@
     <string name="tile_preview_description">अगले इवेंट टाइल का पूर्वावलोकन</string>
     <string name="recurring_label">आवर्ती</string>
     <string name="vibrate_only">केवल वाइब्रेट</string>
+    <string name="escalating_volume_label">धीरे-धीरे बढ़ती आवाज़</string>
+    <string name="announce_event_label">इवेंट को ज़ोर से पढ़ें</string>
+    <string name="announce_event_speech">रिमाइंडर: %1$s</string>
     <string name="update_alarm_title">अलार्म अपडेट करें</string>
     <string name="update_alarm_message">केवल इस ईवेंट पर लागू करें या पूरी श्रृंखला पर?</string>
     <string name="recurring_option">आवर्ती</string>

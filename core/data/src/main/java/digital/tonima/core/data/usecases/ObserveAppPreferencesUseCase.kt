@@ -27,6 +27,8 @@ data class AppPreferences(
     val isTemperatureInCelsius: Boolean,
     val isAutoJoinEnabled: Boolean,
     val isAutoFocusModeEnabled: Boolean,
+    val isEscalatingVolumeEnabled: Boolean = false,
+    val isAnnounceEventEnabled: Boolean = false,
 )
 
 @Singleton
@@ -57,6 +59,8 @@ class ObserveAppPreferencesUseCase
                 repository.isTemperatureInCelsius(),
                 repository.isAutoJoinEnabled(),
                 repository.isAutoFocusModeEnabled(),
+                repository.isEscalatingVolumeEnabled(),
+                repository.isAnnounceEventEnabled(),
             ) { args ->
                 AppPreferences(
                     isGlobalAlarmEnabled = args[0] as Boolean,
@@ -79,6 +83,8 @@ class ObserveAppPreferencesUseCase
                     isTemperatureInCelsius = args[17] as Boolean,
                     isAutoJoinEnabled = args[18] as Boolean,
                     isAutoFocusModeEnabled = args[19] as Boolean,
+                    isEscalatingVolumeEnabled = args[20] as Boolean,
+                    isAnnounceEventEnabled = args[21] as Boolean,
                 )
             }
         }

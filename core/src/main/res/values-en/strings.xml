@@ -63,6 +63,9 @@
     <string name="tile_preview_description">Next Event Tile Preview</string>
     <string name="recurring_label">recurring</string>
     <string name="vibrate_only">Vibrate only</string>
+    <string name="escalating_volume_label">Gradually increase volume</string>
+    <string name="announce_event_label">Read the event aloud</string>
+    <string name="announce_event_speech">Reminder: %1$s</string>
     <string name="update_alarm_title">Update alarm</string>
     <string name="update_alarm_message">Apply to just this event or the entire series?</string>
     <string name="recurring_option">Recurring</string>

@@ -54,6 +54,8 @@ class SettingsScreenTest {
             onLocationAlarmToggle = { calls += "location" to it },
             onTransportModeChanged = { calls += "transport" to it },
             onTemperatureUnitToggle = { calls += "celsius" to it },
+            onEscalatingVolumeToggle = { calls += "escalatingVolume" to it },
+            onAnnounceEventToggle = { calls += "announceEvent" to it },
             onCloseSettings = { calls += "close" to null },
         )
 
@@ -81,6 +83,19 @@ class SettingsScreenTest {
             listOf("vibrate" to true, "skipWeekends" to true, "allDay" to false, "celsius" to false),
             calls,
         )
+    }
+
+    @Test
+    fun `alarm sound option switches reflect and report their settings`() {
+        render(SettingsUiState(isEscalatingVolumeEnabled = true, isAnnounceEventEnabled = false))
+
+        switchFor(R.string.escalating_volume_label).assertIsOn()
+        switchFor(R.string.announce_event_label).assertIsOff()
+
+        switchFor(R.string.escalating_volume_label).performScrollTo().performClick()
+        switchFor(R.string.announce_event_label).performScrollTo().performClick()
+
+        assertEquals(listOf("escalatingVolume" to false, "announceEvent" to true), calls)
     }
 
     // endregion

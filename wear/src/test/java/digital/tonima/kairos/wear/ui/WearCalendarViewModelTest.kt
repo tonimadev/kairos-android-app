@@ -224,6 +224,14 @@ class WearCalendarViewModelTest {
             autoFocusModeEnabled.value = enabled
         }
 
+        override fun isEscalatingVolumeEnabled(): Flow<Boolean> = MutableStateFlow(false)
+
+        override suspend fun setEscalatingVolumeEnabled(enabled: Boolean) = Unit
+
+        override fun isAnnounceEventEnabled(): Flow<Boolean> = MutableStateFlow(false)
+
+        override suspend fun setAnnounceEventEnabled(enabled: Boolean) = Unit
+
         override fun isProUser(): Flow<Boolean> = isProUser
 
         override suspend fun setProUser(isPro: Boolean) {
