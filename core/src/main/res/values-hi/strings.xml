@@ -151,6 +151,19 @@
     <string name="widget_no_briefing">कोई सारांश उपलब्ध नहीं है। जेनरेट करने के लिए ऐप खोलें!</string>
     <string name="next_events_title">आने वाले कार्यक्रम</string>
     <string name="no_more_events_today">आज और कोई कार्यक्रम नहीं है</string>
+    <string name="widget_upcoming_event_name">अगला कार्यक्रम</string>
+    <string name="widget_upcoming_event_description">ऐप खोले बिना, काउंटडाउन के साथ आपका अगला कार्यक्रम दिखाता है।</string>
+    <string name="widget_event_today">आज</string>
+    <string name="widget_event_tomorrow">कल</string>
+    <string name="widget_countdown_starts_in">%s में शुरू</string>
+    <string name="widget_event_happening_now">अभी चल रहा है</string>
+    <string name="widget_no_upcoming_events">अगले 30 दिनों में कोई कार्यक्रम नहीं</string>
+    <string name="widget_calendar_permission_needed">अपने कैलेंडर तक पहुंच की अनुमति देने के लिए टैप करें</string>
+    <string name="widget_events_unavailable">आपके कार्यक्रम लोड नहीं हो सके</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="one">%d दिन में</item>
+        <item quantity="other">%d दिनों में</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">अलार्म बंद करें और बैठक में शामिल हों</string>
     <string name="open_map_label">मार्ग खोलें</string>
     <string name="location_alarm_title">स्मार्ट जियोलोकेशन अलार्म</string>

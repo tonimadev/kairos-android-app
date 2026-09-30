@@ -152,6 +152,19 @@
     <string name="widget_no_briefing">No summary available. Open the app to generate!</string>
     <string name="next_events_title">Upcoming Events</string>
     <string name="no_more_events_today">No more events today</string>
+    <string name="widget_upcoming_event_name">Next event</string>
+    <string name="widget_upcoming_event_description">Shows your next event with a countdown, without opening the app.</string>
+    <string name="widget_event_today">Today</string>
+    <string name="widget_event_tomorrow">Tomorrow</string>
+    <string name="widget_countdown_starts_in">Starts in %s</string>
+    <string name="widget_event_happening_now">Happening now</string>
+    <string name="widget_no_upcoming_events">No events in the next 30 days</string>
+    <string name="widget_calendar_permission_needed">Tap to allow access to your calendar</string>
+    <string name="widget_events_unavailable">Couldn\'t load your events</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="one">In %d day</item>
+        <item quantity="other">In %d days</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">Disable alarm and join meeting</string>
     <string name="open_map_label">Open route</string>
     <string name="location_alarm_title">Smart Geolocation Alarm</string>

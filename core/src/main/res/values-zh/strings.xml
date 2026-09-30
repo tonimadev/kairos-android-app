@@ -148,6 +148,18 @@
     <string name="widget_no_briefing">暂无摘要。请打开应用生成！</string>
     <string name="next_events_title">接下来的活动</string>
     <string name="no_more_events_today">今天没有更多活动</string>
+    <string name="widget_upcoming_event_name">下一个活动</string>
+    <string name="widget_upcoming_event_description">无需打开应用，即可显示下一个活动及倒计时。</string>
+    <string name="widget_event_today">今天</string>
+    <string name="widget_event_tomorrow">明天</string>
+    <string name="widget_countdown_starts_in">%s 后开始</string>
+    <string name="widget_event_happening_now">正在进行</string>
+    <string name="widget_no_upcoming_events">未来 30 天内没有活动</string>
+    <string name="widget_calendar_permission_needed">点按以允许访问您的日历</string>
+    <string name="widget_events_unavailable">无法加载您的活动</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="other">%d 天后</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">禁用闹钟并加入会议</string>
     <string name="open_map_label">打开路线</string>
     <string name="location_alarm_title">基于地理位置的智能闹钟</string>

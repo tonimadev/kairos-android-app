@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- updatePeriodMillis is only a safety net (30 min is the minimum): the widget is also redrawn when
+     the calendar changes and at the next start/end of an event (UpcomingEventWidgetRefresh). -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_upcoming_event_description"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="3"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen">
+</appwidget-provider>

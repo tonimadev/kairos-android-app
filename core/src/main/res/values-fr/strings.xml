@@ -154,6 +154,20 @@
     <string name="widget_no_briefing">Aucun résumé disponible. Ouvrez l\'application pour en générer un !</string>
     <string name="next_events_title">Événements à venir</string>
     <string name="no_more_events_today">Plus d\'événements aujourd\'hui</string>
+    <string name="widget_upcoming_event_name">Prochain événement</string>
+    <string name="widget_upcoming_event_description">Affiche votre prochain événement avec un compte à rebours, sans ouvrir l\'application.</string>
+    <string name="widget_event_today">Aujourd\'hui</string>
+    <string name="widget_event_tomorrow">Demain</string>
+    <string name="widget_countdown_starts_in">Commence dans %s</string>
+    <string name="widget_event_happening_now">En cours</string>
+    <string name="widget_no_upcoming_events">Aucun événement dans les 30 prochains jours</string>
+    <string name="widget_calendar_permission_needed">Touchez pour autoriser l\'accès à votre agenda</string>
+    <string name="widget_events_unavailable">Impossible de charger vos événements</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="one">Dans %d jour</item>
+        <item quantity="many">Dans %d jours</item>
+        <item quantity="other">Dans %d jours</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">Désactiver l\'alarme et rejoindre la réunion</string>    <string name="open_map_label">Ouvrir l\'itinéraire</string>    <string name="location_alarm_title">Alarme Intelligente par Géolocalisation</string>
     <string name="location_alarm_description">Déclencher l\'alarme en fonction du temps de trajet pour les événements avec adresse.</string>
     <string name="location_permission_required">Autorisation de Localisation Requise</string>
