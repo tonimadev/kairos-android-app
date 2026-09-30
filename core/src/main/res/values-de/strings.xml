@@ -153,6 +153,19 @@
     <string name="widget_no_briefing">Keine Zusammenfassung verfügbar. App zum Generieren öffnen!</string>
     <string name="next_events_title">Anstehende Termine</string>
     <string name="no_more_events_today">Heute keine weiteren Ereignisse</string>
+    <string name="widget_upcoming_event_name">Nächster Termin</string>
+    <string name="widget_upcoming_event_description">Zeigt deinen nächsten Termin mit Countdown an, ohne die App zu öffnen.</string>
+    <string name="widget_event_today">Heute</string>
+    <string name="widget_event_tomorrow">Morgen</string>
+    <string name="widget_countdown_starts_in">Beginnt in %s</string>
+    <string name="widget_event_happening_now">Läuft gerade</string>
+    <string name="widget_no_upcoming_events">Keine Termine in den nächsten 30 Tagen</string>
+    <string name="widget_calendar_permission_needed">Tippe, um den Zugriff auf deinen Kalender zu erlauben</string>
+    <string name="widget_events_unavailable">Deine Termine konnten nicht geladen werden</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="one">In %d Tag</item>
+        <item quantity="other">In %d Tagen</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">Alarm deaktivieren und an Besprechung teilnehmen</string>
     <string name="open_map_label">Route öffnen</string>
     <string name="location_alarm_title">Intelligenter Geostandort-Alarm</string>

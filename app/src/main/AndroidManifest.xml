@@ -106,6 +106,14 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/daily_briefing_widget_info" />
         </receiver>
 
+        <receiver android:name=".ui.widget.UpcomingEventWidgetReceiver" android:exported="true"
+            android:label="@string/widget_upcoming_event_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/upcoming_event_widget_info" />
+        </receiver>
+
         <!-- Entry point the system binds to run KairosAppFunctions. Since androidx.appfunctions
              1.0.0-alpha10 the library no longer declares it (the old appfunctions-service artifact
              did), so without this block no function is indexed and every call fails with

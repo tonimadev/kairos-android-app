@@ -148,6 +148,18 @@
     <string name="widget_no_briefing">要約がありません。アプリを開いて生成してください！</string>
     <string name="next_events_title">今後のイベント</string>
     <string name="no_more_events_today">本日の予定はもうありません</string>
+    <string name="widget_upcoming_event_name">次のイベント</string>
+    <string name="widget_upcoming_event_description">アプリを開かずに、次のイベントをカウントダウン付きで表示します。</string>
+    <string name="widget_event_today">今日</string>
+    <string name="widget_event_tomorrow">明日</string>
+    <string name="widget_countdown_starts_in">開始まで %s</string>
+    <string name="widget_event_happening_now">開催中</string>
+    <string name="widget_no_upcoming_events">今後30日間にイベントはありません</string>
+    <string name="widget_calendar_permission_needed">タップしてカレンダーへのアクセスを許可</string>
+    <string name="widget_events_unavailable">イベントを読み込めませんでした</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="other">%d日後</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">アラームをオフにして会議に参加する</string>
     <string name="open_map_label">ルートを開く</string>
     <string name="location_alarm_title">位置情報スマートアラーム</string>

@@ -151,6 +151,23 @@
     <string name="widget_no_briefing">لا يوجد ملخص متاح. افتح التطبيق لإنشائه!</string>
     <string name="next_events_title">الأحداث القادمة</string>
     <string name="no_more_events_today">لا يوجد مزيد من الأحداث اليوم</string>
+    <string name="widget_upcoming_event_name">الحدث التالي</string>
+    <string name="widget_upcoming_event_description">يعرض حدثك التالي مع عد تنازلي دون فتح التطبيق.</string>
+    <string name="widget_event_today">اليوم</string>
+    <string name="widget_event_tomorrow">غدًا</string>
+    <string name="widget_countdown_starts_in">يبدأ خلال %s</string>
+    <string name="widget_event_happening_now">يحدث الآن</string>
+    <string name="widget_no_upcoming_events">لا توجد أحداث خلال الثلاثين يومًا القادمة</string>
+    <string name="widget_calendar_permission_needed">انقر للسماح بالوصول إلى تقويمك</string>
+    <string name="widget_events_unavailable">تعذر تحميل أحداثك</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="zero">خلال %d يوم</item>
+        <item quantity="one">خلال يوم واحد</item>
+        <item quantity="two">خلال يومين</item>
+        <item quantity="few">خلال %d أيام</item>
+        <item quantity="many">خلال %d يومًا</item>
+        <item quantity="other">خلال %d يوم</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">تعطيل المنبه والانضمام إلى الاجتماع</string>
     <string name="open_map_label">افتح المسار</string>
     <string name="location_alarm_title">منبه ذكي بموقع جغرافي</string>

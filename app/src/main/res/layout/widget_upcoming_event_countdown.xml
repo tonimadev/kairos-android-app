@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Live countdown of the upcoming event widget. A Chronometer is used because Glance has no
+     ticking text of its own; it is driven by the system, so the app is not woken every second. -->
+<Chronometer xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/upcoming_event_countdown"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxLines="1"
+    android:textColor="@color/widget_accent"
+    android:textSize="14sp"
+    android:textStyle="bold" />

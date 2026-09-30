@@ -16,6 +16,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import digital.tonima.core.service.AlarmSchedulingWorker
+import digital.tonima.kairos.ui.widget.UpcomingEventWidgetRefresh
 import logcat.LogPriority
 import logcat.logcat
 
@@ -80,6 +81,7 @@ object CalendarChangeObserver {
     }
 
     private fun tryEnqueueSync() {
+        UpcomingEventWidgetRefresh.refreshNow(appContext)
         val hasPerm =
             ContextCompat
                 .checkSelfPermission(

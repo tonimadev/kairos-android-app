@@ -23,6 +23,7 @@ import digital.tonima.core.inappupdate.InAppUpdateManager
 import digital.tonima.kairos.core.ui.theme.KairosTheme
 import digital.tonima.kairos.inappupdate.InAppUpdateDelegate
 import digital.tonima.kairos.ui.view.EventScreen
+import digital.tonima.kairos.ui.widget.UpcomingEventWidgetRefresh
 import kotlinx.coroutines.launch
 import logcat.logcat
 import javax.inject.Inject
@@ -118,6 +119,12 @@ class MainActivity : ComponentActivity() {
         if (::inAppUpdateDelegate.isInitialized) {
             inAppUpdateDelegate.onResume()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Permissions, enabled calendars and events may have changed while the app was open.
+        UpcomingEventWidgetRefresh.refreshNow(this)
     }
 
     override fun onDestroy() {

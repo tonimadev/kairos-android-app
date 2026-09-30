@@ -152,6 +152,21 @@
     <string name="widget_no_briefing">Сводка недоступна. Откройте приложение, чтобы создать ее!</string>
     <string name="next_events_title">Предстоящие события</string>
     <string name="no_more_events_today">Больше событий сегодня нет</string>
+    <string name="widget_upcoming_event_name">Следующее событие</string>
+    <string name="widget_upcoming_event_description">Показывает ваше следующее событие с обратным отсчетом, не открывая приложение.</string>
+    <string name="widget_event_today">Сегодня</string>
+    <string name="widget_event_tomorrow">Завтра</string>
+    <string name="widget_countdown_starts_in">Начнется через %s</string>
+    <string name="widget_event_happening_now">Идет сейчас</string>
+    <string name="widget_no_upcoming_events">Нет событий в ближайшие 30 дней</string>
+    <string name="widget_calendar_permission_needed">Нажмите, чтобы разрешить доступ к календарю</string>
+    <string name="widget_events_unavailable">Не удалось загрузить события</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="one">Через %d день</item>
+        <item quantity="few">Через %d дня</item>
+        <item quantity="many">Через %d дней</item>
+        <item quantity="other">Через %d дня</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">Отключить будильник и присоединиться к встрече</string>
     <string name="open_map_label">Открыть маршрут</string>
     <string name="location_alarm_title">Умный будильник по геолокации</string>

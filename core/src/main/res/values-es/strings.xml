@@ -153,6 +153,20 @@
     <string name="widget_no_briefing">No hay resumen disponible. ¡Abre la aplicación para generarlo!</string>
     <string name="next_events_title">Próximos eventos</string>
     <string name="no_more_events_today">No hay más eventos hoy</string>
+    <string name="widget_upcoming_event_name">Próximo evento</string>
+    <string name="widget_upcoming_event_description">Muestra tu próximo evento con una cuenta regresiva, sin abrir la aplicación.</string>
+    <string name="widget_event_today">Hoy</string>
+    <string name="widget_event_tomorrow">Mañana</string>
+    <string name="widget_countdown_starts_in">Empieza en %s</string>
+    <string name="widget_event_happening_now">En curso</string>
+    <string name="widget_no_upcoming_events">No hay eventos en los próximos 30 días</string>
+    <string name="widget_calendar_permission_needed">Toca para permitir el acceso a tu calendario</string>
+    <string name="widget_events_unavailable">No se pudieron cargar tus eventos</string>
+    <plurals name="widget_countdown_in_days">
+        <item quantity="one">En %d día</item>
+        <item quantity="many">En %d días</item>
+        <item quantity="other">En %d días</item>
+    </plurals>
     <string name="disable_alarm_and_join_meeting">Desactivar alarma y unirse a la reunión</string>
     <string name="open_map_label">Abrir ruta</string>
     <string name="location_alarm_title">Alarma Inteligente por Geolocalización</string>
