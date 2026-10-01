@@ -73,7 +73,7 @@
         </receiver>
 
         <service android:name="digital.tonima.core.service.AlarmSoundAndVibrateService" android:exported="false"
-            android:foregroundServiceType="systemExempted" />
+            android:foregroundServiceType="systemExempted|shortService" />
 
         <service android:name=".service.GlobalAlarmsTileService" android:exported="true"
             android:icon="@drawable/alarm" android:label="@string/global_alarms"

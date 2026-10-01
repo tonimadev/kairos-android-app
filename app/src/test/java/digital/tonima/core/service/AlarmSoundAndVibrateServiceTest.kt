@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.Notification
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Looper
 import android.os.VibratorManager
 import androidx.test.core.app.ApplicationProvider
@@ -34,6 +35,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ServiceController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowAlarmManager
 import java.time.Duration
 
 /** Resolves the service's Hilt injection to test doubles. */
@@ -199,6 +201,49 @@ class AlarmSoundAndVibrateServiceTest {
         }
         coVerify(exactly = 0) { wearMessagingHelper.sendDismissAlarm(any()) }
         verify(exactly = 0) { analytics.logEvent(Analytics.EVENT_ALARM_STOP, any()) }
+    }
+
+    @Test
+    fun `with exact alarms allowed the alarm runs as a system exempted foreground service`() {
+        ShadowAlarmManager.setCanScheduleExactAlarms(true)
+
+        val service = start(startIntent()).get()
+
+        assertEquals(ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED, service.foregroundServiceType)
+    }
+
+    @Test
+    fun `without exact alarm permission the alarm falls back to a short foreground service`() {
+        // systemExempted would throw SecurityException here (Crashlytics 4a6ba1fd).
+        ShadowAlarmManager.setCanScheduleExactAlarms(false)
+
+        val service = start(startIntent()).get()
+
+        assertEquals(ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE, service.foregroundServiceType)
+        assertNotNull(shadowOf(service).lastForegroundNotification)
+        verify(exactly = 0) { app.crashReporter.recordNonFatal(any(), any()) }
+    }
+
+    @Test
+    fun `stopping without exact alarm permission still enters the foreground before stopping`() {
+        ShadowAlarmManager.setCanScheduleExactAlarms(false)
+
+        val service = start(stopIntent(Analytics.SOURCE_NOTIFICATION)).get()
+
+        assertEquals(ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE, service.foregroundServiceType)
+        assertTrue(shadowOf(service).isStoppedBySelf)
+    }
+
+    @Test
+    fun `a timed out short service stops the alarm`() {
+        ShadowAlarmManager.setCanScheduleExactAlarms(false)
+        val service = start(startIntent()).get()
+
+        service.onTimeout(1)
+
+        assertFalse(shadowOf(defaultVibrator()).isVibrating)
+        assertTrue(shadowOf(service).isForegroundStopped)
+        assertTrue(shadowOf(service).isStoppedBySelf)
     }
 
     @Test

@@ -1,5 +1,6 @@
 package digital.tonima.core.service
 
+import android.app.AlarmManager
 import android.app.ForegroundServiceStartNotAllowedException
 import android.app.Notification
 import android.app.NotificationChannel
@@ -8,6 +9,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
 import android.media.AudioAttributes
 import android.media.Ringtone
@@ -19,6 +21,7 @@ import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -486,7 +489,7 @@ class AlarmSoundAndVibrateService : Service() {
                 startForeground(
                     NOTIFICATION_ID,
                     notification,
-                    FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED,
+                    foregroundServiceType(),
                 )
             } else {
                 startForeground(NOTIFICATION_ID, notification)
@@ -495,6 +498,19 @@ class AlarmSoundAndVibrateService : Service() {
             crashReporter.recordNonFatal(e, "AlarmSoundAndVibrateService: failed to start foreground")
         }
     }
+
+    /**
+     * systemExempted is only allowed while the exact-alarm permission is granted; once the user
+     * revokes it startForeground throws, so fall back to a short service (no permission needed,
+     * but the system stops it after about 3 minutes — see [onTimeout]).
+     */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private fun foregroundServiceType(): Int =
+        if (getSystemService(AlarmManager::class.java).canScheduleExactAlarms()) {
+            FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+        } else {
+            FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
+        }
 
     /** Escalating volume and the spoken announcement: both start the ringtone quietly. */
     private fun applyAlarmSoundOptions(eventTitle: String?) {
@@ -573,6 +589,26 @@ class AlarmSoundAndVibrateService : Service() {
 
         autoDismissJob?.cancel()
         autoDismissJob = null
+    }
+
+    // A short-service fallback must stop within seconds of timing out, or the app gets an ANR.
+    override fun onTimeout(startId: Int) {
+        stopOnShortServiceTimeout()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    override fun onTimeout(
+        startId: Int,
+        fgsType: Int,
+    ) {
+        stopOnShortServiceTimeout()
+    }
+
+    private fun stopOnShortServiceTimeout() {
+        logcat(logcat.LogPriority.WARN) { "AlarmSoundAndVibrateService: short service timed out, stopping alarm." }
+        stopAndReleaseResources()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     override fun onDestroy() {
