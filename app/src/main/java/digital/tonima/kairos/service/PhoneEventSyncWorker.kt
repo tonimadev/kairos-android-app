@@ -11,6 +11,8 @@ import androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
@@ -110,6 +112,16 @@ class PhoneEventSyncWorker
                 // Expected while the calendar permission is not granted.
                 logcat(LogPriority.WARN) { "PhoneEventSyncWorker: calendar not readable: ${e.message}" }
                 Result.retry()
+            } catch (e: ApiException) {
+                if (e.statusCode == CommonStatusCodes.API_NOT_CONNECTED) {
+                    // Expected on phones without the Wear OS companion: there is no watch to sync
+                    // to, and retrying would only repeat the same failure.
+                    logcat(LogPriority.WARN) { "PhoneEventSyncWorker: Wearable API unavailable, skipping sync." }
+                    Result.success()
+                } else {
+                    crashReporter.recordNonFatal(e, "PhoneEventSyncWorker: failed to sync events to the watch")
+                    Result.retry()
+                }
             } catch (e: Exception) {
                 crashReporter.recordNonFatal(e, "PhoneEventSyncWorker: failed to sync events to the watch")
                 Result.retry()

@@ -5,6 +5,9 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataMap
@@ -162,6 +165,28 @@ class PhoneEventSyncWorkerTest {
         runTest {
             val failure = IllegalStateException("data layer unavailable")
             coEvery { getEventsForMonth(any()) } throws failure
+
+            assertEquals(ListenableWorker.Result.retry(), worker().doWork())
+            verify { crashReporter.recordNonFatal(failure, any()) }
+        }
+
+    @Test
+    fun `a phone without the wearable api skips the sync without reporting or retrying`() =
+        runTest {
+            givenEvents()
+            every { dataClient.putDataItem(any()) } returns
+                Tasks.forException(ApiException(Status(CommonStatusCodes.API_NOT_CONNECTED)))
+
+            assertEquals(ListenableWorker.Result.success(), worker().doWork())
+            verify(exactly = 0) { crashReporter.recordNonFatal(any(), any()) }
+        }
+
+    @Test
+    fun `other data layer api failures are retried and reported`() =
+        runTest {
+            givenEvents()
+            val failure = ApiException(Status(CommonStatusCodes.TIMEOUT))
+            every { dataClient.putDataItem(any()) } returns Tasks.forException(failure)
 
             assertEquals(ListenableWorker.Result.retry(), worker().doWork())
             verify { crashReporter.recordNonFatal(failure, any()) }
