@@ -333,4 +333,26 @@
     <string name="ai_agent_event_rescheduled">Termin im Kalender verschoben.</string>
     <string name="ai_agent_reschedule_recurring_unsupported">Wiederkehrende Termine kann der Assistent noch nicht verschieben. Ändere den Termin in deiner Kalender-App.</string>
     <string name="ai_agent_reschedule_error">Der Termin konnte im Kalender nicht verschoben werden.</string>
+    <string name="notif_features_title">Zugriff auf Benachrichtigungen</string>
+    <string name="notif_features_intro">Optionale Funktionen, die den Benachrichtigungszugriff nutzen. Alles wird auf deinem Gerät verarbeitet; der Inhalt der Benachrichtigungen wird nie gespeichert oder gesendet.</string>
+    <string name="notif_dedup_label">Doppelte Kalendererinnerung ausblenden</string>
+    <string name="notif_dedup_description">Entfernt die Benachrichtigung der Kalender-App, wenn der Kairos-Alarm für denselben Termin klingelt.</string>
+    <string name="notif_digest_label">Fokus-Zusammenfassung in Meetings</string>
+    <string name="notif_digest_description">Hält Nachrichten- und E-Mail-Benachrichtigungen während des Meetings zurück und zeigt danach eine Zusammenfassung.</string>
+    <string name="notif_suggestions_label">Termine aus Benachrichtigungen vorschlagen</string>
+    <string name="notif_suggestions_description">Erkennt Einladungen mit Datum und Uhrzeit in Nachrichten und E-Mails und fragt, ob du den Termin anlegen möchtest.</string>
+    <string name="notif_access_missing">Der Benachrichtigungszugriff ist deaktiviert. Aktiviere ihn, damit diese Funktionen funktionieren.</string>
+    <string name="notif_open_access_settings">Einstellungen öffnen</string>
+    <string name="notif_disclosure_title">Zugriff auf Benachrichtigungen</string>
+    <string name="notif_disclosure_body">Für diese Funktionen muss Kairos Benachrichtigungen anderer Apps lesen. Es analysiert nur Benachrichtigungen von Kalender-, Nachrichten- und E-Mail-Apps, ausschließlich auf deinem Gerät. Der Inhalt wird nicht gespeichert, geteilt oder ins Internet oder an die KI gesendet. Du kannst den Zugriff jederzeit in den Android-Einstellungen deaktivieren.</string>
+    <string name="notif_disclosure_confirm">Weiter</string>
+    <string name="notif_disclosure_cancel">Jetzt nicht</string>
+    <string name="focus_digest_channel_name">Fokus-Zusammenfassung</string>
+    <string name="focus_digest_title">Während des Meetings zurückgehaltene Benachrichtigungen</string>
+    <string name="event_suggestion_channel_name">Terminvorschläge</string>
+    <string name="event_suggestion_title">Termin erstellen?</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">Erstellen</string>
+    <string name="event_suggestion_created">Termin erstellt</string>
+    <string name="event_suggestion_failed">Termin konnte nicht erstellt werden</string>
 </resources>

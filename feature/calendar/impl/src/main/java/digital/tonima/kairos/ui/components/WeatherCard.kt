@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,6 +55,7 @@ fun WeatherCard(
     onFetchWeather: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val locale = LocalConfiguration.current.locales.get(0)
     val locationPermissionsState =
         rememberMultiplePermissionsState(
             permissions =
@@ -133,7 +135,10 @@ fun WeatherCard(
                                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     )
                                     Text(
-                                        text = weather.description.replaceFirstChar { it.uppercase() },
+                                        text =
+                                            weather.description.replaceFirstChar {
+                                                it.titlecase(locale)
+                                            },
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                                     )

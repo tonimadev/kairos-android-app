@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -22,13 +23,12 @@ import androidx.wear.compose.material.SwitchDefaults
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
+import digital.tonima.core.utils.LocalizedDateTime
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.wear.ui.theme.Dimensions
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 @Composable
 fun EventCard(
@@ -36,7 +36,8 @@ fun EventCard(
     isGloballyEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
 ) {
-    val formatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT) }
+    val context = LocalContext.current
+    val formatter = remember(context) { LocalizedDateTime.time(context) }
     val allDayText = stringResource(R.string.all_day_event)
     val localTime =
         Instant

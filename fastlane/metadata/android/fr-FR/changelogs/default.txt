@@ -1,4 +1,5 @@
-- Alarmes plus fiables : résolution de problèmes pouvant retarder ou annuler des alarmes.
-- Restauration automatique : vos alarmes sont automatiquement reprogrammées après un redémarrage de l'appareil ou une mise à jour de l'application.
-- Compatibilité Android 14+ : résolution de défaillances silencieuses empêchant le son et la vibration sur les appareils récents.
-- Wear OS : application des mêmes améliorations de stabilité à l'application pour montre connectée !
+- Nouveau (facultatif) : accès aux notifications, désactivé par défaut.
+- Masque le rappel en double de l'application d'agenda quand l'alarme sonne.
+- Résumé de concentration : retient les notifications de messages pendant les réunions et affiche un récapitulatif ensuite.
+- Suggère de créer des événements à partir des invitations reçues.
+- Tout est traité sur votre appareil ; le contenu n'est jamais enregistré ni envoyé.

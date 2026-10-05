@@ -20,6 +20,9 @@ interface PermissionManager {
 
     fun hasBackgroundLocationPermission(): Boolean
 
+    /** Special access granted in system settings (not a runtime permission); see Kairos' notification features. */
+    fun hasNotificationListenerAccess(): Boolean
+
     fun needsExactAlarmPermissionRequest(): Boolean
 
     fun needsFullScreenIntentPermissionRequest(): Boolean

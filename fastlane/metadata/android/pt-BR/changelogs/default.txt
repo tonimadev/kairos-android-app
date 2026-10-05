@@ -1,4 +1,5 @@
-- Alarmes mais confiáveis: resolvemos problemas que faziam com que alarmes se atrasassem ou não tocassem.
-- Restauração automática: seus alarmes agora voltam a funcionar automaticamente após reiniciar o celular ou atualizar o app.
-- Compatibilidade com Android 14+: corrigimos falhas silenciosas que impediam o toque e vibração nos aparelhos mais recentes.
-- Wear OS: aplicamos as mesmas melhorias de estabilidade e confiabilidade no aplicativo do seu relógio!
+- Novo (opcional): acesso a notificações, desativado por padrão.
+- Oculta o lembrete duplicado do app de agenda quando o alarme toca.
+- Resumo de foco: adia notificações de mensagens durante reuniões e mostra um resumo no fim.
+- Sugere criar eventos a partir de convites em mensagens e e-mails.
+- Tudo é processado no aparelho; o conteúdo nunca é salvo nem enviado.

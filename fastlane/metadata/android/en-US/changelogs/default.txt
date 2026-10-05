@@ -1,6 +1,5 @@
-- More reliable alarms: fixed issues where alarms could be delayed or missed.
-- Auto-restore: your alarms now automatically reschedule after a device restart or app update.
-- Android 14+ compatibility: resolved silent failures that prevented sound and vibration on newer devices.
-- Wear OS: applied the same rock-solid stability improvements to your smartwatch app!
-- New Daily Briefing Widget (AI Pro) and next events.
-- Tap the widget to open the app or calendar directly.
+- New (optional): notification access, off by default.
+- Hides the calendar app's duplicate reminder when the alarm rings.
+- Focus summary: holds back message notifications during meetings and shows a recap afterwards.
+- Suggests creating events from invitations in messages and emails.
+- Everything is processed on your device; content is never saved or sent.

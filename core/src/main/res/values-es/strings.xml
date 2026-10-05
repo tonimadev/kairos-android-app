@@ -335,4 +335,26 @@
     <string name="ai_agent_event_rescheduled">Evento reprogramado en tu calendario.</string>
     <string name="ai_agent_reschedule_recurring_unsupported">El asistente aún no puede reprogramar eventos recurrentes. Cambia la ocurrencia en tu app de calendario.</string>
     <string name="ai_agent_reschedule_error">No se pudo reprogramar el evento en tu calendario.</string>
+    <string name="notif_features_title">Acceso a notificaciones</string>
+    <string name="notif_features_intro">Funciones opcionales que usan el acceso a notificaciones. Todo se procesa en tu dispositivo; el contenido de las notificaciones nunca se guarda ni se envía.</string>
+    <string name="notif_dedup_label">Ocultar recordatorio duplicado del calendario</string>
+    <string name="notif_dedup_description">Quita la notificación de la app de calendario cuando suena la alarma de Kairos para el mismo evento.</string>
+    <string name="notif_digest_label">Resumen de enfoque en reuniones</string>
+    <string name="notif_digest_description">Retiene las notificaciones de mensajería y correo durante la reunión y muestra un resumen al final.</string>
+    <string name="notif_suggestions_label">Sugerir eventos desde notificaciones</string>
+    <string name="notif_suggestions_description">Detecta invitaciones con fecha y hora en mensajes y correos y pregunta si quieres crear el evento.</string>
+    <string name="notif_access_missing">El acceso a notificaciones está desactivado. Actívalo para que estas funciones funcionen.</string>
+    <string name="notif_open_access_settings">Abrir ajustes</string>
+    <string name="notif_disclosure_title">Acceso a notificaciones</string>
+    <string name="notif_disclosure_body">Para estas funciones, Kairos necesita leer notificaciones de otras apps. Solo analiza notificaciones de apps de calendario, mensajería y correo, y solo en tu dispositivo. El contenido no se guarda, comparte ni envía a internet ni a la IA. Puedes desactivar el acceso en cualquier momento en los ajustes de Android.</string>
+    <string name="notif_disclosure_confirm">Continuar</string>
+    <string name="notif_disclosure_cancel">Ahora no</string>
+    <string name="focus_digest_channel_name">Resumen de enfoque</string>
+    <string name="focus_digest_title">Notificaciones retenidas durante la reunión</string>
+    <string name="event_suggestion_channel_name">Sugerencias de eventos</string>
+    <string name="event_suggestion_title">¿Crear evento?</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">Crear</string>
+    <string name="event_suggestion_created">Evento creado</string>
+    <string name="event_suggestion_failed">No se pudo crear el evento</string>
 </resources>

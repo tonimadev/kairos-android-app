@@ -7,6 +7,7 @@ import android.provider.CalendarContract
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
@@ -46,6 +47,7 @@ import digital.tonima.core.ai.repository.DailyBriefingRepository
 import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.billing.SubscriptionManager
 import digital.tonima.core.data.repository.CalendarRepository
+import digital.tonima.core.utils.LocalizedDateTime
 import digital.tonima.kairos.MainActivity
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.model.Event
@@ -56,7 +58,6 @@ import java.time.Instant.ofEpochMilli
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId.systemDefault
-import java.time.format.DateTimeFormatter
 import androidx.glance.appwidget.action.actionStartActivity as actionStartAppWidgetActivity
 
 class DailyBriefingWidget : GlanceAppWidget() {
@@ -222,7 +223,7 @@ class DailyBriefingWidget : GlanceAppWidget() {
     @Composable
     private fun EventItem(event: Event) {
         val context = LocalContext.current
-        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val timeFormatter = remember(context) { LocalizedDateTime.time(context) }
         val startTime =
             ofEpochMilli(event.startTime)
                 .atZone(systemDefault())

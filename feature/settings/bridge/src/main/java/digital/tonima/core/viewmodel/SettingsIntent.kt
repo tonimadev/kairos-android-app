@@ -32,6 +32,12 @@ sealed class SettingsIntent : BaseIntent {
 
     data class ToggleAnnounceEvent(val enabled: Boolean) : SettingsIntent()
 
+    data class ToggleNotificationDedup(val enabled: Boolean) : SettingsIntent()
+
+    data class ToggleFocusDigest(val enabled: Boolean) : SettingsIntent()
+
+    data class ToggleEventSuggestions(val enabled: Boolean) : SettingsIntent()
+
     data class ChangeTransportMode(val mode: String) : SettingsIntent()
 
     data class ToggleTemperatureUnit(val isCelsius: Boolean) : SettingsIntent()

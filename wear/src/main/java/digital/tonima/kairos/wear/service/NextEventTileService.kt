@@ -28,6 +28,7 @@ import androidx.wear.tiles.TileBuilders
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.tiles.SuspendingTileService
 import dagger.hilt.android.AndroidEntryPoint
+import digital.tonima.core.utils.LocalizedDateTime
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.sync.WearEventCache.load
@@ -232,23 +233,13 @@ class NextEventTileService : SuspendingTileService() {
     ): String {
         val instant = Instant.ofEpochMilli(epochMillis)
         val zonedDateTime = instant.atZone(ZoneId.systemDefault())
-        val locale = context.resources.configuration.locales[0]
-        val formatter =
-            DateTimeFormatter
-                .ofPattern("EEE, HH:mm")
-                .withLocale(locale)
-        return formatter.format(zonedDateTime)
+        return LocalizedDateTime.weekdayAndTime(context).format(zonedDateTime)
     }
 
     private fun formatCurrentTimeLocalized(context: Context): String {
         val instant = Instant.now()
         val zonedDateTime = instant.atZone(ZoneId.systemDefault())
-        val locale = context.resources.configuration.locales[0]
-        val formatter =
-            DateTimeFormatter
-                .ofLocalizedTime(java.time.format.FormatStyle.SHORT)
-                .withLocale(locale)
-        return formatter.format(zonedDateTime)
+        return LocalizedDateTime.time(context).format(zonedDateTime)
     }
 
     private fun formatCurrentDateLocalized(context: Context): String {

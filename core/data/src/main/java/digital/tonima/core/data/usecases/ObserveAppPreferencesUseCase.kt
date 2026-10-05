@@ -29,6 +29,9 @@ data class AppPreferences(
     val isAutoFocusModeEnabled: Boolean,
     val isEscalatingVolumeEnabled: Boolean = false,
     val isAnnounceEventEnabled: Boolean = false,
+    val isNotificationDedupEnabled: Boolean = false,
+    val isFocusDigestEnabled: Boolean = false,
+    val isEventSuggestionsEnabled: Boolean = false,
 )
 
 @Singleton
@@ -61,6 +64,9 @@ class ObserveAppPreferencesUseCase
                 repository.isAutoFocusModeEnabled(),
                 repository.isEscalatingVolumeEnabled(),
                 repository.isAnnounceEventEnabled(),
+                repository.isNotificationDedupEnabled(),
+                repository.isFocusDigestEnabled(),
+                repository.isEventSuggestionsEnabled(),
             ) { args ->
                 AppPreferences(
                     isGlobalAlarmEnabled = args[0] as Boolean,
@@ -85,6 +91,9 @@ class ObserveAppPreferencesUseCase
                     isAutoFocusModeEnabled = args[19] as Boolean,
                     isEscalatingVolumeEnabled = args[20] as Boolean,
                     isAnnounceEventEnabled = args[21] as Boolean,
+                    isNotificationDedupEnabled = args[22] as Boolean,
+                    isFocusDigestEnabled = args[23] as Boolean,
+                    isEventSuggestionsEnabled = args[24] as Boolean,
                 )
             }
         }

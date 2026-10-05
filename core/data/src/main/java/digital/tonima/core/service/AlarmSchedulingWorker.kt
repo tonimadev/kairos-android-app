@@ -17,6 +17,7 @@ import digital.tonima.core.permissions.PermissionManager
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.repository.AudioWarningState
 import digital.tonima.core.repository.RingerModeRepository
+import digital.tonima.core.utils.LocalizedDateTime
 import digital.tonima.core.utils.NotificationHelper
 import digital.tonima.kairos.core.R.string
 import digital.tonima.kairos.core.model.Event
@@ -194,8 +195,10 @@ class AlarmSchedulingWorker
                         status == BatteryManager.BATTERY_STATUS_FULL
                 } ?: true
 
-            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val eventTimeStr = sdf.format(Date(nextEvent.startTime))
+            val eventTimeStr =
+                Instant.ofEpochMilli(nextEvent.startTime)
+                    .atZone(ZoneId.systemDefault())
+                    .format(LocalizedDateTime.time(applicationContext))
 
             if (batteryPct < 20 && !isCharging) {
                 NotificationHelper.showDeviceHealthAlertNotification(

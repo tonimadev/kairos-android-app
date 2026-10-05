@@ -333,4 +333,26 @@
     <string name="ai_agent_event_rescheduled">Événement reprogrammé dans votre agenda.</string>
     <string name="ai_agent_reschedule_recurring_unsupported">L\'assistant ne peut pas encore reprogrammer les événements récurrents. Modifiez l\'occurrence dans votre application d\'agenda.</string>
     <string name="ai_agent_reschedule_error">Impossible de reprogrammer l\'événement dans votre agenda.</string>
+    <string name="notif_features_title">Accès aux notifications</string>
+    <string name="notif_features_intro">Fonctions facultatives qui utilisent l\'accès aux notifications. Tout est traité sur votre appareil ; le contenu des notifications n\'est jamais enregistré ni envoyé.</string>
+    <string name="notif_dedup_label">Masquer le rappel d\'agenda en double</string>
+    <string name="notif_dedup_description">Supprime la notification de l\'application d\'agenda lorsque l\'alarme Kairos sonne pour le même événement.</string>
+    <string name="notif_digest_label">Résumé de concentration en réunion</string>
+    <string name="notif_digest_description">Retient les notifications de messagerie et d\'e-mail pendant la réunion et affiche un résumé à la fin.</string>
+    <string name="notif_suggestions_label">Suggérer des événements à partir des notifications</string>
+    <string name="notif_suggestions_description">Détecte les invitations avec date et heure dans les messages et e-mails et demande si vous voulez créer l\'événement.</string>
+    <string name="notif_access_missing">L\'accès aux notifications est désactivé. Activez-le pour que ces fonctions marchent.</string>
+    <string name="notif_open_access_settings">Ouvrir les réglages</string>
+    <string name="notif_disclosure_title">Accès aux notifications</string>
+    <string name="notif_disclosure_body">Pour ces fonctions, Kairos doit lire les notifications d\'autres applications. Il n\'analyse que celles des applications d\'agenda, de messagerie et d\'e-mail, uniquement sur votre appareil. Le contenu n\'est ni enregistré, ni partagé, ni envoyé sur internet ou à l\'IA. Vous pouvez désactiver l\'accès à tout moment dans les réglages Android.</string>
+    <string name="notif_disclosure_confirm">Continuer</string>
+    <string name="notif_disclosure_cancel">Pas maintenant</string>
+    <string name="focus_digest_channel_name">Résumé de concentration</string>
+    <string name="focus_digest_title">Notifications retenues pendant la réunion</string>
+    <string name="event_suggestion_channel_name">Suggestions d\'événements</string>
+    <string name="event_suggestion_title">Créer l\'événement ?</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">Créer</string>
+    <string name="event_suggestion_created">Événement créé</string>
+    <string name="event_suggestion_failed">Impossible de créer l\'événement</string>
 </resources>

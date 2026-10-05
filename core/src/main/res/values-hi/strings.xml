@@ -331,4 +331,26 @@
     <string name="ai_agent_event_rescheduled">इवेंट को कैलेंडर में फिर से शेड्यूल किया गया।</string>
     <string name="ai_agent_reschedule_recurring_unsupported">असिस्टेंट अभी दोहराए जाने वाले इवेंट को फिर से शेड्यूल नहीं कर सकता। कैलेंडर ऐप में यह इवेंट बदलें।</string>
     <string name="ai_agent_reschedule_error">कैलेंडर में इवेंट को फिर से शेड्यूल नहीं किया जा सका।</string>
+    <string name="notif_features_title">नोटिफ़िकेशन एक्सेस</string>
+    <string name="notif_features_intro">वैकल्पिक सुविधाएँ जो नोटिफ़िकेशन एक्सेस का उपयोग करती हैं। सब कुछ आपके डिवाइस पर ही प्रोसेस होता है; नोटिफ़िकेशन की सामग्री कभी सहेजी या भेजी नहीं जाती।</string>
+    <string name="notif_dedup_label">कैलेंडर का दोहराया गया रिमाइंडर छिपाएँ</string>
+    <string name="notif_dedup_description">जब उसी इवेंट के लिए Kairos का अलार्म बजता है, तो कैलेंडर ऐप का नोटिफ़िकेशन हटा देता है।</string>
+    <string name="notif_digest_label">मीटिंग फ़ोकस सारांश</string>
+    <string name="notif_digest_description">मीटिंग के दौरान मैसेजिंग और ईमेल के नोटिफ़िकेशन रोक देता है और अंत में सारांश दिखाता है।</string>
+    <string name="notif_suggestions_label">नोटिफ़िकेशन से इवेंट सुझाएँ</string>
+    <string name="notif_suggestions_description">संदेशों और ईमेल में तारीख और समय वाले निमंत्रण पहचानता है और पूछता है कि इवेंट बनाना है या नहीं।</string>
+    <string name="notif_access_missing">नोटिफ़िकेशन एक्सेस बंद है। इन सुविधाओं के लिए इसे चालू करें।</string>
+    <string name="notif_open_access_settings">सेटिंग खोलें</string>
+    <string name="notif_disclosure_title">नोटिफ़िकेशन एक्सेस</string>
+    <string name="notif_disclosure_body">इन सुविधाओं के लिए Kairos को अन्य ऐप्स के नोटिफ़िकेशन पढ़ने होंगे। यह केवल कैलेंडर, मैसेजिंग और ईमेल ऐप्स के नोटिफ़िकेशन देखता है, और केवल आपके डिवाइस पर। सामग्री न सहेजी जाती है, न साझा की जाती है, न इंटरनेट या AI को भेजी जाती है। आप Android सेटिंग में कभी भी एक्सेस बंद कर सकते हैं।</string>
+    <string name="notif_disclosure_confirm">जारी रखें</string>
+    <string name="notif_disclosure_cancel">अभी नहीं</string>
+    <string name="focus_digest_channel_name">फ़ोकस सारांश</string>
+    <string name="focus_digest_title">मीटिंग के दौरान रोके गए नोटिफ़िकेशन</string>
+    <string name="event_suggestion_channel_name">इवेंट सुझाव</string>
+    <string name="event_suggestion_title">इवेंट बनाएँ?</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">बनाएँ</string>
+    <string name="event_suggestion_created">इवेंट बनाया गया</string>
+    <string name="event_suggestion_failed">इवेंट नहीं बनाया जा सका</string>
 </resources>

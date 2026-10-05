@@ -3,6 +3,7 @@ package digital.tonima.core.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import digital.tonima.core.data.usecases.AppPreferences
 import digital.tonima.core.data.usecases.CheckPermissionsUseCase
+import digital.tonima.core.data.usecases.HasNotificationListenerAccessUseCase
 import digital.tonima.core.data.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.data.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.data.usecases.PermissionState
@@ -49,6 +50,7 @@ class SettingsViewModelTest {
     private val mockUpdateAppPreferenceUseCase: UpdateAppPreferenceUseCase = mockk(relaxed = true)
     private val mockCheckPermissionsUseCase: CheckPermissionsUseCase = mockk(relaxed = true)
     private val mockObserveRingerModeUseCase: ObserveRingerModeUseCase = mockk(relaxed = true)
+    private val mockHasNotificationListenerAccessUseCase: HasNotificationListenerAccessUseCase = mockk()
     private val mockAppNavigator: AppNavigator = mockk(relaxed = true)
 
     private val appPreferencesFlow = MutableStateFlow(defaultAppPreferences())
@@ -62,6 +64,7 @@ class SettingsViewModelTest {
 
         every { mockObserveAppPreferencesUseCase() } returns appPreferencesFlow
         every { mockObserveRingerModeUseCase() } returns ringerModeFlow
+        every { mockHasNotificationListenerAccessUseCase() } returns false
         every { mockCheckPermissionsUseCase() } returns
             PermissionState(
                 hasCalendarPermission = true,
@@ -78,6 +81,7 @@ class SettingsViewModelTest {
                 mockUpdateAppPreferenceUseCase,
                 mockCheckPermissionsUseCase,
                 mockObserveRingerModeUseCase,
+                mockHasNotificationListenerAccessUseCase,
                 mockAppNavigator,
             )
     }
@@ -270,5 +274,52 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             assertEquals(AudioWarningState.SILENT, viewModel.uiState.value.audioWarning)
+        }
+
+    @Test
+    fun `notification features are off by default and follow the stored preferences`() =
+        runTest {
+            advanceUntilIdle()
+            assertFalse(viewModel.uiState.value.isNotificationDedupEnabled)
+            assertFalse(viewModel.uiState.value.isFocusDigestEnabled)
+            assertFalse(viewModel.uiState.value.isEventSuggestionsEnabled)
+
+            appPreferencesFlow.value =
+                defaultAppPreferences().copy(
+                    isNotificationDedupEnabled = true,
+                    isFocusDigestEnabled = true,
+                    isEventSuggestionsEnabled = true,
+                )
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.isNotificationDedupEnabled)
+            assertTrue(viewModel.uiState.value.isFocusDigestEnabled)
+            assertTrue(viewModel.uiState.value.isEventSuggestionsEnabled)
+        }
+
+    @Test
+    fun `notification feature toggles are written to the preferences`() =
+        runTest {
+            viewModel.handleIntent(SettingsIntent.ToggleNotificationDedup(true))
+            viewModel.handleIntent(SettingsIntent.ToggleFocusDigest(true))
+            viewModel.handleIntent(SettingsIntent.ToggleEventSuggestions(false))
+            advanceUntilIdle()
+
+            coVerify { mockUpdateAppPreferenceUseCase.setNotificationDedupEnabled(true) }
+            coVerify { mockUpdateAppPreferenceUseCase.setFocusDigestEnabled(true) }
+            coVerify { mockUpdateAppPreferenceUseCase.setEventSuggestionsEnabled(false) }
+        }
+
+    @Test
+    fun `checking permissions refreshes the notification access state`() =
+        runTest {
+            advanceUntilIdle()
+            assertFalse(viewModel.uiState.value.hasNotificationListenerAccess)
+
+            every { mockHasNotificationListenerAccessUseCase() } returns true
+            viewModel.handleIntent(SettingsIntent.CheckPermissions)
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.hasNotificationListenerAccess)
         }
 }

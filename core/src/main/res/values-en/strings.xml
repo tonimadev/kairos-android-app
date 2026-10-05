@@ -333,4 +333,26 @@
     <string name="ai_agent_event_rescheduled">Event rescheduled in your calendar.</string>
     <string name="ai_agent_reschedule_recurring_unsupported">Recurring events can\'t be rescheduled by the assistant yet. Change the occurrence in your calendar app.</string>
     <string name="ai_agent_reschedule_error">Could not reschedule the event in your calendar.</string>
+    <string name="notif_features_title">Notification access</string>
+    <string name="notif_features_intro">Optional features that use notification access. Everything is processed on your device; notification content is never saved or sent anywhere.</string>
+    <string name="notif_dedup_label">Hide duplicate calendar reminder</string>
+    <string name="notif_dedup_description">Removes the calendar app\'s notification when the Kairos alarm rings for the same event.</string>
+    <string name="notif_digest_label">Meeting focus summary</string>
+    <string name="notif_digest_description">Holds back messaging and email notifications during a meeting and shows a summary afterwards.</string>
+    <string name="notif_suggestions_label">Suggest events from notifications</string>
+    <string name="notif_suggestions_description">Detects invitations with a date and time in messages and emails and asks if you want to create the event.</string>
+    <string name="notif_access_missing">Notification access is turned off. Turn it on for these features to work.</string>
+    <string name="notif_open_access_settings">Open settings</string>
+    <string name="notif_disclosure_title">Notification access</string>
+    <string name="notif_disclosure_body">For these features, Kairos needs to read notifications from other apps. It only looks at notifications from calendar, messaging and email apps, and only on your device. The content is not saved, shared, or sent to the internet or to the AI. You can turn the access off at any time in Android settings.</string>
+    <string name="notif_disclosure_confirm">Continue</string>
+    <string name="notif_disclosure_cancel">Not now</string>
+    <string name="focus_digest_channel_name">Focus summary</string>
+    <string name="focus_digest_title">Notifications held back during the meeting</string>
+    <string name="event_suggestion_channel_name">Event suggestions</string>
+    <string name="event_suggestion_title">Create event?</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">Create</string>
+    <string name="event_suggestion_created">Event created</string>
+    <string name="event_suggestion_failed">Could not create the event</string>
 </resources>

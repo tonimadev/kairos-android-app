@@ -44,6 +44,9 @@ class ObserveAppPreferencesUseCaseTest {
             coEvery { repository.isAutoFocusModeEnabled() } returns flowOf(false)
             coEvery { repository.isEscalatingVolumeEnabled() } returns flowOf(true)
             coEvery { repository.isAnnounceEventEnabled() } returns flowOf(true)
+            coEvery { repository.isNotificationDedupEnabled() } returns flowOf(true)
+            coEvery { repository.isFocusDigestEnabled() } returns flowOf(false)
+            coEvery { repository.isEventSuggestionsEnabled() } returns flowOf(true)
 
             useCase().test {
                 val prefs = awaitItem()
@@ -69,6 +72,9 @@ class ObserveAppPreferencesUseCaseTest {
                 assertEquals(false, prefs.isAutoFocusModeEnabled)
                 assertEquals(true, prefs.isEscalatingVolumeEnabled)
                 assertEquals(true, prefs.isAnnounceEventEnabled)
+                assertEquals(true, prefs.isNotificationDedupEnabled)
+                assertEquals(false, prefs.isFocusDigestEnabled)
+                assertEquals(true, prefs.isEventSuggestionsEnabled)
                 cancelAndIgnoreRemainingEvents()
             }
         }

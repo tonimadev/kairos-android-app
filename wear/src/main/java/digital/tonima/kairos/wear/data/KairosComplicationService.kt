@@ -14,6 +14,7 @@ import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import dagger.hilt.android.AndroidEntryPoint
+import digital.tonima.core.utils.LocalizedDateTime
 import digital.tonima.kairos.core.model.Event
 import digital.tonima.kairos.wear.MainActivity
 import logcat.LogPriority
@@ -21,8 +22,6 @@ import logcat.logcat
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import digital.tonima.kairos.core.R as coreR
 
 @AndroidEntryPoint
@@ -154,7 +153,7 @@ class KairosComplicationService : ComplicationDataSourceService() {
                         .ofEpochMilli(nextEvent.startTime)
                         .atZone(ZoneId.systemDefault())
                         .toLocalTime()
-                val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+                val formatter = LocalizedDateTime.time(this)
                 PlainComplicationText.Builder(formatter.format(localTime)).build()
             } else {
                 PlainComplicationText.Builder(getString(coreR.string.no_events)).build()
@@ -194,7 +193,7 @@ class KairosComplicationService : ComplicationDataSourceService() {
                     .ofEpochMilli(nextEvent.startTime)
                     .atZone(ZoneId.systemDefault())
                     .toLocalTime()
-            val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+            val formatter = LocalizedDateTime.time(this)
 
             mainDisplayBody =
                 PlainComplicationText

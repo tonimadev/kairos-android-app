@@ -94,8 +94,11 @@ import digital.tonima.core.viewmodel.SettingsIntent.SkipFullScreenIntentPermissi
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAllDayAlarms
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAnnounceEvent
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleEscalatingVolume
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleEventSuggestions
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleFocusDigest
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleGlobalAlarms
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleLocationAlarm
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleNotificationDedup
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleSkipWeekends
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleTemperatureUnit
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleVibrateOnly
@@ -208,6 +211,9 @@ fun EventScreen(
                 onTemperatureUnitToggle = { settingsViewModel.handleIntent(ToggleTemperatureUnit(it)) },
                 onEscalatingVolumeToggle = { settingsViewModel.handleIntent(ToggleEscalatingVolume(it)) },
                 onAnnounceEventToggle = { settingsViewModel.handleIntent(ToggleAnnounceEvent(it)) },
+                onNotificationDedupToggle = { settingsViewModel.handleIntent(ToggleNotificationDedup(it)) },
+                onFocusDigestToggle = { settingsViewModel.handleIntent(ToggleFocusDigest(it)) },
+                onEventSuggestionsToggle = { settingsViewModel.handleIntent(ToggleEventSuggestions(it)) },
                 onCloseSettings = { settingsViewModel.handleIntent(CloseSettings) },
                 onCustomRingtoneSelected = { settingsViewModel.handleIntent(UpdateCustomRingtoneUri(it)) },
                 onCheckPermissions = { settingsViewModel.handleIntent(CheckPermissions) },

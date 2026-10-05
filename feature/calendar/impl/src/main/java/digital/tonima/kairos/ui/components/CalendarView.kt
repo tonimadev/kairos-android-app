@@ -136,7 +136,7 @@ private fun MonthHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         val locale = LocalConfiguration.current.locales.get(0)
-        val formatter = remember(locale) { DateTimeFormatter.ofPattern("MMMM yyyy", locale) }
+        val formatter = remember(locale) { DateTimeFormatter.ofPattern("LLLL yyyy", locale) }
 
         Text(
             text =
