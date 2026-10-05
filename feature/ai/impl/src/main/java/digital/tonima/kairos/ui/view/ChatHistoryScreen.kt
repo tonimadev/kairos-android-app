@@ -30,15 +30,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import digital.tonima.core.database.entity.ConversationEntity
+import digital.tonima.core.utils.LocalizedDateTime
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.ui.theme.Dimensions
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,7 +104,8 @@ private fun ConversationItem(
     onClick: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    val formatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm") }
+    val context = LocalContext.current
+    val formatter = remember(context) { LocalizedDateTime.numericDateAndTime(context) }
     val dateStr =
         remember(conversation.updatedAt) {
             Instant.ofEpochMilli(conversation.updatedAt)

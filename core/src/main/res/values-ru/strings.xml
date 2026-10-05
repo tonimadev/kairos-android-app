@@ -334,4 +334,26 @@
     <string name="ai_agent_event_rescheduled">Событие перенесено в календаре.</string>
     <string name="ai_agent_reschedule_recurring_unsupported">Ассистент пока не может переносить повторяющиеся события. Измените событие в приложении календаря.</string>
     <string name="ai_agent_reschedule_error">Не удалось перенести событие в календаре.</string>
+    <string name="notif_features_title">Доступ к уведомлениям</string>
+    <string name="notif_features_intro">Дополнительные функции, использующие доступ к уведомлениям. Всё обрабатывается на вашем устройстве; содержимое уведомлений никогда не сохраняется и не отправляется.</string>
+    <string name="notif_dedup_label">Скрывать дублирующее напоминание календаря</string>
+    <string name="notif_dedup_description">Удаляет уведомление приложения календаря, когда будильник Kairos звонит для того же события.</string>
+    <string name="notif_digest_label">Сводка фокуса на встречах</string>
+    <string name="notif_digest_description">Откладывает уведомления мессенджеров и почты во время встречи и показывает сводку после неё.</string>
+    <string name="notif_suggestions_label">Предлагать события по уведомлениям</string>
+    <string name="notif_suggestions_description">Находит в сообщениях и письмах приглашения с датой и временем и спрашивает, создать ли событие.</string>
+    <string name="notif_access_missing">Доступ к уведомлениям отключён. Включите его, чтобы эти функции работали.</string>
+    <string name="notif_open_access_settings">Открыть настройки</string>
+    <string name="notif_disclosure_title">Доступ к уведомлениям</string>
+    <string name="notif_disclosure_body">Для этих функций Kairos должен читать уведомления других приложений. Он анализирует только уведомления календарей, мессенджеров и почты и только на вашем устройстве. Содержимое не сохраняется, не передаётся и не отправляется в интернет или ИИ. Доступ можно отключить в любой момент в настройках Android.</string>
+    <string name="notif_disclosure_confirm">Продолжить</string>
+    <string name="notif_disclosure_cancel">Не сейчас</string>
+    <string name="focus_digest_channel_name">Сводка фокуса</string>
+    <string name="focus_digest_title">Уведомления, отложенные на время встречи</string>
+    <string name="event_suggestion_channel_name">Предложения событий</string>
+    <string name="event_suggestion_title">Создать событие?</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">Создать</string>
+    <string name="event_suggestion_created">Событие создано</string>
+    <string name="event_suggestion_failed">Не удалось создать событие</string>
 </resources>

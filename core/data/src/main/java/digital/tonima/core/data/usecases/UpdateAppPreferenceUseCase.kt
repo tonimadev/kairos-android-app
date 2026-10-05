@@ -60,4 +60,10 @@ class UpdateAppPreferenceUseCase
         suspend fun setEscalatingVolumeEnabled(enabled: Boolean) = repository.setEscalatingVolumeEnabled(enabled)
 
         suspend fun setAnnounceEventEnabled(enabled: Boolean) = repository.setAnnounceEventEnabled(enabled)
+
+        suspend fun setNotificationDedupEnabled(enabled: Boolean) = repository.setNotificationDedupEnabled(enabled)
+
+        suspend fun setFocusDigestEnabled(enabled: Boolean) = repository.setFocusDigestEnabled(enabled)
+
+        suspend fun setEventSuggestionsEnabled(enabled: Boolean) = repository.setEventSuggestionsEnabled(enabled)
     }

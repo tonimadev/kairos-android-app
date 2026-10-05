@@ -48,6 +48,17 @@ class PermissionManagerImplTest {
     }
 
     @Test
+    fun `notification listener access is only true once the user enabled this app`() {
+        assertFalse(manager.hasNotificationListenerAccess())
+
+        setEnabledListeners("com.other.app/com.other.app.Listener")
+        assertFalse("Another app's listener must not count", manager.hasNotificationListenerAccess())
+
+        setEnabledListeners("com.other.app/com.other.app.Listener:${app.packageName}/some.Listener")
+        assertTrue(manager.hasNotificationListenerAccess())
+    }
+
+    @Test
     fun `notification permission is required from Android 13`() {
         assertEquals(listOf(Manifest.permission.POST_NOTIFICATIONS), manager.notificationPermissions)
         assertFalse(manager.hasPostNotificationsPermission())
@@ -120,4 +131,8 @@ class PermissionManagerImplTest {
     }
 
     private fun grant(vararg permissions: String) = shadowOf(app).grantPermissions(*permissions)
+
+    private fun setEnabledListeners(value: String) {
+        android.provider.Settings.Secure.putString(app.contentResolver, "enabled_notification_listeners", value)
+    }
 }

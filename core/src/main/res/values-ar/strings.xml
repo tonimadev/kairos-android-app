@@ -335,4 +335,26 @@
     <string name="ai_agent_event_rescheduled">تمت إعادة جدولة الحدث في التقويم.</string>
     <string name="ai_agent_reschedule_recurring_unsupported">لا يمكن للمساعد بعد إعادة جدولة الأحداث المتكررة. غيّر هذا الموعد من تطبيق التقويم.</string>
     <string name="ai_agent_reschedule_error">تعذّرت إعادة جدولة الحدث في التقويم.</string>
+    <string name="notif_features_title">الوصول إلى الإشعارات</string>
+    <string name="notif_features_intro">ميزات اختيارية تستخدم الوصول إلى الإشعارات. تتم المعالجة بالكامل على جهازك، ولا يُحفظ محتوى الإشعارات ولا يُرسل أبدًا.</string>
+    <string name="notif_dedup_label">إخفاء تذكير التقويم المكرر</string>
+    <string name="notif_dedup_description">يزيل إشعار تطبيق التقويم عند رنين منبّه Kairos لنفس الحدث.</string>
+    <string name="notif_digest_label">ملخص التركيز في الاجتماعات</string>
+    <string name="notif_digest_description">يؤجّل إشعارات المراسلة والبريد أثناء الاجتماع ويعرض ملخصًا في النهاية.</string>
+    <string name="notif_suggestions_label">اقتراح أحداث من الإشعارات</string>
+    <string name="notif_suggestions_description">يكتشف الدعوات التي تتضمن تاريخًا ووقتًا في الرسائل والبريد ويسألك إن كنت تريد إنشاء الحدث.</string>
+    <string name="notif_access_missing">الوصول إلى الإشعارات معطّل. فعّله لتعمل هذه الميزات.</string>
+    <string name="notif_open_access_settings">فتح الإعدادات</string>
+    <string name="notif_disclosure_title">الوصول إلى الإشعارات</string>
+    <string name="notif_disclosure_body">تحتاج هذه الميزات إلى أن يقرأ Kairos إشعارات التطبيقات الأخرى. يحلل فقط إشعارات تطبيقات التقويم والمراسلة والبريد، وعلى جهازك فقط. لا يُحفظ المحتوى ولا يُشارك ولا يُرسل إلى الإنترنت أو إلى الذكاء الاصطناعي. يمكنك إيقاف الوصول في أي وقت من إعدادات أندرويد.</string>
+    <string name="notif_disclosure_confirm">متابعة</string>
+    <string name="notif_disclosure_cancel">ليس الآن</string>
+    <string name="focus_digest_channel_name">ملخص التركيز</string>
+    <string name="focus_digest_title">إشعارات تم تأجيلها أثناء الاجتماع</string>
+    <string name="event_suggestion_channel_name">اقتراحات الأحداث</string>
+    <string name="event_suggestion_title">إنشاء حدث؟</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">إنشاء</string>
+    <string name="event_suggestion_created">تم إنشاء الحدث</string>
+    <string name="event_suggestion_failed">تعذّر إنشاء الحدث</string>
 </resources>

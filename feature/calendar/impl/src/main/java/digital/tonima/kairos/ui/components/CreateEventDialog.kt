@@ -32,9 +32,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import digital.tonima.core.utils.LocalizedDateTime
 import digital.tonima.core.viewmodel.VoiceEventData
 import digital.tonima.kairos.core.model.DeviceCalendar
 import java.time.Instant
@@ -42,7 +44,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import digital.tonima.kairos.core.R as CoreR
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,6 +63,9 @@ fun CreateEventDialog(
     initialDateEpochDays: Long = LocalDate.now().toEpochDay(),
     voiceEventData: VoiceEventData? = null,
 ) {
+    val context = LocalContext.current
+    val dateFormatter = remember(context) { LocalizedDateTime.numericDate(LocalizedDateTime.currentLocale(context)) }
+    val timeFormatter = remember(context) { LocalizedDateTime.time(context) }
     var title by remember(voiceEventData) { mutableStateOf(voiceEventData?.title ?: "") }
     var description by remember(voiceEventData) { mutableStateOf(voiceEventData?.description ?: "") }
     var location by remember(voiceEventData) { mutableStateOf(voiceEventData?.location ?: "") }
@@ -162,7 +166,7 @@ fun CreateEventDialog(
                     val modifier = Modifier.weight(1f).clickable { showStartDatePicker = true }
                     Box(modifier = modifier) {
                         OutlinedTextField(
-                            value = startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            value = startDate.format(dateFormatter),
                             onValueChange = {},
                             label = { Text(stringResource(CoreR.string.start_date)) },
                             readOnly = true,
@@ -180,7 +184,7 @@ fun CreateEventDialog(
                         val timeModifier = Modifier.weight(1f).clickable { showStartTimePicker = true }
                         Box(modifier = timeModifier) {
                             OutlinedTextField(
-                                value = startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                                value = startTime.format(timeFormatter),
                                 onValueChange = {},
                                 label = { Text(stringResource(CoreR.string.start_time)) },
                                 readOnly = true,
@@ -205,7 +209,7 @@ fun CreateEventDialog(
                     val dateModifier = Modifier.weight(1f).clickable { showEndDatePicker = true }
                     Box(modifier = dateModifier) {
                         OutlinedTextField(
-                            value = endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            value = endDate.format(dateFormatter),
                             onValueChange = {},
                             label = { Text(stringResource(CoreR.string.end_date)) },
                             readOnly = true,
@@ -223,7 +227,7 @@ fun CreateEventDialog(
                         val timeModifier = Modifier.weight(1f).clickable { showEndTimePicker = true }
                         Box(modifier = timeModifier) {
                             OutlinedTextField(
-                                value = endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                                value = endTime.format(timeFormatter),
                                 onValueChange = {},
                                 label = { Text(stringResource(CoreR.string.end_time)) },
                                 readOnly = true,

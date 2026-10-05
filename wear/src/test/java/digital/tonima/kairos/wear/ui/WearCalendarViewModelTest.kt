@@ -232,6 +232,18 @@ class WearCalendarViewModelTest {
 
         override suspend fun setAnnounceEventEnabled(enabled: Boolean) = Unit
 
+        override fun isNotificationDedupEnabled(): Flow<Boolean> = MutableStateFlow(false)
+
+        override suspend fun setNotificationDedupEnabled(enabled: Boolean) = Unit
+
+        override fun isFocusDigestEnabled(): Flow<Boolean> = MutableStateFlow(false)
+
+        override suspend fun setFocusDigestEnabled(enabled: Boolean) = Unit
+
+        override fun isEventSuggestionsEnabled(): Flow<Boolean> = MutableStateFlow(false)
+
+        override suspend fun setEventSuggestionsEnabled(enabled: Boolean) = Unit
+
         override fun isProUser(): Flow<Boolean> = isProUser
 
         override suspend fun setProUser(isPro: Boolean) {

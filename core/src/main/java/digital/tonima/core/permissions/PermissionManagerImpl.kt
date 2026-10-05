@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.paulrybitskyi.hiltbinder.BindType
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -81,6 +82,9 @@ class PermissionManagerImpl
         }
 
         override fun hasBackgroundLocationPermission(): Boolean = true
+
+        override fun hasNotificationListenerAccess(): Boolean =
+            NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.packageName)
 
         override fun hasExactAlarmPermission(): Boolean {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

@@ -327,4 +327,26 @@
     <string name="ai_agent_event_rescheduled">已在日历中重新安排活动。</string>
     <string name="ai_agent_reschedule_recurring_unsupported">助手暂时无法重新安排重复活动。请在日历应用中修改该活动。</string>
     <string name="ai_agent_reschedule_error">无法在日历中重新安排该活动。</string>
+    <string name="notif_features_title">通知访问权限</string>
+    <string name="notif_features_intro">使用通知访问权限的可选功能。所有内容均在您的设备上处理；通知内容绝不会被保存或发送。</string>
+    <string name="notif_dedup_label">隐藏重复的日历提醒</string>
+    <string name="notif_dedup_description">当 Kairos 闹钟为同一事件响起时，移除日历应用的通知。</string>
+    <string name="notif_digest_label">会议专注摘要</string>
+    <string name="notif_digest_description">会议期间暂缓消息和邮件通知，并在结束后显示摘要。</string>
+    <string name="notif_suggestions_label">根据通知建议事件</string>
+    <string name="notif_suggestions_description">检测消息和邮件中带有日期和时间的邀请，并询问是否创建事件。</string>
+    <string name="notif_access_missing">通知访问权限已关闭。请开启以使用这些功能。</string>
+    <string name="notif_open_access_settings">打开设置</string>
+    <string name="notif_disclosure_title">通知访问权限</string>
+    <string name="notif_disclosure_body">为使用这些功能，Kairos 需要读取其他应用的通知。它只分析日历、消息和邮件应用的通知，且仅在您的设备上进行。内容不会被保存、共享，也不会发送到互联网或 AI。您可以随时在 Android 设置中关闭该权限。</string>
+    <string name="notif_disclosure_confirm">继续</string>
+    <string name="notif_disclosure_cancel">暂不</string>
+    <string name="focus_digest_channel_name">专注摘要</string>
+    <string name="focus_digest_title">会议期间暂缓的通知</string>
+    <string name="event_suggestion_channel_name">事件建议</string>
+    <string name="event_suggestion_title">创建事件？</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">创建</string>
+    <string name="event_suggestion_created">事件已创建</string>
+    <string name="event_suggestion_failed">无法创建事件</string>
 </resources>

@@ -1,5 +1,6 @@
 package digital.tonima.kairos.ui.components
 
+import android.text.format.DateFormat
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -30,15 +31,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import java.text.SimpleDateFormat
+import java.time.DayOfWeek
 import java.util.Calendar
 import java.util.Date
 
@@ -59,11 +63,17 @@ fun EventCard(
     )
 
     val locale = LocalConfiguration.current.locales.get(0)
-    val timeFormat = remember(locale) { SimpleDateFormat("h:mm", locale) }
+    val is24Hour = DateFormat.is24HourFormat(LocalContext.current)
+    val timeFormat =
+        remember(locale, is24Hour) { SimpleDateFormat(if (is24Hour) "HH:mm" else "h:mm", locale) }
     val amPmFormat = remember(locale) { SimpleDateFormat("a", locale) }
 
     val timeString = remember(event.startTime, timeFormat) { timeFormat.format(Date(event.startTime)) }
-    val amPmString = remember(event.startTime, amPmFormat) { amPmFormat.format(Date(event.startTime)).uppercase() }
+    // A 24-hour clock has no AM/PM marker.
+    val amPmString =
+        remember(event.startTime, amPmFormat, is24Hour) {
+            if (is24Hour) "" else amPmFormat.format(Date(event.startTime)).uppercase(locale)
+        }
 
     val calendar =
         remember(event.startTime) {
@@ -104,14 +114,16 @@ fun EventCard(
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = amPmString,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    modifier = Modifier.padding(bottom = 6.dp),
-                )
+                if (amPmString.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = amPmString,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -130,19 +142,24 @@ fun EventCard(
                     )
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        // Same first day of the week as the month view (Sunday, Monday or Saturday by locale).
+                        val firstDay = remember { firstDayOfWeekFromLocale() }
                         val days =
                             listOf(
-                                stringResource(R.string.day_sunday_short),
-                                stringResource(R.string.day_monday_short),
-                                stringResource(R.string.day_tuesday_short),
-                                stringResource(R.string.day_wednesday_short),
-                                stringResource(R.string.day_thursday_short),
-                                stringResource(R.string.day_friday_short),
-                                stringResource(R.string.day_saturday_short),
-                            )
-                        days.forEachIndexed { index, day ->
-                            // Calendar.SUNDAY is 1, so index 0 = Sunday
-                            val isSelected = (index + 1) == eventDayOfWeek && event.isAlarmEnabled
+                                DayOfWeek.SUNDAY to stringResource(R.string.day_sunday_short),
+                                DayOfWeek.MONDAY to stringResource(R.string.day_monday_short),
+                                DayOfWeek.TUESDAY to stringResource(R.string.day_tuesday_short),
+                                DayOfWeek.WEDNESDAY to stringResource(R.string.day_wednesday_short),
+                                DayOfWeek.THURSDAY to stringResource(R.string.day_thursday_short),
+                                DayOfWeek.FRIDAY to stringResource(R.string.day_friday_short),
+                                DayOfWeek.SATURDAY to stringResource(R.string.day_saturday_short),
+                            ).let { sundayFirst ->
+                                val start = sundayFirst.indexOfFirst { it.first == firstDay }
+                                sundayFirst.drop(start) + sundayFirst.take(start)
+                            }
+                        days.forEach { (dayOfWeek, day) ->
+                            // Calendar.SUNDAY is 1 and DayOfWeek.SUNDAY is 7
+                            val isSelected = dayOfWeek.value == (eventDayOfWeek + 5) % 7 + 1 && event.isAlarmEnabled
 
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(

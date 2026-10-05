@@ -59,6 +59,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import digital.tonima.core.utils.LocalizedDateTime
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.kairos.core.R
@@ -66,6 +67,7 @@ import digital.tonima.kairos.core.model.AlarmOffset
 import digital.tonima.kairos.core.model.DeviceCalendar
 import digital.tonima.kairos.core.ui.theme.Dimensions
 import digital.tonima.kairos.ui.components.SettingsActions
+import java.time.LocalTime
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -229,6 +231,10 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+            NotificationAccessSection(settingsUiState = settingsUiState, settingsActions = settingsActions)
 
             if (uiState.availableCalendars.isNotEmpty()) {
                 CalendarFilterSection(
@@ -446,7 +452,7 @@ private fun AllDayAlarmsSection(
         Text(
             text =
                 stringResource(R.string.all_day_alarm_time) +
-                    ": ${"%02d:00".format(hour)}",
+                    ": ${LocalTime.of(hour, 0).format(LocalizedDateTime.time(LocalContext.current))}",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

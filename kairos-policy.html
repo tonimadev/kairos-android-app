@@ -250,8 +250,18 @@
             <tr><td><code>VIBRATE</code></td><td>Vibração durante o alarme</td></tr>
             <tr><td><code>FOREGROUND_SERVICE</code></td><td>Manter o som e a vibração do alarme ativos em primeiro plano</td></tr>
             <tr><td><code>WAKE_LOCK</code></td><td>Manter o dispositivo ativo durante o alarme</td></tr>
+            <tr><td><code>BIND_NOTIFICATION_LISTENER_SERVICE</code> (acesso a notificações, opcional)</td><td>Funcionalidades opcionais descritas na secção 9.1; só é ativado se o utilizador o conceder nas definições do Android</td></tr>
         </tbody>
     </table>
+
+    <h3>9.1. Acesso a Notificações (opcional)</h3>
+    <p>O acesso a notificações é <strong>opcional e está desativado por predefinição</strong>. Só é utilizado se ativar uma das funcionalidades abaixo e conceder o acesso nas definições do Android, e pode ser revogado a qualquer momento.</p>
+    <ul>
+        <li><strong>Ocultar lembrete duplicado da agenda:</strong> remove a notificação da aplicação de agenda quando o alarme do Kairós toca para o mesmo evento.</li>
+        <li><strong>Resumo de foco em reuniões:</strong> adia notificações de aplicações de mensagens e e-mail durante uma reunião e mostra no final apenas a contagem por aplicação.</li>
+        <li><strong>Sugerir eventos a partir de notificações:</strong> deteta datas e horas em notificações de mensagens e e-mail e pergunta se pretende criar um evento.</li>
+    </ul>
+    <p>O Kairós só analisa notificações de aplicações de agenda, mensagens e e-mail. O conteúdo é processado apenas na memória do dispositivo: <strong>não é guardado, partilhado nem enviado para a internet ou para os serviços de IA</strong>. Nas sugestões de eventos, o evento só é criado na sua agenda depois de tocar em "Criar".</p>
 
     <!-- ───────────────────────────────────── 10 ─ -->
     <h2>10. Retenção de Dados</h2>

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import digital.tonima.core.data.usecases.CheckPermissionsUseCase
+import digital.tonima.core.data.usecases.HasNotificationListenerAccessUseCase
 import digital.tonima.core.data.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.data.usecases.ObserveRingerModeUseCase
 import digital.tonima.core.data.usecases.UpdateAppPreferenceUseCase
@@ -21,8 +22,11 @@ import digital.tonima.core.viewmodel.SettingsIntent.ToggleAnnounceEvent
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAutoFocusMode
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleAutoJoin
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleEscalatingVolume
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleEventSuggestions
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleFocusDigest
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleGlobalAlarms
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleLocationAlarm
+import digital.tonima.core.viewmodel.SettingsIntent.ToggleNotificationDedup
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleSkipWeekends
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleTemperatureUnit
 import digital.tonima.core.viewmodel.SettingsIntent.ToggleVibrateOnly
@@ -51,6 +55,7 @@ class SettingsViewModel
         private val updateAppPreferenceUseCase: UpdateAppPreferenceUseCase,
         private val checkPermissionsUseCase: CheckPermissionsUseCase,
         private val observeRingerModeUseCase: ObserveRingerModeUseCase,
+        private val hasNotificationListenerAccessUseCase: HasNotificationListenerAccessUseCase,
         private val appNavigator: AppNavigator,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(SettingsUiState())
@@ -81,6 +86,9 @@ class SettingsViewModel
                     is ToggleAutoFocusMode -> updateAppPreferenceUseCase.setAutoFocusModeEnabled(intent.enabled)
                     is ToggleEscalatingVolume -> updateAppPreferenceUseCase.setEscalatingVolumeEnabled(intent.enabled)
                     is ToggleAnnounceEvent -> updateAppPreferenceUseCase.setAnnounceEventEnabled(intent.enabled)
+                    is ToggleNotificationDedup -> updateAppPreferenceUseCase.setNotificationDedupEnabled(intent.enabled)
+                    is ToggleFocusDigest -> updateAppPreferenceUseCase.setFocusDigestEnabled(intent.enabled)
+                    is ToggleEventSuggestions -> updateAppPreferenceUseCase.setEventSuggestionsEnabled(intent.enabled)
                     is ChangeTransportMode -> updateAppPreferenceUseCase.setPreferredTransportMode(intent.mode)
                     is ToggleTemperatureUnit -> updateAppPreferenceUseCase.setTemperatureInCelsius(intent.isCelsius)
                     DismissAutostartSuggestion -> updateAppPreferenceUseCase.setAutostartSuggestionDismissed(true)
@@ -122,6 +130,9 @@ class SettingsViewModel
                         isAutoFocusModeEnabled = appPrefs.isAutoFocusModeEnabled,
                         isEscalatingVolumeEnabled = appPrefs.isEscalatingVolumeEnabled,
                         isAnnounceEventEnabled = appPrefs.isAnnounceEventEnabled,
+                        isNotificationDedupEnabled = appPrefs.isNotificationDedupEnabled,
+                        isFocusDigestEnabled = appPrefs.isFocusDigestEnabled,
+                        isEventSuggestionsEnabled = appPrefs.isEventSuggestionsEnabled,
                     )
                 }
             }.launchIn(viewModelScope)
@@ -145,6 +156,7 @@ class SettingsViewModel
                             it.skippedFullScreenIntentPermission,
                     hasLocationPermission = p.hasLocationPermission,
                     hasBackgroundLocationPermission = p.hasBackgroundLocationPermission,
+                    hasNotificationListenerAccess = hasNotificationListenerAccessUseCase(),
                 )
             }
         }

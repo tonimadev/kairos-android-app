@@ -16,6 +16,7 @@ import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.analytics.CrashReporter
 import digital.tonima.core.analytics.coroutineExceptionHandler
 import digital.tonima.core.analytics.runOrReport
+import digital.tonima.core.notifications.NotificationSignals
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.service.EventAlarmScheduler
@@ -206,6 +207,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun handleFocusEnd(context: Context) {
+        NotificationSignals.focusEnded()
         try {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
             if (nm.isNotificationPolicyAccessGranted) {
@@ -263,6 +265,10 @@ class AlarmReceiver : BroadcastReceiver() {
                     logcat { "Alarm fired for disabled event '$eventTitle'; ignoring." }
                     return@launch
                 }
+
+                // Optional notification features (no-ops without notification access) just read these facts.
+                NotificationSignals.alarmFired(eventTitle, startTime)
+                NotificationSignals.focusScheduled(startTime, endTime)
 
                 // ── Auto Focus Mode: enable DND + schedule end ──────────────────────
                 val isAutoFocusEnabled =

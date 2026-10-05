@@ -56,6 +56,9 @@ class AppPreferencesRepositoryImpl
             val CUSTOM_RINGTONE_URI = stringPreferencesKey("custom_ringtone_uri")
             val IS_PRO_USER = booleanPreferencesKey("is_pro_user")
             val IS_AI_USER = booleanPreferencesKey("is_ai_user")
+            val NOTIFICATION_DEDUP_ENABLED = booleanPreferencesKey("notification_dedup_enabled")
+            val FOCUS_DIGEST_ENABLED = booleanPreferencesKey("focus_digest_enabled")
+            val EVENT_SUGGESTIONS_ENABLED = booleanPreferencesKey("event_suggestions_enabled")
         }
 
         override fun isGlobalAlarmEnabled(): Flow<Boolean> {
@@ -465,6 +468,45 @@ class AppPreferencesRepositoryImpl
         override suspend fun setAutoFocusModeEnabled(enabled: Boolean) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.AUTO_FOCUS_MODE_ENABLED] = enabled
+            }
+        }
+
+        override fun isNotificationDedupEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.NOTIFICATION_DEDUP_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setNotificationDedupEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.NOTIFICATION_DEDUP_ENABLED] = enabled
+            }
+        }
+
+        override fun isFocusDigestEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.FOCUS_DIGEST_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setFocusDigestEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.FOCUS_DIGEST_ENABLED] = enabled
+            }
+        }
+
+        override fun isEventSuggestionsEnabled(): Flow<Boolean> {
+            return context.dataStore.data
+                .map { preferences ->
+                    preferences[PreferencesKeys.EVENT_SUGGESTIONS_ENABLED] ?: false
+                }
+        }
+
+        override suspend fun setEventSuggestionsEnabled(enabled: Boolean) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.EVENT_SUGGESTIONS_ENABLED] = enabled
             }
         }
 

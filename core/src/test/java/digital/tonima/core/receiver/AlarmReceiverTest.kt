@@ -13,6 +13,7 @@ import dagger.hilt.internal.GeneratedComponent
 import dagger.hilt.internal.GeneratedComponentManager
 import digital.tonima.core.analytics.Analytics
 import digital.tonima.core.analytics.CrashReporter
+import digital.tonima.core.notifications.NotificationSignals
 import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSoundAndVibrateService
 import digital.tonima.core.service.EventAlarmScheduler
@@ -74,6 +75,7 @@ class AlarmReceiverTest {
 
     @Before
     fun setUp() {
+        NotificationSignals.resetForTest()
         app = ApplicationProvider.getApplicationContext()
         app.scheduler = scheduler
         app.analytics = analytics
@@ -116,6 +118,22 @@ class AlarmReceiverTest {
         assertEquals(MEETING_URL, started.getStringExtra(AlarmReceiver.EXTRA_MEETING_URL))
         assertEquals("Room 42", started.getStringExtra(AlarmReceiver.EXTRA_EVENT_LOCATION))
         verify { analytics.logEvent(Analytics.EVENT_ALARM_FIRED, mapOf(Analytics.PARAM_HAS_MEETING_URL to true)) }
+    }
+
+    @Test
+    fun `alarm that rings is published for the optional notification features`() {
+        deliver(alarmIntent())
+
+        assertEquals(listOf("Daily standup"), NotificationSignals.recentAlarms().map { it.title })
+    }
+
+    @Test
+    fun `alarm that does not ring is not published`() {
+        every { preferences.isGlobalAlarmEnabled() } returns flowOf(false)
+
+        deliver(alarmIntent())
+
+        assertEquals(emptyList<String>(), NotificationSignals.recentAlarms().map { it.title })
     }
 
     @Test

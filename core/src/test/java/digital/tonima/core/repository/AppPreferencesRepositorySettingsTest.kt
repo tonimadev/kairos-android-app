@@ -41,6 +41,9 @@ class AppPreferencesRepositorySettingsTest {
                 assertRoundTrip(isAutoFocusModeEnabled(), default = false) { setAutoFocusModeEnabled(it) }
                 assertRoundTrip(isEscalatingVolumeEnabled(), default = false) { setEscalatingVolumeEnabled(it) }
                 assertRoundTrip(isAnnounceEventEnabled(), default = false) { setAnnounceEventEnabled(it) }
+                assertRoundTrip(isNotificationDedupEnabled(), default = false) { setNotificationDedupEnabled(it) }
+                assertRoundTrip(isFocusDigestEnabled(), default = false) { setFocusDigestEnabled(it) }
+                assertRoundTrip(isEventSuggestionsEnabled(), default = false) { setEventSuggestionsEnabled(it) }
                 assertRoundTrip(isOnboardingCompleted(), default = false) { setOnboardingCompleted(it) }
                 assertRoundTrip(isProUser(), default = false) { setProUser(it) }
                 assertRoundTrip(isAiUser(), default = false) { setAiUser(it) }

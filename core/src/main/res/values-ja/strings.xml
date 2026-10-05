@@ -327,4 +327,26 @@
     <string name="ai_agent_event_rescheduled">カレンダーの予定を変更しました。</string>
     <string name="ai_agent_reschedule_recurring_unsupported">繰り返しの予定はまだアシスタントで変更できません。カレンダーアプリで変更してください。</string>
     <string name="ai_agent_reschedule_error">カレンダーの予定を変更できませんでした。</string>
+    <string name="notif_features_title">通知へのアクセス</string>
+    <string name="notif_features_intro">通知アクセスを使うオプション機能です。すべて端末内で処理され、通知の内容が保存されたり送信されたりすることはありません。</string>
+    <string name="notif_dedup_label">重複したカレンダーのリマインダーを非表示</string>
+    <string name="notif_dedup_description">同じ予定でKairosのアラームが鳴ったとき、カレンダーアプリの通知を削除します。</string>
+    <string name="notif_digest_label">会議中の集中モード要約</string>
+    <string name="notif_digest_description">会議中はメッセージやメールの通知を保留し、終了後に要約を表示します。</string>
+    <string name="notif_suggestions_label">通知から予定を提案</string>
+    <string name="notif_suggestions_description">メッセージやメール内の日時付きの招待を検出し、予定を作成するか確認します。</string>
+    <string name="notif_access_missing">通知へのアクセスがオフです。これらの機能を使うにはオンにしてください。</string>
+    <string name="notif_open_access_settings">設定を開く</string>
+    <string name="notif_disclosure_title">通知へのアクセス</string>
+    <string name="notif_disclosure_body">これらの機能のため、Kairosは他のアプリの通知を読み取る必要があります。対象はカレンダー、メッセージ、メールアプリの通知のみで、端末内でのみ解析します。内容は保存・共有されず、インターネットやAIにも送信されません。アクセスはAndroidの設定でいつでもオフにできます。</string>
+    <string name="notif_disclosure_confirm">続ける</string>
+    <string name="notif_disclosure_cancel">今はしない</string>
+    <string name="focus_digest_channel_name">集中モード要約</string>
+    <string name="focus_digest_title">会議中に保留した通知</string>
+    <string name="event_suggestion_channel_name">予定の提案</string>
+    <string name="event_suggestion_title">予定を作成しますか?</string>
+    <string name="event_suggestion_text">%1$s · %2$s</string>
+    <string name="event_suggestion_action_create">作成</string>
+    <string name="event_suggestion_created">予定を作成しました</string>
+    <string name="event_suggestion_failed">予定を作成できませんでした</string>
 </resources>
