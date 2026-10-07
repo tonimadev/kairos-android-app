@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Thin adapter over the shared [PayWallManager], keeping the
@@ -50,7 +51,7 @@ class SubscriptionManagerImpl
 
         override fun launchSubscriptionFlow(activity: Activity) {
             if (payWallManager.isReady.value) {
-                payWallManager.launchSubscription(activity, MONTHLY_SUBSCRIPTION_PLAN, MONTHLY_SUBSCRIPTION_PLAN)
+                launchMonthlyPlan(activity)
                 return
             }
             // Not ready yet (e.g. connection still in progress or was retried
@@ -59,16 +60,25 @@ class SubscriptionManagerImpl
             payWallManager.connect()
             scope.launch {
                 val becameReady =
-                    withTimeoutOrNull(READY_TIMEOUT_MS) {
+                    withTimeoutOrNull(READY_TIMEOUT_MS.milliseconds) {
                         payWallManager.isReady.first { it }
                         true
                     } ?: false
                 if (becameReady) {
-                    payWallManager.launchSubscription(activity, MONTHLY_SUBSCRIPTION_PLAN, MONTHLY_SUBSCRIPTION_PLAN)
+                    launchMonthlyPlan(activity)
                 } else {
                     _subscriptionErrors.tryEmit(Unit)
                 }
             }
+        }
+
+        private fun launchMonthlyPlan(activity: Activity) {
+            payWallManager.launchSubscription(
+                activity,
+                MONTHLY_SUBSCRIPTION_PLAN,
+                MONTHLY_SUBSCRIPTION_BASE_PLAN,
+                MONTHLY_SUBSCRIPTION_TRIAL_OFFER,
+            )
         }
 
         override fun refresh() {

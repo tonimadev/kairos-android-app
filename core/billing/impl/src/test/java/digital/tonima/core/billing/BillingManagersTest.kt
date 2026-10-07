@@ -148,7 +148,8 @@ class BillingManagersTest {
 
             SubscriptionManagerImpl(payWall).launchSubscriptionFlow(activity)
 
-            assertEquals(listOf(MONTHLY_SUBSCRIPTION_PLAN to MONTHLY_SUBSCRIPTION_PLAN), payWall.subscriptions)
+            val expected = Triple(MONTHLY_SUBSCRIPTION_PLAN, "monthly-basic-plan", "five-days-free")
+            assertEquals(listOf(expected), payWall.subscriptions)
         }
 
     @Test
