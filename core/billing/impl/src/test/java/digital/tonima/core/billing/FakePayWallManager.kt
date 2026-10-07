@@ -11,7 +11,7 @@ class FakePayWallManager : PayWallManager {
     var connectCalls = 0
     var refreshCalls = 0
     val purchases = mutableListOf<String>()
-    val subscriptions = mutableListOf<Pair<String, String?>>()
+    val subscriptions = mutableListOf<Triple<String, String?, String?>>()
 
     override fun connect() {
         connectCalls++
@@ -30,8 +30,9 @@ class FakePayWallManager : PayWallManager {
         activity: Activity,
         productId: String,
         basePlanId: String?,
+        offerId: String?,
     ) {
-        subscriptions += productId to basePlanId
+        subscriptions += Triple(productId, basePlanId, offerId)
     }
 
     override fun refresh() {
