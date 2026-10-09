@@ -92,20 +92,49 @@ platform :android do
   #   featureGraphic.jpg, phoneScreenshots/*, wearScreenshots/*
   # Only images are touched: no bundle, no listing text and no changelogs are uploaded, so this lane is
   # safe to run on its own. sync_image_upload skips images whose hash already matches the Play Store.
+  #
+  # supply aborts the whole run when one locale has no store listing yet ("Listing for language ... not
+  # found"), so each locale that has an images/ folder is uploaded on its own and the ones without a
+  # listing are skipped with a warning. Add the language in Play Console (Main store listing > Manage
+  # translations) to include it.
   desc "Upload the store listing images (feature graphic, phone and Wear OS screenshots) to Google Play"
   lane :upload_store_assets do |options|
-    supply(
-      package_name: ENV["PACKAGE_NAME"],
-      json_key_data: ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_KEY"],
-      skip_upload_apk: true,
-      skip_upload_aab: true,
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: false,
-      skip_upload_screenshots: false,
-      sync_image_upload: true,
-      validate_only: options[:validate_only].to_s == "true",
-      timeout: 600
-    )
+    require "fileutils"
+    require "tmpdir"
+
+    metadata_root = File.join(FastlaneCore::FastlaneFolder.path, "metadata", "android")
+    locales = Dir.children(metadata_root).select { |d| Dir.exist?(File.join(metadata_root, d, "images")) }.sort
+    skipped = []
+
+    locales.each do |locale|
+      Dir.mktmpdir do |tmp|
+        FileUtils.mkdir_p(File.join(tmp, locale))
+        FileUtils.cp_r(File.join(metadata_root, locale, "images"), File.join(tmp, locale))
+
+        begin
+          supply(
+            package_name: ENV["PACKAGE_NAME"],
+            json_key_data: ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_KEY"],
+            metadata_path: tmp,
+            skip_upload_apk: true,
+            skip_upload_aab: true,
+            skip_upload_metadata: true,
+            skip_upload_changelogs: true,
+            skip_upload_images: false,
+            skip_upload_screenshots: false,
+            sync_image_upload: true,
+            validate_only: options[:validate_only].to_s == "true",
+            timeout: 600
+          )
+        rescue FastlaneCore::Interface::FastlaneError => e
+          raise unless e.message.include?("Listing for language")
+
+          UI.important("Skipping #{locale}: it has no store listing in Play Console yet.")
+          skipped << locale
+        end
+      end
+    end
+
+    UI.important("Locales skipped (no store listing): #{skipped.join(", ")}") unless skipped.empty?
   end
 end
