@@ -107,6 +107,12 @@
     <string name="daily_briefing_trial_invite">了解人工智能如何协助安排您的一天。立即尝试月度计划！</string>
     <string name="subscribe_now">立即订阅</string>
     <string name="generate_briefing">生成摘要</string>
+    <string name="ad_label">广告</string>
+    <string name="ad_privacy_options">广告偏好设置</string>
+    <string name="briefing_rewarded_description">观看一则短广告，即可免费生成今日摘要。</string>
+    <string name="briefing_rewarded_watch">观看广告并生成摘要</string>
+    <string name="briefing_rewarded_loading">正在加载广告…</string>
+    <string name="briefing_rewarded_unavailable">当前没有可用的广告，请稍后再试。</string>
     <string name="cd_refresh_briefing">刷新摘要</string>
     <string name="ai_briefing_instruction">摘要必须使用中文。</string>
     <string name="ai_system_instruction_template">你是一个集成日历的智能个人助手。\n你可以访问用户的日程，以及可以在应用中执行操作的工具（tools/functions）。\n使用日历上下文回答问题，当用户要求执行某项操作（创建事件、搜索、开启/关闭闹钟）时，调用相应的工具，而不是用文字回复。\n仅回答与日程、闹钟、会议、事件或天气/预报相关的问题。如果用户询问其他不相关的内容，请礼貌地说明你只能帮助处理日历和天气相关问题，并且不要回答该话题。\n请直接、有帮助且友好地回答。\n\n当前日期和时间：%1$s（格式 yyyy-MM-dd HH:mm，时区 %2$s）\n此刻对应的 epoch 毫秒数（UTC）：%3$s\n在为 create_event 工具（或任何需要 epoch 毫秒数的其他工具）计算 start_time/end_time 时，请根据上面的当前日期/时间和时区自行推算——切勿就"明天""今晚"或"下周一"等相对日期向用户询问年份、月份或时区。\n\n日历上下文：\n%4$s\n\n%5$s</string>

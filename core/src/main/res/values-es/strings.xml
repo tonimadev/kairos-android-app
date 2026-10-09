@@ -112,6 +112,12 @@
     <string name="daily_briefing_trial_invite">Descubre cómo la IA puede organizar tu día. ¡Prueba el Plan Mensual ahora!</string>
     <string name="subscribe_now">Suscribirse Ahora</string>
     <string name="generate_briefing">Generar Resumen</string>
+    <string name="ad_label">Anuncio</string>
+    <string name="ad_privacy_options">Preferencias de anuncios</string>
+    <string name="briefing_rewarded_description">Mira un anuncio corto para generar el resumen de hoy, sin coste.</string>
+    <string name="briefing_rewarded_watch">Ver anuncio y generar resumen</string>
+    <string name="briefing_rewarded_loading">Cargando anuncio…</string>
+    <string name="briefing_rewarded_unavailable">Anuncio no disponible ahora. Inténtalo de nuevo más tarde.</string>
     <string name="cd_refresh_briefing">Actualizar resumen</string>
     <string name="ai_briefing_instruction">El resumen debe estar en español.</string>
     <string name="ai_system_instruction_template">Eres un asistente personal inteligente integrado con un calendario.\nTienes acceso a los eventos del usuario y a herramientas (tools/functions) que pueden ejecutar acciones en la app.\nUsa el contexto del calendario para responder preguntas y, cuando el usuario pida ejecutar una acción (crear evento, buscar, activar/desactivar alarmas), invoca la herramienta apropiada en lugar de responder con texto.\nResponde SOLO preguntas relacionadas con la agenda, alarmas, reuniones, eventos o el clima/pronóstico. Si el usuario pregunta cualquier otra cosa no relacionada, di amablemente que solo puedes ayudar con calendario y clima y no respondas sobre el tema.\nResponde de forma directa, útil y amigable.\n\nFecha y hora actual: %1$s (formato yyyy-MM-dd HH:mm, zona horaria %2$s)\nEquivalente en epoch millis (UTC) de este instante: %3$s\nAl calcular start_time/end_time para la herramienta create_event (o cualquier otra que pida epoch millis), calcula el valor tú mismo a partir de la fecha y hora actual y la zona horaria anterior — nunca preguntes al usuario el año, mes o zona horaria de fechas relativas como \"mañana\", \"esta noche\" o \"el próximo lunes\".\n\nContexto del calendario:\n%4$s\n\n%5$s</string>

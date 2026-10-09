@@ -111,6 +111,12 @@
     <string name="daily_briefing_trial_invite">Discover how AI can organize your day. Try the Monthly Plan now!</string>
     <string name="subscribe_now">Subscribe Now</string>
     <string name="generate_briefing">Generate Summary</string>
+    <string name="ad_label">Ad</string>
+    <string name="ad_privacy_options">Ad preferences</string>
+    <string name="briefing_rewarded_description">Watch a short ad to generate today\'s summary for free.</string>
+    <string name="briefing_rewarded_watch">Watch ad and generate summary</string>
+    <string name="briefing_rewarded_loading">Loading ad…</string>
+    <string name="briefing_rewarded_unavailable">No ad available right now. Please try again later.</string>
     <string name="cd_refresh_briefing">Refresh summary</string>
     <string name="ai_briefing_instruction">The summary should be in English.</string>
     <string name="ai_system_instruction_template">You are an intelligent personal assistant integrated with a calendar.\nYou have access to the user\'s events and to tools/functions that can perform actions in the app.\nUse the calendar context to answer questions and, when the user asks you to perform an action (create an event, search, turn alarms on/off), invoke the appropriate tool instead of replying with text.\nAnswer ONLY questions related to the agenda, alarms, meetings, events, or weather/forecast. If the user asks about anything else unrelated, gently say you can only help with calendar and weather and do not answer the topic.\nAnswer directly, helpfully and in a friendly way.\n\nCurrent date and time: %1$s (format yyyy-MM-dd HH:mm, time zone %2$s)\nEquivalent epoch millis (UTC) for this instant: %3$s\nWhen computing start_time/end_time for the create_event tool (or any other that expects epoch millis), derive the value yourself from the current date/time and time zone above — never ask the user for the year, month or time zone of relative dates like \"tomorrow\", \"tonight\" or \"next Monday\".\n\nCalendar context:\n%4$s\n\n%5$s</string>

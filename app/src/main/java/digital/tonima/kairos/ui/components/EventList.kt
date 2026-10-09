@@ -42,7 +42,11 @@ import digital.tonima.core.viewmodel.AiUiState
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.core.viewmodel.SettingsUiState
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
+import digital.tonima.kairos.BuildConfig
 import digital.tonima.kairos.core.R
+import digital.tonima.kairos.core.ads.components.NativeAdCard
+import digital.tonima.kairos.core.ads.components.rememberNativeAds
+import digital.tonima.kairos.core.ads.components.rememberRewardedAd
 import digital.tonima.kairos.core.ui.theme.Dimensions
 import java.time.LocalDate
 
@@ -57,6 +61,7 @@ fun EventList(
     eventActions: EventActions,
     aiActions: AiActions,
     headerContent: (@Composable () -> Unit)? = null,
+    isProUser: Boolean = true,
 ) {
     val pullRefreshState =
         rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = eventActions.onRefresh)
@@ -73,6 +78,26 @@ fun EventList(
         }
 
     val pendingToggle = remember { mutableStateOf<Pair<EventUiModel, Boolean>?>(null) }
+
+    val showBriefingCard = uiState.selectedDate == today && uiState.searchQuery.isBlank()
+    // Free users (no AI plan) can unlock today's briefing by watching a rewarded video; Pro users
+    // paid to remove ads, so they are never offered one.
+    val offersRewardedBriefing = !uiState.isAiUser && !isProUser && showBriefingCard
+    val rewardedBriefingAd =
+        rememberRewardedAd(
+            adUnitId = BuildConfig.ADMOB_REWARDED_AD_UNIT_BRIEFING,
+            enabled = offersRewardedBriefing && aiUiState.dailyBriefing == null,
+        )
+    // Ads are hoisted out of the lazy grid: an item that loaded its own would re-request one
+    // every time it scrolled back into view.
+    val nativeAds =
+        rememberNativeAds(
+            adUnitId = BuildConfig.ADMOB_NATIVE_AD_UNIT_EVENT_LIST,
+            count = MAX_NATIVE_ADS,
+            enabled = !isProUser && allEvents.isNotEmpty(),
+        )
+    val feed = remember(allEvents, nativeAds.size) { buildEventFeed(allEvents, nativeAds.size) }
+    val adLabel = stringResource(R.string.ad_label)
 
     Box(modifier = modifier.pullRefresh(pullRefreshState)) {
         LazyVerticalGrid(
@@ -122,11 +147,19 @@ fun EventList(
                         singleLine = true,
                     )
 
-                    val showBriefingCard = uiState.selectedDate == today && uiState.searchQuery.isBlank()
                     if (!uiState.isAiUser) {
                         ProUpgradeCard(
                             onUpgradeClick = aiActions.onSubscriptionRequest,
                         )
+                        if (offersRewardedBriefing) {
+                            RewardedBriefingCard(
+                                briefing = aiUiState.dailyBriefing,
+                                isGenerating = aiUiState.isGeneratingBriefing,
+                                adStatus = rewardedBriefingAd.status,
+                                onWatchAdClick = { rewardedBriefingAd.show(onReward = aiActions.onGenerateBriefing) },
+                                modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
+                            )
+                        }
                     } else if (showBriefingCard) {
                         // Always shown (not just after a briefing is generated) so the AI
                         // entry point is discoverable without depending on the bottom bar.
@@ -166,21 +199,41 @@ fun EventList(
                     }
                 }
             } else {
-                items(allEvents, key = { it.uniqueIntentId }) { event ->
-                    EventCard(
-                        event = event,
-                        isGloballyEnabled = settingsUiState.isGlobalAlarmEnabled,
-                        onToggle = { isEnabled ->
-                            if (event.isRecurring) {
-                                pendingToggle.value = event to isEnabled
-                            } else {
-                                eventActions.onEventToggle(event, isEnabled, false)
-                            }
-                        },
-                        onEventClick = { eventActions.onEventClick(event) },
-                        onJoinMeeting = eventActions.onJoinMeeting,
-                        onCopyMeetingUrl = eventActions.onCopyMeetingUrl,
-                    )
+                items(
+                    feed,
+                    key = { item ->
+                        when (item) {
+                            is EventFeedItem.Event -> item.event.uniqueIntentId
+                            is EventFeedItem.NativeAd -> "native_ad_${item.index}"
+                        }
+                    },
+                    span = { item ->
+                        when (item) {
+                            is EventFeedItem.Event -> GridItemSpan(1)
+                            is EventFeedItem.NativeAd -> GridItemSpan(maxLineSpan)
+                        }
+                    },
+                ) { item ->
+                    when (item) {
+                        is EventFeedItem.Event -> {
+                            val event = item.event
+                            EventCard(
+                                event = event,
+                                isGloballyEnabled = settingsUiState.isGlobalAlarmEnabled,
+                                onToggle = { isEnabled ->
+                                    if (event.isRecurring) {
+                                        pendingToggle.value = event to isEnabled
+                                    } else {
+                                        eventActions.onEventToggle(event, isEnabled, false)
+                                    }
+                                },
+                                onEventClick = { eventActions.onEventClick(event) },
+                                onJoinMeeting = eventActions.onJoinMeeting,
+                                onCopyMeetingUrl = eventActions.onCopyMeetingUrl,
+                            )
+                        }
+                        is EventFeedItem.NativeAd -> NativeAdCard(nativeAds[item.index], adLabel)
+                    }
                 }
             }
 

@@ -20,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import digital.tonima.core.billing.BillingManager
 import digital.tonima.core.billing.SubscriptionManager
 import digital.tonima.core.inappupdate.InAppUpdateManager
+import digital.tonima.kairos.core.ads.consent.AdsConsent
 import digital.tonima.kairos.core.ui.theme.KairosTheme
 import digital.tonima.kairos.inappupdate.InAppUpdateDelegate
 import digital.tonima.kairos.ui.view.EventScreen
@@ -61,6 +62,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         billingManager.connect()
         subscriptionManager.connect()
+        // Shows the consent form when required; ad requests stay blocked until it allows them.
+        AdsConsent.gather(this)
         setContent {
             KairosTheme {
                 val windowSizeClass = calculateWindowSizeClass(this)

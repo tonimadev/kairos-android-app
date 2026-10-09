@@ -22,6 +22,7 @@ import digital.tonima.core.repository.AppPreferencesRepository
 import digital.tonima.core.service.AlarmSchedulingWorker
 import digital.tonima.core.utils.DeviceInfoUtils
 import digital.tonima.core.utils.NotificationHelper
+import digital.tonima.kairos.core.ads.consent.AdsConsent
 import digital.tonima.kairos.service.CalendarChangeObserver
 import digital.tonima.kairos.service.PhoneEventSyncWorker.Companion.enqueuePeriodic
 import kotlinx.coroutines.CoroutineScope
@@ -70,8 +71,12 @@ class KairosApplication :
 
     override fun onCreate() {
         super.onCreate()
+        AdsConsent.install(this)
         CoroutineScope(Dispatchers.IO + crashReporter.coroutineExceptionHandler("MobileAds"))
-            .launchMobileAdsInitialization(crashReporter) {
+            .launchMobileAdsInitialization(
+                crashReporter,
+                awaitConsent = { AdsConsent.canRequestAds.first { it } },
+            ) {
                 MobileAds.initialize(this) { initializationStatus ->
                     logcat(LogPriority.INFO) { "MobileAds initialized: $initializationStatus" }
                 }

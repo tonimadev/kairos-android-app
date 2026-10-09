@@ -474,6 +474,7 @@ private fun EventScreenContent(
                         eventActions,
                         settingsActions,
                         aiActions,
+                        isProUser,
                     )
                 }
             } else {
@@ -486,6 +487,7 @@ private fun EventScreenContent(
                     eventActions,
                     settingsActions,
                     aiActions,
+                    isProUser,
                 )
             }
         }
@@ -501,6 +503,7 @@ private fun EventScreenTabContent(
     eventActions: EventActions,
     settingsActions: SettingsActions,
     aiActions: AiActions,
+    isProUser: Boolean,
 ) {
     if (uiState.selectedBottomTab == 1) {
         InsightsContent(
@@ -516,6 +519,7 @@ private fun EventScreenTabContent(
             aiActions = aiActions,
             windowSizeClass = windowSizeClass,
             aiUiState = aiUiState,
+            isProUser = isProUser,
         )
     }
 }

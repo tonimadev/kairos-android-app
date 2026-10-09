@@ -112,6 +112,12 @@
     <string name="daily_briefing_trial_invite">Entdecken Sie, wie KI Ihren Tag organisieren kann. Probieren Sie jetzt den Monatsplan aus!</string>
     <string name="subscribe_now">Jetzt abonnieren</string>
     <string name="generate_briefing">Zusammenfassung erstellen</string>
+    <string name="ad_label">Anzeige</string>
+    <string name="ad_privacy_options">Werbepräferenzen</string>
+    <string name="briefing_rewarded_description">Sieh dir eine kurze Anzeige an, um die heutige Zusammenfassung kostenlos zu erstellen.</string>
+    <string name="briefing_rewarded_watch">Anzeige ansehen und Zusammenfassung erstellen</string>
+    <string name="briefing_rewarded_loading">Anzeige wird geladen…</string>
+    <string name="briefing_rewarded_unavailable">Derzeit ist keine Anzeige verfügbar. Bitte versuche es später erneut.</string>
     <string name="cd_refresh_briefing">Zusammenfassung aktualisieren</string>
     <string name="ai_briefing_instruction">Die Zusammenfassung muss in Deutsch sein.</string>
     <string name="ai_system_instruction_template">Du bist ein intelligenter persönlicher Assistent, der in einen Kalender integriert ist.\nDu hast Zugriff auf die Termine des Nutzers und auf Tools/Funktionen, die Aktionen in der App ausführen können.\nNutze den Kalenderkontext, um Fragen zu beantworten, und wenn der Nutzer eine Aktion ausführen möchte (Termin erstellen, suchen, Alarme ein-/ausschalten), rufe das passende Tool auf, statt mit Text zu antworten.\nBeantworte NUR Fragen zu Terminen, Alarmen, Besprechungen, Ereignissen oder zum Wetter/Vorhersage. Wenn der Nutzer nach etwas anderem, nicht Verwandtem fragt, sag freundlich, dass du nur bei Kalender und Wetter helfen kannst, und antworte nicht auf das Thema.\nAntworte direkt, hilfreich und freundlich.\n\nAktuelles Datum und Uhrzeit: %1$s (Format yyyy-MM-dd HH:mm, Zeitzone %2$s)\nEntsprechung in epoch millis (UTC) für diesen Moment: %3$s\nBeim Berechnen von start_time/end_time für das create_event-Tool (oder jedes andere, das epoch millis erwartet), berechne den Wert selbst anhand des aktuellen Datums/der Uhrzeit und der obigen Zeitzone — frage den Nutzer niemals nach Jahr, Monat oder Zeitzone bei relativen Daten wie \"morgen\", \"heute Abend\" oder \"nächsten Montag\".\n\nKalenderkontext:\n%4$s\n\n%5$s</string>

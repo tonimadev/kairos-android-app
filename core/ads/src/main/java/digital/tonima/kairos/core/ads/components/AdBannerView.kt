@@ -3,6 +3,8 @@ package digital.tonima.kairos.core.ads.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -12,6 +14,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import digital.tonima.kairos.core.ads.consent.AdsConsent
 
 @Composable
 fun AdBannerView(
@@ -23,6 +26,10 @@ fun AdBannerView(
     if (isProUser) return
 
     val isInspectionMode = LocalInspectionMode.current
+    // No ad request may be made before the user's consent allows it (UMP); see AdsConsent.
+    val canRequestAds by AdsConsent.canRequestAds.collectAsState()
+    if (loadAd && !canRequestAds && !isInspectionMode) return
+
     // containerSize is in pixels, but the adaptive banner API takes the width in dp. Passing pixels
     // requests a banner several times wider than the screen, which AdMob fails to fill.
     val containerWidthPx = LocalWindowInfo.current.containerSize.width

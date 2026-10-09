@@ -54,6 +54,7 @@ fun MainContent(
     settingsActions: SettingsActions,
     aiActions: AiActions,
     windowSizeClass: WindowSizeClass? = null,
+    isProUser: Boolean = true,
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -124,6 +125,7 @@ fun MainContent(
                 eventActions = eventActions,
                 aiActions = aiActions,
                 aiUiState = aiUiState,
+                isProUser = isProUser,
             )
         }
     } else {
@@ -138,6 +140,7 @@ fun MainContent(
             eventActions = eventActions,
             aiActions = aiActions,
             aiUiState = aiUiState,
+            isProUser = isProUser,
             headerContent = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TextButton(
