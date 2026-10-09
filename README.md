@@ -49,10 +49,13 @@ Kairós is a modern application that transforms your calendar appointments into 
 ## 📱 Screenshots
 
 <p align="center">
-  <img src="/images/screenshot-home.webp" width="220">
-  <img src="/images/screenshot-ai-chat.webp" width="220">
-  <img src="/images/screenshot-alarm.webp" width="220">
+  <img src="/images/screenshot-home.webp" width="220" alt="Home: the day's events as alarm cards">
+  <img src="/images/screenshot-alarm.webp" width="220" alt="Full-screen event alarm">
+  <img src="/images/screenshot-settings.webp" width="220" alt="Alarm settings">
+  <img src="/images/screenshot-ai-chat.webp" width="220" alt="AI assistant chat">
 </p>
+
+<sub>Store listing graphics (feature graphic and framed screenshots in all 10 supported languages) live in `fastlane/metadata/android/<locale>/images/`.</sub>
 
 ---
 

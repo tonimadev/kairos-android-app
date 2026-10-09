@@ -16,6 +16,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
@@ -27,121 +29,133 @@ import androidx.wear.compose.material3.Text
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R as coreR
 
-@Composable
-fun EventsListSection(
+/**
+ * Adds one list item per event. Each card must be its own item: composing several cards inside a
+ * single item stacks them at the same position, so only the last event would be visible.
+ */
+fun ScalingLazyListScope.eventsListItems(
     events: List<EventUiModel>,
     isRefreshing: Boolean,
     isGlobalAlarmEnabled: Boolean,
     onEventToggle: (event: EventUiModel, isEnabled: Boolean, applyToSeries: Boolean) -> Unit,
 ) {
-    if (events.isEmpty() && !isRefreshing) {
-        Text(text = stringResource(coreR.string.no_events_found_for_this_day))
+    if (events.isEmpty()) {
+        if (!isRefreshing) {
+            item { Text(text = stringResource(coreR.string.no_events_found_for_this_day)) }
+        }
         return
     }
 
-    val sorted = events.sortedBy { it.startTime }
+    items(events.sortedBy { it.startTime }) { event ->
+        EventListRow(event, isGlobalAlarmEnabled, onEventToggle)
+    }
+}
 
-    for (event in sorted) {
-        val pendingToggle = remember(event.id, event.startTime) { mutableStateOf<Pair<EventUiModel, Boolean>?>(null) }
+@Composable
+private fun EventListRow(
+    event: EventUiModel,
+    isGlobalAlarmEnabled: Boolean,
+    onEventToggle: (event: EventUiModel, isEnabled: Boolean, applyToSeries: Boolean) -> Unit,
+) {
+    val pendingToggle = remember(event.id, event.startTime) { mutableStateOf<Pair<EventUiModel, Boolean>?>(null) }
 
-        EventCard(
-            event = event,
-            isGloballyEnabled = isGlobalAlarmEnabled,
-            onToggle = { isEnabled ->
-                if (event.isRecurring) {
-                    pendingToggle.value = event to isEnabled
-                } else {
-                    onEventToggle(event, isEnabled, false)
-                }
-            },
-        )
+    EventCard(
+        event = event,
+        isGloballyEnabled = isGlobalAlarmEnabled,
+        onToggle = { isEnabled ->
+            if (event.isRecurring) {
+                pendingToggle.value = event to isEnabled
+            } else {
+                onEventToggle(event, isEnabled, false)
+            }
+        },
+    )
 
-        if (pendingToggle.value != null) {
-            pendingToggle.value?.let { (pendingEvent, pendingEnabled) ->
-                if (pendingEvent.id == event.id && pendingEvent.startTime == event.startTime) {
-                    Dialog(
-                        visible = true,
-                        onDismissRequest = { pendingToggle.value = null },
+    if (pendingToggle.value != null) {
+        pendingToggle.value?.let { (pendingEvent, pendingEnabled) ->
+            if (pendingEvent.id == event.id && pendingEvent.startTime == event.startTime) {
+                Dialog(
+                    visible = true,
+                    onDismissRequest = { pendingToggle.value = null },
+                ) {
+                    val listState = rememberScalingLazyListState()
+
+                    Scaffold(
+                        positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
                     ) {
-                        val listState = rememberScalingLazyListState()
-
-                        Scaffold(
-                            positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
+                        ScalingLazyColumn(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.background),
+                            state = listState,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
                         ) {
-                            ScalingLazyColumn(
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .background(MaterialTheme.colorScheme.background),
-                                state = listState,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                item {
+                            item {
+                                Text(
+                                    text = stringResource(coreR.string.update_alarm_title),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(horizontal = 24.dp),
+                                )
+                            }
+                            item { Spacer(modifier = Modifier.height(8.dp)) }
+                            item {
+                                Text(
+                                    text = stringResource(coreR.string.update_alarm_message),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(horizontal = 24.dp),
+                                )
+                            }
+                            item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                            item {
+                                Button(
+                                    onClick = {
+                                        onEventToggle(pendingEvent, pendingEnabled, true)
+                                        pendingToggle.value = null
+                                    },
+                                    colors =
+                                        ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        ),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 24.dp),
+                                ) {
                                     Text(
-                                        text = stringResource(coreR.string.update_alarm_title),
-                                        style = MaterialTheme.typography.titleMedium,
+                                        text = stringResource(coreR.string.recurring_option),
                                         textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(horizontal = 24.dp),
                                     )
                                 }
-                                item { Spacer(modifier = Modifier.height(8.dp)) }
-                                item {
+                            }
+
+                            item { Spacer(modifier = Modifier.height(8.dp)) }
+
+                            item {
+                                Button(
+                                    onClick = {
+                                        onEventToggle(pendingEvent, pendingEnabled, false)
+                                        pendingToggle.value = null
+                                    },
+                                    colors =
+                                        ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                            contentColor = MaterialTheme.colorScheme.onSurface,
+                                        ),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 24.dp),
+                                ) {
                                     Text(
-                                        text = stringResource(coreR.string.update_alarm_message),
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        text = stringResource(coreR.string.only_this_option),
                                         textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(horizontal = 24.dp),
                                     )
-                                }
-                                item { Spacer(modifier = Modifier.height(16.dp)) }
-
-                                item {
-                                    Button(
-                                        onClick = {
-                                            onEventToggle(pendingEvent, pendingEnabled, true)
-                                            pendingToggle.value = null
-                                        },
-                                        colors =
-                                            ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.primary,
-                                                contentColor = MaterialTheme.colorScheme.onPrimary,
-                                            ),
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 24.dp),
-                                    ) {
-                                        Text(
-                                            text = stringResource(coreR.string.recurring_option),
-                                            textAlign = TextAlign.Center,
-                                        )
-                                    }
-                                }
-
-                                item { Spacer(modifier = Modifier.height(8.dp)) }
-
-                                item {
-                                    Button(
-                                        onClick = {
-                                            onEventToggle(pendingEvent, pendingEnabled, false)
-                                            pendingToggle.value = null
-                                        },
-                                        colors =
-                                            ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                                contentColor = MaterialTheme.colorScheme.onSurface,
-                                            ),
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 24.dp),
-                                    ) {
-                                        Text(
-                                            text = stringResource(coreR.string.only_this_option),
-                                            textAlign = TextAlign.Center,
-                                        )
-                                    }
                                 }
                             }
                         }

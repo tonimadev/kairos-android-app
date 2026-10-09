@@ -38,7 +38,6 @@ import digital.tonima.core.viewmodel.SettingsViewModel
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.wear.ui.components.AppHeaderTitle
 import digital.tonima.kairos.wear.ui.components.EventCard
-import digital.tonima.kairos.wear.ui.components.EventsListSection
 import digital.tonima.kairos.wear.ui.components.EventsSectionHeader
 import digital.tonima.kairos.wear.ui.components.ExactAlarmPermissionChip
 import digital.tonima.kairos.wear.ui.components.GlobalAlarmsToggle
@@ -46,6 +45,7 @@ import digital.tonima.kairos.wear.ui.components.OpenOnPhoneChip
 import digital.tonima.kairos.wear.ui.components.VersionFooter
 import digital.tonima.kairos.wear.ui.components.VibrateOnlyToggle
 import digital.tonima.kairos.wear.ui.components.WearOsPermissionsScreenContent
+import digital.tonima.kairos.wear.ui.components.eventsListItems
 import digital.tonima.kairos.wear.ui.theme.Dimensions
 import digital.tonima.kairos.wear.ui.theme.KairosTheme
 
@@ -154,16 +154,14 @@ fun WearApp(
                     }
                     item { Spacer(Modifier.height(Dimensions.SpacingSmall)) }
                     item { EventsSectionHeader() }
-                    item {
-                        EventsListSection(
-                            events = next24hEvents,
-                            isRefreshing = false,
-                            isGlobalAlarmEnabled = settingsState.isGlobalAlarmEnabled,
-                            onEventToggle = { event, isEnabled, applyToSeries ->
-                                viewModel.handleIntent(EventIntent.ToggleEventAlarm(event, isEnabled, applyToSeries))
-                            },
-                        )
-                    }
+                    eventsListItems(
+                        events = next24hEvents,
+                        isRefreshing = false,
+                        isGlobalAlarmEnabled = settingsState.isGlobalAlarmEnabled,
+                        onEventToggle = { event, isEnabled, applyToSeries ->
+                            viewModel.handleIntent(EventIntent.ToggleEventAlarm(event, isEnabled, applyToSeries))
+                        },
+                    )
                     item {
                         Spacer(Modifier.height(Dimensions.SpacingSmall))
                         OpenOnPhoneChip(onClick = {

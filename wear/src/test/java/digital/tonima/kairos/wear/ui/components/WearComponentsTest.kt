@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.R
 import org.junit.Assert.assertEquals
@@ -52,6 +53,15 @@ class WearComponentsTest {
         compose.onNodeWithText("📍 Rua Augusta").assertExists()
         compose.onNodeWithText("🚗 " + app.getString(R.string.minutes_short, 25)).assertExists()
         compose.onNodeWithText("🔁 " + string(R.string.recurring_label)).assertExists()
+    }
+
+    @Test
+    fun `events in the scaling list are laid out one below the other instead of overlapping`() {
+        list(listOf(dentist, standup))
+
+        val first = compose.onNodeWithText("Dentist").fetchSemanticsNode().boundsInRoot
+        val second = compose.onNodeWithText("Standup").fetchSemanticsNode().boundsInRoot
+        assertTrue("cards overlap: $first vs $second", second.top >= first.bottom)
     }
 
     @Test
@@ -104,12 +114,14 @@ class WearComponentsTest {
 
     private fun list(events: List<EventUiModel>) {
         compose.setContent {
-            EventsListSection(
-                events = events,
-                isRefreshing = false,
-                isGlobalAlarmEnabled = true,
-                onEventToggle = { event, enabled, series -> toggles += Triple(event.id, enabled, series) },
-            )
+            ScalingLazyColumn {
+                eventsListItems(
+                    events = events,
+                    isRefreshing = false,
+                    isGlobalAlarmEnabled = true,
+                    onEventToggle = { event, enabled, series -> toggles += Triple(event.id, enabled, series) },
+                )
+            }
         }
     }
 
