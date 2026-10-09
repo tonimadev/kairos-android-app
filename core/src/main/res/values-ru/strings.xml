@@ -312,8 +312,6 @@
     <string name="import_calendar">Импортировать календарь ICS</string>
     <string name="manage_calendars">Управление календарями</string>
     <string name="clear_search">Очистить поиск</string>
-    <string name="show_dashboard">Показать панель управления</string>
-    <string name="hide_dashboard">Скрыть панель управления</string>
     <string name="back">Назад</string>
     <string name="use_celsius_for_weather">Использовать Цельсий для погоды</string>
 

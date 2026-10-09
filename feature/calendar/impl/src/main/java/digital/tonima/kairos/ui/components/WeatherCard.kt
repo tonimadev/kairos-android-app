@@ -24,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,6 +55,7 @@ fun WeatherCard(
     isTemperatureInCelsius: Boolean,
     onFetchWeather: () -> Unit,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
     val locale = LocalConfiguration.current.locales.get(0)
     val locationPermissionsState =
@@ -69,6 +71,19 @@ fun WeatherCard(
         if (locationPermissionsState.allPermissionsGranted && weather == null) {
             onFetchWeather()
         }
+    }
+
+    if (compact) {
+        CompactWeather(
+            weather = weather,
+            weatherError = weatherError,
+            isTemperatureInCelsius = isTemperatureInCelsius,
+            hasLocationPermission = locationPermissionsState.allPermissionsGranted,
+            onFetchWeather = onFetchWeather,
+            onRequestPermission = { locationPermissionsState.launchMultiplePermissionRequest() },
+            modifier = modifier,
+        )
+        return
     }
 
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
@@ -229,6 +244,61 @@ fun WeatherCard(
                 }
             }
         }
+    }
+}
+
+/** One-line weather for the home header: just an icon and the temperature (or what is needed to get it). */
+@Composable
+private fun CompactWeather(
+    weather: Weather?,
+    weatherError: String?,
+    isTemperatureInCelsius: Boolean,
+    hasLocationPermission: Boolean,
+    onFetchWeather: () -> Unit,
+    onRequestPermission: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val tint = MaterialTheme.colorScheme.onSurfaceVariant
+    when {
+        !hasLocationPermission ->
+            IconButton(onClick = onRequestPermission, modifier = modifier) {
+                Icon(
+                    imageVector = Icons.Rounded.LocationOn,
+                    contentDescription = stringResource(location_permission_weather_desc),
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
+        weather != null ->
+            Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (weather.conditionCode == 800) Icons.Rounded.WbSunny else Icons.Rounded.Cloud,
+                    contentDescription = weather.description,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp),
+                )
+                Spacer(modifier = Modifier.width(Dimensions.SpacingSmall))
+                Text(
+                    text = "${weather.temperature.toInt()}${if (isTemperatureInCelsius) "°C" else "°F"}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = tint,
+                )
+            }
+        weatherError != null ->
+            IconButton(onClick = onFetchWeather, modifier = modifier) {
+                Icon(
+                    imageVector = Icons.Rounded.Warning,
+                    contentDescription = weatherError,
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
+        else ->
+            Icon(
+                imageVector = Icons.Rounded.Cloud,
+                contentDescription = stringResource(digital.tonima.kairos.core.R.string.loading_weather),
+                tint = tint,
+                modifier = modifier.size(24.dp),
+            )
     }
 }
 

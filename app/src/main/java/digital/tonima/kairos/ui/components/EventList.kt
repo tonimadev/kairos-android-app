@@ -22,9 +22,7 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -60,8 +57,9 @@ fun EventList(
     eventsByDate: ImmutableMap<Long, ImmutableList<EventUiModel>>,
     eventActions: EventActions,
     aiActions: AiActions,
-    headerContent: (@Composable () -> Unit)? = null,
     isProUser: Boolean = true,
+    compactHeader: Boolean = false,
+    settingsActions: SettingsActions? = null,
 ) {
     val pullRefreshState =
         rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = eventActions.onRefresh)
@@ -103,75 +101,19 @@ fun EventList(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = 16.dp),
+            contentPadding = PaddingValues(top = if (compactHeader) 4.dp else 16.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Column {
-                    headerContent?.invoke()
-
-                    val hour = remember { java.time.LocalTime.now().hour }
-                    val greeting =
-                        when {
-                            hour < 12 -> stringResource(R.string.greeting_morning)
-                            hour < 18 -> stringResource(R.string.greeting_afternoon)
-                            else -> stringResource(R.string.greeting_evening)
-                        }
-                    Text(
-                        text = greeting,
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = Dimensions.SpacingSmall, top = Dimensions.SpacingSmall),
-                    )
-
-                    OutlinedTextField(
-                        value = uiState.searchQuery,
-                        onValueChange = eventActions.onSearchQueryChanged,
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = Dimensions.PaddingSmall),
-                        placeholder = { Text(stringResource(R.string.search)) },
-                        leadingIcon = { Icon(painterResource(R.drawable.date_range), contentDescription = null) },
-                        trailingIcon = {
-                            if (uiState.searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { eventActions.onSearchQueryChanged("") }) {
-                                    Icon(
-                                        painterResource(R.drawable.ic_k_monochrome),
-                                        contentDescription = stringResource(R.string.clear_search),
-                                    )
-                                }
-                            }
-                        },
-                        singleLine = true,
-                    )
-
-                    if (!uiState.isAiUser) {
-                        ProUpgradeCard(
-                            onUpgradeClick = aiActions.onSubscriptionRequest,
-                        )
-                        if (offersRewardedBriefing) {
-                            RewardedBriefingCard(
-                                briefing = aiUiState.dailyBriefing,
-                                isGenerating = aiUiState.isGeneratingBriefing,
-                                adStatus = rewardedBriefingAd.status,
-                                onWatchAdClick = { rewardedBriefingAd.show(onReward = aiActions.onGenerateBriefing) },
-                                modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
-                            )
-                        }
-                    } else if (showBriefingCard) {
-                        // Always shown (not just after a briefing is generated) so the AI
-                        // entry point is discoverable without depending on the bottom bar.
-                        DailyBriefingCard(
-                            briefing = aiUiState.dailyBriefing,
-                            isGenerating = aiUiState.isGeneratingBriefing,
-                            onGenerateClick = aiActions.onGenerateBriefing,
-                            onInteractClick = aiActions.onOpenChat,
-                            modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
-                        )
-                    }
-                }
+                EventListHeader(
+                    uiState = uiState,
+                    settingsUiState = settingsUiState,
+                    settingsActions = settingsActions,
+                    eventActions = eventActions,
+                    aiActions = aiActions,
+                    compact = compactHeader,
+                )
             }
 
             if (allEvents.isEmpty() && !uiState.isRefreshing) {
@@ -233,6 +175,31 @@ fun EventList(
                             )
                         }
                         is EventFeedItem.NativeAd -> NativeAdCard(nativeAds[item.index], adLabel)
+                    }
+                }
+            }
+
+            // The day's events come first; everything collapsible or promotional sits below them.
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Column {
+                    if (!uiState.isAiUser && offersRewardedBriefing) {
+                        RewardedBriefingCard(
+                            briefing = aiUiState.dailyBriefing,
+                            isGenerating = aiUiState.isGeneratingBriefing,
+                            adStatus = rewardedBriefingAd.status,
+                            onWatchAdClick = { rewardedBriefingAd.show(onReward = aiActions.onGenerateBriefing) },
+                            modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
+                        )
+                    } else if (uiState.isAiUser && showBriefingCard) {
+                        // Always shown (not just after a briefing is generated) so the AI
+                        // entry point is discoverable without depending on the bottom bar.
+                        DailyBriefingCard(
+                            briefing = aiUiState.dailyBriefing,
+                            isGenerating = aiUiState.isGeneratingBriefing,
+                            onGenerateClick = aiActions.onGenerateBriefing,
+                            onInteractClick = aiActions.onOpenChat,
+                            modifier = Modifier.padding(bottom = Dimensions.PaddingSmall),
+                        )
                     }
                 }
             }

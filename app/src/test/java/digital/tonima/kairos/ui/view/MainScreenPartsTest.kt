@@ -6,6 +6,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.DpSize
@@ -27,8 +28,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 @RunWith(RobolectricTestRunner::class)
@@ -43,16 +46,25 @@ class MainScreenPartsTest {
 
     // region MainContent
 
+    // Behaviour change on purpose: phones no longer have a collapsible dashboard. The month calendar
+    // is replaced by the day strip and the weather / alarms switch live in the header.
     @Test
-    fun `on phones the calendar dashboard is collapsed until requested`() {
+    fun `on phones there is no collapsible dashboard or month calendar, the day strip is used instead`() {
         mainContent(windowSizeClass = null)
+
         compose.onAllNodesWithText(monthTitle).assertCountEquals(0)
+        compose.onAllNodesWithText("Show Dashboard").assertCountEquals(0)
+        compose.onNodeWithContentDescription(string(R.string.activate_event_alarms)).assertExists()
+        compose.onNodeWithContentDescription(fullDate(LocalDate.now())).assertExists()
+    }
 
-        compose.onNodeWithText(string(R.string.show_dashboard)).performClick()
+    @Test
+    fun `on phones the global alarms switch is in the header`() {
+        mainContent(windowSizeClass = null)
 
-        compose.onNodeWithText(monthTitle).assertExists()
-        compose.onNodeWithText(string(R.string.hide_dashboard)).performClick()
-        compose.onAllNodesWithText(string(R.string.show_dashboard)).assertCountEquals(1)
+        compose.onNodeWithContentDescription(string(R.string.activate_event_alarms)).performClick()
+
+        assertEquals(listOf("alarms:false"), calls)
     }
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -61,7 +73,6 @@ class MainScreenPartsTest {
         mainContent(windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1200.dp, 800.dp)))
 
         compose.onNodeWithText(monthTitle).assertExists()
-        compose.onAllNodesWithText(string(R.string.show_dashboard)).assertCountEquals(0)
     }
 
     private fun mainContent(windowSizeClass: WindowSizeClass?) {
@@ -82,7 +93,7 @@ class MainScreenPartsTest {
                     ),
                 settingsActions =
                     SettingsActions(
-                        onToggle = {},
+                        onToggle = { calls += "alarms:$it" },
                         onDismissAutostart = {},
                         onVibrateToggle = {},
                         onAllDayAlarmsToggle = {},
@@ -166,4 +177,7 @@ class MainScreenPartsTest {
     // endregion
 
     private fun string(resId: Int) = app.getString(resId)
+
+    private fun fullDate(date: LocalDate): String =
+        date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(Locale.getDefault()))
 }

@@ -1,6 +1,7 @@
 package digital.tonima.kairos.ui.components
 
 import android.app.Application
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.isToggleable
@@ -133,6 +134,27 @@ class EventListTest {
         compose.onNodeWithText(string(R.string.try_pro_plan)).performClick()
 
         assertEquals(1, upgradeRequests)
+    }
+
+    @Test
+    fun `the compact upgrade card stays above the events`() {
+        render(events = listOf(single), isAiUser = false)
+
+        val eventTop = compose.onNodeWithText("Dentist").fetchSemanticsNode().positionInRoot.y
+        val upgradeTop = compose.onNodeWithText(string(R.string.try_pro_plan)).fetchSemanticsNode().positionInRoot.y
+
+        assertTrue(upgradeTop < eventTop)
+    }
+
+    @Test
+    fun `the briefing card for AI users comes after the day's events`() {
+        render(events = listOf(single), isAiUser = true)
+
+        val eventTop = compose.onNodeWithText("Dentist").fetchSemanticsNode().positionInRoot.y
+        val briefingTop =
+            compose.onNodeWithText(string(R.string.daily_briefing_title)).fetchSemanticsNode().positionInRoot.y
+
+        assertTrue(eventTop < briefingTop)
     }
 
     private fun render(

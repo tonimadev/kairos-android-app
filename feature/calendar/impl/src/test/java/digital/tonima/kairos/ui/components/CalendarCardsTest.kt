@@ -79,6 +79,35 @@ class CalendarCardsTest {
         assertEquals(listOf("fetch"), calls)
     }
 
+    @Test
+    fun `compact weather shows only the temperature once location is granted`() {
+        grantLocation()
+
+        weatherCard(weather = sunny, celsius = false, compact = true)
+
+        compose.onNodeWithText("77°F").assertExists()
+        compose.onAllNodesWithText("Clear sky").assertCountEquals(0)
+    }
+
+    @Test
+    fun `compact weather without permission offers a single tap to grant it`() {
+        weatherCard(weather = null, compact = true)
+
+        compose.onNodeWithContentDescription(string(R.string.location_permission_weather_desc)).assertExists()
+        compose.onAllNodesWithText(string(R.string.provide_permission)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `compact weather error can be retried`() {
+        grantLocation()
+
+        weatherCard(weather = null, error = "No connection", compact = true)
+        calls.clear()
+        compose.onNodeWithContentDescription("No connection").performClick()
+
+        assertEquals(listOf("fetch"), calls)
+    }
+
     // endregion
 
     // region DailyBriefingCard
@@ -186,6 +215,21 @@ class CalendarCardsTest {
     }
 
     @Test
+    fun `compact alarms toggle flips the global switch`() {
+        var enabled by mutableStateOf(true)
+        compose.setContent {
+            CompactAlarmsToggle(alarmsEnabled = enabled, onToggle = {
+                calls += "toggle:$it"
+                enabled = it
+            })
+        }
+
+        compose.onNodeWithContentDescription(string(R.string.activate_event_alarms)).performClick()
+
+        assertEquals(listOf("toggle:false"), calls)
+    }
+
+    @Test
     fun `global alarm switch shows its state and flips it`() {
         var enabled by mutableStateOf(true)
         compose.setContent {
@@ -211,6 +255,7 @@ class CalendarCardsTest {
         weather: Weather?,
         error: String? = null,
         celsius: Boolean = true,
+        compact: Boolean = false,
     ) {
         compose.setContent {
             WeatherCard(
@@ -218,6 +263,7 @@ class CalendarCardsTest {
                 weatherError = error,
                 isTemperatureInCelsius = celsius,
                 onFetchWeather = { calls += "fetch" },
+                compact = compact,
             )
         }
     }
