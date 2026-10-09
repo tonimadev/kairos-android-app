@@ -87,4 +87,25 @@ platform :android do
       timeout: 600 # wear uploads can take a while (up to 10 minutes)
     )
   end
+
+  # Store listing graphics live in fastlane/metadata/android/<locale>/images/:
+  #   featureGraphic.jpg, phoneScreenshots/*, wearScreenshots/*
+  # Only images are touched: no bundle, no listing text and no changelogs are uploaded, so this lane is
+  # safe to run on its own. sync_image_upload skips images whose hash already matches the Play Store.
+  desc "Upload the store listing images (feature graphic, phone and Wear OS screenshots) to Google Play"
+  lane :upload_store_assets do |options|
+    supply(
+      package_name: ENV["PACKAGE_NAME"],
+      json_key_data: ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_KEY"],
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: false,
+      skip_upload_screenshots: false,
+      sync_image_upload: true,
+      validate_only: options[:validate_only].to_s == "true",
+      timeout: 600
+    )
+  end
 end

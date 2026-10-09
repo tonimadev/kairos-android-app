@@ -1,0 +1,43 @@
+name: Upload Play Store assets
+
+# Publishes the listing images in fastlane/metadata/android/*/images/ (feature graphic, phone and
+# Wear OS screenshots, all 10 locales). Runs when those images change on master, or on demand.
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - "fastlane/metadata/android/*/images/**"
+  workflow_dispatch:
+    inputs:
+      validate_only:
+        description: "Validate against the Play API without publishing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: store-assets
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    name: Upload store images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.0'
+          bundler-cache: true
+
+      - name: Upload images to Google Play
+        env:
+          PLAY_STORE_SERVICE_ACCOUNT_JSON_PLAINTEXT: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          REPO_ROOT: ${{ github.workspace }}
+        run: |
+          bundle exec fastlane upload_store_assets \
+            validate_only:${{ inputs.validate_only || false }}
