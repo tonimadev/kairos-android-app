@@ -1,10 +1,10 @@
 package digital.tonima.kairos.ui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,11 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import digital.tonima.kairos.core.R
 import digital.tonima.kairos.core.ui.theme.Dimensions
 
+/** Compact banner-style entry point to the AI plan; meant to sit above the day's events. */
 @Composable
 fun ProUpgradeCard(
     onUpgradeClick: () -> Unit,
@@ -36,47 +38,50 @@ fun ProUpgradeCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(Dimensions.PaddingMedium),
+                .padding(vertical = Dimensions.PaddingSmall),
         shape = RoundedCornerShape(Dimensions.RadiusMedium),
         colors =
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
             modifier =
                 Modifier
-                    .padding(Dimensions.PaddingMedium)
+                    .padding(horizontal = Dimensions.PaddingMedium, vertical = Dimensions.PaddingSmall)
                     .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = Icons.Default.AutoAwesome,
                 contentDescription = stringResource(R.string.pro_label),
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
-            Spacer(modifier = Modifier.width(Dimensions.PaddingMedium))
+            Spacer(modifier = Modifier.width(Dimensions.PaddingSmall))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(R.string.pro_ia_upgrade_title),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = stringResource(R.string.pro_ia_upgrade_desc),
                     style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.height(Dimensions.PaddingSmall))
-                Button(
-                    onClick = onUpgradeClick,
-                    shape = RoundedCornerShape(Dimensions.RadiusSmall),
-                ) {
-                    Text(text = stringResource(R.string.try_pro_plan))
-                }
+            }
+            Spacer(modifier = Modifier.width(Dimensions.PaddingSmall))
+            Button(
+                onClick = onUpgradeClick,
+                shape = RoundedCornerShape(Dimensions.RadiusSmall),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+            ) {
+                Text(text = stringResource(R.string.try_pro_plan), maxLines = 1)
             }
         }
     }

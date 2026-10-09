@@ -18,6 +18,7 @@ import digital.tonima.kairos.core.ui.theme.Dimensions
 fun ControlPanel(
     settingsUiState: SettingsUiState,
     settingsActions: SettingsActions,
+    showAlarmsToggle: Boolean = true,
 ) {
     val context = LocalContext.current
 
@@ -25,11 +26,13 @@ fun ControlPanel(
         modifier = Modifier.animateContentSize(),
         verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingMedium),
     ) {
-        AlarmsToggleRow(
-            modifier = Modifier.padding(top = Dimensions.PaddingSmall),
-            alarmsEnabled = settingsUiState.isGlobalAlarmEnabled,
-            onToggle = settingsActions.onToggle,
-        )
+        if (showAlarmsToggle) {
+            AlarmsToggleRow(
+                modifier = Modifier.padding(top = Dimensions.PaddingSmall),
+                alarmsEnabled = settingsUiState.isGlobalAlarmEnabled,
+                onToggle = settingsActions.onToggle,
+            )
+        }
 
         if (settingsUiState.audioWarning != AudioWarningState.NORMAL) {
             RingerModeWarningCard(ringerMode = settingsUiState.audioWarning)

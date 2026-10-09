@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -154,6 +156,42 @@ fun AlarmsToggleRow(
                     ),
             )
         }
+    }
+}
+
+/** The global "alarms on/off" switch reduced to an icon and a switch, to sit beside the search field. */
+@Composable
+fun CompactAlarmsToggle(
+    alarmsEnabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val label = stringResource(R.string.activate_event_alarms)
+    Row(
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(Dimensions.RadiusMedium))
+                .toggleable(value = alarmsEnabled, role = Role.Switch, onValueChange = onToggle)
+                .semantics { contentDescription = label }
+                .padding(horizontal = Dimensions.PaddingSmall),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+    ) {
+        Icon(
+            imageVector = if (alarmsEnabled) Icons.Rounded.Alarm else Icons.Rounded.AlarmOff,
+            contentDescription = null,
+            tint = if (alarmsEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+            modifier = Modifier.size(Dimensions.IconSizeMedium),
+        )
+        Switch(
+            checked = alarmsEnabled,
+            onCheckedChange = null, // Handled by toggleable for better a11y
+            colors =
+                SwitchDefaults.colors(
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+        )
     }
 }
 

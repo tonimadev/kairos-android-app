@@ -313,8 +313,6 @@
     <string name="import_calendar">استيراد تقويم ICS</string>
     <string name="manage_calendars">إدارة التقاويم</string>
     <string name="clear_search">مسح البحث</string>
-    <string name="show_dashboard">إظهار لوحة المعلومات</string>
-    <string name="hide_dashboard">إخفاء لوحة المعلومات</string>
     <string name="back">رجوع</string>
     <string name="use_celsius_for_weather">استخدام درجة مئوية للطقس</string>
 
