@@ -113,6 +113,12 @@
     <string name="daily_briefing_trial_invite">Découvrez comment l\'IA peut organiser votre journée. Essayez le Plan Mensuel maintenant !</string>
     <string name="subscribe_now">S\'abonner Maintenant</string>
     <string name="generate_briefing">Générer le Résumé</string>
+    <string name="ad_label">Annonce</string>
+    <string name="ad_privacy_options">Préférences publicitaires</string>
+    <string name="briefing_rewarded_description">Regardez une courte publicité pour générer gratuitement le résumé du jour.</string>
+    <string name="briefing_rewarded_watch">Regarder la pub et générer le résumé</string>
+    <string name="briefing_rewarded_loading">Chargement de la publicité…</string>
+    <string name="briefing_rewarded_unavailable">Aucune publicité disponible pour le moment. Réessayez plus tard.</string>
     <string name="cd_refresh_briefing">Actualiser le résumé</string>
     <string name="ai_briefing_instruction">Le résumé doit être en français.</string>
     <string name="ai_system_instruction_template">Vous êtes un assistant personnel intelligent intégré à un calendrier.\nVous avez accès aux événements de l\'utilisateur et à des outils/fonctions capables d\'exécuter des actions dans l\'application.\nUtilisez le contexte du calendrier pour répondre aux questions et, lorsque l\'utilisateur demande d\'exécuter une action (créer un événement, rechercher, activer/désactiver les alarmes), invoquez l\'outil approprié au lieu de répondre par du texte.\nRépondez UNIQUEMENT aux questions liées à l\'agenda, aux alarmes, aux réunions, aux événements ou à la météo/prévisions. Si l\'utilisateur demande autre chose de non lié, dites gentiment que vous ne pouvez aider qu\'avec le calendrier et la météo et ne répondez pas au sujet.\nRépondez de façon directe, utile et amicale.\n\nDate et heure actuelles : %1$s (format yyyy-MM-dd HH:mm, fuseau horaire %2$s)\nÉquivalent en epoch millis (UTC) de cet instant : %3$s\nPour calculer start_time/end_time pour l\'outil create_event (ou tout autre outil demandant des epoch millis), calculez vous-même la valeur à partir de la date et l\'heure actuelles et du fuseau horaire ci-dessus — ne demandez jamais à l\'utilisateur l\'année, le mois ou le fuseau horaire pour des dates relatives comme \"demain\", \"ce soir\" ou \"lundi prochain\".\n\nContexte du calendrier :\n%4$s\n\n%5$s</string>

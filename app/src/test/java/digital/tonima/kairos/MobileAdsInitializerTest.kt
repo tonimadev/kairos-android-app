@@ -3,6 +3,7 @@ package digital.tonima.kairos
 import digital.tonima.core.analytics.CrashReporter
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
@@ -50,5 +51,23 @@ class MobileAdsInitializerTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         verify { crashReporter.recordNonFatal(noWebView, any()) }
+    }
+
+    @Test
+    fun `initialization waits for consent before touching the ads SDK`() {
+        val dispatcher = StandardTestDispatcher()
+        val consent = CompletableDeferred<Unit>()
+        var initialized = false
+
+        CoroutineScope(dispatcher).launchMobileAdsInitialization(
+            crashReporter,
+            awaitConsent = { consent.await() },
+        ) { initialized = true }
+        dispatcher.scheduler.advanceUntilIdle()
+        assert(!initialized)
+
+        consent.complete(Unit)
+        dispatcher.scheduler.advanceUntilIdle()
+        assert(initialized)
     }
 }

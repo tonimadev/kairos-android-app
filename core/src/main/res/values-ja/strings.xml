@@ -107,6 +107,12 @@
     <string name="daily_briefing_trial_invite">AIが一日をどう整理するか体験しましょう。今すぐ月間プランを試してください！</string>
     <string name="subscribe_now">今すぐ購読</string>
     <string name="generate_briefing">要約を生成</string>
+    <string name="ad_label">広告</string>
+    <string name="ad_privacy_options">広告の設定</string>
+    <string name="briefing_rewarded_description">短い広告を見ると、今日の要約を無料で生成できます。</string>
+    <string name="briefing_rewarded_watch">広告を見て要約を生成</string>
+    <string name="briefing_rewarded_loading">広告を読み込み中…</string>
+    <string name="briefing_rewarded_unavailable">現在利用できる広告がありません。後でもう一度お試しください。</string>
     <string name="cd_refresh_briefing">要約を更新</string>
     <string name="ai_briefing_instruction">要約は日本語である必要があります。</string>
     <string name="ai_system_instruction_template">あなたはカレンダーと連携した賢いパーソナルアシスタントです。\nユーザーの予定や、アプリ内でアクションを実行できるツール（tools/functions）にアクセスできます。\nカレンダーのコンテキストを使って質問に答え、ユーザーがアクションの実行（予定の作成、検索、アラームのオン/オフ）を求めた場合は、テキストで返答する代わりに適切なツールを呼び出してください。\n予定、アラーム、会議、イベント、天気/予報に関する質問にのみ答えてください。ユーザーがそれ以外の無関係な質問をした場合は、カレンダーと天気についてのみお手伝いできると丁寧に伝え、その話題には答えないでください。\n直接的で、役立ち、フレンドリーに答えてください。\n\n現在の日時: %1$s（形式 yyyy-MM-dd HH:mm、タイムゾーン %2$s）\nこの瞬間のepochミリ秒（UTC）換算: %3$s\ncreate_eventツール（またはepochミリ秒を必要とする他のツール）のstart_time/end_timeを計算する際は、上記の現在の日時とタイムゾーンから自分で値を導き出してください。「明日」「今夜」「来週の月曜日」などの相対的な日付について、ユーザーに年・月・タイムゾーンを尋ねないでください。\n\nカレンダーのコンテキスト:\n%4$s\n\n%5$s</string>

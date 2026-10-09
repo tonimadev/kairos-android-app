@@ -49,10 +49,14 @@ android {
         debug {
             val admobAppIdTest = "ca-app-pub-3940256099942544~3347511713"
             val admobBannerAdUnitIdTest = "ca-app-pub-3940256099942544/6300978111"
+            val admobRewardedAdUnitIdTest = "ca-app-pub-3940256099942544/5224354917"
+            val admobNativeAdUnitIdTest = "ca-app-pub-3940256099942544/2247696110"
 
             resValue("string", "admob_app_id", admobAppIdTest)
             buildConfigField("String", "ADMOB_BANNER_AD_UNIT_HOME", "\"$admobBannerAdUnitIdTest\"")
             buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY", "\"$admobBannerAdUnitIdTest\"")
+            buildConfigField("String", "ADMOB_REWARDED_AD_UNIT_BRIEFING", "\"$admobRewardedAdUnitIdTest\"")
+            buildConfigField("String", "ADMOB_NATIVE_AD_UNIT_EVENT_LIST", "\"$admobNativeAdUnitIdTest\"")
         }
         release {
             isMinifyEnabled = true
@@ -63,10 +67,14 @@ android {
 
             val admobAppIdTest = "ca-app-pub-3940256099942544~3347511713"
             val admobBannerAdUnitIdTest = "ca-app-pub-3940256099942544/9214589741"
+            val admobRewardedAdUnitIdTest = "ca-app-pub-3940256099942544/5224354917"
+            val admobNativeAdUnitIdTest = "ca-app-pub-3940256099942544/2247696110"
 
             val admobAppId: String
             val admobBannerAdUnitIdHome: String
             val admobBannerAdUnitIdAlarm: String
+            val admobRewardedAdUnitIdBriefing: String
+            val admobNativeAdUnitIdEventList: String
 
             if (isRunningReleaseTask) {
                 val localProperties = Properties()
@@ -94,25 +102,37 @@ android {
                         "admob.banner.ad.unit.alarm_activity",
                         "admob.banner.ad.unit.alarm_acitivity",
                     )
+                val resolvedRewardedBriefing =
+                    admobValue("ADMOB_REWARDED_AD_UNIT_BRIEFING", "admob.rewarded.ad.unit.briefing")
+                val resolvedNativeEventList =
+                    admobValue("ADMOB_NATIVE_AD_UNIT_EVENT_LIST", "admob.native.ad.unit.event_list")
                 missingReleaseAdMobConfig +=
                     listOf(
                         "ADMOB_APP_ID" to resolvedAppId,
                         "ADMOB_BANNER_AD_UNIT_HOME" to resolvedHome,
                         "ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY" to resolvedAlarm,
+                        "ADMOB_REWARDED_AD_UNIT_BRIEFING" to resolvedRewardedBriefing,
+                        "ADMOB_NATIVE_AD_UNIT_EVENT_LIST" to resolvedNativeEventList,
                     ).filter { (_, value) -> value == null }.map { it.first }
 
                 admobAppId = resolvedAppId ?: admobAppIdTest
                 admobBannerAdUnitIdHome = resolvedHome ?: admobBannerAdUnitIdTest
                 admobBannerAdUnitIdAlarm = resolvedAlarm ?: admobBannerAdUnitIdTest
+                admobRewardedAdUnitIdBriefing = resolvedRewardedBriefing ?: admobRewardedAdUnitIdTest
+                admobNativeAdUnitIdEventList = resolvedNativeEventList ?: admobNativeAdUnitIdTest
             } else {
                 admobAppId = admobAppIdTest
                 admobBannerAdUnitIdHome = admobBannerAdUnitIdTest
                 admobBannerAdUnitIdAlarm = admobBannerAdUnitIdTest
+                admobRewardedAdUnitIdBriefing = admobRewardedAdUnitIdTest
+                admobNativeAdUnitIdEventList = admobNativeAdUnitIdTest
             }
 
             resValue("string", "admob_app_id", admobAppId)
             buildConfigField("String", "ADMOB_BANNER_AD_UNIT_HOME", "\"$admobBannerAdUnitIdHome\"")
             buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ALARM_ACTIVITY", "\"$admobBannerAdUnitIdAlarm\"")
+            buildConfigField("String", "ADMOB_REWARDED_AD_UNIT_BRIEFING", "\"$admobRewardedAdUnitIdBriefing\"")
+            buildConfigField("String", "ADMOB_NATIVE_AD_UNIT_EVENT_LIST", "\"$admobNativeAdUnitIdEventList\"")
         }
     }
 

@@ -24,9 +24,15 @@ internal fun initializeMobileAds(
 /**
  * MobileAds.initialize does disk and WebView work; Google recommends calling it off the main
  * thread so it does not slow down app startup or cause ANRs. Ads requested before it finishes
- * are queued by the SDK.
+ * are queued by the SDK. [awaitConsent] suspends until consent allows ad requests (UMP).
  */
 internal fun CoroutineScope.launchMobileAdsInitialization(
     crashReporter: CrashReporter,
+    awaitConsent: suspend () -> Unit = {},
     initialize: () -> Unit,
-): Job = launch { initializeMobileAds(crashReporter, initialize) }
+): Job =
+    launch {
+        // Ads must not be initialized before the user's consent allows requesting them.
+        awaitConsent()
+        initializeMobileAds(crashReporter, initialize)
+    }

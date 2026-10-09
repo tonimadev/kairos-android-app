@@ -25,6 +25,8 @@ For full functionality (Release builds):
    - `admob.app.id`
    - `admob.banner.ad.unit.home`
    - `admob.banner.ad.unit.alarm_acitivity`
+   - `admob.rewarded.ad.unit.briefing`
+   - `admob.native.ad.unit.event_list`
 
 ## 🧪 Testing
 

@@ -236,6 +236,8 @@ fun SettingsScreen(
 
             NotificationAccessSection(settingsUiState = settingsUiState, settingsActions = settingsActions)
 
+            AdPrivacyOptionsSection()
+
             if (uiState.availableCalendars.isNotEmpty()) {
                 CalendarFilterSection(
                     availableCalendars = uiState.availableCalendars,
