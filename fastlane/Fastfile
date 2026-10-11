@@ -148,7 +148,8 @@ platform :android do
     supply(
       package_name: ENV["PACKAGE_NAME"],
       json_key_data: ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_KEY"],
-      metadata_path: File.join(FastlaneCore::FastlaneFolder.path, "listings"),
+      # FastlaneFolder.path is relative ("./") and supply resolves it from another directory
+      metadata_path: File.expand_path(File.join(FastlaneCore::FastlaneFolder.path, "listings")),
       skip_upload_apk: true,
       skip_upload_aab: true,
       skip_upload_metadata: false,
