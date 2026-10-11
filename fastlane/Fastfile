@@ -141,8 +141,8 @@ platform :android do
   # Listing text (title, short and full description) for languages that do not have a store listing
   # yet lives in fastlane/listings/<locale>/, outside metadata/android: deploy_phone and deploy_wear
   # upload images and release notes for every folder in metadata/android, and a language without a
-  # listing there would break the release. Uploading the text creates the listing in Play Console; once
-  # it exists, move the folder into metadata/android to add images and changelogs.
+  # listing there would break the release. Uploading the text creates the listing in Play Console; only
+  # after that can the language get images and changelogs in metadata/android (as fa, bn-BD and ur have).
   desc "Create or update the store listing text of the languages in fastlane/listings/"
   lane :upload_store_listings do |options|
     supply(

@@ -1,7 +1,7 @@
 name: Upload Play Store assets
 
 # Publishes the listing images in fastlane/metadata/android/*/images/ (feature graphic, phone and
-# Wear OS screenshots, all 10 locales). Runs when those images change on master, or on demand.
+# Wear OS screenshots of every locale). Runs when those images change on master, or on demand.
 on:
   push:
     branches: [ "master" ]
