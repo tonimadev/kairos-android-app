@@ -26,6 +26,7 @@ includeBuild("build-logic")
 
 rootProject.name = "Kairos"
 include(":app")
+include(":baselineprofile")
 include(":core")
 include(":core:data")
 include(":core:model")

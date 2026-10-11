@@ -3,6 +3,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.androidx.baselineprofile)
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.detekt)
     alias(libs.plugins.firebase.perf)
@@ -167,11 +168,31 @@ kotlin {
     jvmToolchain(21)
 }
 
+// The baselineprofile plugin adds release-like build types (benchmarkRelease, nonMinifiedRelease) for
+// :baselineprofile. They copy the release signing, but the release key only exists in CI, so they are
+// signed with the debug key. Release builds are untouched.
+androidComponents {
+    onVariants(selector().withBuildType("benchmarkRelease")) { variant ->
+        variant.signingConfig.setConfig(android.signingConfigs.getByName("debug"))
+    }
+    onVariants(selector().withBuildType("nonMinifiedRelease")) { variant ->
+        variant.signingConfig.setConfig(android.signingConfigs.getByName("debug"))
+    }
+}
+
+// Benchmark builds are local measurements: never upload their R8 mapping to Crashlytics.
+tasks.matching {
+    it.name.startsWith("uploadCrashlyticsMappingFile") &&
+        (it.name.endsWith("BenchmarkRelease") || it.name.endsWith("NonMinifiedRelease"))
+}.configureEach { enabled = false }
+
 dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    baselineProfile(project(":baselineprofile"))
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
@@ -194,6 +215,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.profileinstaller)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.compose.icons.extended)
     implementation(libs.google.firebase.analytics)

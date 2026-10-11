@@ -23,6 +23,8 @@ plugins {
     alias(libs.plugins.android.feature.impl.convention) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.library.convention) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.androidx.baselineprofile) apply false
     alias(libs.plugins.crashlytics) apply false
     alias(libs.plugins.detekt)
     alias(libs.plugins.firebase.perf) apply false
