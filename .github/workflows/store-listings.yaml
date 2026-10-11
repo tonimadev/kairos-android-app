@@ -1,0 +1,40 @@
+name: Upload Play Store listings
+
+# Creates or updates the store listing text (title, short and full description) of the languages in
+# fastlane/listings/ (Persian, Bengali, Urdu). Run it on demand; uploading the text creates the
+# language in Play Console.
+on:
+  workflow_dispatch:
+    inputs:
+      validate_only:
+        description: "Validate against the Play API without publishing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: store-listings
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    name: Upload store listing text
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.0'
+          bundler-cache: true
+
+      - name: Upload listings to Google Play
+        env:
+          PLAY_STORE_SERVICE_ACCOUNT_JSON_PLAINTEXT: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          REPO_ROOT: ${{ github.workspace }}
+        run: |
+          bundle exec fastlane upload_store_listings \
+            validate_only:${{ inputs.validate_only || false }}

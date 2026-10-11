@@ -137,4 +137,26 @@ platform :android do
 
     UI.important("Locales skipped (no store listing): #{skipped.join(", ")}") unless skipped.empty?
   end
+
+  # Listing text (title, short and full description) for languages that do not have a store listing
+  # yet lives in fastlane/listings/<locale>/, outside metadata/android: deploy_phone and deploy_wear
+  # upload images and release notes for every folder in metadata/android, and a language without a
+  # listing there would break the release. Uploading the text creates the listing in Play Console; once
+  # it exists, move the folder into metadata/android to add images and changelogs.
+  desc "Create or update the store listing text of the languages in fastlane/listings/"
+  lane :upload_store_listings do |options|
+    supply(
+      package_name: ENV["PACKAGE_NAME"],
+      json_key_data: ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_KEY"],
+      metadata_path: File.join(FastlaneCore::FastlaneFolder.path, "listings"),
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: false,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      validate_only: options[:validate_only].to_s == "true",
+      timeout: 600
+    )
+  end
 end
