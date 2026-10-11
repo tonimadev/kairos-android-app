@@ -96,7 +96,7 @@ class AlarmSoundAndVibrateService : Service() {
             }
         }
 
-        // ForegroundServiceStartNotAllowedException only exists on API 31+ (minSdk is 30),
+        // ForegroundServiceStartNotAllowedException only exists on API 31+ (minSdk is 28),
         // so it cannot be named in a catch clause directly.
         private fun isBackgroundStartBlocked(e: IllegalStateException): Boolean =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is ForegroundServiceStartNotAllowedException

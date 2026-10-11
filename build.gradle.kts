@@ -3,7 +3,8 @@ val appVersionCode = project.findProperty("APP_VERSION_CODE") ?: "1"
 val wearAppVersionCode = project.findProperty("WEAR_APP_VERSION_CODE") ?: "1"
 val appVersionName = project.findProperty("APP_VERSION_NAME") ?: "1.0.0"
 
-val minSdkVersion = project.findProperty("MIN_SDK_VERSION")?.toString()?.toInt() ?: 30
+val minSdkVersion = project.findProperty("MIN_SDK_VERSION")?.toString()?.toInt() ?: 28
+val wearMinSdkVersion = project.findProperty("WEAR_MIN_SDK_VERSION")?.toString()?.toInt() ?: 30
 val targetSdkVersion = project.findProperty("TARGET_SDK_VERSION")?.toString()?.toInt() ?: 37
 val compileSdkVersion = project.findProperty("COMPILE_SDK_VERSION")?.toString()?.toInt() ?: 37
 
@@ -11,6 +12,7 @@ extra.set("APP_VERSION_CODE", appVersionCode)
 extra.set("WEAR_APP_VERSION_CODE", wearAppVersionCode)
 extra.set("APP_VERSION_NAME", appVersionName)
 extra.set("MIN_SDK_VERSION", minSdkVersion)
+extra.set("WEAR_MIN_SDK_VERSION", wearMinSdkVersion)
 extra.set("TARGET_SDK_VERSION", targetSdkVersion)
 extra.set("COMPILE_SDK_VERSION", compileSdkVersion)
 

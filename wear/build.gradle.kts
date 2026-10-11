@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId = "digital.tonima.kairos"
-        minSdk = rootProject.extra["MIN_SDK_VERSION"].toString().toInt()
+        minSdk = rootProject.extra["WEAR_MIN_SDK_VERSION"].toString().toInt()
         targetSdk = rootProject.extra["TARGET_SDK_VERSION"].toString().toInt()
         versionCode = findProperty("android.injected.version.code")?.toString()?.toInt()
             ?: rootProject.extra["WEAR_APP_VERSION_CODE"].toString().toInt()

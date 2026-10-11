@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -196,25 +197,27 @@ private fun NotificationFeatureRow(
 
 /** Opens this app's own toggle when the system supports it (API 30+), else the general list. */
 private fun openNotificationAccessSettings(context: Context) {
-    val detail =
-        Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
-            .putExtra(
-                Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME,
-                ComponentName(context, KairosNotificationListenerService::class.java).flattenToString(),
-            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    try {
-        context.startActivity(detail)
-    } catch (e: ActivityNotFoundException) {
-        logcat("NotificationAccess", LogPriority.WARN) { "Notification access detail screen unavailable: ${e.message}" }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val detail =
+            Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
+                .putExtra(
+                    Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME,
+                    ComponentName(context, KairosNotificationListenerService::class.java).flattenToString(),
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
-            context.startActivity(
-                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            )
-        } catch (inner: ActivityNotFoundException) {
-            logcat(
-                "NotificationAccess",
-                LogPriority.WARN,
-            ) { "Notification access settings unavailable: ${inner.message}" }
+            context.startActivity(detail)
+            return
+        } catch (e: ActivityNotFoundException) {
+            logcat("NotificationAccess", LogPriority.WARN) {
+                "Notification access detail screen unavailable: ${e.message}"
+            }
         }
+    }
+    try {
+        context.startActivity(
+            Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
+    } catch (e: ActivityNotFoundException) {
+        logcat("NotificationAccess", LogPriority.WARN) { "Notification access settings unavailable: ${e.message}" }
     }
 }
