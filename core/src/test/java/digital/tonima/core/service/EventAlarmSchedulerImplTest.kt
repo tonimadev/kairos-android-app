@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.os.Build
 import digital.tonima.core.receiver.AlarmReceiver
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.core.utils.WeekendDaysProvider
 import digital.tonima.kairos.core.model.Event
 import io.mockk.every
 import io.mockk.mockk
@@ -26,6 +27,7 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowAlarmManager
 import java.time.Clock
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -37,6 +39,8 @@ class EventAlarmSchedulerImplTest {
     private lateinit var context: Context
     private lateinit var alarmManager: AlarmManager
     private lateinit var mockPrefsRepo: AppPreferencesRepository
+    private var weekendDays: Set<DayOfWeek> = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+    private val weekendDaysProvider = WeekendDaysProvider { weekendDays }
 
     // Fixed clock at epoch (1970-01-01 00:00 UTC) — all future test alarm times are always in the future
     private val fixedClock: Clock = Clock.fixed(Instant.EPOCH, ZoneId.systemDefault())
@@ -78,7 +82,7 @@ class EventAlarmSchedulerImplTest {
     }
 
     private fun createScheduler() =
-        EventAlarmSchedulerImpl(context, mockPrefsRepo).apply {
+        EventAlarmSchedulerImpl(context, mockPrefsRepo, weekendDaysProvider).apply {
             clock = fixedClock
         }
 
@@ -208,6 +212,21 @@ class EventAlarmSchedulerImplTest {
     }
 
     @Test
+    fun `skip weekends follows the region weekend instead of always Saturday and Sunday`() {
+        stubSchedulerPreferences(skipWeekends = true)
+        // Iran: Friday is the weekend, Saturday and Sunday are working days
+        weekendDays = setOf(DayOfWeek.FRIDAY)
+        val friday = LocalDate.of(2100, 6, 18).atTime(10, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val saturday = LocalDate.of(2100, 6, 19).atTime(10, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+        createScheduler().schedule(Event(id = 14L, title = "Fri", startTime = friday))
+        createScheduler().schedule(Event(id = 15L, title = "Sat", startTime = saturday))
+
+        val alarms = Shadows.shadowOf(alarmManager).scheduledAlarms
+        assertEquals(listOf(saturday), alarms.map { it.triggerAtTime })
+    }
+
+    @Test
     fun `schedule applies the alarm offset before the event start`() {
         stubSchedulerPreferences(alarmOffsetMinutes = 15L)
         val event = Event(id = 10L, title = "T", startTime = 123_456_789L)
@@ -246,7 +265,7 @@ class EventAlarmSchedulerImplTest {
     @Test
     fun `alarms whose time already passed are not scheduled`() {
         val scheduler =
-            EventAlarmSchedulerImpl(context, mockPrefsRepo).apply {
+            EventAlarmSchedulerImpl(context, mockPrefsRepo, weekendDaysProvider).apply {
                 clock = Clock.fixed(Instant.ofEpochMilli(200_000L), ZoneId.systemDefault())
             }
 

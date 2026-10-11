@@ -17,6 +17,7 @@ import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_EVENT_TITLE
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_MEETING_URL
 import digital.tonima.core.receiver.AlarmReceiver.Companion.EXTRA_UNIQUE_ID
 import digital.tonima.core.repository.AppPreferencesRepository
+import digital.tonima.core.utils.WeekendDaysProvider
 import digital.tonima.kairos.core.model.AlarmOffset
 import digital.tonima.kairos.core.model.Event
 import kotlinx.coroutines.flow.firstOrNull
@@ -34,6 +35,7 @@ class EventAlarmSchedulerImpl
     constructor(
         @ApplicationContext private val context: Context,
         private val preferencesRepository: AppPreferencesRepository,
+        private val weekendDaysProvider: WeekendDaysProvider,
     ) : EventAlarmScheduler {
         @VisibleForTesting
         internal var clock: Clock = Clock.systemDefaultZone()
@@ -60,7 +62,7 @@ class EventAlarmSchedulerImpl
                     } else {
                         Instant.ofEpochMilli(event.startTime).atZone(ZoneId.systemDefault()).dayOfWeek
                     }
-                if (eventDayOfWeek == java.time.DayOfWeek.SATURDAY || eventDayOfWeek == java.time.DayOfWeek.SUNDAY) {
+                if (eventDayOfWeek in weekendDaysProvider.weekendDays()) {
                     logcat { "Skipping alarm for event on weekend: ${event.title}" }
                     return
                 }

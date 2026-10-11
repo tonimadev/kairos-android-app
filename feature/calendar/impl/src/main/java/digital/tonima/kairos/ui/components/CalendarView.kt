@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableSet
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
@@ -61,6 +62,7 @@ fun CalendarView(
     onMonthChanged: (Long) -> Unit,
     onDateSelected: (Long) -> Unit,
     onReturnToToday: () -> Unit,
+    weekendDays: ImmutableSet<DayOfWeek> = ImmutableSet.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY),
 ) {
     val currentYearMonth =
         remember(currentMonth) {
@@ -115,6 +117,7 @@ fun CalendarView(
             monthHeader = { month ->
                 DaysOfWeekHeader(
                     daysOfWeek = ImmutableList.copyOf(month.weekDays.first().map { it.date.dayOfWeek }),
+                    weekendDays = weekendDays,
                 )
             },
         )
@@ -163,11 +166,14 @@ private fun MonthHeader(
 }
 
 @Composable
-private fun DaysOfWeekHeader(daysOfWeek: ImmutableList<DayOfWeek>) {
+private fun DaysOfWeekHeader(
+    daysOfWeek: ImmutableList<DayOfWeek>,
+    weekendDays: ImmutableSet<DayOfWeek>,
+) {
     Row(modifier = Modifier.fillMaxWidth()) {
         val locale = LocalConfiguration.current.locales.get(0)
         for (dayOfWeek in daysOfWeek) {
-            val isWeekend = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
+            val isWeekend = dayOfWeek in weekendDays
             val dayName = remember(dayOfWeek, locale) { dayOfWeek.getDisplayName(TextStyle.SHORT, locale) }
             Text(
                 modifier = Modifier.weight(1f),

@@ -89,6 +89,7 @@ fun MainContent(
                     onMonthChanged = eventActions.onMonthChanged,
                     onDateSelected = eventActions.onDateSelected,
                     onReturnToToday = eventActions.onReturnToToday,
+                    weekendDays = uiState.weekendDays,
                 )
             }
             EventList(

@@ -9,6 +9,7 @@ import digital.tonima.core.data.usecases.CreateEventUseCase
 import digital.tonima.core.data.usecases.DepartureInfo
 import digital.tonima.core.data.usecases.GetAvailableCalendarsUseCase
 import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.data.usecases.GetWeekendDaysUseCase
 import digital.tonima.core.data.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.data.usecases.PermissionState
 import digital.tonima.core.data.usecases.UpdateAppPreferenceUseCase
@@ -56,6 +57,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -83,6 +85,7 @@ class EventViewModelTest {
     private val mockGetCurrentLocationUseCase: GetCurrentLocationUseCase = mockk(relaxed = true)
     private val mockGetWeatherUseCase: GetWeatherUseCase = mockk(relaxed = true)
     private val mockGetMeetingTimeStatsUseCase: GetMeetingTimeStatsUseCase = mockk(relaxed = true)
+    private val mockGetWeekendDaysUseCase: GetWeekendDaysUseCase = mockk()
     private val mockAppNavigator: AppNavigator = mockk(relaxed = true)
 
     private val appPreferencesFlow = MutableStateFlow(defaultAppPreferences())
@@ -109,6 +112,7 @@ class EventViewModelTest {
             )
         coEvery { mockGetEventsForMonthUseCase(any()) } returns emptyList()
         coEvery { mockGetAvailableCalendarsUseCase() } returns emptyList()
+        every { mockGetWeekendDaysUseCase() } returns setOf(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY)
 
         viewModel = createViewModel()
     }
@@ -160,8 +164,14 @@ class EventViewModelTest {
             getCurrentLocationUseCase = mockGetCurrentLocationUseCase,
             getWeatherUseCase = mockGetWeatherUseCase,
             getMeetingTimeStatsUseCase = mockGetMeetingTimeStatsUseCase,
+            getWeekendDaysUseCase = mockGetWeekendDaysUseCase,
             appNavigator = mockAppNavigator,
         )
+
+    @Test
+    fun `ui state exposes the weekend days of the user's region`() {
+        assertEquals(setOf(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY), viewModel.uiState.value.weekendDays)
+    }
 
     @Test
     fun `onDateSelected updates selectedDate in UI state`() =

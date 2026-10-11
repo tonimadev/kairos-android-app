@@ -2,11 +2,13 @@ package digital.tonima.core.viewmodel
 
 import androidx.compose.runtime.Immutable
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import digital.tonima.core.viewmodel.uimodel.EventUiModel
 import digital.tonima.kairos.core.model.DeviceCalendar
 import digital.tonima.kairos.core.model.InsightsPeriod
 import digital.tonima.kairos.core.model.InsightsPeriod.WEEK
 import digital.tonima.kairos.core.model.Weather
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -39,5 +41,6 @@ data class EventScreenUiState(
     val punctualityScore: Int = 100,
     val aiUsageCount: Int = 0,
     val snoozeCount: Int = 0,
+    val weekendDays: ImmutableSet<DayOfWeek> = ImmutableSet.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY),
     val effect: EventSideEffect? = null,
 )

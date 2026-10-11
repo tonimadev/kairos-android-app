@@ -3,12 +3,14 @@ package digital.tonima.core.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import digital.tonima.core.data.usecases.CalculateDepartureTimeUseCase
 import digital.tonima.core.data.usecases.CheckPermissionsUseCase
 import digital.tonima.core.data.usecases.CreateEventUseCase
 import digital.tonima.core.data.usecases.GetAvailableCalendarsUseCase
 import digital.tonima.core.data.usecases.GetEventsForMonthUseCase
+import digital.tonima.core.data.usecases.GetWeekendDaysUseCase
 import digital.tonima.core.data.usecases.ObserveAppPreferencesUseCase
 import digital.tonima.core.data.usecases.UpdateAppPreferenceUseCase
 import digital.tonima.core.delegates.ProUserProvider
@@ -100,6 +102,7 @@ class EventViewModel
         private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
         private val getWeatherUseCase: GetWeatherUseCase,
         private val getMeetingTimeStatsUseCase: GetMeetingTimeStatsUseCase,
+        private val getWeekendDaysUseCase: GetWeekendDaysUseCase,
         private val appNavigator: AppNavigator,
     ) : ViewModel(), ProUserProvider by proUserProvider {
         private val _uiState = MutableStateFlow(EventScreenUiState())
@@ -111,6 +114,7 @@ class EventViewModel
         private var alarmOffsetMinutes = 0L
 
         init {
+            _uiState.update { it.copy(weekendDays = ImmutableSet.copyOf(getWeekendDaysUseCase())) }
             observePreferences()
             handleIntent(LoadCalendars)
 
