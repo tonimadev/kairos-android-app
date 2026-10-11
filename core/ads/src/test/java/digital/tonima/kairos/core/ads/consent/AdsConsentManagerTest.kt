@@ -1,7 +1,11 @@
 package digital.tonima.kairos.core.ads.consent
 
 import android.app.Activity
+import android.view.Window
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verifyOrder
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -39,6 +43,20 @@ class AdsConsentManagerTest {
     }
 
     private val activity: Activity = mockk(relaxed = true)
+
+    @Test
+    fun `the window decor is installed before UMP starts loading WebView in the background`() {
+        val window: Window = mockk(relaxed = true)
+        val activity: Activity = mockk { every { this@mockk.window } returns window }
+        val source = spyk(FakeSource())
+
+        AdsConsentManager(source).gather(activity)
+
+        verifyOrder {
+            window.decorView
+            source.gather(activity, any())
+        }
+    }
 
     @Test
     fun `ads stay blocked until consent is gathered`() {

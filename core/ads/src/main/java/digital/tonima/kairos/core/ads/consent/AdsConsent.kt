@@ -78,6 +78,10 @@ class AdsConsentManager internal constructor(private val source: ConsentSource) 
 
     /** Call from the main activity's `onCreate`: shows the consent form on first launch / when it changed. */
     fun gather(activity: Activity) {
+        // UMP loads WebView on a background thread, which swaps the app's assets. If that races the
+        // main thread building the window ("Window couldn't find content container view", #127), the
+        // launch crashes, so the window decor is installed here first, synchronously.
+        activity.window.decorView
         source.gather(activity) { error ->
             if (error != null) {
                 logcat(LogPriority.WARN) { "Ads consent could not be gathered, keeping cached state: $error" }
