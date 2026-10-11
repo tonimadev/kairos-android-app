@@ -104,7 +104,7 @@ To verify your environment, you can run the following command for a simple test:
 - **String Resources**: All user-facing text should be defined in `strings.xml` for both `app` and `wear` modules to support localization.
 - **Pluralization**: Use `plurals` for any text that varies based on quantity (e.g., "1 event" vs "2 events").
 - **Accessibility**: Ensure all UI components have appropriate content descriptions and support for screen readers, especially on Wear OS where screen space is limited.
-- **Translations**: If adding new features, consider providing translations for all supported languages by the app(simplified Chinese, Spanish, English,French,Arabian, hindi,Japanese,Russian, German) to broaden accessibility. the base language is Brazilian Portuguese, so all new strings should be added to `strings.xml` in the `values/` directory, and then translated versions can be added to `values-<language>/strings.xml` as needed.
+- **Translations**: New strings need translations for every supported language (Arabic, Bengali, Chinese, French, German, Hindi, Japanese, Persian, Portuguese, Russian, Spanish, Urdu). The base language is English, the fallback for any untranslated locale, so new strings go into `core/src/main/res/values/strings.xml` in English and the translations into `values-<language>/strings.xml` (Brazilian Portuguese in `values-pt/`). `python3 check_strings.py` must pass.
 
 ## 📦 Release & Metadata
 

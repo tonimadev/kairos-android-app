@@ -36,8 +36,9 @@ Never end a development cycle without validating against these automated checks!
 
 ## 5. String Translations (Internationalization)
 
-- Kairos supports **10 languages**: Arabic (`ar`), German (`de`), English (`en`), Spanish (`es`), French (`fr`), Hindi (`hi`), Japanese (`ja`), Russian (`ru`), Chinese (`zh`), and Portuguese (default).
-- **Mandatory Translation Check**: Whenever you add or modify a user-facing string in `strings.xml`, you MUST provide the translated equivalent in all 9 other `values-*` folders. Never forget to translate new strings!
+- Kairos supports **13 languages**: English (default, `values/`), Arabic (`ar`), Bengali (`bn`), German (`de`), Spanish (`es`), Persian (`fa`), French (`fr`), Hindi (`hi`), Japanese (`ja`), Portuguese (`pt`), Russian (`ru`), Urdu (`ur`) and Chinese (`zh`).
+- English is the base language because it is the fallback for every locale without a translation.
+- **Mandatory Translation Check**: Whenever you add or modify a user-facing string in `strings.xml`, you MUST provide the translated equivalent in all 12 other `values-*` folders (`python3 check_strings.py` must pass). Never forget to translate new strings!
 
 ## 6. UI & Navigation (Compose)
 

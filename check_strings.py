@@ -3,7 +3,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 
-LANGUAGES = ['ar', 'de', 'en', 'es', 'fr', 'hi', 'ja', 'ru', 'zh']
+LANGUAGES = ['ar', 'bn', 'de', 'es', 'fa', 'fr', 'hi', 'ja', 'pt', 'ru', 'ur', 'zh']
 
 
 def check_missing_strings(base_dir):

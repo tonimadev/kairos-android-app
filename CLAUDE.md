@@ -28,7 +28,8 @@ The project rules below are mandatory and shared with the other AI tools:
   `Intent` extras/actions, notification channel IDs, deep links, Wear Data Layer paths and payloads,
   and exported components in `AndroidManifest.xml`. Changing them breaks installed users or the watch.
 - **Phone ↔ Wear.** Changes in `:core` affect both `:app` and `:wear`; verify both compile and test.
-- **Strings:** base language is Portuguese (`values/`); every new or changed string needs all 9 translations
+- **Strings:** base language is English (`values/`, the fallback for every untranslated locale); Portuguese
+  lives in `values-pt/`. Every new or changed string needs all 12 translations
   (`python3 check_strings.py` must pass).
 
 ## Git workflow
