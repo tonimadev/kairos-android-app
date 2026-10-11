@@ -52,6 +52,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
     useLibrary("wear-sdk")
+    androidResources {
+        // Lists the app's translations in the system per-app language picker (Android 13+).
+        generateLocaleConfig = true
+    }
     buildFeatures {
         compose = true
     }
