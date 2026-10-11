@@ -16,6 +16,7 @@ fun Locale.toOpenWeatherLang(): String {
         "ja" -> "ja"
         "ru" -> "ru"
         "de" -> "de"
+        "fa" -> "fa"
         else -> "en"
     }
 }

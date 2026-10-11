@@ -16,6 +16,7 @@ class WeatherExtensionsTest {
         assertEquals("ja", Locale.forLanguageTag("ja").toOpenWeatherLang())
         assertEquals("ru", Locale.forLanguageTag("ru").toOpenWeatherLang())
         assertEquals("de", Locale.forLanguageTag("de").toOpenWeatherLang())
+        assertEquals("fa", Locale.forLanguageTag("fa").toOpenWeatherLang())
     }
 
     @Test
@@ -23,5 +24,8 @@ class WeatherExtensionsTest {
         assertEquals("en", Locale.forLanguageTag("en").toOpenWeatherLang())
         assertEquals("en", Locale.forLanguageTag("it").toOpenWeatherLang())
         assertEquals("en", Locale.forLanguageTag("ko").toOpenWeatherLang())
+        // OpenWeather has no Bengali or Urdu descriptions
+        assertEquals("en", Locale.forLanguageTag("bn").toOpenWeatherLang())
+        assertEquals("en", Locale.forLanguageTag("ur").toOpenWeatherLang())
     }
 }
