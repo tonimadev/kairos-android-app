@@ -20,6 +20,10 @@ fun MacrobenchmarkScope.grantStartupPermissions() {
         "android.permission.WRITE_CALENDAR",
         "android.permission.POST_NOTIFICATIONS",
     ).forEach { device.executeShellCommand("pm grant $PACKAGE_NAME $it") }
+    // Macrobenchmark wakes the app (shader-cache broadcast) right before its own kill, and the
+    // WorkManager jobs that Application.onCreate enqueues then restart the process before the
+    // cold start. Background restriction keeps jobs from running while the app is not in front.
+    device.executeShellCommand("cmd appops set $PACKAGE_NAME RUN_ANY_IN_BACKGROUND ignore")
     // A permission change can wake the app (receivers, WorkManager); a cold start needs it stopped.
     killProcess()
 }
