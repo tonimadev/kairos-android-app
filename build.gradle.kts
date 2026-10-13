@@ -21,10 +21,12 @@ plugins {
     alias(libs.plugins.android.compose.convention) apply false
     alias(libs.plugins.android.feature.bridge.convention) apply false
     alias(libs.plugins.android.feature.impl.convention) apply false
+    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.library.convention) apply false
     alias(libs.plugins.android.test) apply false
     alias(libs.plugins.androidx.baselineprofile) apply false
+    alias(libs.plugins.compose.multiplatform) apply false
     alias(libs.plugins.crashlytics) apply false
     alias(libs.plugins.detekt)
     alias(libs.plugins.firebase.perf) apply false
@@ -32,10 +34,13 @@ plugins {
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.jacoco.convention) apply false
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
+    alias(libs.plugins.kmp.compose.convention) apply false
+    alias(libs.plugins.kmp.library.convention) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.jvm.convention) apply false
     alias(libs.plugins.kotlin.ksp) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.stability.analyzer) apply false
     id("jacoco")
@@ -181,10 +186,14 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
     dependsOn(modulesToInclude.map { "$it:createJacocoDebugCoverageReport" })
     // Most tests live in :core:* and :feature:* modules, which don't apply the jacoco convention;
     // their coverage comes from AGP's enableUnitTestCoverage (see android-library-convention).
-    // Pure-Kotlin modules (:core:model) run `test` instead.
+    // Pure-Kotlin modules run `test` (or `jvmTest` for the KMP ones, e.g. :core:model) instead.
     dependsOn(
         provider {
-            subprojects.mapNotNull { it.tasks.findByName("testDebugUnitTest") ?: it.tasks.findByName("test") }
+            subprojects.mapNotNull {
+                it.tasks.findByName(
+                    "testDebugUnitTest",
+                ) ?: it.tasks.findByName("test") ?: it.tasks.findByName("jvmTest")
+            }
         },
     )
 
@@ -244,6 +253,7 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
                         exclude(coverageExcludes)
                     },
                     fileTree(sp.layout.buildDirectory.dir("classes/kotlin/main")) { exclude(coverageExcludes) },
+                    fileTree(sp.layout.buildDirectory.dir("classes/kotlin/jvm/main")) { exclude(coverageExcludes) },
                 )
             },
         ),
@@ -253,7 +263,9 @@ tasks.register<JacocoReport>("createJacocoMergedCoverageReport") {
         files(
             subprojects.flatMap { sp ->
                 listOf(
-                    fileTree(sp.layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec", "jacoco/test.exec") },
+                    fileTree(sp.layout.buildDirectory) {
+                        include("jacoco/testDebugUnitTest.exec", "jacoco/test.exec", "jacoco/jvmTest.exec")
+                    },
                     fileTree(
                         sp.layout.buildDirectory,
                     ) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") },

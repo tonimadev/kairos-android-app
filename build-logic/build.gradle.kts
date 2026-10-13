@@ -23,9 +23,12 @@ fun DependencyHandlerScope.pluginMarker(plugin: Provider<PluginDependency>) {
 }
 
 dependencies {
+    pluginMarker(libs.plugins.android.kotlin.multiplatform.library)
     pluginMarker(libs.plugins.android.library.asProvider())
+    pluginMarker(libs.plugins.compose.multiplatform)
     pluginMarker(libs.plugins.kotlin.compose)
     pluginMarker(libs.plugins.kotlin.ksp)
+    pluginMarker(libs.plugins.kotlin.multiplatform)
     pluginMarker(libs.plugins.hilt.android)
     pluginMarker(libs.plugins.jetbrains.kotlin.jvm)
 }

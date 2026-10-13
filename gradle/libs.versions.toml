@@ -66,6 +66,7 @@ uiautomator = "2.4.0"
 stabilityAnalyzer= "0.15.0"
 firebaseAiOnDevice = "16.0.0-beta05"
 guava = "33.7.2-android"
+compose-multiplatform = "1.12.1"
 
 [libraries]
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
@@ -177,14 +178,19 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jacoco-convention = { id = "jacoco-convention" }
 kotlin-jvm-convention = { id = "kotlin-jvm-convention" }
+kmp-library-convention = { id = "kmp-library-convention" }
+kmp-compose-convention = { id = "kmp-compose-convention" }
 android-library-convention = { id = "android-library-convention" }
 android-compose-convention = { id = "android-compose-convention" }
 android-feature-bridge-convention = { id = "android-feature-bridge-convention" }
 android-feature-impl-convention = { id = "android-feature-impl-convention" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stabilityAnalyzer" }
