@@ -17,11 +17,13 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
+import java.util.TimeZone
 
 class GenerateDailyBriefingUseCaseTest {
     private val context = mockk<Context>(relaxed = true)
@@ -36,9 +38,16 @@ class GenerateDailyBriefingUseCaseTest {
             Event(id = 1L, title = "Event 1", startTime = 1710000000000L, isAllDay = false),
         )
 
+    private val originalTimeZone = TimeZone.getDefault()
+
     @Before
     fun setup() {
         coEvery { dailyBriefingRepository.getLastGeneratedDate() } returns null
+    }
+
+    @After
+    fun restoreTimeZone() {
+        TimeZone.setDefault(originalTimeZone)
     }
 
     @Test
@@ -135,5 +144,33 @@ class GenerateDailyBriefingUseCaseTest {
             verify { context.getString(R.string.ai_context_weather, "Recife", 21, "nublado") }
             verify { context.getString(R.string.all_day) }
             verify { context.getString(R.string.ai_context_no_events_today) }
+        }
+
+    // Characterization: pins how an event's start instant is rendered in the prompt (24-hour
+    // "HH:mm" in the device's default zone), so a change of date/time library cannot alter it.
+    @Test
+    fun `the prompt lists each event as 24-hour HH mm in the default time zone`() =
+        runBlocking {
+            coEvery { aiModelRepository.generateBriefingContent(any()) } returns AiModelResult.Text("ok")
+            val afternoon = Event(id = 1L, title = "Event 1", startTime = 1710000000000L) // 2024-03-09T16:00Z
+            val justAfterMidnight = Event(id = 2L, title = "Night", startTime = 1709953500000L) // 2024-03-09T03:05Z
+
+            TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo")) // UTC-3, no DST in March 2024
+            useCase.invoke(listOf(afternoon, justAfterMidnight), "pt", null)
+            verify {
+                context.getString(
+                    R.string.ai_daily_briefing_prompt_template,
+                    "",
+                    "",
+                    "pt",
+                    "- 13:00: Event 1\n- 00:05: Night",
+                )
+            }
+
+            TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata")) // UTC+5:30, half-hour offset
+            useCase.invoke(listOf(afternoon), "pt", null)
+            verify {
+                context.getString(R.string.ai_daily_briefing_prompt_template, "", "", "pt", "- 21:30: Event 1")
+            }
         }
 }
