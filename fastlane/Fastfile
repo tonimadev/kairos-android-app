@@ -124,6 +124,8 @@ platform :android do
             skip_upload_screenshots: false,
             sync_image_upload: true,
             validate_only: options[:validate_only].to_s == "true",
+            # the app has a rejected update in review: the Play API refuses automatic sending for review
+            changes_not_sent_for_review: true,
             timeout: 600
           )
         rescue FastlaneCore::Interface::FastlaneError => e
@@ -157,6 +159,8 @@ platform :android do
       skip_upload_images: true,
       skip_upload_screenshots: true,
       validate_only: options[:validate_only].to_s == "true",
+      # the app has a rejected update in review: the Play API refuses automatic sending for review
+      changes_not_sent_for_review: true,
       timeout: 600
     )
   end
