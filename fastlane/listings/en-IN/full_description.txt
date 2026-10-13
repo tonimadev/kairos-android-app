@@ -1,0 +1,23 @@
+Turn your smartphone and smartwatch into the best allies for your virtual meetings. Kairós is the ultimate Google Meet companion, so you never miss a call again!
+
+No more waiting for meeting notifications or losing track of time while grabbing a coffee. Available for Android and Wear OS, Kairós syncs with your calendar and turns every important event into a full-screen alarm you can't ignore, whether you're at your desk or away from your keyboard. Add the Kairós complication to your watch face and see your next meeting at a glance.
+
+Stay ahead of your commitments and keep your punctuality with productivity-focused features:
+
+The ultimate meeting alert (phone & Wear OS): When your meeting time arrives, Kairós wakes up your phone with a full-screen alarm. On Wear OS the alert is shown prominently, so you know about your next Google Meet call even if your phone is locked or in your pocket.
+
+Quick access to calls: Open the event in your calendar with a single tap on the alarm and reach your Google Meet link instantly.
+
+Complications for Wear OS: Your schedule on your wrist. Add the Kairós complication (short text, long text or ranged value) to your watch face to see the title, the time or a countdown to your next meeting at a glance.
+
+Exclusive Wear OS tile: Swipe on your watch to see your upcoming meetings and manage global alarms. You're up to date on your whole day in a single gesture.
+
+Native integration: Works seamlessly with the calendars already set up on your Android, making it the ideal partner for anyone who uses Google Calendar every day.
+
+Smart alarm filter: Total control. Turn alarms on or off for all events, or choose individually which meetings are crucial and deserve their own alarm, on your phone and on your watch.
+
+Focused view: Move easily through your daily meetings and appointments with a clean calendar interface, and quickly see which days are the busiest.
+
+Battery efficiency: With an intelligent background scheduling system, Kairós keeps you on time for meetings without draining your phone or smartwatch battery.
+
+Kairós: the ideal companion for those who live for meetings. Your schedule, your alarms, on your phone and on your wrist. Never miss an important call!
