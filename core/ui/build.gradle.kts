@@ -1,9 +1,5 @@
 plugins {
-    alias(libs.plugins.android.compose.convention)
-}
-
-android {
-    namespace = "digital.tonima.kairos.core.ui"
+    alias(libs.plugins.kmp.compose.convention)
 }
 
 // Shared design system (KairosTheme, Dimensions, Color, Type) and the handful of composables
@@ -13,11 +9,15 @@ android {
 // plan's Phase 2/6 notes. AdBannerView lives in :core:ads instead, so modules that don't show
 // ads (e.g. :wear, via feature:calendar:impl / feature:settings:impl) never pull in the AdMob
 // SDK's manifest.
-dependencies {
-    debugImplementation(libs.androidx.compose.ui.tooling)
+kotlin {
+    androidLibrary {
+        namespace = "digital.tonima.kairos.core.ui"
+    }
 
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
+    sourceSets {
+        commonMain {
+            // Sources stay in the legacy layout so the move to KMP is a build-only change.
+            kotlin.srcDir("src/main/java")
+        }
+    }
 }
