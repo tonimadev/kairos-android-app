@@ -13,7 +13,12 @@ plugins {
 
 android {
     namespace = "digital.tonima.kairos"
-    compileSdk = rootProject.extra["COMPILE_SDK_VERSION"].toString().toInt()
+    compileSdk {
+        version =
+            release(37) {
+                minorApiLevel = 1
+            }
+    }
 
     defaultConfig {
         applicationId = "digital.tonima.kairos"

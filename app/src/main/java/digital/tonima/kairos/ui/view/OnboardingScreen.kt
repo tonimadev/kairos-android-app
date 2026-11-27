@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -95,6 +96,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             Row(
                 modifier =
                     Modifier
+                        .widthIn(max = 600.dp)
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp, vertical = 32.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,

@@ -6,7 +6,11 @@ plugins {
 // :feature:*:impl). Mirrors what :core/build.gradle.kts and :core/billing/*/build.gradle.kts
 // already set up by hand today. Each consuming module still sets its own `namespace`.
 android {
-    compileSdk = rootProject.extra["COMPILE_SDK_VERSION"].toString().toInt()
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         minSdk = rootProject.extra["MIN_SDK_VERSION"].toString().toInt()

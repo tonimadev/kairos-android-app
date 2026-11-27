@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -62,59 +63,65 @@ fun InsightsContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(
-            text = stringResource(id = R.string.insights_title),
-            style =
-                MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                ),
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        Column(
+            modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            InsightCard(
-                modifier = Modifier.weight(1f),
-                title = stringResource(id = R.string.insights_streak),
-                value = stringResource(id = R.string.insights_streak_days, uiState.currentStreak),
-                icon = Icons.Rounded.LocalFireDepartment,
-                iconTint = Color(0xFFFF9800),
-                backgroundColor = Color(0xFF2C2C38),
+            Text(
+                text = stringResource(id = R.string.insights_title),
+                style =
+                    MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    ),
+                modifier = Modifier.padding(bottom = 8.dp),
             )
 
-            InsightCard(
-                modifier = Modifier.weight(1f),
-                title = stringResource(id = R.string.insights_total_snoozes),
-                value = "${uiState.snoozeCount}",
-                icon = Icons.Rounded.Bedtime,
-                iconTint = Color(0xFF9FA8DA),
-                backgroundColor = Color(0xFF2C2C38),
-            )
-        }
-
-        MeetingTimeChart(
-            meetingStats = uiState.meetingStats,
-            selectedPeriod = uiState.selectedInsightsPeriod,
-            onPeriodChange = onPeriodChange,
-        )
-
-        PunctualityCard(score = uiState.punctualityScore)
-
-        if (uiState.isAiUser) {
-            InsightCard(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                title = stringResource(id = R.string.insights_ai_usage),
-                value = "${uiState.aiUsageCount}",
-                icon = Icons.Rounded.AutoAwesome,
-                iconTint = Color(0xFFDEFA5F),
-                backgroundColor = Color(0xFF2C2C38),
-            )
-        }
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                InsightCard(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(id = R.string.insights_streak),
+                    value = stringResource(id = R.string.insights_streak_days, uiState.currentStreak),
+                    icon = Icons.Rounded.LocalFireDepartment,
+                    iconTint = Color(0xFFFF9800),
+                    backgroundColor = Color(0xFF2C2C38),
+                )
 
-        Spacer(modifier = Modifier.height(16.dp))
+                InsightCard(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(id = R.string.insights_total_snoozes),
+                    value = "${uiState.snoozeCount}",
+                    icon = Icons.Rounded.Bedtime,
+                    iconTint = Color(0xFF9FA8DA),
+                    backgroundColor = Color(0xFF2C2C38),
+                )
+            }
+
+            MeetingTimeChart(
+                meetingStats = uiState.meetingStats,
+                selectedPeriod = uiState.selectedInsightsPeriod,
+                onPeriodChange = onPeriodChange,
+            )
+
+            PunctualityCard(score = uiState.punctualityScore)
+
+            if (uiState.isAiUser) {
+                InsightCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(id = R.string.insights_ai_usage),
+                    value = "${uiState.aiUsageCount}",
+                    icon = Icons.Rounded.AutoAwesome,
+                    iconTint = Color(0xFFDEFA5F),
+                    backgroundColor = Color(0xFF2C2C38),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 

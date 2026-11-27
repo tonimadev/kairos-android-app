@@ -23,7 +23,12 @@ val missingReleaseAdMobConfig = mutableListOf<String>()
 
 android {
     namespace = "digital.tonima.kairos"
-    compileSdk = rootProject.extra["COMPILE_SDK_VERSION"].toString().toInt()
+    compileSdk {
+        version =
+            release(37) {
+                minorApiLevel = 1
+            }
+    }
 
     defaultConfig {
         applicationId = "digital.tonima.kairos"
@@ -216,6 +221,7 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.androidx.window)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.compose.icons.extended)
     implementation(libs.google.firebase.analytics)

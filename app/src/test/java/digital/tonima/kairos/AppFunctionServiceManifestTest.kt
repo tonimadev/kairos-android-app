@@ -23,7 +23,7 @@ class AppFunctionServiceManifestTest {
 
         val service = context.packageManager.queryIntentServices(intent, 0).single().serviceInfo
 
-        assertEquals("androidx.appfunctions.PlatformAppFunctionService", service.name)
+        assertEquals("digital.tonima.kairos.service.KairosAppFunctionService", service.name)
         assertEquals("android.permission.BIND_APP_FUNCTION_SERVICE", service.permission)
         assertTrue(service.exported)
     }

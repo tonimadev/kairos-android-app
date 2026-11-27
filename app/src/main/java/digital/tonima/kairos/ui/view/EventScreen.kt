@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -315,6 +316,7 @@ fun EventScreen(
                         isProUser = isProUser,
                         isAiUser = isAiUser,
                         snackbarHostState = snackbarHostState,
+                        windowSizeClass = windowSizeClass,
                         onUpgradeToPro = { eventViewModel.handleIntent(UpgradeToProRequest) },
                         onSettingsClick = { settingsViewModel.handleIntent(OpenSettings) },
                         onChatHistoryClick = { aiViewModel.handleIntent(OpenChatHistoryScreen) },
@@ -524,8 +526,14 @@ private fun EventScreenTabContent(
     }
 }
 
+@Preview(name = "Phone", device = Devices.PHONE, showBackground = true)
+@Preview(name = "Foldable", device = Devices.FOLDABLE, showBackground = true)
+@Preview(name = "Tablet", device = Devices.TABLET, showBackground = true)
+@Preview(name = "Desktop", device = Devices.DESKTOP, showBackground = true)
+annotation class FormFactorPreviews
+
 @OptIn(ExperimentalPermissionsApi::class)
-@Preview(showBackground = true)
+@FormFactorPreviews
 @Composable
 fun EventScreenContentPreview() {
     EventScreenContent(

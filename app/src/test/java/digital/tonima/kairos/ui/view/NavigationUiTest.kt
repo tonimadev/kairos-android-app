@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -13,6 +15,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import digital.tonima.core.viewmodel.EventScreenUiState
 import digital.tonima.kairos.core.R
@@ -171,13 +175,31 @@ class NavigationUiTest {
         assertEquals(listOf("settings"), calls)
     }
 
-    private fun shell(isAiUser: Boolean) {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+    @Test
+    fun `shell on expanded window size uses navigation rail and supports tab switching`() {
+        val expandedWindow = WindowSizeClass.calculateFromSize(DpSize(1200.dp, 800.dp))
+        shell(isAiUser = true, windowSizeClass = expandedWindow)
+
+        compose.onNodeWithText(string(R.string.insights_title)).performClick()
+        compose.onNodeWithText(string(R.string.alarms)).performClick()
+        compose.onNodeWithContentDescription("Add Alarm").performClick()
+        compose.onNodeWithText(string(R.string.ai_tab_label)).performClick()
+
+        assertEquals(listOf("tab:1", "tab:0", "create", "ai"), calls)
+    }
+
+    private fun shell(
+        isAiUser: Boolean,
+        windowSizeClass: WindowSizeClass? = null,
+    ) {
         compose.setContent {
             EventScreenShell(
                 uiState = EventScreenUiState(isAiUser = isAiUser),
                 isProUser = true,
                 isAiUser = isAiUser,
                 snackbarHostState = SnackbarHostState(),
+                windowSizeClass = windowSizeClass,
                 onUpgradeToPro = { calls += "upgrade" },
                 onSettingsClick = { calls += "settings" },
                 onChatHistoryClick = { calls += "chat" },

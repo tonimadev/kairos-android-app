@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -136,6 +137,7 @@ class AlarmActivity : ComponentActivity() {
                             modifier =
                                 Modifier
                                     .weight(1f)
+                                    .widthIn(max = 600.dp)
                                     .verticalScroll(rememberScrollState())
                                     .padding(32.dp),
                             verticalArrangement = Arrangement.Center,

@@ -1,8 +1,7 @@
 package digital.tonima.core.ai.appfunctions
 
 import android.content.Context
-import androidx.appfunctions.AppFunction
-import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionDeclaration
 import dagger.hilt.android.qualifiers.ApplicationContext
 import digital.tonima.core.ai.usecases.BriefingResult
 import digital.tonima.core.ai.usecases.GenerateDailyBriefingUseCase
@@ -37,7 +36,6 @@ class KairosAppFunctions
          * Cria um novo evento no calendário do usuário.
          * Use esta função quando o usuário pedir para agendar, criar ou adicionar um compromisso, reunião ou lembrete.
          *
-         * @param context O contexto de execução fornecido pelo sistema.
          * @param title O título ou nome do evento (ex: "Reunião de Time").
          * @param startTime O horário de início em milissegundos desde a época (epoch millis).
          * @param endTime O horário de término em milissegundos desde a época (epoch millis).
@@ -49,9 +47,8 @@ class KairosAppFunctions
          * @param isAllDay Se verdadeiro, o evento será marcado para o dia inteiro, ignorando as horas.
          * @return O ID numérico do evento criado no banco de dados, ou -1 se falhar.
          */
-        @AppFunction(isDescribedByKDoc = true)
+        @AppFunctionDeclaration(isDescribedByKDoc = true)
         suspend fun createEvent(
-            context: AppFunctionContext,
             title: String,
             startTime: Long,
             endTime: Long? = null,
@@ -84,11 +81,10 @@ class KairosAppFunctions
          * Gera e retorna um resumo inteligente dos eventos e compromissos agendados para o dia de hoje.
          * O resumo inclui informações contextuais sobre o clima e proatividade.
          *
-         * @param context O contexto de execução fornecido pelo sistema.
          * @return Um texto amigável com o briefing do dia.
          */
-        @AppFunction(isDescribedByKDoc = true)
-        suspend fun getDailyBriefing(context: AppFunctionContext): String =
+        @AppFunctionDeclaration(isDescribedByKDoc = true)
+        suspend fun getDailyBriefing(): String =
             withContext(Dispatchers.IO) {
                 val today = LocalDate.now()
                 val events =

@@ -23,13 +23,22 @@
         <package android:name="com.google.android.calendar" />
     </queries>
 
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true" />
+
     <application android:name=".KairosApplication" android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules" android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher" android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.App.Starting"
+        android:resizeableActivity="true"
         tools:targetApi="31">
 
-        <activity android:name=".MainActivity" android:exported="true" android:theme="@style/Theme.App.Starting">
+        <activity android:name=".MainActivity" android:exported="true" android:theme="@style/Theme.App.Starting"
+            android:resizeableActivity="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -51,7 +60,7 @@
         </activity>
         <activity android:name=".ui.view.AlarmActivity" android:exported="false"
             android:launchMode="singleTask" android:showOnLockScreen="true" android:theme="@style/Theme.Kairos"
-            android:turnScreenOn="true" />
+            android:turnScreenOn="true" android:resizeableActivity="true" />
 
         <receiver android:name="digital.tonima.core.receiver.AlarmReceiver" android:exported="false" />
         <receiver android:name=".receivers.WakeUpReceiver" android:exported="true">
@@ -133,28 +142,25 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/upcoming_event_widget_info" />
         </receiver>
 
-        <!-- Entry point the system binds to run KairosAppFunctions. Since androidx.appfunctions
-             1.0.0-alpha10 the library no longer declares it (the old appfunctions-service artifact
-             did), so without this block no function is indexed and every call fails with
-             "App function not found". -->
+        <!-- Entry point the system binds to run KairosAppFunctions via AppFunctionServiceEntryPoint. -->
         <service
-            android:name="androidx.appfunctions.PlatformAppFunctionService"
+            android:name=".service.KairosAppFunctionService"
             android:exported="true"
             android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
             tools:targetApi="36">
-            <property
-                android:name="android.app.appfunctions"
-                android:value="app_functions.xml" />
             <property
                 android:name="android.app.appfunctions.schema"
                 android:value="app_functions_schema.xsd" />
             <property
                 android:name="android.app.appfunctions.v2"
-                android:value="app_functions_v2.xml" />
+                android:value="kairos_app_function_service.xml" />
             <intent-filter>
                 <action android:name="android.app.appfunctions.AppFunctionService" />
             </intent-filter>
         </service>
+        <property
+            android:name="android.app.appfunctions.app_metadata"
+            android:resource="@xml/app_metadata" />
     </application>
 
 </manifest>

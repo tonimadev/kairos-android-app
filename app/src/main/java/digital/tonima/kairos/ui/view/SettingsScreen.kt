@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +33,7 @@ import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -98,182 +101,196 @@ fun SettingsScreen(
     ) { paddingValues ->
         val currentOffset = AlarmOffset.fromMinutes(settingsUiState.alarmOffsetMinutes)
 
-        Column(
+        Box(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-                    .padding(Dimensions.PaddingNormal),
-            verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingDefault),
+                    .padding(paddingValues),
+            contentAlignment = Alignment.TopCenter,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+            Column(
+                modifier =
+                    Modifier
+                        .widthIn(max = 720.dp)
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(Dimensions.PaddingNormal),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.SpacingDefault),
             ) {
                 Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Vibration,
-                        contentDescription = stringResource(R.string.vibrate_only),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(Dimensions.IconSizeSmall),
-                    )
-                    Text(
-                        stringResource(R.string.vibrate_only),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-                Switch(checked = settingsUiState.vibrateOnly, onCheckedChange = settingsActions.onVibrateToggle)
-            }
-
-            CustomRingtoneSection(
-                customRingtoneUri = settingsUiState.customRingtoneUri,
-                onCustomRingtoneSelected = settingsActions.onCustomRingtoneSelected,
-            )
-
-            AlarmSoundOptionsSection(
-                isEscalatingVolumeEnabled = settingsUiState.isEscalatingVolumeEnabled,
-                onEscalatingVolumeToggle = settingsActions.onEscalatingVolumeToggle,
-                isAnnounceEventEnabled = settingsUiState.isAnnounceEventEnabled,
-                onAnnounceEventToggle = settingsActions.onAnnounceEventToggle,
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.CalendarMonth,
-                        contentDescription = stringResource(R.string.skip_weekends_label),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(Dimensions.IconSizeSmall),
-                    )
-                    Text(
-                        stringResource(R.string.skip_weekends_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-                Switch(checked = settingsUiState.skipWeekends, onCheckedChange = settingsActions.onSkipWeekendsToggle)
-            }
-
-            AllDayAlarmsSection(
-                enabled = settingsUiState.allDayAlarmsEnabled,
-                onToggle = settingsActions.onAllDayAlarmsToggle,
-                hour = settingsUiState.allDayAlarmHour,
-                onHourChange = settingsActions.onAllDayAlarmHourChanged,
-            )
-
-            var offsetExpanded by remember { mutableStateOf(false) }
-            AlarmOffsetDropdown(
-                expanded = offsetExpanded,
-                onExpandedChange = { offsetExpanded = it },
-                currentOffset = currentOffset,
-                onOffsetChange = settingsActions.onAlarmOffsetChanged,
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
-
-            LocationAlarmSection(
-                isAiUser = uiState.isAiUser,
-                isEnabled = settingsUiState.isLocationAlarmEnabled,
-                onToggle = settingsActions.onLocationAlarmToggle,
-                preferredTransportMode = settingsUiState.preferredTransportMode,
-                onTransportModeChanged = settingsActions.onTransportModeChanged,
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
-
-            Column {
-                Text(
-                    text =
-                        stringResource(R.string.snooze_time_label) +
-                            ": ${settingsUiState.snoozeTimeMinutes} min",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Slider(
-                    value = settingsUiState.snoozeTimeMinutes.toFloat(),
-                    onValueChange = { settingsActions.onSnoozeTimeChanged(it.roundToInt()) },
-                    valueRange = 5f..60f,
-                    steps = 10,
                     modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
-
-            Column {
-                Text(
-                    text =
-                        stringResource(R.string.auto_dismiss_label) +
-                            ": ${settingsUiState.autoDismissMinutes} min",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Slider(
-                    value = settingsUiState.autoDismissMinutes.toFloat(),
-                    onValueChange = { settingsActions.onAutoDismissMinutesChanged(it.roundToInt()) },
-                    valueRange = 1f..30f,
-                    steps = 28,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
-
-            NotificationAccessSection(settingsUiState = settingsUiState, settingsActions = settingsActions)
-
-            AdPrivacyOptionsSection()
-
-            if (uiState.availableCalendars.isNotEmpty()) {
-                CalendarFilterSection(
-                    availableCalendars = uiState.availableCalendars,
-                    enabledCalendarIds = uiState.enabledCalendarIds,
-                    onCalendarFilterToggle = settingsActions.onCalendarFilterToggle,
-                )
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Row(
-                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Thermostat,
-                        contentDescription = stringResource(R.string.use_celsius_for_weather),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(Dimensions.IconSizeSmall),
-                    )
-                    Text(
-                        stringResource(R.string.use_celsius_for_weather),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Vibration,
+                            contentDescription = stringResource(R.string.vibrate_only),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(Dimensions.IconSizeSmall),
+                        )
+                        Text(
+                            stringResource(R.string.vibrate_only),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                    Switch(
+                        checked = settingsUiState.vibrateOnly,
+                        onCheckedChange = settingsActions.onVibrateToggle,
                     )
                 }
-                Switch(
-                    checked = settingsUiState.isTemperatureInCelsius,
-                    onCheckedChange = settingsActions.onTemperatureUnitToggle,
+
+                CustomRingtoneSection(
+                    customRingtoneUri = settingsUiState.customRingtoneUri,
+                    onCustomRingtoneSelected = settingsActions.onCustomRingtoneSelected,
                 )
+
+                AlarmSoundOptionsSection(
+                    isEscalatingVolumeEnabled = settingsUiState.isEscalatingVolumeEnabled,
+                    onEscalatingVolumeToggle = settingsActions.onEscalatingVolumeToggle,
+                    isAnnounceEventEnabled = settingsUiState.isAnnounceEventEnabled,
+                    onAnnounceEventToggle = settingsActions.onAnnounceEventToggle,
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.CalendarMonth,
+                            contentDescription = stringResource(R.string.skip_weekends_label),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(Dimensions.IconSizeSmall),
+                        )
+                        Text(
+                            stringResource(R.string.skip_weekends_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                    Switch(
+                        checked = settingsUiState.skipWeekends,
+                        onCheckedChange = settingsActions.onSkipWeekendsToggle,
+                    )
+                }
+
+                AllDayAlarmsSection(
+                    enabled = settingsUiState.allDayAlarmsEnabled,
+                    onToggle = settingsActions.onAllDayAlarmsToggle,
+                    hour = settingsUiState.allDayAlarmHour,
+                    onHourChange = settingsActions.onAllDayAlarmHourChanged,
+                )
+
+                var offsetExpanded by remember { mutableStateOf(false) }
+                AlarmOffsetDropdown(
+                    expanded = offsetExpanded,
+                    onExpandedChange = { offsetExpanded = it },
+                    currentOffset = currentOffset,
+                    onOffsetChange = settingsActions.onAlarmOffsetChanged,
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+                LocationAlarmSection(
+                    isAiUser = uiState.isAiUser,
+                    isEnabled = settingsUiState.isLocationAlarmEnabled,
+                    onToggle = settingsActions.onLocationAlarmToggle,
+                    preferredTransportMode = settingsUiState.preferredTransportMode,
+                    onTransportModeChanged = settingsActions.onTransportModeChanged,
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+                Column {
+                    Text(
+                        text =
+                            stringResource(R.string.snooze_time_label) +
+                                ": ${settingsUiState.snoozeTimeMinutes} min",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Slider(
+                        value = settingsUiState.snoozeTimeMinutes.toFloat(),
+                        onValueChange = { settingsActions.onSnoozeTimeChanged(it.roundToInt()) },
+                        valueRange = 5f..60f,
+                        steps = 10,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+                Column {
+                    Text(
+                        text =
+                            stringResource(R.string.auto_dismiss_label) +
+                                ": ${settingsUiState.autoDismissMinutes} min",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Slider(
+                        value = settingsUiState.autoDismissMinutes.toFloat(),
+                        onValueChange = { settingsActions.onAutoDismissMinutesChanged(it.roundToInt()) },
+                        valueRange = 1f..30f,
+                        steps = 28,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+                NotificationAccessSection(settingsUiState = settingsUiState, settingsActions = settingsActions)
+
+                AdPrivacyOptionsSection()
+
+                if (uiState.availableCalendars.isNotEmpty()) {
+                    CalendarFilterSection(
+                        availableCalendars = uiState.availableCalendars,
+                        enabledCalendarIds = uiState.enabledCalendarIds,
+                        onCalendarFilterToggle = settingsActions.onCalendarFilterToggle,
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = Dimensions.PaddingTiny))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(Dimensions.SpacingSmall),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Thermostat,
+                            contentDescription = stringResource(R.string.use_celsius_for_weather),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(Dimensions.IconSizeSmall),
+                        )
+                        Text(
+                            stringResource(R.string.use_celsius_for_weather),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                    Switch(
+                        checked = settingsUiState.isTemperatureInCelsius,
+                        onCheckedChange = settingsActions.onTemperatureUnitToggle,
+                    )
+                }
             }
         }
     }

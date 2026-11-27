@@ -1,7 +1,6 @@
 package digital.tonima.core.ai.appfunctions
 
 import android.content.Context
-import androidx.appfunctions.AppFunctionContext
 import androidx.test.core.app.ApplicationProvider
 import digital.tonima.core.ai.repository.AiErrorType
 import digital.tonima.core.ai.usecases.BriefingResult
@@ -33,7 +32,6 @@ class KairosAppFunctionsTest {
     private val generateDailyBriefingUseCase: GenerateDailyBriefingUseCase = mockk()
     private val getEventsForMonthUseCase: GetEventsForMonthUseCase = mockk()
     private val getAvailableCalendarsUseCase: GetAvailableCalendarsUseCase = mockk()
-    private val appFunctionContext: AppFunctionContext = mockk()
     private val functions =
         KairosAppFunctions(
             context,
@@ -57,7 +55,7 @@ class KairosAppFunctionsTest {
         runTest {
             coEvery { createEventUseCase(1L, "Reunião", null, null, 1_000L, 3_601_000L, false) } returns 55L
 
-            assertEquals(55L, functions.createEvent(appFunctionContext, "Reunião", 1_000L))
+            assertEquals(55L, functions.createEvent("Reunião", 1_000L))
         }
 
     @Test
@@ -67,7 +65,6 @@ class KairosAppFunctionsTest {
 
             val id =
                 functions.createEvent(
-                    appFunctionContext,
                     title = "Feriado",
                     startTime = 1_000L,
                     endTime = 2_000L,
@@ -88,7 +85,7 @@ class KairosAppFunctionsTest {
                 listOf(DeviceCalendar(id = 7L, displayName = "Único", accountName = "me"))
             coEvery { createEventUseCase(7L, any(), any(), any(), any(), any(), any()) } returns 9L
 
-            assertEquals(9L, functions.createEvent(appFunctionContext, "Reunião", 1_000L, calendarId = 1L))
+            assertEquals(9L, functions.createEvent("Reunião", 1_000L, calendarId = 1L))
         }
 
     @Test
@@ -96,7 +93,7 @@ class KairosAppFunctionsTest {
         runTest {
             coEvery { getAvailableCalendarsUseCase() } returns emptyList()
 
-            assertEquals(-1L, functions.createEvent(appFunctionContext, "Reunião", 1_000L))
+            assertEquals(-1L, functions.createEvent("Reunião", 1_000L))
             coVerify(exactly = 0) { createEventUseCase(any(), any(), any(), any(), any(), any(), any()) }
         }
 
@@ -111,7 +108,7 @@ class KairosAppFunctionsTest {
             coEvery { generateDailyBriefingUseCase(listOf(today), deviceLanguage, null, null) } returns
                 BriefingResult.Success("Good morning")
 
-            assertEquals("Good morning", functions.getDailyBriefing(appFunctionContext))
+            assertEquals("Good morning", functions.getDailyBriefing())
         }
 
     @Test
@@ -120,10 +117,10 @@ class KairosAppFunctionsTest {
             coEvery { getEventsForMonthUseCase(any()) } returns emptyList()
 
             coEvery { generateDailyBriefingUseCase(any(), any(), any(), any()) } returns BriefingResult.Cached("Cache")
-            assertEquals("Cache", functions.getDailyBriefing(appFunctionContext))
+            assertEquals("Cache", functions.getDailyBriefing())
 
             coEvery { generateDailyBriefingUseCase(any(), any(), any(), any()) } returns
                 BriefingResult.Error(UiText.StringResource(R.string.ai_error_network), AiErrorType.NETWORK)
-            assertEquals(context.getString(R.string.ai_error_network), functions.getDailyBriefing(appFunctionContext))
+            assertEquals(context.getString(R.string.ai_error_network), functions.getDailyBriefing())
         }
 }

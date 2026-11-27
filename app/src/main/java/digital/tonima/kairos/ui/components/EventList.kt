@@ -99,7 +99,7 @@ fun EventList(
 
     Box(modifier = modifier.pullRefresh(pullRefreshState)) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Adaptive(minSize = 180.dp),
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(top = if (compactHeader) 4.dp else 16.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),

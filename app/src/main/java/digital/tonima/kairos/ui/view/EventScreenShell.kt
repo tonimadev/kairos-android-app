@@ -4,7 +4,10 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -24,6 +27,9 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -31,6 +37,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -52,6 +60,7 @@ fun EventScreenShell(
     isProUser: Boolean,
     isAiUser: Boolean,
     snackbarHostState: SnackbarHostState,
+    windowSizeClass: WindowSizeClass? = null,
     onUpgradeToPro: () -> Unit,
     onSettingsClick: () -> Unit,
     onChatHistoryClick: () -> Unit,
@@ -66,6 +75,7 @@ fun EventScreenShell(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val googleCalendarNotFound = stringResource(R.string.google_calendar_not_found)
+    val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -91,12 +101,13 @@ fun EventScreenShell(
             )
         },
     ) {
-        Scaffold(
-            topBar = { EventTopBar(onOpenMenu = { scope.launch { drawerState.open() } }) },
-            bottomBar = {
-                EventBottomBar(
+        if (isExpanded) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                EventNavRail(
                     uiState = uiState,
                     isAiUser = isAiUser,
+                    onOpenMenu = { scope.launch { drawerState.open() } },
+                    onCreateEventClick = onCreateEventClick,
                     onOpenCalendar = {
                         val intent =
                             context.packageManager
@@ -110,27 +121,58 @@ fun EventScreenShell(
                     onBottomTabChange = onBottomTabChange,
                     onShowAiSuggestions = onShowAiSuggestions,
                 )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = onCreateEventClick,
-                    containerColor = Color(0xFFDEFA5F),
-                    shape = CircleShape,
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = "Add Alarm",
-                        tint = Color.Black,
-                        modifier = Modifier.size(32.dp),
-                    )
+                Scaffold(
+                    topBar = { EventTopBar(onOpenMenu = { scope.launch { drawerState.open() } }) },
+                    containerColor = Color(0xFF25252D),
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
+                ) { paddingValues ->
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        content(paddingValues)
+                    }
                 }
-            },
-            floatingActionButtonPosition = androidx.compose.material3.FabPosition.End,
-            containerColor = Color(0xFF25252D),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-        ) { paddingValues ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                content(paddingValues)
+            }
+        } else {
+            Scaffold(
+                topBar = { EventTopBar(onOpenMenu = { scope.launch { drawerState.open() } }) },
+                bottomBar = {
+                    EventBottomBar(
+                        uiState = uiState,
+                        isAiUser = isAiUser,
+                        onOpenCalendar = {
+                            val intent =
+                                context.packageManager
+                                    .getLaunchIntentForPackage("com.google.android.calendar")
+                            if (intent != null) {
+                                context.startActivity(intent)
+                            } else {
+                                Toast.makeText(context, googleCalendarNotFound, Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        onBottomTabChange = onBottomTabChange,
+                        onShowAiSuggestions = onShowAiSuggestions,
+                    )
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = onCreateEventClick,
+                        containerColor = Color(0xFFDEFA5F),
+                        shape = CircleShape,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = "Add Alarm",
+                            tint = Color.Black,
+                            modifier = Modifier.size(32.dp),
+                        )
+                    }
+                },
+                floatingActionButtonPosition = androidx.compose.material3.FabPosition.End,
+                containerColor = Color(0xFF25252D),
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+            ) { paddingValues ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    content(paddingValues)
+                }
             }
         }
     }
@@ -227,5 +269,96 @@ private fun EventBottomBar(
                 colors = navItemColors,
             )
         }
+    }
+}
+
+@Composable
+private fun EventNavRail(
+    uiState: EventScreenUiState,
+    isAiUser: Boolean,
+    onOpenMenu: () -> Unit,
+    onCreateEventClick: () -> Unit,
+    onOpenCalendar: () -> Unit,
+    onBottomTabChange: (Int) -> Unit,
+    onShowAiSuggestions: () -> Unit,
+) {
+    NavigationRail(
+        containerColor = Color(0xFF2C2C38),
+        contentColor = Color.White,
+        header = {
+            IconButton(onClick = onOpenMenu) {
+                Icon(
+                    imageVector = Icons.Rounded.MoreVert,
+                    contentDescription = stringResource(R.string.cd_open_menu),
+                    tint = Color.White,
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            FloatingActionButton(
+                onClick = onCreateEventClick,
+                containerColor = Color(0xFFDEFA5F),
+                shape = CircleShape,
+                modifier = Modifier.size(48.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Add Alarm",
+                    tint = Color.Black,
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+        },
+    ) {
+        val navItemColors =
+            NavigationRailItemDefaults.colors(
+                selectedIconColor = Color(0xFFDEFA5F),
+                selectedTextColor = Color(0xFFDEFA5F),
+                indicatorColor = Color.Transparent,
+                unselectedIconColor = Color(0xFFB0B0C0),
+                unselectedTextColor = Color(0xFFB0B0C0),
+            )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        NavigationRailItem(
+            selected = uiState.selectedBottomTab == 0,
+            onClick = { onBottomTabChange(0) },
+            icon = { Icon(Icons.Rounded.Alarm, contentDescription = stringResource(R.string.alarms)) },
+            label = { Text(stringResource(R.string.alarms)) },
+            colors = navItemColors,
+        )
+
+        NavigationRailItem(
+            selected = uiState.selectedBottomTab == 1,
+            onClick = { onBottomTabChange(1) },
+            icon = {
+                Icon(
+                    Icons.Rounded.AutoAwesome,
+                    contentDescription = stringResource(R.string.insights_title),
+                )
+            },
+            label = { Text(stringResource(R.string.insights_title)) },
+            colors = navItemColors,
+        )
+
+        NavigationRailItem(
+            selected = false,
+            onClick = onOpenCalendar,
+            icon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
+            label = { Text(stringResource(R.string.calendar)) },
+            colors = navItemColors,
+        )
+
+        if (isAiUser) {
+            NavigationRailItem(
+                selected = false,
+                onClick = onShowAiSuggestions,
+                icon = { Icon(Icons.Rounded.SmartToy, contentDescription = stringResource(R.string.ask_ai_label)) },
+                label = { Text(stringResource(R.string.ai_tab_label)) },
+                colors = navItemColors,
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
